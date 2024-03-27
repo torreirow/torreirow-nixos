@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, unstable, pkgs-2305, ... }:
 
 {
   imports =
@@ -14,7 +14,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "karlapi"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -48,6 +48,7 @@
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
+  services.blueman.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
@@ -92,8 +93,10 @@
     ];
   };
 
-  
-   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnfree = true;
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -109,10 +112,13 @@
    bitwarden
    firefox
    pkgs.atuin
-   terraform
+   pkgs-2305.terraform
    awscli2
    tfswitch
    vscode
+   wget
+   curl
+   dig
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -150,7 +156,12 @@ programs = {
       promptInit = ''                                                                                                                        
         eval "$(atuin init zsh --disable-up-arrow)"; '';     
       shellAliases = {
-       aws-switch="$HOME/.aws/aws-switch.sh";
+       aws-switch=". /data/git/Technative-AWS-DevOps-tools/aws-profile-select.sh";
+       tfbackend="/data/git/Technative-AWS-DevOps-tools/tfbackend.sh";
+       tfplan="/data/git/Technative-AWS-DevOps-tools/tfplan.sh";
+       tfapply="/data/git/Technative-AWS-DevOps-tools/tfapply.sh";
+       tfunlock="trraform force-unlock -forece ";
+       
       };
       enable = true;
       ohMyZsh = {
