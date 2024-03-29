@@ -6,6 +6,5 @@
    aws-mfa
    ssmsh
   ];
- 
 
 }

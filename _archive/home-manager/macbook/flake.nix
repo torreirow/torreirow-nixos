@@ -11,11 +11,12 @@
   };
 
   outputs = { nixpkgs, home-manager, ... }:
-    let
-      system = "aarch64-darwin";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      homeConfigurations."wtoorren" = home-manager.lib.homeManagerConfiguration {
+   {
+      homeConfigurations."wtoorren_macbook" = home-manager.lib.homeManagerConfiguration(
+      let
+       system = "aarch64-darwin";
+       pkgs = nixpkgs.legacyPackages.${system};
+      in {
         inherit pkgs;
 
         # Specify your home configuration modules here, for example,
@@ -24,6 +25,6 @@
 
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
-      };
+      });
     };
 }
