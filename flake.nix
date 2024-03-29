@@ -9,7 +9,7 @@
 
   outputs = { self, nixpkgs, nixpkgs-2305, unstable }: {
 
-    nixosConfigurations.myfirstnixos = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.karlapi = nixpkgs.lib.nixosSystem {
     
       modules =
         let
@@ -20,7 +20,7 @@
           };
         in [
           defaults
-          ./configuration.nix
+          ./hosts/karlapi/configuration.nix
         ];
       };
 
