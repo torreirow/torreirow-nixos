@@ -14,14 +14,16 @@ let
     improvement_it.color = "1c71d8";
     dreamlines.ignore = true;
     default.color = "cccccc";
+    tracklib.ignore = true; 
+    pastbook.ignore = true;
   };
 
   alternative_regions = {
-    "221539347604" = "us-east-2";
-    "925937276627" = "us-east-2";
+    "221539347604" = "us-east-2"; #mustad 
+    "925937276627" = "us-east-2"; #mustad 
   };
   alternative_names = {
-    "076504012268" = "playground wtoorren";
+    "760178553019" = "playground wtoorren";
   };
 
   normalize_group = group : __concatStringsSep "_" (builtins.filter (x: builtins.typeOf x == "string") (__split " " (lib.strings.toLower group)));
@@ -56,11 +58,9 @@ in
     ./custom_modules/awscli_custom.nix
   ];
 
-  programs.awscli = {
+ programs.awscli_custom = {
     package = pkgs.awscli2;
     enable = true;
-    }
- programs.awscli_custom = {
     settings = {
 
       "technative" = {
