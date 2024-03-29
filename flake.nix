@@ -17,6 +17,7 @@
     specialArgs = { inherit inputs; } ;
       modules = [ 
        ./hosts/mealhada/configuration.nix
+       ./modules/tnaws.nix
       ];
     };
 
@@ -39,6 +40,7 @@
         in [
           defaults
           ./hosts/karlapi/configuration.nix
+          ./modules/tnaws.nix
         ];
       };
 ### KARLAPI config END

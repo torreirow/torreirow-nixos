@@ -108,7 +108,6 @@
    firefox
    pkgs.atuin
    pkgs-2305.terraform
-   awscli2
    tfswitch
    vscode
    wget
@@ -116,7 +115,6 @@
    dig
    certbot
    python3
-   aws-mfa
    displaylink
    tmux
   ];
