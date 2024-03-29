@@ -5,12 +5,30 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";  
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";  
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nix-darwin.url = "github:LnL7/nix-darwin";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-2305, unstable }: {
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305, unstable, nix-darwin }: {
+  
 
+### MEALHADA config START
+    darwinConfigurations."mealhada" = nix-darwin.lib.darwinSystem {
+    specialArgs = { inherit inputs; } ;
+      modules = [ 
+       ./hosts/mealhada/configuration.nix
+      ];
+    };
+
+    darwinPackages = self.darwinConfigurations."mealhada".pkgs;
+### MEALHADA config END
+
+
+
+
+
+### KARLAPI config START
     nixosConfigurations.karlapi = nixpkgs.lib.nixosSystem {
-    
       modules =
         let
           system = "x86_64-linux";
@@ -23,9 +41,7 @@
           ./hosts/karlapi/configuration.nix
         ];
       };
-
-    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
-    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+### KARLAPI config END
 
   };
 }
