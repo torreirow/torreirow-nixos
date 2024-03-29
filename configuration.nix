@@ -1,12 +1,8 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, unstable, pkgs-2305, ... }:
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [ 
       ./hardware-configuration.nix
     ];
 
@@ -94,14 +90,13 @@
   };
 
   nixpkgs.config.allowUnfree = true;
-
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+   vim 
    neovim
    wget
    lf
@@ -119,6 +114,11 @@
    wget
    curl
    dig
+   certbot
+   python3
+   aws-mfa
+   displaylink
+   tmux
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -156,10 +156,10 @@ programs = {
       promptInit = ''                                                                                                                        
         eval "$(atuin init zsh --disable-up-arrow)"; '';     
       shellAliases = {
-       aws-switch=". /data/git/Technative-AWS-DevOps-tools/aws-profile-select.sh";
-       tfbackend="/data/git/Technative-AWS-DevOps-tools/tfbackend.sh";
-       tfplan="/data/git/Technative-AWS-DevOps-tools/tfplan.sh";
-       tfapply="/data/git/Technative-AWS-DevOps-tools/tfapply.sh";
+       aws-switch=". /data/git/technative/Technative-AWS-DevOps-tools/aws-profile-select.sh";
+       tfbackend="/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
+       tfplan="/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
+       tfapply="/data/git/technative/Technative-AWS-DevOps-tools/tfapply.sh";
        tfunlock="trraform force-unlock -forece ";
        
       };
@@ -196,5 +196,6 @@ environment.etc = {
   };
 
    virtualisation.docker.enable = true;
+   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 }
 
