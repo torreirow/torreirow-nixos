@@ -1,9 +1,10 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs,config, ... }:
 
 let
 
   ## NOTE RUN aws --profile=web_dns s3 cp s3://docs-mcs.technative.eu-longhorn/managed_service_accounts.json ~/.aws/
-  technative_profiles = /Users/wtoorren/.aws/managed_service_accounts.json;
+
+  technative_profiles = "${config.home.homeDirectory}/.aws/managed_service_accounts.json";
 
   aws_accounts = builtins.fromJSON (lib.readFile technative_profiles);
 

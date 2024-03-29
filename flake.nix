@@ -74,7 +74,7 @@
       };
 ### KARLAPI config END
 ### LINUX HOMEMANAGER START
-     defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux-darwin;
+     defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
      homeConfigurations."wtoorren@linux" = home-manager.lib.homeManagerConfiguration(
       let
        system = "x86_64-linux";
