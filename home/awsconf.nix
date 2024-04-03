@@ -19,12 +19,34 @@ let
     pastbook.ignore = true;
   };
 
+  account_names = {
+    playground-student18.ignore = true;
+    playground-student17.ignore = true;
+    playground-student16.ignore = true;
+    playground-student15.ignore = true;
+    playground-student14.ignore = true;
+    playground-student13.ignore = true;
+    playground-student12.ignore = true;
+    playground-student11.ignore = true;
+    playground-student10.ignore = true;
+    playground-student09.ignore = true;
+    playground-student08.ignore = true;
+    playground-student07.ignore = true;
+    playground-student06.ignore = true;
+    playground-student05.ignore = true;
+    playground-student04.ignore = true;
+    playground-student03.ignore = true;
+#    playground-student02.ignore = true;
+  };
+
   alternative_regions = {
     "221539347604" = "us-east-2"; #mustad 
     "925937276627" = "us-east-2"; #mustad 
   };
   alternative_names = {
     "760178553019" = "playground wtoorren";
+    "911828776050" = "Minecraft";
+    "521402697040" = "WouterMain";
   };
 
   normalize_group = group : __concatStringsSep "_" (builtins.filter (x: builtins.typeOf x == "string") (__split " " (lib.strings.toLower group)));
@@ -32,13 +54,23 @@ let
   account_name = account :
       if builtins.hasAttr account.account_id alternative_names then alternative_names."${account.account_id}" else account.account_name;
 
-  show_account = account :
-    let
-      groupnorm = normalize_group account.customer_name;
-    in
+#  show_account = account :
+#    let
+#      groupnorm = normalize_group account.customer_name;
+#    in
+#
+#    if builtins.hasAttr groupnorm groups && builtins.hasAttr "ignore" groups.${groupnorm} && groups.${groupnorm}.ignore == true then false
+#    else true;
 
-    if builtins.hasAttr groupnorm groups && builtins.hasAttr "ignore" groups.${groupnorm} && groups.${groupnorm}.ignore == true then false
-    else true;
+show_account = account:
+  let
+    groupnorm = normalize_group account.customer_name;
+        accountnorm = account_name account;
+  in
+  if (builtins.hasAttr groupnorm groups && builtins.hasAttr "ignore" groups.${groupnorm} && groups.${groupnorm}.ignore == true) ||
+     (builtins.hasAttr accountnorm account_names && builtins.hasAttr "ignore" account_names.${accountnorm} && account_names.${accountnorm}.ignore == true)
+  then false
+  else true;
 
   tn_profile = {account_id, group } :
     let
