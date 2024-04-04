@@ -10,7 +10,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "kar01"; # Define your hostname.
+  networking.hostName = "karlapi"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -193,7 +193,7 @@ environment.etc = {
     shell = pkgs.zsh;
   };
 
-   virtualisation.docker.enable = true;
-   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
+   virtualisation.docker.enable = false;
+   services.xserver.videoDrivers = [  "modesetting" ];
 }
 

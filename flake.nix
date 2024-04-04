@@ -98,7 +98,8 @@
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
       });
-### MEALHADA HOMEMANAGER START
+### MEALHADA HOMEMANAGER END
+#
  
   };
 }
