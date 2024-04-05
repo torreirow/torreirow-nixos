@@ -117,6 +117,7 @@
    python3
    displaylink
    tmux
+   nmap
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
