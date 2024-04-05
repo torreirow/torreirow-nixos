@@ -147,34 +147,6 @@
   system.stateVersion = "23.11"; # Did you read the comment?
 
 
-programs = {
-    zsh = {
-      autosuggestions.enable = true;
-      syntaxHighlighting.enable = true; 
-      promptInit = ''                                                                                                                        
-        eval "$(atuin init zsh --disable-up-arrow)"; '';     
-      shellAliases = {
-       aws-switch=". /data/git/technative/Technative-AWS-DevOps-tools/aws-profile-select.sh";
-       tfbackend="/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
-       tfplan="/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
-       tfapply="/data/git/technative/Technative-AWS-DevOps-tools/tfapply.sh";
-       tfunlock="trraform force-unlock -forece ";
-       
-      };
-      enable = true;
-      ohMyZsh = {
-        enable = true;
-        theme = "robbyrussell";
-        plugins = [
-          "git aws terraform"
-        ];
-        customPkgs = with pkgs; [                                                                                                                      
-          nix-zsh-completions                                                                                                                          
-        ];  
-      };
-    };
-  };
-
 environment.etc = {
     "zshrc.local" = {
       text = ''

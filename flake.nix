@@ -74,8 +74,8 @@
       };
 ### KARLAPI config END
 ### LINUX HOMEMANAGER START
-     defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
-     homeConfigurations."wtoorren@linux" = home-manager.lib.homeManagerConfiguration(
+#     defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
+     homeConfigurations."wtoorren@linuxdesktop" = home-manager.lib.homeManagerConfiguration(
       let
        system = "x86_64-linux";
        pkgs = nixpkgs.legacyPackages.${system};
@@ -91,7 +91,8 @@
         # Specify your home configuration modules here, for example,
         # the path to your home.nix.
         modules = [ 
-         ./home/default.nix
+         #./home/default.nix
+         ./home/linux-desktop.nix
          linux-defaults
         ];
 
@@ -99,6 +100,33 @@
         # to pass through arguments to home.nix
       });
 ### MEALHADA HOMEMANAGER END
+#### LINUX SERVER HOMEMANAGER START
+ #    defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
+     homeConfigurations."wtoorren@linuxserver" = home-manager.lib.homeManagerConfiguration(
+      let
+       system = "x86_64-linux";
+       pkgs = nixpkgs.legacyPackages.${system};
+       linux-defaults = {pkgs,config,...}: {
+        home = { 
+         homeDirectory = "/home/wtoorren";
+        };
+       };
+
+      in {
+        inherit pkgs;
+
+        # Specify your home configuration modules here, for example,
+        # the path to your home.nix.
+        modules = [ 
+         #./home/default.nix
+         ./home/linux-server.nix
+         linux-defaults
+        ];
+
+        # Optionally use extraSpecialArgs
+        # to pass through arguments to home.nix
+      });
+#### LINUX SERVER HOMEMANAGER END
 #
  
   };
