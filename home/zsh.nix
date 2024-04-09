@@ -3,7 +3,7 @@ programs.zsh = {
       enable = true;
       #autosuggestion.enable = true;
       enableAutosuggestions = true;
-      syntaxHighlighting.enable = true; 
+      #syntaxHighlighting.enable = false; 
       initExtraFirst = ''                                                                                                                        
         eval "$(atuin init zsh --disable-up-arrow)"; '';     
       shellAliases = {
