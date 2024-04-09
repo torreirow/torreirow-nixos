@@ -10,7 +10,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "kar01"; # Define your hostname.
+  networking.hostName = "karlapi"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -85,9 +85,6 @@
     isNormalUser = true;
     description = "Wouter van der Toorren";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-    #  thunderbird
-    ];
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -149,7 +146,7 @@
   system.stateVersion = "23.11"; # Did you read the comment?
 
 
-environment.etc = {
+  environment.etc = {
     "zshrc.local" = {
       text = ''
       PROMPT="%(?:%{$fg_bold[green]%}➜:%{$fg_bold[red]%}➜) %F{magenta}%n%f%{$fg[blue]%}@%M %{$fg[cyan]%}%c%{$reset_color%}"
@@ -167,7 +164,8 @@ environment.etc = {
     shell = pkgs.zsh;
   };
 
-   virtualisation.docker.enable = true;
-   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
+  programs.zsh.enable = true;
+  virtualisation.docker.enable = true;
+  services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 }
 
