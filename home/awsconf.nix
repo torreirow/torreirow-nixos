@@ -12,11 +12,12 @@ let
     mustad_hoofcare.color = "e5a50a";
     technative.color = "9141ac";
     ddgc.color = "1c71d8";
+    ddgc.ignore = true;
     improvement_it.color = "1c71d8";
     dreamlines.ignore = true;
     default.color = "cccccc";
-    tracklib.ignore = true; 
-    pastbook.ignore = true;
+    tracklib.ignore = false; 
+    pastbook.ignore = false;
   };
 
   account_names = {
@@ -46,7 +47,8 @@ let
   alternative_names = {
     "760178553019" = "playground wtoorren";
     "911828776050" = "Minecraft";
-    "521402697040" = "WouterMain";
+    "992382674167" = "iit-nonprod";
+    "730335585156" = "iit-prod";
   };
 
   normalize_group = group : __concatStringsSep "_" (builtins.filter (x: builtins.typeOf x == "string") (__split " " (lib.strings.toLower group)));
