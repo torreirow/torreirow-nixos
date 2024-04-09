@@ -69,7 +69,7 @@
            };
          in [
            defaults
- #         ./hosts/karlapi/configuration.nix
+          ./hosts/karlapi/configuration.nix
           ./modules/tnaws.nix
         ];
       };
