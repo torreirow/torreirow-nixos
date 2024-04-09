@@ -3,6 +3,9 @@
     enable = true;
     enableZshIntegration = true;
   };
+ programs.jq = {
+    enable = true;
+  };
  programs.atuin = {
     enable = true;
     enableZshIntegration = true;
