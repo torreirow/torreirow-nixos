@@ -7,10 +7,10 @@ programs.zsh = {
       initExtraFirst = ''                                                                                                                        
         eval "$(atuin init zsh --disable-up-arrow)"; '';     
       shellAliases = {
-       aws-switch=". /data/git/technative/Technative-AWS-DevOps-tools/aws-profile-select.sh";
-       tfbackend="/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
-       tfplan="/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
-       tfapply="/data/git/technative/Technative-AWS-DevOps-tools/tfapply.sh";
+       aws-switch=". $HOME/data/git/technative/Technative-AWS-DevOps-tools/aws-profile-select.sh";
+       tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
+       tfplan="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
+       tfapply="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfapply.sh";
        tfunlock="terraform force-unlock -force ";
        
       };
