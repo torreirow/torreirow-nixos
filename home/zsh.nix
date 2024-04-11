@@ -5,7 +5,8 @@ programs.zsh = {
       enableAutosuggestions = true;
       #syntaxHighlighting.enable = false; 
       initExtraFirst = ''                                                                                                                        
-        eval "$(atuin init zsh --disable-up-arrow)"; '';     
+        eval "$(atuin init zsh --disable-up-arrow)"; 
+        PATH=$PATH:$HOME/data/git/technative/Technative-AWS-DevOps-tools'';     
       shellAliases = {
        aws-switch=". $HOME/data/git/technative/Technative-AWS-DevOps-tools/aws-profile-select.sh";
        tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
@@ -16,8 +17,8 @@ programs.zsh = {
       };
       oh-my-zsh = {
         enable = true;
-        #theme = "robbyrussell";
-        theme = "gnzh";
+        theme = "robbyrussell";
+        #theme = "gnzh";
         plugins = [
           "git z kubectl emoji encode64 aws terraform"
         ];
