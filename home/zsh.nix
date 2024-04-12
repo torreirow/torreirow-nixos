@@ -17,7 +17,8 @@ programs.zsh = {
       };
       oh-my-zsh = {
         enable = true;
-        theme = "robbyrussell";
+        theme = "wouter";
+        custom = "$HOME/.ohmyzsh-wouter";
         #theme = "gnzh";
         plugins = [
           "git z kubectl emoji encode64 aws terraform"

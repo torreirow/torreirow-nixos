@@ -3,6 +3,7 @@
  imports = [
   ./zsh.nix
   ./common.nix
+  ./dotfiles
  ];
 
 }
