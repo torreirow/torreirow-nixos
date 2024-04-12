@@ -3,6 +3,7 @@
   ./zsh.nix
   ./awsconf.nix
   ./common.nix
+  ./vim.nix
  ];
 
 }
