@@ -6,7 +6,7 @@
  programs.jq = {
     enable = true;
   };
- programs.atuin = {
+  programs.atuin = {
     enable = true;
     enableZshIntegration = true;
     flags = [
