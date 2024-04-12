@@ -4,6 +4,7 @@
   ./awsconf.nix
   ./common.nix
   ./vim.nix
+  ./dotfiles
  ];
 
 }
