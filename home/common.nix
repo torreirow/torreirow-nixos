@@ -18,8 +18,7 @@
       sync_address = "https://api.atuin.sh";
       search_mode = "fuzzy";
     };
- };
-
+  };
  
  
  programs.home-manager.enable = true;
