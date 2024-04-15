@@ -116,6 +116,9 @@
    tmux
    nmap
    ssmsh
+   python311Packages.toggl-cli
+   ssm-session-manager-plugin
+   gum
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
