@@ -13,6 +13,7 @@ programs.zsh = {
        tfplan="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
        tfapply="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfapply.sh";
        tfunlock="terraform force-unlock -force ";
+       ghrmbranch="for branch in $(git branch |grep -v -i -e main -e master); do git branch -D $branch; done";
        
       };
       oh-my-zsh = {
