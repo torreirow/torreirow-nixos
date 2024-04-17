@@ -16,11 +16,17 @@ let
     improvement_it.color = "1c71d8";
     dreamlines.ignore = true;
     default.color = "cccccc";
-    tracklib.ignore = false; 
-    pastbook.ignore = false;
+    tracklib.ignore = true; 
+    pastbook.ignore = true;
+    splitser.ignore = true;
+    taskhero.ignoge = true;
   };
 
   account_names = {
+    GitBackup.ignore = true;
+    ct_lz_audit.ignore = true;
+    ct_lz_log_archive.ignore = true;
+    finops.ignore = true;
     playground-student18.ignore = true;
     playground-student17.ignore = true;
     playground-student16.ignore = true;
@@ -37,7 +43,7 @@ let
     playground-student05.ignore = true;
     playground-student04.ignore = true;
     playground-student03.ignore = true;
-#    playground-student02.ignore = true;
+    playground-student02.ignore = true;
   };
 
   alternative_regions = {
@@ -46,7 +52,6 @@ let
   };
   alternative_names = {
     "760178553019" = "playground wtoorren";
-    "911828776050" = "Minecraft";
     "992382674167" = "iit-nonprod";
     "730335585156" = "iit-prod";
   };
