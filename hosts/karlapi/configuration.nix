@@ -119,6 +119,8 @@
    python311Packages.toggl-cli
    ssm-session-manager-plugin
    gum
+   xclip
+   inetutils
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
