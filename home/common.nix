@@ -19,6 +19,14 @@
       search_mode = "fuzzy";
     };
   };
+
+  programs.rbw = {
+    enable = true;
+    settings = {
+      base_url = "https://homeassistant.toorren.net:7277";
+      email = "wvdtoorren@gmail.com";
+    };
+  };
  
  
  programs.home-manager.enable = true;
