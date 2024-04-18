@@ -10,10 +10,12 @@ let
 
   groups = {
     mustad_hoofcare.color = "e5a50a";
+    mustad_hoofcare.shortname = "mus";
     technative.color = "9141ac";
     ddgc.color = "1c71d8";
     ddgc.ignore = true;
     improvement_it.color = "1c71d8";
+    improvement_it.shortname = "iit";
     dreamlines.ignore = true;
     default.color = "cccccc";
     tracklib.ignore = true; 
@@ -52,32 +54,38 @@ let
   };
   alternative_names = {
     "760178553019" = "playground wtoorren";
-    "992382674167" = "iit-nonprod";
-    "730335585156" = "iit-prod";
+#    "992382674167" = "iit-nonprod";
+#    "730335585156" = "iit-prod";
   };
 
   normalize_group = group : __concatStringsSep "_" (builtins.filter (x: builtins.typeOf x == "string") (__split " " (lib.strings.toLower group)));
 
-  account_name = account :
+  shortname_group = account :
+    let
+      shortname_temp = if builtins.hasAttr groupnorm groups && builtins.hasAttr "shortname" groups.${groupnorm} then 
+       groups.${groupnorm}.shortname 
+       else 
+       builtins.substring 0 3 groupnorm;
+      
+      groupnorm = normalize_group account.customer_name;
+
+    in
+     lib.toUpper shortname_temp;
+
+
+
+    account_name = account :
       if builtins.hasAttr account.account_id alternative_names then alternative_names."${account.account_id}" else account.account_name;
 
-#  show_account = account :
-#    let
-#      groupnorm = normalize_group account.customer_name;
-#    in
-#
-#    if builtins.hasAttr groupnorm groups && builtins.hasAttr "ignore" groups.${groupnorm} && groups.${groupnorm}.ignore == true then false
-#    else true;
-
-show_account = account:
-  let
-    groupnorm = normalize_group account.customer_name;
-        accountnorm = account_name account;
-  in
-  if (builtins.hasAttr groupnorm groups && builtins.hasAttr "ignore" groups.${groupnorm} && groups.${groupnorm}.ignore == true) ||
-     (builtins.hasAttr accountnorm account_names && builtins.hasAttr "ignore" account_names.${accountnorm} && account_names.${accountnorm}.ignore == true)
-  then false
-  else true;
+  show_account = account:
+    let
+      groupnorm = normalize_group account.customer_name;
+      accountnorm = account_name account;
+    in
+    if (builtins.hasAttr groupnorm groups && builtins.hasAttr "ignore" groups.${groupnorm} && groups.${groupnorm}.ignore == true) ||
+       (builtins.hasAttr accountnorm account_names && builtins.hasAttr "ignore" account_names.${accountnorm} && account_names.${accountnorm}.ignore == true)
+    then false
+    else true;
 
   tn_profile = {account_id, group } :
     let
@@ -111,7 +119,7 @@ in
       };
     }
     // builtins.listToAttrs (builtins.map (account: {
-       name = "profile ${account_name account}";
+       name = "profile ${shortname_group account}-${account_name account}";
        value = tn_profile { account_id = account.account_id; group = account.customer_name; };
     }) (builtins.filter (account: show_account account) aws_accounts));
 
