@@ -22,6 +22,7 @@ let
     pastbook.ignore = true;
     splitser.ignore = true;
     taskhero.ignoge = true;
+    technative.shortname = "tn";
   };
 
   account_names = {
