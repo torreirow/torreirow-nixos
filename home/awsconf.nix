@@ -54,7 +54,7 @@ let
     "925937276627" = "us-east-2"; #mustad 
   };
   alternative_names = {
-    "760178553019" = "playground wtoorren";
+    "760178553019" = "pg_wtoorren";
 #    "992382674167" = "iit-nonprod";
 #    "730335585156" = "iit-prod";
   };
@@ -118,6 +118,10 @@ in
         region = "eu-central-1";
         output = "table";
       };
+      "499164406685-wouter" = {
+        "region" = "eu-central-1";
+        "output" = "json";
+     };
     }
     // builtins.listToAttrs (builtins.map (account: {
        name = "profile ${shortname_group account}-${account_name account}";
