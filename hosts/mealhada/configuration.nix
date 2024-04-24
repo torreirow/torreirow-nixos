@@ -4,6 +4,7 @@
         [ pkgs.vim
           pkgs.docker
           pkgs.docker-compose
+          pkgs.bitwarden-cli
         ];
 
       # Auto upgrade nix package and the daemon service.

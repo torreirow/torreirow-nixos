@@ -15,7 +15,6 @@ programs.vim.extraConfig = ''
   set ignorecase  " searches are case insensitive...
   set smartcase   " ... unless they contain at least one capital letter
   set belloff=all
-  set nowrap
   set tabstop=2
   set shiftwidth=2
   set expandtab
@@ -29,6 +28,7 @@ programs.vim.extraConfig = ''
   "let g:NERDTreeWinSize=50
   let NERDTreeAutoDeleteBuffer = 1
   let NERDTreeMinimalUI = 1
+  let NERDTreeShowHidden = 1
 
 '';
 
