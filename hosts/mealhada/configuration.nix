@@ -5,6 +5,7 @@
           pkgs.docker
           pkgs.docker-compose
           pkgs.bitwarden-cli
+          python311Packages.toggl-cli
         ];
 
       # Auto upgrade nix package and the daemon service.
