@@ -164,6 +164,8 @@
     };
   };
 
+  users.groups.docker.members = [ "wtoorren"  ];
+
   users.defaultUserShell = pkgs.zsh;
   users.users.root = {
     shell = pkgs.zsh;
@@ -172,5 +174,6 @@
   programs.zsh.enable = true;
   virtualisation.docker.enable = true;
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
+
 }
 
