@@ -121,7 +121,9 @@
    gum
    xclip
    inetutils
-  ];
+   openssl
+   squid
+ ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
