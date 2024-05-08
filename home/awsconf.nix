@@ -19,10 +19,12 @@ let
     dreamlines.ignore = true;
     default.color = "cccccc";
     tracklib.ignore = true; 
-    pastbook.ignore = true;
+    pastbook.ignore = false;
     splitser.ignore = true;
     taskhero.ignoge = true;
     technative.shortname = "tn";
+    innofaith.color="03a5fc";
+    innofaith.shortname="inf";
   };
 
   account_names = {
@@ -47,11 +49,13 @@ let
     playground-student04.ignore = true;
     playground-student03.ignore = true;
     playground-student02.ignore = true;
+    technative_workload_internal_tools_nonprod.ignore = false;
   };
 
   alternative_regions = {
     "221539347604" = "us-east-2"; #mustad 
     "925937276627" = "us-east-2"; #mustad 
+    "906347402442" = "us-west-2"; #pastbook
   };
   alternative_names = {
     "760178553019" = "pg_wtoorren";
