@@ -6,9 +6,9 @@ programs.zsh = {
       #syntaxHighlighting.enable = false; 
       initExtraFirst = ''                                                                                                                        
         eval "$(atuin init zsh --disable-up-arrow)"; 
-        PATH=$PATH:$HOME/data/git/technative/Technative-AWS-DevOps-tools'';     
+        PATH=$PATH:$HOME/data/git/wearetechnative/race'';     
       shellAliases = {
-       aws-switch=". $HOME/data/git/technative/Technative-AWS-DevOps-tools/aws-profile-select.sh";
+       aws-switch=". $HOME/data/git/wearetechnative/race/aws-profile-select.sh";
        tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
        tfplan="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
        tfapply="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfapply.sh";
