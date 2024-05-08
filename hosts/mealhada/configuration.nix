@@ -2,10 +2,11 @@
 {
       environment.systemPackages =
         [ pkgs.vim
+          pkgs.wl-clipboard
           pkgs.docker
           pkgs.docker-compose
           pkgs.bitwarden-cli
-          python311Packages.toggl-cli
+          pkgs.python311Packages.toggl-cli
         ];
 
       # Auto upgrade nix package and the daemon service.
@@ -42,4 +43,5 @@
       nix.linux-builder.enable = true;
       # Add user to trusted-users
       nix.settings.trusted-users = [ "wtoorren" "@staff" "root" ];
-}
+    }
+
