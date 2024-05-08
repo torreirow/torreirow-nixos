@@ -49,6 +49,7 @@ let
     playground-student04.ignore = true;
     playground-student03.ignore = true;
     playground-student02.ignore = true;
+    technative_workload_internal_tools_nonprod.ignore = false;
   };
 
   alternative_regions = {

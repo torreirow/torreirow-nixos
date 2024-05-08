@@ -6,6 +6,7 @@
           pkgs.docker-compose
           pkgs.bitwarden-cli
           pkgs.python311Packages.toggl-cli
+          pkgs.wl-clipboard
         ];
 
       # Auto upgrade nix package and the daemon service.
