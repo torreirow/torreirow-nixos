@@ -27,9 +27,7 @@ programs.vim.extraConfig = ''
   let NERDTreeChDirMode=2
   "let g:NERDTreeWinSize=50
   let NERDTreeAutoDeleteBuffer = 1
-  let NERDTreeMinimalUI = 1
-  let NERDTreeShowHidden = 1
-
+  let NERDTreeMinimalUI = 0
 '';
 
 
