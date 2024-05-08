@@ -1,4 +1,4 @@
-{config,pkgs,...}: {
+{config,pkgs,services,...}: {
  programs.fzf = {
     enable = true;
     enableZshIntegration = true;
@@ -27,7 +27,10 @@
       email = "wvdtoorren@gmail.com";
     };
   };
- 
+
+  services.dropbox.enable=true
+
+
  
  programs.home-manager.enable = true;
  home.stateVersion = "23.11";
