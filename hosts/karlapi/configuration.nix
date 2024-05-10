@@ -122,7 +122,7 @@
    xclip
    inetutils
    openssl
-   squid
+   wl-clipboard
  ];
 
   # Some programs need SUID wrappers, can be configured further or are
