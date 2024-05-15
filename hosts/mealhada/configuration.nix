@@ -7,6 +7,7 @@
           pkgs.docker-compose
           pkgs.bitwarden-cli
           pkgs.python311Packages.toggl-cli
+          pkgs.aws-nuke
         ];
 
       # Auto upgrade nix package and the daemon service.
