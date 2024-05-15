@@ -87,7 +87,7 @@
     extraGroups = [ "networkmanager" "wheel" ];
   };
 
-  nixpkgs.config.allowUnfree = true;
+           nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
 
@@ -122,7 +122,7 @@
    xclip
    inetutils
    openssl
-   squid
+   aws-nuke
  ];
 
   # Some programs need SUID wrappers, can be configured further or are
