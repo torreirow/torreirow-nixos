@@ -16,6 +16,7 @@
       auto_sync = true;
       sync_frequency = "5m";
       sync_address = "https://api.atuin.sh";
+      #sync_address = "https://atuin.np-tool.technative.cloud";
       search_mode = "fuzzy";
     };
   };
@@ -32,5 +33,4 @@
  programs.home-manager.enable = true;
  home.stateVersion = "23.11";
  home.username = "wtoorren";
-
 }
