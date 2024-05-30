@@ -1,18 +1,24 @@
-{ config,pkgs,inputs,...}:
+{ config,pkgs,pkgs-2305,inputs,...}:
+
+let
+  overlays = import ./overlays.nix;
+in
+
 {
-      environment.systemPackages =
-        [ pkgs.vim
-          pkgs.wl-clipboard
-          pkgs.docker
-          pkgs.docker-compose
-          pkgs.bitwarden-cli
-          pkgs.python311Packages.toggl-cli
-          pkgs.aws-nuke
+      environment.systemPackages = with pkgs; [
+        vim
+        aws-nuke
+        wl-clipboard
+        #docker
+        #docker-compose
+        bitwarden-cli
+        amazon-ec2-utils
+        python311Packages.toggl-cli
         ];
 
       # Auto upgrade nix package and the daemon service.
       services.nix-daemon.enable = true;
-      # nix.package = pkgs.nix;
+      nix.package = pkgs.nix;
 
       # Necessary for using flakes on this system.
       nix.settings.experimental-features = "nix-command flakes";

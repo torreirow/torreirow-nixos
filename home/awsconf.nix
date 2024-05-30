@@ -19,9 +19,9 @@ let
     dreamlines.ignore = true;
     default.color = "cccccc";
     tracklib.ignore = true; 
-    pastbook.ignore = false;
+    pastbook.ignore = true;
     splitser.ignore = true;
-    taskhero.ignoge = true;
+    taskhero.ignore = true;
     technative.shortname = "tn";
     innofaith.color="03a5fc";
     innofaith.shortname="inf";
@@ -34,7 +34,7 @@ let
     finops.ignore = true;
     playground-student18.ignore = true;
     playground-student17.ignore = true;
-    playground-student16.ignore = true;
+    playground-student16.ignore = false;
     playground-student15.ignore = true;
     playground-student14.ignore = true;
     playground-student13.ignore = true;
@@ -59,6 +59,7 @@ let
   };
   alternative_names = {
     "760178553019" = "pg_wtoorren";
+    "911828776050" = "TWIT";
 #    "992382674167" = "iit-nonprod";
 #    "730335585156" = "iit-prod";
   };

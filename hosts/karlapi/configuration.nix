@@ -97,7 +97,6 @@
    neovim
    wget
    lf
-   tmux
    slack
    git
    gh
@@ -113,7 +112,6 @@
    certbot
    python3
    displaylink
-   tmux
    nmap
    ssmsh
    python311Packages.toggl-cli
