@@ -41,6 +41,11 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
+  services.mysql = {
+  enable = true;
+  package = pkgs.mariadb;
+};
+
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
@@ -119,11 +124,14 @@
    python311Packages.toggl-cli
    ssm-session-manager-plugin
    gum
-   xclip
    inetutils
    openssl
    aws-nuke
+   mosh
+   postgresql
  ];
+
+ networking.firewall.allowedUDPPorts = [ 60000 61000 ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -136,7 +144,11 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-    services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    settings.X11Forwarding = true;
+  };
+
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
