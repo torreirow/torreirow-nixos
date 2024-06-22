@@ -54,10 +54,8 @@
 
   # Configure keymap in X11
   services.xserver = {
-    #layout = "us";
-    #xkbVariant = "alt-intl";
-    xkb.variant = "alt-intl";
-    xkb.layout = "us";
+    layout = "us";
+    xkbVariant = "alt-intl";
   };
 
   # Configure console keymap
@@ -109,6 +107,7 @@
    gh
    bitwarden
    firefox
+   pkgs.atuin
    pkgs-2305.terraform
    tfswitch
    vscode
@@ -128,7 +127,6 @@
    aws-nuke
    mosh
    postgresql
-   zip
  ];
 
  networking.firewall.allowedUDPPorts = [ 60000 61000 ];
@@ -188,7 +186,6 @@
   programs.zsh.enable = true;
   virtualisation.docker.enable = true;
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
-  services.code-server.hashedPassword.enable = true;
 
 }
 
