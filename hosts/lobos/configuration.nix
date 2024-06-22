@@ -108,7 +108,6 @@
    git
    gh
    bitwarden
-   firefox
    pkgs-2305.terraform
    tfswitch
    vscode
@@ -130,6 +129,7 @@
    postgresql
    zip
  ];
+
 
  networking.firewall.allowedUDPPorts = [ 60000 61000 ];
 

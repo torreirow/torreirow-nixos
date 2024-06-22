@@ -2,7 +2,8 @@
   description = "Wouters super conf";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";  
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";  
+    nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";  
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";  
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-darwin.url = "github:LnL7/nix-darwin";
@@ -14,7 +15,7 @@
   };
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305, unstable, nix-darwin, home-manager }: {
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2311, nixpkgs-2305, unstable, nix-darwin, home-manager }: {
   
 ### MEALHADA HOMEMANAGER START
      #defaultPackage.aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;   ## bootstrap for homemanager
