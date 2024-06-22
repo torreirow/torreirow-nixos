@@ -31,9 +31,10 @@
       email = "wvdtoorren@gmail.com";
     };
   };
+  
 
  
- programs.home-manager.enable = true;
+ #programs.home-manager.enable = true;
  home.stateVersion = "23.11";
  home.username = "wtoorren";
  home.packages = with pkgs; [
