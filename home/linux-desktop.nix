@@ -5,6 +5,10 @@
   ./common.nix
   ./vim.nix
   ./dotfiles
- ];
+  ./tmux.nix
+  ./common-firefox.nix
+];
+
+
 
 }

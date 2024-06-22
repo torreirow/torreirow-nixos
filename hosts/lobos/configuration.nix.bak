@@ -41,11 +41,6 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-  services.mysql = {
-  enable = true;
-  package = pkgs.mariadb;
-};
-
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
@@ -54,10 +49,8 @@
 
   # Configure keymap in X11
   services.xserver = {
-    #layout = "us";
-    #xkbVariant = "alt-intl";
-    xkb.variant = "alt-intl";
-    xkb.layout = "us";
+    layout = "us";
+    xkbVariant = "alt-intl";
   };
 
   # Configure console keymap
@@ -94,7 +87,7 @@
     extraGroups = [ "networkmanager" "wheel" ];
   };
 
-           nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
 
@@ -104,11 +97,13 @@
    neovim
    wget
    lf
+   tmux
    slack
    git
    gh
    bitwarden
    firefox
+   pkgs.atuin
    pkgs-2305.terraform
    tfswitch
    vscode
@@ -118,20 +113,18 @@
    certbot
    python3
    displaylink
+   tmux
    nmap
    ssmsh
    python311Packages.toggl-cli
    ssm-session-manager-plugin
    gum
+   xclip
    inetutils
    openssl
-   aws-nuke
-   mosh
-   postgresql
-   zip
+   squid
+   wl-clipboard
  ];
-
- networking.firewall.allowedUDPPorts = [ 60000 61000 ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -144,11 +137,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh = {
-    enable = true;
-    settings.X11Forwarding = true;
-  };
-
+    services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -188,7 +177,6 @@
   programs.zsh.enable = true;
   virtualisation.docker.enable = true;
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
-  services.code-server.hashedPassword.enable = true;
 
 }
 
