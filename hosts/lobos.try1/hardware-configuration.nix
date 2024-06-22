@@ -8,17 +8,16 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "sd_mod" ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "usb_storage" "usbhid" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/d8ded817-ecf8-443d-92cc-4b573b6d1b01";
+
+    { device = "/dev/disk/by-uuid/d5b70829-a72e-4623-a8ce-c0de2f194aed";
       fsType = "ext4";
     };
-
-  boot.initrd.luks.devices."luks-d5b70829-a72e-4623-a8ce-c0de2f194aed".device = "/dev/disk/by-uuid/d5b70829-a72e-4623-a8ce-c0de2f194aed";
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/75C3-56F6";
@@ -26,7 +25,7 @@
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/55e4b1dd-f942-470b-b456-cf78efb12857"; }
+    [ { device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a"; }
     ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
@@ -34,9 +33,14 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.enp1s0f0.useDHCP = lib.mkDefault true;
-  # networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
+  networking.interfaces.enp2s0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.wlo1.useDHCP = lib.mkDefault true;
 
+#  The following interface_code is to configure static ip for lan network adapter
+#  networking.interfaces.enp2s0.ipv4.addresses = [ {
+#    address = "192.168.2.100";
+#    prefixLength = 24;
+#  } ];
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
