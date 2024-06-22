@@ -2,8 +2,8 @@
   description = "Wouters super conf";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";  
-    nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";  
+    nixpkgs-2405.url = "github:NixOS/nixpkgs/nixos-24.05";  
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";  
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";  
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-darwin.url = "github:LnL7/nix-darwin";
@@ -15,7 +15,7 @@
   };
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2311, nixpkgs-2305, unstable, nix-darwin, home-manager }: {
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2405, nixpkgs-2305, unstable, nix-darwin, home-manager }: {
   
 ### MEALHADA HOMEMANAGER START
      #defaultPackage.aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;   ## bootstrap for homemanager
@@ -58,7 +58,25 @@
 # ## MEALHADA config END
  
   
-  
+# ## LOBOS config START
+     nixosConfigurations.lobos = nixpkgs.lib.nixosSystem {
+       modules =
+         let
+           system = "x86_64-linux";
+           defaults = { pkgs, ... }: {
+             _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
+             _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
+             _module.args.pkgs-2311 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
+           };
+         in [
+           defaults
+          ./hosts/lobos/configuration.nix
+          ./modules/tnaws.nix
+        ];
+      };
+### LOBOS config END
+
+#  
 # ## KARLAPI config START
      nixosConfigurations.karlapi = nixpkgs.lib.nixosSystem {
        modules =
@@ -95,6 +113,7 @@
         modules = [ 
          #./home/default.nix
          ./home/linux-desktop.nix
+         ./home/firefox.nix
          linux-defaults
         ];
 

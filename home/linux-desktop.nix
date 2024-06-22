@@ -6,9 +6,6 @@
   ./vim.nix
   ./dotfiles
   ./tmux.nix
-  ./common-firefox.nix
-];
-
-
+ ];
 
 }
