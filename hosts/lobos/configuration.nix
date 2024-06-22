@@ -10,6 +10,11 @@
       ./hardware-configuration.nix
     ];
 
+
+        nix.extraOptions = ''
+    experimental-features = nix-command
+    '';
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
