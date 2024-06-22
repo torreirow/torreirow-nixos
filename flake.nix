@@ -72,6 +72,7 @@
            defaults
           ./hosts/lobos/configuration.nix
           ./modules/tnaws.nix
+          ./modules/fprint.nix
         ];
       };
 ### LOBOS config END
