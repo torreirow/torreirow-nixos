@@ -1,12 +1,8 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, ... }:
+{ config, pkgs, unstable, pkgs-2305, ... }:
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [ 
       ./hardware-configuration.nix
     ];
 
@@ -14,8 +10,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
-  networking.hostName = "lobos"; # Define your hostname.
+  networking.hostName = "karlapi"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -46,24 +41,20 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
- services.mysql = {
-  enable = true;
-  package = pkgs.mariadb;
-};
-
-
-  # Enable the KDE Plasma Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  # Enable the GNOME Desktop Environment.
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
+  services.blueman.enable = true;
+  services.xserver.displayManager.gdm.autoSuspend = false;
 
   # Configure keymap in X11
   services.xserver = {
     layout = "us";
-    xkbVariant = "intl";
+    xkbVariant = "alt-intl";
   };
 
   # Configure console keymap
-  console.keyMap = "us-acentos";
+  console.keyMap = "us";
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -90,32 +81,30 @@
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.wtoorren = {
+    shell = pkgs.zsh;
     isNormalUser = true;
     description = "Wouter van der Toorren";
     extraGroups = [ "networkmanager" "wheel" ];
-    #packages = with pkgs; [
-    #  thunderbird
-    #];
   };
 
-  # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-   vim
+   neovim
    wget
    lf
+   tmux
    slack
    git
    gh
    bitwarden
-   #pkgs-2305.terraform
-   home-manager
-   terraform
+   firefox
+   pkgs.atuin
+   pkgs-2305.terraform
    tfswitch
    vscode
    wget
@@ -123,33 +112,32 @@
    dig
    certbot
    python3
-   #displaylink
+   displaylink
+   tmux
    nmap
    ssmsh
    python311Packages.toggl-cli
    ssm-session-manager-plugin
    gum
+   xclip
    inetutils
    openssl
-   aws-nuke
-   mosh
-   postgresql
-   zip
-   aws-mfa
-  ];
+   squid
+   wl-clipboard
+ ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+   programs.gnupg.agent = {
+     enable = true;
+     enableSSHSupport = true;
+   };
 
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
- services.openssh.enable = true;
+    services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -164,7 +152,6 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
-
 
 
   environment.etc = {
@@ -188,12 +175,8 @@
   };
 
   programs.zsh.enable = true;
- 
-
-
   virtualisation.docker.enable = true;
-#  services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
- # services.code-server.hashedPassword.enable = true;
-
+  services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 
 }
+
