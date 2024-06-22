@@ -15,7 +15,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
-  networking.hostName = "lobos"; # Define your hostname.
+  networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -45,12 +45,6 @@
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-
- services.mysql = {
-  enable = true;
-  package = pkgs.mariadb;
-};
-
 
   # Enable the KDE Plasma Desktop Environment.
   services.xserver.displayManager.sddm.enable = true;
@@ -93,9 +87,11 @@
     isNormalUser = true;
     description = "Wouter van der Toorren";
     extraGroups = [ "networkmanager" "wheel" ];
-    #packages = with pkgs; [
+    packages = with pkgs; [
+      firefox
+      kate
     #  thunderbird
-    #];
+    ];
   };
 
   # Allow unfree packages
@@ -106,36 +102,6 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
-   vim
-   wget
-   lf
-   slack
-   git
-   gh
-   bitwarden
-   #pkgs-2305.terraform
-   home-manager
-   terraform
-   tfswitch
-   vscode
-   wget
-   curl
-   dig
-   certbot
-   python3
-   #displaylink
-   nmap
-   ssmsh
-   python311Packages.toggl-cli
-   ssm-session-manager-plugin
-   gum
-   inetutils
-   openssl
-   aws-nuke
-   mosh
-   postgresql
-   zip
-   aws-mfa
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -149,7 +115,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
- services.openssh.enable = true;
+  # services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -164,36 +130,5 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
-
-
-
-  environment.etc = {
-    "zshrc.local" = {
-      text = ''
-      PROMPT="%(?:%{$fg_bold[green]%}➜:%{$fg_bold[red]%}➜) %F{magenta}%n%f%{$fg[blue]%}@%M %{$fg[cyan]%}%c%{$reset_color%}"
-      PROMPT+=' $(git_prompt_info)'
-      ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}(%{$fg[red]%}"
-      ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
-      ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}✗"
-      ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
-      '';
-    };
-  };
-
-  users.groups.docker.members = [ "wtoorren"  ];
-
-  users.defaultUserShell = pkgs.zsh;
-  users.users.root = {
-    shell = pkgs.zsh;
-  };
-
-  programs.zsh.enable = true;
- 
-
-
-  virtualisation.docker.enable = true;
-#  services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
- # services.code-server.hashedPassword.enable = true;
-
 
 }
