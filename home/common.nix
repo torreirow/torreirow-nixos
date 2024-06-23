@@ -31,7 +31,7 @@
       email = "wvdtoorren@gmail.com";
     };
   };
-  
+
 
  
  #programs.home-manager.enable = true;
