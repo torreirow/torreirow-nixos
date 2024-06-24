@@ -73,7 +73,7 @@
           ./hosts/lobos/configuration.nix
           ./modules/tnaws.nix
           ./modules/fprint.nix
-          ./modules/general.nix
+          ./modules/general-desktop.nix
         ];
       };
 ### LOBOS config END

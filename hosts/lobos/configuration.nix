@@ -15,7 +15,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
   networking.hostName = "lobos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+#  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # DisplayLink manager + hardware
     boot.extraModulePackages = with config.boot.kernelPackages; [
@@ -93,7 +93,7 @@
     alsa.support32Bit = true;
     pulse.enable = true;
     # If you want to use JACK applications, uncomment this
-    # jack.enable = true;
+    jack.enable = true;
 
     # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
@@ -151,15 +151,21 @@
     displaylink
     xorg.xrandr
     xorg.xbacklight
+    whatsapp-for-linux
+    telegram-desktop
+    signal-desktop
+    freeoffice
+    claws-mail
+    spotify-player
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+   programs.mtr.enable = true;
+#   programs.gnupg.agent = {
+#     enable = true;
+#     enableSSHSupport = true;
+#   };
 
   # List services that you want to enable:
 
