@@ -1,13 +1,22 @@
-{ config, lib, pkgs, ... }:
+{config, lib, pkgs, ... }:
 
-{
+
+let
+  python312 = pkgs.python312;
+
+
+in
+
+  {
+
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
 
+
   nix.extraOptions = ''
-    experimental-features = nix-command
+    experimental-features = nix-command flakes
     '';
 
   # Bootloader.
@@ -68,13 +77,18 @@
   };
 
   # Enable the KDE Plasma Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
+  services.displayManager.sddm.enable = true; 
   services.xserver.desktopManager.plasma5.enable = true;
 
+ # Enable the GNOME Desktop Environment.
+#  services.xserver.displayManager.gdm.enable = true;
+#  services.xserver.desktopManager.gnome.enable = true;
+#  services.xserver.displayManager.gdm.autoSuspend = false;
+  
   # Configure keymap in X11
   services.xserver = {
-    layout = "us";
-    xkbVariant = "intl";
+    xkb.layout = "us";
+    xkb.variant = "intl";
   };
 
   # Configure console keymap
@@ -116,50 +130,7 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    vim
-    wget
-    lf
-    slack
-    git
-    gh
-    bitwarden
-    home-manager
-    terraform
-    tfswitch
-    vscode
-    curl
-    dig
-    certbot
-    python3
-    nmap
-    ssmsh
-    python311Packages.toggl-cli
-    ssm-session-manager-plugin
-    gum
-    inetutils
-    openssl
-    aws-nuke
-    mosh
-    postgresql
-    zip
-    whisper
-    jellyfin-ffmpeg
-    bluez
-    displaylink
-    xorg.xrandr
-    xorg.xbacklight
-    whatsapp-for-linux
-    telegram-desktop
-    signal-desktop
-    freeoffice
-    claws-mail
-    spotify-player
-  ];
-
-  # Some programs need SUID wrappers, can be configured further or are
+    # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
    programs.mtr.enable = true;
 #   programs.gnupg.agent = {
@@ -209,5 +180,67 @@
   programs.zsh.enable = true;
 
   virtualisation.docker.enable = true;
+
+  programs.gnupg.agent.pinentryPackage = {
+   enable = true;
+   pinentryFlavor = "gtk2";
+ };
+
+ ## Spotify discovery devices
+ networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
+ networking.firewall.allowedTCPPorts = [ 57621 ]; # Sync local tracks
+
+# List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
+    vim
+    wget
+    lf
+    slack
+    git
+    gh
+    bitwarden
+    home-manager
+    terraform
+    tfswitch
+    vscode
+    curl
+    dig
+    certbot
+    nmap
+    ssmsh
+    python312
+    ssm-session-manager-plugin
+    gum
+    inetutils
+    openssl
+    aws-nuke
+    mosh
+    postgresql
+    zip
+    whisper
+    jellyfin-ffmpeg
+    bluez
+    displaylink
+    xorg.xrandr
+    xorg.xbacklight
+    whatsapp-for-linux
+    telegram-desktop
+    signal-desktop
+    freeoffice
+    gnupg
+    pinentry-gtk2
+   # claws-mail
+    zoom-us
+    thunderbird
+    git-remote-codecommit
+    python311Packages.toggl-cli
+    coreutils
+    file
+    spotify
+  ];
+
+ 
+
 }
 
