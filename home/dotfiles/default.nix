@@ -4,5 +4,9 @@
       source = ./.ohmyzsh-wouter;
       recursive = true;
     };
-  };
+    ".config" = {
+      source = ./.config;
+      recursive = true;
+    };
+};
 }
