@@ -231,13 +231,14 @@ in
     gnupg
     pinentry-gtk2
    # claws-mail
-    zoom-us
+    #zoom-us
     thunderbird
     git-remote-codecommit
     python311Packages.toggl-cli
     coreutils
     file
     spotify
+    xclip
   ];
 
  
