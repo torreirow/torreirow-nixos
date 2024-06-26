@@ -72,7 +72,7 @@
            defaults
           ./hosts/lobos/configuration.nix
           ./modules/tnaws.nix
-          ./modules/fprint.nix
+#          ./modules/fprint.nix
           ./modules/general-desktop.nix
 #          ./modules/toggl.nix
         ];
