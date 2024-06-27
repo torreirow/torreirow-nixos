@@ -6,6 +6,8 @@
   ./vim.nix
   ./dotfiles
   ./tmux.nix
- ];
+];
+
+
 
 }

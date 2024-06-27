@@ -3,4 +3,6 @@
  #home-manager.users.wtoorren = {
  # programs.home-manager.enable = true;
  #};
+
+  programs.ssh.startAgent = true;
 }
