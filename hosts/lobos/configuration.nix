@@ -33,8 +33,10 @@ in
 
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
   services.xserver.displayManager.sessionCommands = ''
-    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
-    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
+    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
+    ${lib.getBin pkgs.autorandr}/bin/xrandr --setprovideroutputsource 2 0
+    ${lib.getBin pkgs.autorandr}/bin/xrandr --auto
     '';
       boot.kernelModules = [ "evdi" ];
 
@@ -49,6 +51,7 @@ in
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.powerOnBoot = true;
+  services.blueman.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
@@ -185,6 +188,9 @@ in
    enable = true;
    pinentryFlavor = "gtk2";
  };
+  programs.openvpn3 = {
+    enable = true;
+  };
 
  ## Spotify discovery devices
  networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
@@ -222,7 +228,8 @@ in
     jellyfin-ffmpeg
     bluez
     displaylink
-    xorg.xrandr
+    #xorg.xrandr
+    autorandr
     xorg.xbacklight
     whatsapp-for-linux
     telegram-desktop
@@ -239,6 +246,8 @@ in
     file
     spotify
     xclip
+    smplayer
+    zoom-us
   ];
 
  
