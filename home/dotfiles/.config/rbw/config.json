@@ -1,0 +1,6 @@
+{
+  "base_url": "https://homeassistant.toorren.net:7277",
+  "email": "wvdtoorren@gmail.com",
+  "identity_url": null,
+  "lock_timeout": 3600
+}
