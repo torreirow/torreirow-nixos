@@ -1,6 +1,5 @@
 {config,pkgs,services,...}: 
 
-
 {
  programs.fzf = {
     enable = true;
@@ -40,4 +39,11 @@
  home.packages = with pkgs; [
     atuin
   ];
+
+  nixpkgs = {
+    config = {
+      allowUnfree = true;
+      allowUnfreePredicate = (_: true);
+    };
+  };
 }
