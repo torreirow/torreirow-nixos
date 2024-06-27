@@ -1,12 +1,4 @@
 {config, lib, pkgs, ... }:
-
-
-let
-  python312 = pkgs.python312;
-
-
-in
-
   {
 
   imports =
@@ -33,10 +25,8 @@ in
 
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
   services.xserver.displayManager.sessionCommands = ''
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
-    ${lib.getBin pkgs.autorandr}/bin/xrandr --setprovideroutputsource 2 0
-    ${lib.getBin pkgs.autorandr}/bin/xrandr --auto
+    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
     '';
       boot.kernelModules = [ "evdi" ];
 
@@ -51,7 +41,6 @@ in
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.powerOnBoot = true;
-  services.blueman.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
@@ -188,9 +177,6 @@ in
    enable = true;
    pinentryFlavor = "gtk2";
  };
-  programs.openvpn3 = {
-    enable = true;
-  };
 
  ## Spotify discovery devices
  networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
@@ -198,59 +184,59 @@ in
 
 # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    vim
-    wget
-    lf
-    slack
-    git
-    gh
-    bitwarden
-    home-manager
-    terraform
-    tfswitch
-    vscode
-    curl
-    dig
-    certbot
-    nmap
-    ssmsh
-    python312
-    ssm-session-manager-plugin
-    gum
-    inetutils
-    openssl
-    aws-nuke
-    mosh
-    postgresql
-    zip
-    whisper
-    jellyfin-ffmpeg
-    bluez
-    displaylink
-    #xorg.xrandr
-    autorandr
-    xorg.xbacklight
-    whatsapp-for-linux
-    telegram-desktop
-    signal-desktop
-    freeoffice
-    gnupg
-    pinentry-gtk2
-   # claws-mail
-    #zoom-us
-    thunderbird
-    git-remote-codecommit
-    python311Packages.toggl-cli
-    coreutils
-    file
-    spotify
-    xclip
-    smplayer
-    zoom-us
-  ];
-
+environment.systemPackages = [
+  vim
+  wget
+  lf
+  slack
+  git
+  gh
+  bitwarden
+  home-manager
+  terraform
+  tfswitch
+  vscode
+  curl
+  dig
+  certbot
+  nmap
+  ssmsh
+  python312
+  ssm-session-manager-plugin
+  gum
+  inetutils
+  openssl
+  aws-nuke
+  mosh
+  postgresql
+  zip
+  whisper
+  jellyfin-ffmpeg
+  bluez
+  displaylink
+  xorg.xrandr
+  xorg.xbacklight
+  whatsapp-for-linux
+  telegram-desktop
+  signal-desktop
+  freeoffice
+  gnupg
+  pinentry-gtk2
+  # claws-mail
+  zoom-us
+  thunderbird
+  git-remote-codecommit
+  coreutils
+  file
+  spotify
+  xclip
+  freerdp
+];
  
+
+
+
+
 
 }
 
