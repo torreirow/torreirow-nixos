@@ -81,6 +81,7 @@ in
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true; 
+  #programs.sway.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
  # Enable the GNOME Desktop Environment.
@@ -99,6 +100,7 @@ in
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
+  services.printing.drivers = [ pkgs.brlaser ];
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -248,6 +250,9 @@ in
     xclip
     smplayer
     zoom-us
+    prowler
+    p3x-onenote
+    hugo
   ];
 
  
