@@ -17,6 +17,8 @@ programs.zsh = {
        tfunlock="terraform force-unlock -force ";
        ghrmbranch="for branch in $(git branch |grep -v -i -e main -e master); do git branch -D $branch; done";
        tfswitch="tfswitch -b $HOME/bin/terraform";
+       vpnkardisconnect="openvpn3 session-manage --disconnect --config $HOME/.config/openvpn/kar01.ovpn";
+       vpnkarconnect="openvpn3 session-start --config $HOME/.config/openvpn/kar01.ovpn";
        
       };
       oh-my-zsh = {
