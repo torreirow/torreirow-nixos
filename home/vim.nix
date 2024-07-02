@@ -6,6 +6,7 @@ programs.vim.plugins = [
   pkgs.vimPlugins.vim-terraform
   pkgs.vimPlugins.vim-nix
   pkgs.vimPlugins.nvim-treesitter-parsers.cooklang
+  pkgs.vimPlugins.ayu-vim
 ]; 
 
 programs.vim.enable = true;
@@ -28,6 +29,9 @@ programs.vim.extraConfig = ''
   "let g:NERDTreeWinSize=50
   let NERDTreeAutoDeleteBuffer = 1
   let NERDTreeMinimalUI = 0
+  set termguicolors     " enable true colors support
+  let ayucolor="dark"   " for dark
+  colorscheme ayu
 '';
 
 
