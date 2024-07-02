@@ -59,6 +59,7 @@ let
   };
   alternative_names = {
     "760178553019" = "pg_wtoorren";
+#    "911828776050" = "minecraft";
 #    "992382674167" = "iit-nonprod";
 #    "730335585156" = "iit-prod";
   };
