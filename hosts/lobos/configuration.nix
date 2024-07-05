@@ -34,12 +34,18 @@ in
 
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
   services.xserver.displayManager.sessionCommands = ''
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
+    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
     ${lib.getBin pkgs.autorandr}/bin/xrandr --setprovideroutputsource 2 0
     ${lib.getBin pkgs.autorandr}/bin/xrandr --auto
     '';
-      boot.kernelModules = [ "evdi" ];
+
+  #programs.sway.enable = true;
+  #security.polkit.enable = true; 
+  #hardware.opengl.enable = true; 
+
+
+  boot.kernelModules = [ "evdi" ];
 
 
   # Configure network proxy if necessary
@@ -82,21 +88,21 @@ in
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true; 
-#  services.displayManager.gdm.enable = true; 
+  services.displayManager.gdm.enable = true; 
   #programs.sway.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
  # Enable the GNOME Desktop Environment.
-#  services.xserver.displayManager.gdm.enable = true;
-#  services.xserver.desktopManager.gnome.enable = true;
-#  services.xserver.displayManager.gdm.autoSuspend = false;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
+  services.xserver.displayManager.gdm.autoSuspend = false;
   
   # Configure keymap in X11
   services.xserver = {
     xkb.layout = "us";
     xkb.variant = "intl";
   };
-
+ 
   # Configure console keymap
   console.keyMap = "us-acentos";
 
@@ -116,13 +122,13 @@ in
     # If you want to use JACK applications, uncomment this
     jack.enable = true;
 
-    # use the example session manager (no others are packaged yet so this is enabled by default,
+   # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
     # media-session.enable = true;
   };
 
   # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+   services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.wtoorren = {
@@ -268,6 +274,7 @@ in
     isNormalUser = true;
     hashedPasswordFile = config.age.secrets.secret1.path;
   };
+
 
 
 }

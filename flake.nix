@@ -1,4 +1,5 @@
 {
+
   description = "Wouters super conf";
 
   inputs = {
@@ -78,6 +79,7 @@
 #          ./modules/fprint.nix
           ./modules/general-desktop.nix
 #          ./modules/toggl.nix
+          ./modules/greetd.nix
         ];
       };
 ### LOBOS config END
@@ -120,6 +122,7 @@
          #./home/default.nix
          ./home/linux-desktop.nix
          ./home/firefox.nix
+         #./home/sway.nix
          linux-defaults
         ];
 
