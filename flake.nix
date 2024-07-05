@@ -2,6 +2,7 @@
   description = "Wouters super conf";
 
   inputs = {
+    agenix.url = "github:ryantm/agenix";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";  
     nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";  
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";  
@@ -15,7 +16,7 @@
   };
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager }: {
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix }: {
   
 ### MEALHADA HOMEMANAGER START
      #defaultPackage.aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;   ## bootstrap for homemanager
@@ -53,7 +54,7 @@
         ./modules/tnaws.nix
        ];
      };
-  
+ inputs. 
      darwinPackages = self.darwinConfigurations."mealhada".pkgs;
 # ## MEALHADA config END
  
@@ -67,9 +68,11 @@
              _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
              _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
              _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
+             _module.args.agenix = inputs.agenix.packages.${system}.default;
            };
          in [
            defaults
+           agenix.nixosModules.default
           ./hosts/lobos/configuration.nix
           ./modules/tnaws.nix
 #          ./modules/fprint.nix
