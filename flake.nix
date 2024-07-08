@@ -3,9 +3,9 @@
 
   inputs = {
     agenix.url = "github:ryantm/agenix";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";  
-    nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";  
-    nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";  
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
@@ -16,26 +16,28 @@
   };
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix }: {
-  
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, }: {
+
+
 ### MEALHADA HOMEMANAGER START
-     #defaultPackage.aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;   ## bootstrap for homemanager
-     homeConfigurations."wtoorren@macbook" = home-manager.lib.homeManagerConfiguration(
-      let
-       system = "aarch64-darwin";
-       pkgs = nixpkgs.legacyPackages.${system};
-       mac-defaults = {pkgs,config,...}: {
-        home = { ##MAC
-         homeDirectory = "/Users/wtoorren";
-        };
-       };
+  #defaultPackage.aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;   ## bootstrap for homemanager
+  homeConfigurations."wtoorren@macbook" = home-manager.lib.homeManagerConfiguration(
 
-      in {
-        inherit pkgs;
+  let
+    system = "aarch64-darwin";
+    pkgs = nixpkgs.legacyPackages.${system};
+    mac-defaults = {pkgs,config,...}: {
+      home = { ##MAC
+      homeDirectory = "/Users/wtoorren";
+      };
+    };
 
-        # Specify your home configuration modules here, for example,
-        # the path to your home.nix.
-        modules = [ 
+  in {
+    inherit pkgs;
+
+    # Specify your home configuration modules here, for example,
+    # the path to your home.nix.
+     modules = [
          #./home/default.nix
          ./home/linux-desktop.nix
          mac-defaults
@@ -45,20 +47,20 @@
         # to pass through arguments to home.nix
       });
 ### MEALHADA HOMEMANAGER START
-  
+
 # ## MEALHADA config START
      darwinConfigurations."mealhada" = nix-darwin.lib.darwinSystem {
      specialArgs = { inherit inputs; } ;
-       modules = [ 
+       modules = [
         ./hosts/mealhada/configuration.nix
         ./modules/tnaws.nix
        ];
      };
- inputs. 
+ inputs.
      darwinPackages = self.darwinConfigurations."mealhada".pkgs;
 # ## MEALHADA config END
- 
-  
+
+
 # ## LOBOS config START
      nixosConfigurations.lobos = nixpkgs.lib.nixosSystem {
        modules =
@@ -69,20 +71,21 @@
              _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
              _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
              _module.args.agenix = inputs.agenix.packages.${system}.default;
+
            };
          in [
            defaults
            agenix.nixosModules.default
+
           ./hosts/lobos/configuration.nix
           ./modules/tnaws.nix
 #          ./modules/fprint.nix
           ./modules/general-desktop.nix
-#          ./modules/toggl.nix
         ];
       };
 ### LOBOS config END
 
-#  
+#
 # ## KARLAPI config START
      nixosConfigurations.karlapi = nixpkgs.lib.nixosSystem {
        modules =
@@ -116,7 +119,7 @@
 
         # Specify your home configuration modules here, for example,
         # the path to your home.nix.
-        modules = [ 
+        modules = [
          #./home/default.nix
          ./home/linux-desktop.nix
          ./home/firefox.nix
@@ -134,7 +137,7 @@
        system = "x86_64-linux";
        pkgs = nixpkgs.legacyPackages.${system};
        linux-defaults = {pkgs,config,...}: {
-        home = { 
+        home = {
          homeDirectory = "/home/wtoorren";
         };
        };
@@ -144,7 +147,7 @@
 
         # Specify your home configuration modules here, for example,
         # the path to your home.nix.
-        modules = [ 
+        modules = [
          #./home/default.nix
          ./home/linux-server.nix
          linux-defaults
@@ -155,6 +158,6 @@
       });
 #### LINUX SERVER HOMEMANAGER END
 #
- 
+
   };
 }
