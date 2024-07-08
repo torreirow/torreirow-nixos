@@ -15,6 +15,11 @@ in
       ./hardware-configuration.nix
     ];
 
+  #nixpkgs.overlays = [
+  #  (final: prev: ../../overlays/toggl-overlay.nix )
+  #];
+
+
 
   nix.extraOptions = ''
     experimental-features = nix-command flakes
@@ -81,8 +86,8 @@ in
   };
 
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true; 
-#  services.displayManager.gdm.enable = true; 
+  services.displayManager.sddm.enable = true;
+#  services.displayManager.gdm.enable = true;
   #programs.sway.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
@@ -90,7 +95,7 @@ in
 #  services.xserver.displayManager.gdm.enable = true;
 #  services.xserver.desktopManager.gnome.enable = true;
 #  services.xserver.displayManager.gdm.autoSuspend = false;
-  
+
   # Configure keymap in X11
   services.xserver = {
     xkb.layout = "us";
@@ -149,6 +154,7 @@ in
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+  services.openssh.extraConfig = "LoginGracetime=0";
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -245,7 +251,6 @@ in
     #zoom-us
     thunderbird
     git-remote-codecommit
-    python311Packages.toggl-cli
     coreutils
     file
     spotify
@@ -257,9 +262,18 @@ in
     hugo
     #inputs.agenix.packages.${config.system}.default
     agenix
+    #toggl-cli
     super-productivity
 #    usbguard
 #    usbguard-notifier
+    amazon-ecs-cli
+    copilot-cli
+    pandoc
+    texliveTeTeX
+    yt-dlp
+    mpv
+    python311Packages.pip
+    #python311.spotify_dl
   ];
 
   age.secrets.secret1.file = ../../secrets/secret1.age;
