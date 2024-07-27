@@ -4,16 +4,18 @@
 
 let
   python311 = pkgs.python311;
+  #togglOverlay = import ../../overlays/toggl-overlay.nix;
 
 in
 
   {
+  #nixpkgs.overlays = [ togglOverlay ];
   imports =
     [ # Include the results of the hardware scan.
-    ./hardware-configuration.nix
-    ./programs.nix
+      ./hardware-configuration.nix
     ];
 
+#  nixpkgs.overlays = [ (final: prev: ../../overlays/toggl-overlay.ni) ];
 
 
 
@@ -26,7 +28,7 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
   networking.hostName = "lobos"; # Define your hostname.
- # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+#  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # DisplayLink manager + hardware
     boot.extraModulePackages = with config.boot.kernelPackages; [
@@ -48,10 +50,7 @@ in
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
-  networking.networkmanager = {
-    enable = true;
-    wifi.powersave = false;
-  };
+  networking.networkmanager.enable = true;
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
@@ -62,19 +61,12 @@ in
   time.timeZone = "Europe/Amsterdam";
 
   # Select internationalisation properties.
-  i18n = {
-    defaultLocale = "en_US.UTF-8";
-    supportedLocales = [
-      "en_US.UTF-8/UTF-8"
-      "nl_NL.UTF-8/UTF-8"
-    ];
-  };
-   environment.variables = {
-    LANG = "en_US.UTF-8";
-    LC_ALL = "";
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  i18n.extraLocaleSettings = {
     LC_ADDRESS = "nl_NL.UTF-8";
     LC_IDENTIFICATION = "nl_NL.UTF-8";
-    LC_MEASUREMENT = "nl.UTF-8";
+    LC_MEASUREMENT = "nl_NL.UTF-8";
     LC_MONETARY = "nl_NL.UTF-8";
     LC_NAME = "nl_NL.UTF-8";
     LC_NUMERIC = "nl_NL.UTF-8";
@@ -83,22 +75,6 @@ in
     LC_TIME = "nl_NL.UTF-8";
   };
 
-#  i18n.extraLocaleSettings = {
-#    LANG = "nl_NL.UTF-8";
-#    LANGUAGE = "en_US.utf8";
-#    LC_ADDRESS = "nl_NL.UTF-8";
-#    LC_ALL = "en_US.utf8";
-#    LC_IDENTIFICATION = "nl_NL.UTF-8";
-#    LC_MEASUREMENT = "nl_NL.UTF-8";
-#    LC_MONETARY = "nl_NL.UTF-8";
-#    LC_NAME = "nl_NL.UTF-8";
-#    LC_NUMERIC = "nl_NL.UTF-8";
-#    LC_PAPER = "nl_NL.UTF-8";
-#    LC_TELEPHONE = "nl_NL.UTF-8";
-#    LC_TIME = "nl_NL.UTF-8";
-#
-#  };
-#
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
@@ -127,23 +103,9 @@ in
   # Configure console keymap
   console.keyMap = "us-acentos";
 
-#  # Enable CUPS to print documents.
+  # Enable CUPS to print documents.
   services.printing.enable = true;
-  services.printing.browsedConf = ''
-  BrowseDNSSDSubTypes _cups,_print
-  BrowseLocalProtocols all
-  BrowseRemoteProtocols all
-  CreateIPPPrinterQueues All
-
-BrowseProtocols all
-    '';
-
-  services.avahi.nssmdns4 = {
-  enable = true;
-  nssmdns = true;
-  openFirewall = true;
-};
-
+  services.printing.drivers = [ pkgs.brlaser ];
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -242,23 +204,84 @@ BrowseProtocols all
  networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
  networking.firewall.allowedTCPPorts = [ 57621 ]; # Sync local tracks
 
+# List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
+    #inputs.agenix.packages.${config.system}.default
+    #pkgs.toggl-cli
+    #python311.spotify_dl
+    #xorg.xrandr
+    #zoom-us
+    agenix
+    amazon-ecs-cli
+    autorandr
+    aws-nuke
+    bitwarden
+    bluez
+    certbot
+    copilot-cli
+    coreutils
+    curl
+    dig
+    displaylink
+    file
+    freeoffice
+    gh
+    git
+    git-remote-codecommit
+    gnupg
+    gum
+    home-manager
+    hugo
+    inetutils
+    jellyfin-ffmpeg
+    kdePackages.kcalc
+    lf
+    mosh
+    mpv
+    nmap
+    openssl
+    p3x-onenote
+    pandoc
+    pinentry-gtk2
+    postgresql
+    prowler
+    python311
+    python311Packages.pip
+    signal-desktop
+    slack
+    smplayer
+    spotify
+    ssm-session-manager-plugin
+    ssmsh
+    super-productivity
+    telegram-desktop
+    terraform
+    texliveTeTeX
+    tfswitch
+    thunderbird
+    vim
+    vscode
+    wget
+    whatsapp-for-linux
+    whisper
+    xclip
+    xorg.xbacklight
+    yt-dlp
+    zip
+    zoom-us
+    retext
+   # claws-mail
+#    usbguard
+#    usbguard-notifier
+  ];
+
   age.secrets.secret1.file = ../../secrets/secret1.age;
   age.secretsDir = "/run/keys/wouter";
   users.users.user1 = {
     isNormalUser = true;
     hashedPasswordFile = config.age.secrets.secret1.path;
   };
-
-  nix.settings.trusted-public-keys= [
-    "cache-key:XR6zauyKza9AMuNDgp7eo91xxCpXaU4D8SKvZw/Mu0Q="
-  ];
-
-  nix.settings.trusted-users = [
-  "root"
-  "wtoorren"
-  "@wheel"
-];
-
 
 
 }
