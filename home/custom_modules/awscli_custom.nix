@@ -5,6 +5,7 @@ let
   iniFormat = pkgs.formats.ini { };
 
 in {
+
   meta.maintainers = [ lib.maintainers.anthonyroussel ];
 
   options.programs.awscli_custom = {
