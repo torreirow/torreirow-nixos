@@ -10,6 +10,7 @@ programs.vim.plugins = [
 ]; 
 
 programs.vim.enable = true;
+programs.vim.defaultEditor = true;
 programs.vim.extraConfig = ''
   nmap ,, :NERDTreeFind <CR>
   set hlsearch    " highlight matches

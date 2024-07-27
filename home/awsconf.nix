@@ -4,8 +4,8 @@ let
 
   ## NOTE RUN aws --profile=web_dns s3 cp s3://docs-mcs.technative.eu-longhorn/managed_service_accounts.json ~/.aws/
 
+#  technative_profiles = import ./dotfiles/managed_service_accounts.nix;
   technative_profiles = "${config.home.homeDirectory}/.aws/managed_service_accounts.json";
-
   aws_accounts = builtins.fromJSON (lib.readFile technative_profiles);
 
   groups = {
@@ -19,7 +19,7 @@ let
     dreamlines.ignore = true;
     default.color = "cccccc";
     tracklib.ignore = true; 
-    pastbook.ignore = false;
+    pastbook.ignore = true;
     splitser.ignore = true;
     taskhero.ignoge = true;
     technative.shortname = "tn";
@@ -33,7 +33,7 @@ let
     ct_lz_log_archive.ignore = true;
     finops.ignore = true;
     playground-student18.ignore = true;
-    playground-student17.ignore = true;
+    playground-student17.ignore = false;
     playground-student16.ignore = true;
     playground-student15.ignore = true;
     playground-student14.ignore = true;
@@ -49,7 +49,10 @@ let
     playground-student04.ignore = true;
     playground-student03.ignore = true;
     playground-student02.ignore = true;
+    playground-student01.ignore = false;
     technative_workload_internal_tools_nonprod.ignore = false;
+    prod.ignore = true;
+    test.ignore = true;
   };
 
   alternative_regions = {
@@ -58,7 +61,9 @@ let
     "906347402442" = "us-west-2"; #pastbook
   };
   alternative_names = {
-    "760178553019" = "pg_wtoorren";
+    #"760178553019" = "pg_wtoorren";
+    "992382674167" = "iit-rrs-nonprod";
+    "730335585156" = "iit-rrs-prod";
 #    "911828776050" = "minecraft";
 #    "992382674167" = "iit-nonprod";
 #    "730335585156" = "iit-prod";
@@ -134,4 +139,5 @@ in
     }) (builtins.filter (account: show_account account) aws_accounts));
 
   };
+
 }
