@@ -12,6 +12,7 @@ in
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./programs.nix
+    #./gnome.nix
     ];
 
 
@@ -109,14 +110,11 @@ in
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true;
-#  services.displayManager.gdm.enable = true;
-  #programs.sway.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
-
- # Enable the GNOME Desktop Environment.
 #  services.xserver.displayManager.gdm.enable = true;
 #  services.xserver.desktopManager.gnome.enable = true;
 #  services.xserver.displayManager.gdm.autoSuspend = false;
+  #programs.sway.enable = true;
+services.xserver.desktopManager.plasma5.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
@@ -129,20 +127,21 @@ in
 
 #  # Enable CUPS to print documents.
   services.printing.enable = true;
+  #services.printing.drivers = [ pkgs.brlaser ];
   services.printing.browsedConf = ''
   BrowseDNSSDSubTypes _cups,_print
   BrowseLocalProtocols all
   BrowseRemoteProtocols all
   CreateIPPPrinterQueues All
-
-BrowseProtocols all
+  BrowseProtocols all
     '';
 
-  services.avahi.nssmdns4 = {
-  enable = true;
-  nssmdns = true;
-  openFirewall = true;
-};
+  services.printing.drivers = [ pkgs.cups-dymo ];
+
+
+ services.avahi.enable = true;
+ services.avahi.nssmdns = true;
+ services.avahi.openFirewall = true;
 
 
   # Enable sound with pipewire.
@@ -259,6 +258,8 @@ BrowseProtocols all
   "@wheel"
 ];
 
+
+services.fwupd.enable = true;
 
 
 }
