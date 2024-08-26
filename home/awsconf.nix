@@ -131,7 +131,7 @@ in
       "499164406685-wouter" = {
         "region" = "eu-central-1";
         "output" = "json";
-     };
+      };
     }
     // builtins.listToAttrs (builtins.map (account: {
        name = "profile ${shortname_group account}-${account_name account}";
