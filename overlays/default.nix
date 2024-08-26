@@ -10,5 +10,5 @@ quarto = prev.quarto.override {
     ];
   };
     
-};
+}
 
