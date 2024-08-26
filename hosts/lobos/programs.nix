@@ -79,6 +79,15 @@
     yt-dlp
     zip
     zoom-us
+    fwupd
+    fwupd-efi
+    go-mtpfs
+    digikam
+    quarto
+    entr
+    nerdfonts
+    exiftool
+    ripgrep
    # claws-mail
   # $ nix search wget
   ];
