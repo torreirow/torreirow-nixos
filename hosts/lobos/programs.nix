@@ -1,4 +1,4 @@
-{config, lib, pkgs,  agenix, ... }:
+{config, lib, pkgs,  agenix, toggl-cli, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -88,6 +88,9 @@
     nerdfonts
     exiftool
     ripgrep
+    python311Packages.pytz
+    python311Packages.toggl-cli
+
    # claws-mail
   # $ nix search wget
   ];

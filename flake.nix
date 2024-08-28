@@ -16,7 +16,9 @@
   };
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, }: {
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, }: 
+  
+  {
 
 
 ### MEALHADA HOMEMANAGER START
