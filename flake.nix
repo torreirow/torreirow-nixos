@@ -82,6 +82,7 @@
 
           ./hosts/lobos/configuration.nix
           ./modules/tnaws.nix
+#          ./modules/jsonify-aws-dotfiles.nix
 #          ./modules/fprint.nix
           ./modules/general-desktop.nix
         ];

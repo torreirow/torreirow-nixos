@@ -90,7 +90,8 @@
     ripgrep
     python311Packages.pytz
     python311Packages.toggl-cli
-
+    dasel
+    go
    # claws-mail
   # $ nix search wget
   ];
