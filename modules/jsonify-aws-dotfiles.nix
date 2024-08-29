@@ -1,22 +1,41 @@
-{ lib, buildGoModule, fetchgit }:
-buildGoModule rec {
-  pname = "jsonify-aws-dotfiles";
-  version = "4c60e320b23ee0fae085cfce0b13d3753e39e73e";
+{ config, pkgs }:
 
-  src = fetchgit {
-    url = "https://github.com/mipmip/jsonify-aws-dotfiles.git";
-    rev = "${version}";
-    hash = "sha256-sL1kpWyAVLxoQRJa+m7XSIaM0kxhmE1kOLpnTZVQwB0=";
+let
+  pname = "jsonify-aws-dotfiles";
+  version = "0.1.0"; # Je kunt deze versie aanpassen naar wat er in de repository is gedefinieerd.
+in pkgs.stdenv.mkDerivation rec {
+  pname = pname;
+  version = version;
+
+  src = pkgs.fetchFromGitHub {
+    owner = "niko-dunixi";
+    repo = pname;
+    rev = "HEAD"; # Je kunt een specifieke commit hash of tag opgeven als je niet HEAD wilt gebruiken.
+    sha256 = lib.fakeSha256; # Vervang dit door de echte SHA-256 hash na het bouwen.
   };
 
-  vendorHash = "sha256-W6XVd68MS0ungMgam8jefYMVhyiN6/DB+bliFzs2rdk=";
+  nativeBuildInputs = [ pkgs.go ];
+
+  goPackagePath = "github.com/niko-dunixi/${pname}";
+
+  buildPhase = ''
+    export GOPATH=$(mktemp -d)
+    mkdir -p $GOPATH/src/github.com/niko-dunixi/
+    cp -r $src $GOPATH/src/github.com/niko-dunixi/${pname}
+    cd $GOPATH/src/github.com/niko-dunixi/${pname}
+    go build
+  '';
+
+  installPhase = ''
+    mkdir -p $out/bin
+    cp ${pname} $out/bin/
+  '';
 
   meta = with lib; {
-    description = ''
-      Convert aws config and credential files into a single JSON object
-    '';
-    homepage = "https://github.com/mipmip/jsonify-aws-dotfiles";
+    description = "A Go module for converting AWS dotfiles to JSON format.";
+    homepage = "https://github.com/niko-dunixi/${pname}";
     license = licenses.mit;
+    maintainers = with maintainers; [ ];
   };
 }
 

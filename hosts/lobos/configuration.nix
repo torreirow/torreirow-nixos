@@ -139,9 +139,9 @@ services.xserver.desktopManager.plasma5.enable = true;
   services.printing.drivers = [ pkgs.cups-dymo ];
 
 
- services.avahi.enable = true;
- services.avahi.nssmdns = true;
- services.avahi.openFirewall = true;
+   services.avahi.enable = true;
+   services.avahi.nssmdns4 = true;
+   services.avahi.openFirewall = true;
 
 
   # Enable sound with pipewire.
