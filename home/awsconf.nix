@@ -127,10 +127,13 @@ in
         account_id = "technativebv";
         region = "eu-central-1";
         output = "table";
+        group = "Technative";
       };
+
       "499164406685-wouter" = {
-        "region" = "eu-central-1";
-        "output" = "json";
+        region = "eu-central-1";
+        output = "json";
+        group = "toorren";
       };
     }
     // builtins.listToAttrs (builtins.map (account: {
