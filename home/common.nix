@@ -1,7 +1,8 @@
-{config,pkgs,services,...}: 
+{config,pkgs,services,lib, ...}: 
 
 {
- programs.fzf = {
+
+programs.fzf = {
     enable = true;
     enableZshIntegration = true;
   };
@@ -44,6 +45,8 @@
     LANG= "en_US.UTF-8";
     LC_ALL= "en_US.UTF-8";
   };
+
+#  home.file.".togglrcnew".source = "/tmp/toggl.txt";
 
 
   nixpkgs = {

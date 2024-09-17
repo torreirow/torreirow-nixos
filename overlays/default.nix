@@ -1,14 +1,13 @@
-final: prev: {                                                                                                                                                                                                    
-                                                                                                                                                                                                                  
-quarto = prev.quarto.override {                                                                                                                                                                                   
-    extraPythonPackages = ps: with ps; [                                                                                                                                                                          
-      plotly                                                                                                                                                                                                      
-      numpy                                                                                                                                                                                                       
-      pandas                                                                                                                                                                                                      
-      matplotlib                                                                                                                                                                                                  
-      tabulate                                                                                                                                                                                                    
-    ];                                                                                                                                                                                                            
-  };                                                                                                                                                                                                              
+final: prev: {
+  quarto = prev.quarto.override {
+    extraPythonPackages = ps: with ps; [
+      plotly
+      numpy
+      pandas
+      matplotlib
+      tabulate
+    ];
+  };
 
   python311Packages = prev.python311Packages // {
     toggl-cli = prev.python311Packages.toggl-cli.overrideAttrs (old: rec {
@@ -21,16 +20,16 @@ quarto = prev.quarto.override {
     });
   };
 
-  jsonify-aws-dotfiles = prev.buildGoModule rec {
-        pname = "jsonify-aws-dotfiles";
-        version = "2.1.0";
-        src = prev.fetchFromGitHub {
-          owner = "niko-dunixi";
-          repo = "jsonify-aws-dotfiles";
-          #rev = "v${version}";
-          sha256 = "sha256-CojP1a19b2zKfUMp+wN7FFs+SzSoc8sYqKvXTg4RnOA=";
-        };
-        #vendorHash = "sha256-KO8cbkqdAkGkNrqBh3wIWaQyvf9hqrKjXWbElpQzMpg=";
-      };
+jsonify-aws-dotfiles = prev.buildGoModule rec {
+    pname = "jsonify-aws-dotfiles";
+    version = "4c60e320b23ee0fae085cfce0b13d3753e39e73e";
+    src = prev.fetchgit {
+      url = "https://github.com/wearetechnative/jsonify-aws-dotfiles.git";
+      rev = "${version}";
+      hash = "sha256-sL1kpWyAVLxoQRJa+m7XSIaM0kxhmE1kOLpnTZVQwB0=";
+    };
+    vendorHash = "sha256-W6XVd68MS0ungMgam8jefYMVhyiN6/DB+bliFzs2rdk=";
+    nativeCheckInputs = with prev; [ less ];
+  };
+}
 
-}    

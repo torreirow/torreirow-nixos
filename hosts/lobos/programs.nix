@@ -26,7 +26,7 @@
     dig
     displaylink
     file
-    freeoffice
+    libreoffice
     gh
     git
     git-remote-codecommit
@@ -92,6 +92,15 @@
     python311Packages.toggl-cli
     dasel
     go
+    python311Packages.lxml
+    python311Packages.requests
+    python311Packages.python-telegram-bot
+    python311Packages.buienradar
+    home-assistant-component-tests.buienradar
+    lego
+    cowsay
+    jsonify-aws-dotfiles
+    attic-client
    # claws-mail
   # $ nix search wget
   ];
