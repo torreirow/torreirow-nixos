@@ -13,6 +13,7 @@ in
     ./hardware-configuration.nix
     ./programs.nix
     #./gnome.nix
+    ./lobos-secrets.nix
     ];
 
 
@@ -56,7 +57,7 @@ in
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
-  hardware.bluetooth.powerOnBoot = true;
+  hardware.bluetooth.powerOnBoot = false;
 #  services.blueman.enable = true;
 
   # Set your time zone.
@@ -168,7 +169,7 @@ services.xserver.desktopManager.plasma5.enable = true;
   users.users.wtoorren = {
     isNormalUser = true;
     description = "Wouter van der Toorren";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "keys"];
     # packages = with pkgs; [
     #  thunderbird
     # ];
