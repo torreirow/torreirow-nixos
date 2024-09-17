@@ -9,5 +9,6 @@ in
 {
   "secret1.age".publicKeys = [ user1 system1 ];
   "secret2.age".publicKeys = users ++ systems;
+  "togglwtoorren.age".publicKeys = users ++ systems;
   "secret3.age".publicKeys = users;
 }
