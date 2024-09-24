@@ -1,7 +1,6 @@
 {config, lib, pkgs,  agenix, ... }:
 
 
-
 let
   python311 = pkgs.python311;
 
@@ -103,7 +102,6 @@ in
 #
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-
   services.mysql = {
     enable = true;
     package = pkgs.mariadb;
@@ -111,11 +109,32 @@ in
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true;
+  services.xserver.desktopManager.plasma5.enable = true;
 #  services.xserver.displayManager.gdm.enable = true;
-#  services.xserver.desktopManager.gnome.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
 #  services.xserver.displayManager.gdm.autoSuspend = false;
   #programs.sway.enable = true;
-services.xserver.desktopManager.plasma5.enable = true;
+
+## exclude packages
+	environment.gnome.excludePackages = (with pkgs; [
+			gnome-photos
+			gnome-tour
+		]) ++ (with pkgs.gnome; [
+			cheese # webcam tool
+			gnome-music
+			#gedit # text editor
+			epiphany # web browser
+			geary # email reader
+			#gnome-characters
+			tali # poker game
+			iagno # go game
+			hitori # sudoku game
+			atomix # puzzle game
+			yelp # Help view
+			seahorse
+			#gnome-contacts
+			gnome-initial-setup
+		]);
 
   # Configure keymap in X11
   services.xserver = {
