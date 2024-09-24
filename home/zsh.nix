@@ -6,7 +6,7 @@ programs.zsh = {
       #syntaxHighlighting.enable = false; 
       initExtraFirst = ''                                                                                                                        
         eval "$(atuin init zsh --disable-up-arrow)"; 
-        PATH=$PATH:$HOME/bin
+        PATH=$HOME/bin:$PATH
         '';     
 
       shellAliases = {
