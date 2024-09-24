@@ -95,6 +95,7 @@
     zoom-us
     vlc
     mplayer
+    hyprland
 ];
 
 fonts.packages = with pkgs; [
