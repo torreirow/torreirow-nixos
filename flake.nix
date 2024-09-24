@@ -10,6 +10,9 @@
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     bmc.url = "github:wearetechnative/bmc";
+    race.url = "github:wearetechnative/race";
+    jsonify-aws-dotfiles.url = "github:wearetechnative/jsonify-aws-dotfiles";
+    dirtygit.url = "github:mipmip/dirtygit";
     home-manager = {
       url = "github:nix-community/home-manager/release-24.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -22,7 +25,20 @@
   };
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage}: 
+
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles}: 
+  let 
+    system = "x86_64-linux";
+    extraPkgs= {
+      environment.systemPackages = [ 
+        bmc.packages."${system}".bmc 
+        dirtygit.packages."${system}".dirtygit
+        race.packages."${system}".race 
+        jsonify-aws-dotfiles.packages."${system}".jsonify-aws-dotfiles
+      ];
+  };
+
+  in
 
   {
 
@@ -84,19 +100,14 @@
         };
 
 
-        bmcBin = {
-          environment.systemPackages = [ bmc.packages."${system}".bmc ];
-        };
-
+        
 
       in [
         defaults
+        extraPkgs
         agenix.nixosModules.default
-        bmcBin
         ./hosts/lobos/configuration.nix
         ./modules/tnaws.nix
-        #./modules/jsonify-aws-dotfiles.nix
-        #./modules/fprint.nix
         ./modules/general-desktop.nix
       ];
     };
