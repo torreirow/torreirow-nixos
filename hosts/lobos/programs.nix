@@ -2,18 +2,11 @@
 
 {
   environment.systemPackages = with pkgs; [
-    #    usbguard
-    #    usbguard-notifier
-    # List packages installed in system profile. To search, run:
-    #inputs.agenix.packages.${config.system}.default
-    #pkgs.toggl-cli
-    #python311.spotify_dl
-    #xorg.xrandr
-    #zoom-us
     agenix
     amazon-ecs-cli
     anki
     appimage-run
+    attic-client
     autorandr
     avahi
     aws-nuke
@@ -22,26 +15,38 @@
     certbot
     copilot-cli
     coreutils
+    cowsay
     curl
     dig
+    digikam
     displaylink
+    entr
+    exiftool
     file
-    libreoffice
+    fwupd
+    fwupd-efi
     gh
     git
     git-remote-codecommit
     glibcLocales
     gnupg
+    go
+    go-mtpfs
+    granted
     gum
+    home-assistant-component-tests.buienradar
     home-manager
     hugo
     inetutils
     jellyfin-ffmpeg
     kdePackages.kcalc
     kdePackages.powerdevil
+    lego
     lf
+    libreoffice
     mosh
     mpv
+    nerdfonts
     nmap
     openssl
     p3x-onenote
@@ -51,12 +56,21 @@
     pre-commit
     prowler
     python311
+    python311Packages.buienradar
+    python311Packages.lxml
     python311Packages.pip
+    python311Packages.python-telegram-bot
+    python311Packages.pytz
+    python311Packages.requests
+    python311Packages.toggl-cli
+    quarto
     remmina
     retext
+    ripgrep
     signal-desktop
     slack
     smplayer
+    smug
     spotdl
     spotify
     sqsh
@@ -79,29 +93,13 @@
     yt-dlp
     zip
     zoom-us
-    fwupd
-    fwupd-efi
-    go-mtpfs
-    digikam
-    quarto
-    entr
-    nerdfonts
-    exiftool
-    ripgrep
-    python311Packages.pytz
-    python311Packages.toggl-cli
-    dasel
-    go
-    python311Packages.lxml
-    python311Packages.requests
-    python311Packages.python-telegram-bot
-    python311Packages.buienradar
-    home-assistant-component-tests.buienradar
-    lego
-    cowsay
-    jsonify-aws-dotfiles
-    attic-client
-   # claws-mail
-  # $ nix search wget
-  ];
+    vlc
+    mplayer
+];
+
+fonts.packages = with pkgs; [
+  open-sans
+  google-fonts
+];
+
 } 
