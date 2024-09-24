@@ -11,6 +11,13 @@
         group = "users";
         mode = "0760";
       };
+#      loboskey = {
+#        file = "../../secrets/loboskey.age";
+#        path = "/tmp/loboskey";
+#        owner = "wtoorren";
+#        group = "wtoorren";
+#        mode = "0600";
+#      };
     };
   };
 
