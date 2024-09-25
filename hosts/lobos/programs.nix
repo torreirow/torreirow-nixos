@@ -96,6 +96,7 @@
     vlc
     mplayer
     hyprland
+    kitty
 ];
 
 fonts.packages = with pkgs; [

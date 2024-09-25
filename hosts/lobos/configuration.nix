@@ -1,74 +1,40 @@
-{config, lib, pkgs,  agenix, ... }:
+# Edit this configuration file to define what should be installed on
+# your system.  Help is available in the configuration.nix(5) man page
+# and in the NixOS manual (accessible by running ‘nixos-help’).
 
+{ config, pkgs, ... }:
 
-let
-  python311 = pkgs.python311;
-
-in
-
-  {
+{
   imports =
     [ # Include the results of the hardware scan.
-    ./hardware-configuration.nix
-    ./programs.nix
-    #./gnome.nix
-    ./lobos-secrets.nix
+      ./hardware-configuration.nix
     ];
-
-
-
-
-  nix.extraOptions = ''
-    experimental-features = nix-command flakes
-    '';
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
-
-  # DisplayLink manager + hardware
-    boot.extraModulePackages = with config.boot.kernelPackages; [
-    evdi
-  ];
-
-  services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
-  services.xserver.displayManager.sessionCommands = ''
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
-    ${lib.getBin pkgs.autorandr}/bin/xrandr --setprovideroutputsource 2 0
-    ${lib.getBin pkgs.autorandr}/bin/xrandr --auto
-    '';
-      boot.kernelModules = [ "evdi" ];
-
+  networking.hostName = "nixos"; # Define your hostname.
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-
-  # Enable bluetooth
-  hardware.bluetooth.enable = true; # enables support for Bluetooth
-  hardware.bluetooth.powerOnBoot = false;
-#  services.blueman.enable = true;
+  # Enable networking
+  networking.networkmanager.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
 
   # Select internationalisation properties.
-  i18n = {
-    defaultLocale = "en_US.UTF-8";
-    supportedLocales = [
-      "en_US.UTF-8/UTF-8"
-      "nl_NL.UTF-8/UTF-8"
-    ];
-  };
-   environment.variables = {
-    LANG = "en_US.UTF-8";
-    LC_ALL = "";
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  i18n.extraLocaleSettings = {
     LC_ADDRESS = "nl_NL.UTF-8";
     LC_IDENTIFICATION = "nl_NL.UTF-8";
-    LC_MEASUREMENT = "nl.UTF-8";
+    LC_MEASUREMENT = "nl_NL.UTF-8";
     LC_MONETARY = "nl_NL.UTF-8";
     LC_NAME = "nl_NL.UTF-8";
     LC_NUMERIC = "nl_NL.UTF-8";
@@ -77,85 +43,24 @@ in
     LC_TIME = "nl_NL.UTF-8";
   };
 
-#  i18n.extraLocaleSettings = {
-#    LANG = "nl_NL.UTF-8";
-#    LANGUAGE = "en_US.utf8";
-#    LC_ADDRESS = "nl_NL.UTF-8";
-#    LC_ALL = "en_US.utf8";
-#    LC_IDENTIFICATION = "nl_NL.UTF-8";
-#    LC_MEASUREMENT = "nl_NL.UTF-8";
-#    LC_MONETARY = "nl_NL.UTF-8";
-#    LC_NAME = "nl_NL.UTF-8";
-#    LC_NUMERIC = "nl_NL.UTF-8";
-#    LC_PAPER = "nl_NL.UTF-8";
-#    LC_TELEPHONE = "nl_NL.UTF-8";
-#    LC_TIME = "nl_NL.UTF-8";
-#
-#  };
-#
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-  services.mysql = {
-    enable = true;
-    package = pkgs.mariadb;
-  };
 
   # Enable the KDE Plasma Desktop Environment.
-#  services.displayManager.sddm.enable = true;
+  services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-  services.xserver.displayManager.gdm.autoSuspend = false;
-  #programs.sway.enable = true;
-
-## exclude packages
-	environment.gnome.excludePackages = (with pkgs; [
-			gnome-photos
-			gnome-tour
-		]) ++ (with pkgs.gnome; [
-			cheese # webcam tool
-			gnome-music
-			#gedit # text editor
-			epiphany # web browser
-			geary # email reader
-			#gnome-characters
-			tali # poker game
-			iagno # go game
-			hitori # sudoku game
-			atomix # puzzle game
-			yelp # Help view
-			seahorse
-			#gnome-contacts
-			gnome-initial-setup
-		]);
 
   # Configure keymap in X11
   services.xserver = {
-    xkb.layout = "us";
-    xkb.variant = "intl";
+    layout = "us";
+    xkbVariant = "intl";
   };
 
   # Configure console keymap
   console.keyMap = "us-acentos";
 
-#  # Enable CUPS to print documents.
+  # Enable CUPS to print documents.
   services.printing.enable = true;
-  #services.printing.drivers = [ pkgs.brlaser ];
-  services.printing.browsedConf = ''
-  BrowseDNSSDSubTypes _cups,_print
-  BrowseLocalProtocols all
-  BrowseRemoteProtocols all
-  CreateIPPPrinterQueues All
-  BrowseProtocols all
-    '';
-
-  services.printing.drivers = [ pkgs.cups-dymo ];
-
-
-   services.avahi.enable = true;
-   services.avahi.nssmdns4 = true;
-   services.avahi.openFirewall = true;
-
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -167,11 +72,11 @@ in
     alsa.support32Bit = true;
     pulse.enable = true;
     # If you want to use JACK applications, uncomment this
-    jack.enable = true;
+    #jack.enable = true;
 
     # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
-    # media-session.enable = true;
+    #media-session.enable = true;
   };
 
   # Enable touchpad support (enabled default in most desktopManager).
@@ -181,28 +86,36 @@ in
   users.users.wtoorren = {
     isNormalUser = true;
     description = "Wouter van der Toorren";
-    extraGroups = [ "networkmanager" "wheel" "keys"];
-    # packages = with pkgs; [
+    extraGroups = [ "networkmanager" "wheel" ];
+    packages = with pkgs; [
+      firefox
+      kate
     #  thunderbird
-    # ];
+    ];
   };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-    # Some programs need SUID wrappers, can be configured further or are
+  # List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
+  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+  #  wget
+  ];
+
+  # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-   programs.mtr.enable = true;
-#   programs.gnupg.agent = {
-#     enable = true;
-#     enableSSHSupport = true;
-#   };
+  # programs.mtr.enable = true;
+  # programs.gnupg.agent = {
+  #   enable = true;
+  #   enableSSHSupport = true;
+  # };
 
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-  services.openssh.extraConfig = "LoginGracetime=0";
+  # services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -217,75 +130,5 @@ in
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
-
-  environment.etc = {
-    "zshrc.local" = {
-      text = ''
-        PROMPT="%(?:%{$fg_bold[green]%}➜:%{$fg_bold[red]%}➜) %F{magenta}%n%f%{$fg[blue]%}@%M %{$fg[cyan]%}%c%{$reset_color%}"
-        PROMPT+=' $(git_prompt_info)'
-        ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}(%{$fg[red]%}"
-        ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
-        ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}✗"
-        ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
-      '';
-    };
-  };
-
-  users.groups.docker.members = [ "wtoorren"  ];
-
-  users.defaultUserShell = pkgs.zsh;
-  users.users.root = {
-    shell = pkgs.zsh;
-  };
-
-  programs.zsh.enable = true;
-
-  virtualisation.docker.enable = true;
-
-  programs.gnupg.agent.pinentryPackage = {
-   enable = true;
-   pinentryFlavor = "gtk2";
- };
-  programs.openvpn3 = {
-    enable = true;
-  };
-
- 
-  age.secrets.secret1.file = ../../secrets/secret1.age;
-  age.secretsDir = "/run/keys/wouter";
-  users.users.user1 = {
-    isNormalUser = true;
-    hashedPasswordFile = config.age.secrets.secret1.path;
-  };
-
-  nix.settings.trusted-public-keys= [
-    "cache-key:XR6zauyKza9AMuNDgp7eo91xxCpXaU4D8SKvZw/Mu0Q="
-  ];
-
-  nix.settings.trusted-users = [
-  "root"
-  "wtoorren"
-  "@wheel"
-];
-
-
-services.fwupd.enable = true;
-
-networking = {
-  hostName = "lobos"; # Define your hostname
-  useDHCP = lib.mkDefault true;
-  interfaces = {
-    eth0.useDHCP = lib.mkDefault true;  # Zorg ervoor dat je de juiste interface gebruikt
-  };
-  dhcpcd.extraConfig = ''
-    interface eth0
-    metric 100
-  ''; 
-  networkmanager.enable = true;
-  firewall = {
-    allowedUDPPorts = [ 5353 60000 61000 ]; # Spotify Connect en andere UDP-poorten
-    allowedTCPPorts = [ 57621 ]; # Sync local tracks
-  };
-};
 
 }
