@@ -1,7 +1,6 @@
 {config, lib, pkgs,  agenix, ... }:
 
 
-
 let
   python311 = pkgs.python311;
 
@@ -12,7 +11,8 @@ in
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./programs.nix
-    ./gnome.nix
+    #./gnome.nix
+    ./lobos-secrets.nix
     ];
 
 
@@ -26,8 +26,6 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
-  networking.hostName = "lobos"; # Define your hostname.
- # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # DisplayLink manager + hardware
     boot.extraModulePackages = with config.boot.kernelPackages; [
@@ -44,17 +42,40 @@ in
       boot.kernelModules = [ "evdi" ];
 
 
+  ####  NETWORKING
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-  # Enable networking
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
+
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+ 
   networking.networkmanager = {
-    enable = true;
+    enable = false;
     wifi.powersave = false;
   };
 
+  networking.useDHCP = true;
+  networking.dhcpcd.enable = true;
+
+
+  networking.usePredictableInterfaceNames = true;
+  networking.hostName = "lobos"; # Define your hostname.
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # Enable bluetooth
+
+
+  ### BLUETOOTH
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.powerOnBoot = true;
 #  services.blueman.enable = true;
@@ -102,19 +123,39 @@ in
 #
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-
   services.mysql = {
     enable = true;
     package = pkgs.mariadb;
   };
 
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
-#  services.xserver.displayManager.gdm.enable = true;
-#  services.xserver.desktopManager.gnome.enable = true;
+#  services.displayManager.sddm.enable = true;
+  services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
 #  services.xserver.displayManager.gdm.autoSuspend = false;
   #programs.sway.enable = true;
-services.xserver.desktopManager.plasma5.enable = true;
+
+## exclude packages
+	environment.gnome.excludePackages = (with pkgs; [
+			gnome-photos
+			gnome-tour
+		]) ++ (with pkgs.gnome; [
+			cheese # webcam tool
+			gnome-music
+			#gedit # text editor
+			epiphany # web browser
+			geary # email reader
+			#gnome-characters
+			tali # poker game
+			iagno # go game
+			hitori # sudoku game
+			atomix # puzzle game
+			yelp # Help view
+			seahorse
+			#gnome-contacts
+			gnome-initial-setup
+		]);
 
   # Configure keymap in X11
   services.xserver = {
@@ -139,9 +180,9 @@ services.xserver.desktopManager.plasma5.enable = true;
   services.printing.drivers = [ pkgs.cups-dymo ];
 
 
- services.avahi.enable = true;
- services.avahi.nssmdns = true;
- services.avahi.openFirewall = true;
+   services.avahi.enable = true;
+   services.avahi.nssmdns4 = true;
+   services.avahi.openFirewall = true;
 
 
   # Enable sound with pipewire.
@@ -168,7 +209,7 @@ services.xserver.desktopManager.plasma5.enable = true;
   users.users.wtoorren = {
     isNormalUser = true;
     description = "Wouter van der Toorren";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "keys"];
     # packages = with pkgs; [
     #  thunderbird
     # ];
@@ -191,19 +232,7 @@ services.xserver.desktopManager.plasma5.enable = true;
   services.openssh.enable = true;
   services.openssh.extraConfig = "LoginGracetime=0";
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+ system.stateVersion = "23.11"; # Did you read the comment?
 
   environment.etc = {
     "zshrc.local" = {
@@ -260,20 +289,6 @@ services.xserver.desktopManager.plasma5.enable = true;
 
 
 services.fwupd.enable = true;
-
-  environment.systemPackages =
-    let
-      toggl-cli = with pkgs; stdenv.mkDerivation rec {
-        name = "toggl-cli";
-        src = fetchurl {
-          url = "https://github.com/AuHau/toggl-cli/archive/refs/tags/v3.0.2.tar.gz";
-          hash = "sha256-eOuOJnqpaxKhn2kmgg1xuWNc2GxqG7xLb7nYf58ht38=";
-        };
-      };
-    in
-    [ toggl-cli ];
-
-
 
 
 }

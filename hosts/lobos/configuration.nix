@@ -26,8 +26,6 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
-  networking.hostName = "lobos"; # Define your hostname.
- # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # DisplayLink manager + hardware
     boot.extraModulePackages = with config.boot.kernelPackages; [
@@ -48,11 +46,6 @@ in
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-  # Enable networking
-  networking.networkmanager = {
-    enable = true;
-    wifi.powersave = false;
-  };
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
@@ -108,11 +101,11 @@ in
   };
 
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
+#  services.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-#  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
-#  services.xserver.displayManager.gdm.autoSuspend = false;
+  services.xserver.displayManager.gdm.autoSuspend = false;
   #programs.sway.enable = true;
 
 ## exclude packages
@@ -257,10 +250,7 @@ in
     enable = true;
   };
 
- ## Spotify discovery devices
- networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
- networking.firewall.allowedTCPPorts = [ 57621 ]; # Sync local tracks
-
+ 
   age.secrets.secret1.file = ../../secrets/secret1.age;
   age.secretsDir = "/run/keys/wouter";
   users.users.user1 = {
@@ -281,5 +271,21 @@ in
 
 services.fwupd.enable = true;
 
+networking = {
+  hostName = "lobos"; # Define your hostname
+  useDHCP = lib.mkDefault true;
+  interfaces = {
+    eth0.useDHCP = lib.mkDefault true;  # Zorg ervoor dat je de juiste interface gebruikt
+  };
+  dhcpcd.extraConfig = ''
+    interface eth0
+    metric 100
+  ''; 
+  networkmanager.enable = true;
+  firewall = {
+    allowedUDPPorts = [ 5353 60000 61000 ]; # Spotify Connect en andere UDP-poorten
+    allowedTCPPorts = [ 57621 ]; # Sync local tracks
+  };
+};
 
 }

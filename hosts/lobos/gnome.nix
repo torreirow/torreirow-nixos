@@ -14,5 +14,6 @@
     gnomeExtensions.power-profile-switcher
     gnome.gpaste
     gnomeExtensions.unite
+    gnomeExtensions.gnome-screensaver
   ];
 } 
