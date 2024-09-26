@@ -95,7 +95,7 @@
     zoom-us
     vlc
     mplayer
-    hyprland
+    kitty
 ];
 
 fonts.packages = with pkgs; [
@@ -103,4 +103,4 @@ fonts.packages = with pkgs; [
   google-fonts
 ];
 
-} 
+}
