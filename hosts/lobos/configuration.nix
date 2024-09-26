@@ -26,8 +26,6 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
-  networking.hostName = "lobos"; # Define your hostname.
- # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # DisplayLink manager + hardware
     boot.extraModulePackages = with config.boot.kernelPackages; [
@@ -44,15 +42,30 @@ in
       boot.kernelModules = [ "evdi" ];
 
 
+  ########## NETWORKING ##########
+
+  # Enable networking
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+
+  networking.hostName = "lobos"; # Define your hostname.
+  networking.networkmanager = {
+    enable = true;
+    dhcp = "internal";
+   wifi.powersave = false;
+  };
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
 
-  # Enable networking
-  networking.networkmanager = {
-    enable = true;
-    wifi.powersave = false;
-  };
+  ## Spotify discovery devices
+  networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
+  networking.firewall.allowedTCPPorts = [ 57621 ]; # Sync local tracks
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
@@ -211,12 +224,6 @@ in
   services.openssh.enable = true;
   services.openssh.extraConfig = "LoginGracetime=0";
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
@@ -257,9 +264,6 @@ in
     enable = true;
   };
 
- ## Spotify discovery devices
- networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
- networking.firewall.allowedTCPPorts = [ 57621 ]; # Sync local tracks
 
   age.secrets.secret1.file = ../../secrets/secret1.age;
   age.secretsDir = "/run/keys/wouter";
