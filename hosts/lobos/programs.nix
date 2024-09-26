@@ -96,6 +96,8 @@
     vlc
     mplayer
     kitty
+    qogir-theme
+    gnome.gnome-tweaks
 ];
 
 fonts.packages = with pkgs; [

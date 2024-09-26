@@ -17,7 +17,6 @@ in
 
 
 
-
   nix.extraOptions = ''
     experimental-features = nix-command flakes
     '';
@@ -26,11 +25,13 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
 
   # DisplayLink manager + hardware
     boot.extraModulePackages = with config.boot.kernelPackages; [
     evdi
   ];
+
 
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
   services.xserver.displayManager.sessionCommands = ''
@@ -51,8 +52,10 @@ in
   networking.networkmanager = {
     enable = true;
     dhcp = "internal";
-   wifi.powersave = false;
+    wifi.powersave = false;
   };
+
+
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -83,6 +86,8 @@ in
       "nl_NL.UTF-8/UTF-8"
     ];
   };
+
+
    environment.variables = {
     LANG = "en_US.UTF-8";
     LC_ALL = "";
@@ -114,19 +119,24 @@ in
 #  };
 #
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
   services.mysql = {
     enable = true;
     package = pkgs.mariadb;
   };
 
   # Enable the KDE Plasma Desktop Environment.
+  services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 #  services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
 #  services.xserver.displayManager.gdm.autoSuspend = false;
   #programs.sway.enable = true;
+
+  ## NEW CONFIG
+  services.displayManager.defaultSession = "plasma";
+
+
 
 ## exclude packages
 	environment.gnome.excludePackages = (with pkgs; [
@@ -170,29 +180,28 @@ in
     '';
 
   services.printing.drivers = [ pkgs.cups-dymo ];
-
-
-   services.avahi.enable = true;
-   services.avahi.nssmdns4 = true;
-   services.avahi.openFirewall = true;
+  services.avahi.enable = true;
+  services.avahi.nssmdns4 = true;
+  services.avahi.openFirewall = true;
 
 
   # Enable sound with pipewire.
   sound.enable = true;
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    jack.enable = true;
+  hardware.pulseaudio.enable = true;
 
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    # media-session.enable = true;
-  };
+#  security.rtkit.enable = true;
+#  services.pipewire = {
+#    enable = true;
+#    alsa.enable = true;
+#    alsa.support32Bit = true;
+#    pulse.enable = true;
+#    # If you want to use JACK applications, uncomment this
+#    jack.enable = true;
+#
+#    # use the example session manager (no others are packaged yet so this is enabled by default,
+#    # no need to redefine it in your config for now)
+#    # media-session.enable = true;
+#  };
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
@@ -284,6 +293,5 @@ in
 
 
 services.fwupd.enable = true;
-
 
 }
