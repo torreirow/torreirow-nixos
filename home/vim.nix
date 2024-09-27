@@ -7,12 +7,26 @@ programs.vim.plugins = [
   pkgs.vimPlugins.vim-nix
   pkgs.vimPlugins.nvim-treesitter-parsers.cooklang
   pkgs.vimPlugins.ayu-vim
+
+### VIM PLUG TODO
+#  pkgs.vimPlugins.vim-plug
+#  runtime! plug.vim
+#  call plug#begin('~/.vim/plugged')
+#    Plug 'mipmip/vim-hotpop.vim'
+#  call plug#end()
+
+
 ]; 
 
 programs.vim.enable = true;
 programs.vim.defaultEditor = true;
 programs.vim.extraConfig = ''
   nmap ,, :NERDTreeFind <CR>
+  nmap ,/ :Ag 
+  nmap ,\ :Rg 
+  nmap ,b :Buffers
+  nmap ,f :Files
+  nmap ,n :NERDTree <CR>
   set hlsearch    " highlight matches
   set ignorecase  " searches are case insensitive...
   set smartcase   " ... unless they contain at least one capital letter
@@ -20,7 +34,7 @@ programs.vim.extraConfig = ''
   set tabstop=2
   set shiftwidth=2
   set expandtab
-  silent !mkdir ~/.vim_temp/undodir > /dev/null 2>&1
+  silent !mkdir -p ~/.vim_temp/undodir > /dev/null 2>&1
   set undofile " Maintain undo history between sessions
   set undodir=~/.vim_temp/undodir
   let NERDTreeShowBookmarks=1
