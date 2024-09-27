@@ -29,6 +29,7 @@
     git
     git-remote-codecommit
     glibcLocales
+    gnome.gnome-tweaks
     gnupg
     go
     go-mtpfs
@@ -41,16 +42,19 @@
     jellyfin-ffmpeg
     kdePackages.kcalc
     kdePackages.powerdevil
+    kitty
     lego
     lf
     libreoffice
     mosh
+    mplayer
     mpv
     nerdfonts
     nmap
     openssl
     p3x-onenote
     pandoc
+    pavucontrol
     pinentry-gtk2
     postgresql
     pre-commit
@@ -63,6 +67,7 @@
     python311Packages.pytz
     python311Packages.requests
     python311Packages.toggl-cli
+    qogir-theme
     quarto
     remmina
     retext
@@ -84,6 +89,7 @@
     tfswitch
     thunderbird
     vim
+    vlc
     vscode
     wget
     whatsapp-for-linux
@@ -93,11 +99,8 @@
     yt-dlp
     zip
     zoom-us
-    vlc
-    mplayer
-    kitty
-    qogir-theme
-    gnome.gnome-tweaks
+    silver-searcher
+    ripgrep
 ];
 
 fonts.packages = with pkgs; [
