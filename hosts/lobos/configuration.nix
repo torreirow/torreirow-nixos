@@ -11,8 +11,9 @@ in
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./programs.nix
-    #./gnome.nix
+   #./gnome.nix
     ./lobos-secrets.nix
+    ../../modules/teamviewer.nix
     ];
 
 
@@ -72,7 +73,7 @@ in
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
-  hardware.bluetooth.powerOnBoot = false;
+  hardware.bluetooth.powerOnBoot = true;
 #  services.blueman.enable = true;
 
   # Set your time zone.
@@ -293,5 +294,5 @@ in
 
 
 services.fwupd.enable = true;
-
+services.xscreensaver.enable = true;
 }

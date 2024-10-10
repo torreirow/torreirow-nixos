@@ -2,6 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
+    gnome.gnome-tweaks
     agenix
     amazon-ecs-cli
     anki
@@ -11,7 +12,7 @@
     avahi
     aws-nuke
     bitwarden
-    bluez
+    #bluez
     certbot
     copilot-cli
     coreutils
@@ -101,6 +102,10 @@
     zoom-us
     silver-searcher
     ripgrep
+    alacritty
+    teams-for-linux
+    yj
+    qemu
 ];
 
 fonts.packages = with pkgs; [

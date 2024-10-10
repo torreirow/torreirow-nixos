@@ -11,5 +11,6 @@ in
   "secret2.age".publicKeys = users ++ systems;
   "togglwtoorren.age".publicKeys = users ++ systems;
   "loboskey.age".publicKeys = users ;
-  "secret3.age".publicKeys = users;
+  "spotifywto.age".publicKeys = users ++ systems;
+  "atticwto.age".publicKeys = users ++ systems;
 }
