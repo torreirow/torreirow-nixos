@@ -5,6 +5,7 @@
     agenix.url = "github:ryantm/agenix";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
     nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs-2405.url = "github:NixOS/nixpkgs/nixos-24.05";
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-darwin.url = "github:LnL7/nix-darwin";
@@ -26,7 +27,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405}: 
   let 
     system = "x86_64-linux";
     extraPkgs= {
