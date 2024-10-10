@@ -13,7 +13,7 @@ let
     mustad_hoofcare.shortname = "mus";
     technative.color = "9141ac";
     ddgc.color = "1c71d8";
-    ddgc.ignore = true;
+    ddgc.ignore = false;
     improvement_it.color = "1c71d8";
     improvement_it.shortname = "iit";
     dreamlines.ignore = true;
@@ -128,6 +128,14 @@ in
         region = "eu-central-1";
         output = "table";
         group = "Technative";
+      };
+
+      "profile ActiFlow" = {
+        role_arn = "arn:aws:iam::337810061405:role/TechnativeFullAccessRole";
+        region = "eu-north-1";
+        group = "ActiFlow";
+        output = "json";
+        source_profile = "technative";
       };
 
       "499164406685-wouter" = {

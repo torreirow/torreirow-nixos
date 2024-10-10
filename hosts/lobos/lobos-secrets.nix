@@ -12,13 +12,27 @@
         mode = "0760";
       };
 #      loboskey = {
-#        file = "../../secrets/loboskey.age";
+#        file = ../../secrets/loboskey.age;
 #        path = "/tmp/loboskey";
 #        owner = "wtoorren";
 #        group = "wtoorren";
-#        mode = "0600";
+#        mode = "600";
 #      };
-    };
+      spotifywto = {
+        file = ../../secrets/spotifywto.age;
+        path = "/tmp/spotifywto";
+        owner = "wtoorren";
+        group = "users";
+        mode = "600";
+      };
+      atticwto = {
+        file = ../../secrets/atticwto.age;
+        path = "/tmp/atticwto";
+        owner = "wtoorren";
+        group = "users";
+        mode = "600";
+      };
+     };
   };
 
 
