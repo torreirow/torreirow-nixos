@@ -2,8 +2,9 @@
 
 {
   environment.systemPackages = with pkgs; [
-    gnome.gnome-tweaks
+    #bluez
     agenix
+    alacritty
     amazon-ecs-cli
     anki
     appimage-run
@@ -12,7 +13,6 @@
     avahi
     aws-nuke
     bitwarden
-    #bluez
     certbot
     copilot-cli
     coreutils
@@ -27,9 +27,11 @@
     fwupd
     fwupd-efi
     gh
+    gimp
     git
     git-remote-codecommit
     glibcLocales
+    gnome.gnome-tweaks
     gnome.gnome-tweaks
     gnupg
     go
@@ -52,6 +54,7 @@
     mpv
     nerdfonts
     nmap
+    openai-whisper
     openssl
     p3x-onenote
     pandoc
@@ -68,12 +71,15 @@
     python311Packages.pytz
     python311Packages.requests
     python311Packages.toggl-cli
+    qemu
     qogir-theme
     quarto
     remmina
     retext
     ripgrep
+    ripgrep
     signal-desktop
+    silver-searcher
     slack
     smplayer
     smug
@@ -83,6 +89,7 @@
     ssm-session-manager-plugin
     ssmsh
     super-productivity
+    teams-for-linux
     telegram-desktop
     terraform
     terraform-docs
@@ -94,18 +101,13 @@
     vscode
     wget
     whatsapp-for-linux
-    whisper
     xclip
     xorg.xbacklight
+    yj
     yt-dlp
     zip
     zoom-us
-    silver-searcher
-    ripgrep
-    alacritty
-    teams-for-linux
-    yj
-    qemu
+#    pgadmin4
 ];
 
 fonts.packages = with pkgs; [
