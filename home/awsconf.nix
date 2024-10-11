@@ -143,6 +143,20 @@ in
         output = "json";
         group = "toorren";
       };
+      "profile mustad-developer"= {
+        role_arn = "arn:aws:iam::925937276627:role/developer";
+        region = "us-east-2";
+        output = "json";
+        group = "mustad-pg";
+        source_profile = "mustad";
+      };
+      "profile mustad-jumphost"= {
+        role_arn = "arn:aws:iam::925937276627:role/jumphost";
+        region = "us-east-2";
+        output = "json";
+        group = "mustad-pg";
+        source_profile = "mustad";
+      };
     }
     // builtins.listToAttrs (builtins.map (account: {
        name = "profile ${shortname_group account}-${account_name account}";
