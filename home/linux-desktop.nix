@@ -6,6 +6,7 @@
   ./vim.nix
   ./dotfiles
   ./tmux.nix
+  ./gnome-desktop
 #  ./dotfiles/toggl-secret.nix
 ];
 

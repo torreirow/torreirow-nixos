@@ -127,12 +127,10 @@ in
 
   # Enable the KDE Plasma Desktop Environment.
   services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.enable = false;
+  services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.plasma5.enable = false;
-#  services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
-#  services.xserver.displayManager.gdm.autoSuspend = false;
-  #programs.sway.enable = true;
 
   ## NEW CONFIG
   services.displayManager.defaultSession = "gnome";
