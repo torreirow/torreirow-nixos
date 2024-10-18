@@ -1,0 +1,20 @@
+session: TorrLinny
+
+root: ~/data/git/torreirow/torrlinny
+
+stop:
+
+windows:
+  - name: mynotes
+    layout: main-horizontal
+    commands:
+      - vim -c LinnyStart
+  - name: sync
+    layout: main-horizontal
+    commands:
+      - watch -n 10 git-sync -n
+    panes:
+      - type: horizontal
+        commands:
+          - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1314
+
