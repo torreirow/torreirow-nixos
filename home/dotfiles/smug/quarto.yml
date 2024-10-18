@@ -1,0 +1,15 @@
+session: quarto
+root: ~/data/git/technative-university/technative-talks-pim
+before_start:
+stop:
+windows:
+  - name: quarto
+    root: ~/data/git/technative-university/technative-talks-pim
+    layout: main-vertical
+    commands:
+    panes:
+      - type: horizontal
+        commands:
+      - type: horizontal
+        commands:
+          - qdm

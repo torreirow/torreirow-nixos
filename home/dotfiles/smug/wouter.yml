@@ -1,0 +1,22 @@
+session: wouter
+
+root: /home/wtoorren/data/git/torreirow/temp/stwv/hugo-cohub
+
+env:
+  FOO: BAR
+
+windows:
+  - name: content
+    root: content  
+    manual: true # you can start this window only manually, using the -w arg
+    layout: main-vertical
+    panes:
+      - type: horizontal
+        root: .
+
+  - name: infrastructure
+    root: /tmp
+    layout: tiled
+    panes:
+      - type: horizontal
+        root: .

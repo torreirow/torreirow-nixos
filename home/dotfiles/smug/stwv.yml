@@ -1,0 +1,20 @@
+session: stwvb
+
+root: /home/wtoorren/data/git/torreirow/temp/stwv/hugo-cohub
+
+env:
+  FOO: BAR
+
+windows:
+  - name: content
+    root: /home/wtoorren/data/git/torreirow/temp/stwv/hugo-cohub
+    manual: true # you can start this window only manually, using the -w arg
+    layout: main-vertical
+    panes:
+      - type: horizontal
+
+  - name: infrastructure
+    root: /home/wtoorren/data/git/torreirow/temp/stwv/hugo-cohub
+    layout: tiled
+    panes:
+      - type: horizontal
