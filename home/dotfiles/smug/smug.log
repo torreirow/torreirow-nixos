@@ -1,0 +1,14 @@
+tmux has-session -t quarto:
+exit status 1 can't find session: quarto
+
+tmux new -Pd -s quarto -n smug_def -c /home/wtoorren/data/git/technative-university/technative-talks-pim
+tmux setenv -t quarto FOO BAR
+tmux setenv -t quarto SMUG_SESSION quarto
+tmux setenv -t quarto SMUG_SESSION_CONFIG_PATH /home/wtoorren/.config/smug/quarto.yml
+tmux kill-window -t quarto:smug_def
+tmux move-window -r -s quarto: -t quarto:
+exit status 1 can't find session: quarto
+
+tmux kill-session -t quarto
+exit status 1 can't find session: quarto
+
