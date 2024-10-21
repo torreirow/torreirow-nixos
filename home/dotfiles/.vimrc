@@ -1,3 +1,14 @@
+call plug#begin('~/.local/share/nvim/plugged')
+  Plug 'preservim/nerdtree'
+  Plug 'junegunn/fzf.vim'
+  Plug 'junegunn/fzf'
+  Plug 'hashivim/vim-terraform'
+  Plug 'LnL7/vim-nix'
+  Plug 'luizribeiro/vim-cooklang', { 'for': 'cook' }
+  Plug 'ayu-theme/ayu-vim' 
+  Plug 'linden-project/linny.vim' 
+call plug#end()
+
 nmap ,, :NERDTreeFind <CR>
 nmap ,/ :Ag 
 nmap ,\ :Rg 
@@ -25,15 +36,6 @@ set termguicolors     " enable true colors support
 let ayucolor="dark"   " for dark
 colorscheme ayu
 
-call plug#begin()
-  Plug 'preservim/nerdtree'
-  Plug 'junegunn/fzf-vim'
-  Plug 'hashivim/vim-terraform
-  Plug 'LnL7/vim-nix
-  Plug 'luizribeiro/vim-cooklang', { 'for': 'cook' }
-  Plug 'ayu-theme/ayu-vim' 
-  Plug 'linden-project/linny.vim' 
-call plug#end()
 
-let g:linny_open_notebook_path       = $HOME . '/data/git/torreirow/torrlinny/'
+let g:linny_open_notebook_path       = $HOME . '/data/git/torreirow/torrlinny'
 call linny#Init()

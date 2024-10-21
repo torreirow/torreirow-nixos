@@ -3,6 +3,7 @@
 {
   environment.systemPackages = with pkgs; [
     #bluez
+    sqlite
     agenix
     alacritty
     amazon-ecs-cli
@@ -63,14 +64,6 @@
     postgresql
     pre-commit
     prowler
-    python311
-    python311Packages.buienradar
-    python311Packages.lxml
-    python311Packages.pip
-    python311Packages.python-telegram-bot
-    python311Packages.pytz
-    python311Packages.requests
-    python311Packages.toggl-cli
     qemu
     qogir-theme
     quarto
@@ -96,7 +89,6 @@
     texliveTeTeX
     tfswitch
     thunderbird
-    vim
     vlc
     vscode
     wget
@@ -107,8 +99,11 @@
     yt-dlp
     zip
     zoom-us
+    csvkit
 #    pgadmin4
-];
+
+  ];
+
 
 fonts.packages = with pkgs; [
   open-sans
