@@ -25,6 +25,7 @@ let
     technative.shortname = "tn";
     innofaith.color="03a5fc";
     innofaith.shortname="inf";
+    innofaith.ignore = true;
   };
 
   account_names = {
@@ -37,7 +38,7 @@ let
     playground-student16.ignore = true;
     playground-student15.ignore = true;
     playground-student14.ignore = true;
-    playground-student13.ignore = true;
+    playground-student13.ignore = false;
     playground-student12.ignore = true;
     playground-student11.ignore = true;
     playground-student10.ignore = true;
