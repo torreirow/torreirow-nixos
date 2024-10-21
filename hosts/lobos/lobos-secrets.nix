@@ -20,7 +20,7 @@
 #      };
       spotifywto = {
         file = ../../secrets/spotifywto.age;
-        path = "/tmp/spotifywto";
+        path = "/home/wtoorren/.config/spotify/prefs";
         owner = "wtoorren";
         group = "users";
         mode = "600";
