@@ -11,6 +11,7 @@ in
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./programs.nix
+    ./python.nix
    #./gnome.nix
     ./lobos-secrets.nix
     ../../modules/teamviewer.nix
