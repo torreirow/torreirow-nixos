@@ -3,6 +3,8 @@
 # Custom Gnome keyboard keys are listed here:
 # https://discussion.fedoraproject.org/t/custom-keyboard-layout-in-gnome-wayland/68923
 {
+
+
   dconf.settings = {
 
 #    "org/gnome/desktop/wm/keybindings" = {
@@ -41,14 +43,16 @@
 #      restore-shortcuts=[""];
 #    };
 
+
+
     "org/gnome/settings-daemon/plugins/media-keys" = {
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
       ];
-      screensaver = [];
-      search = [ "<Super>/" ];
+      #screensaver = [];
+      #search = [ "<Super>/" ];
     };
 
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
