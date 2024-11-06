@@ -89,6 +89,11 @@ in
     ];
   };
 
+  environment = {
+    sessionVariables = {
+      LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
+    };
+  };
 
    environment.variables = {
     LANG = "en_US.UTF-8";

@@ -1,20 +1,22 @@
-session: stwvb
+session: Witte Velden
 
-root: /home/wtoorren/data/git/torreirow/temp/stwv/hugo-cohub
+root: /home/wtoorren/data/git/torreirow/temp/stwv/cohub-test
 
-env:
-  FOO: BAR
+stop:
 
 windows:
-  - name: content
-    root: /home/wtoorren/data/git/torreirow/temp/stwv/hugo-cohub
-    manual: true # you can start this window only manually, using the -w arg
-    layout: main-vertical
+  - name: sync
+    layout: main-horizontal
+    commands:
+      - watch -n 10 git-sync -n
     panes:
       - type: horizontal
-
-  - name: infrastructure
-    root: /home/wtoorren/data/git/torreirow/temp/stwv/hugo-cohub
-    layout: tiled
-    panes:
-      - type: horizontal
+        commands:
+          - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1312
+  - name: infra
+    layout: main-horizontal
+    commands:
+      - xdg-open http://localhost:1312
+      - vim -c NERDTree
+  - name: cmd
+    layout: main-horizontal

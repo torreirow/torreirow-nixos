@@ -6,10 +6,10 @@
       source = ./.ohmyzsh-wouter;
       recursive = true;
     };
-#    ".config/rbw/config.json" = {
-#      source = ./.config/rbw/config.json;
-#      recursive = true;
-#    };
+    ".config/rbw/config.json" = {
+      source = ./.config/rbw/config.json;
+      recursive = true;
+    };
     ".config/smug" = {
       source = ./.config/smug;
       recursive = true;

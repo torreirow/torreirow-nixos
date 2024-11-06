@@ -3,6 +3,11 @@
 {
   environment.systemPackages = with pkgs; [
     #bluez
+    birdtray
+    awscli2
+    yq
+    gcc
+    git-sync
     sqlite
     agenix
     alacritty
@@ -100,6 +105,7 @@
     zip
     zoom-us
     csvkit
+    ruby
 #    pgadmin4
 
   ];
