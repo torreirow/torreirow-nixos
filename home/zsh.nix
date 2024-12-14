@@ -25,7 +25,9 @@ programs.zsh = {
           vpnkarconnect="openvpn3 session-start --config $HOME/.config/openvpn/lobos.ovpn";
           qdm="cd ./output; qdm=$(gum choose $(ls -t *.html ; echo none| head -5)); if [[ $qdm != 'none' ]]; then firefox --new-tab $qdm 2>/dev/null;fi";
           smg="smug $(basename -s \".yml\" $(gum filter  $(ls ~/.config/smug/*.yml)))";
+          gbdel=" echo Removing branches from git repo: $(basename -s .git \"$(git config --get remote.origin.url)\"); for branch in $(git branch --format=\"%(refname:short)\" | grep -Ev '^(main|master)$'); do echo -n \"Verwijder branch '$branch'? (y/n) \";  read answer ;  [[ $answer == \"y\" ]] && git branch -D \"$branch\"; done";
         };
+
 
      oh-my-zsh = {
         enable = true;
