@@ -1,8 +1,8 @@
-{ lib, pkgs,config, ... }:
+{ lib, pkgs,config, unstable, ... }:
 
 let
 
-  ## NOTE RUN aws --profile=web_dns s3 cp s3://docs-mcs.technative.eu-longhorn/managed_service_accounts.json ~/.aws/
+  ## NOTE RUN aws --nrofile=web_dns s3 cp s3://docs-mcs.technative.eu-longhorn/managed_service_accounts.json ~/.aws/
 
 #  technative_profiles = import ./dotfiles/managed_service_accounts.nix;
   technative_profiles = "${config.home.homeDirectory}/.aws/managed_service_accounts.json";
@@ -119,7 +119,7 @@ in
   ];
 
  programs.awscli_custom = {
-    package = pkgs.awscli2;
+    package = unstable.awscli2;
     enable = true;
     settings = {
 
@@ -144,6 +144,13 @@ in
         output = "json";
         group = "toorren";
       };
+
+      "255418484322-waardenburg" = {
+        region = "eu-central-1";
+        output = "json";
+        group = "waardenburg";
+      };
+
       "profile mustad-developer"= {
         role_arn = "arn:aws:iam::925937276627:role/developer";
         region = "us-east-2";

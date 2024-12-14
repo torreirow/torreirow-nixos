@@ -2,13 +2,20 @@
 
 {
   environment.systemPackages = with pkgs; [
+    haskellPackages.youtube
+    redis
+    subtitleedit
+    translate-shell
     #bluez
+    appimage-run
+    awscli2
+    yq
+    gcc
+    git-sync
     sqlite
     agenix
     alacritty
     amazon-ecs-cli
-    anki
-    appimage-run
     attic-client
     autorandr
     avahi
@@ -68,8 +75,6 @@
     qogir-theme
     quarto
     remmina
-    retext
-    ripgrep
     ripgrep
     signal-desktop
     silver-searcher
@@ -86,7 +91,6 @@
     telegram-desktop
     terraform
     terraform-docs
-    texliveTeTeX
     tfswitch
     thunderbird
     vlc
@@ -100,6 +104,10 @@
     zip
     zoom-us
     csvkit
+    ruby
+    texliveFull
+    texlivePackages.datetime
+    texlivePackages.svg
 #    pgadmin4
 
   ];

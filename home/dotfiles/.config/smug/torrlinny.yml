@@ -1,0 +1,23 @@
+session: Site TorrLinny
+startup_pane: 1
+
+root: /home/wtoorren/data/git/torreirow/notes/torrlinny
+
+stop:
+
+windows:
+  - name: sync
+    layout: main-horizontal
+    commands:
+      - watch -n 10 git-sync -n
+    panes:
+      - type: horizontal
+        commands:
+          - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1399
+  - name: infra
+    layout: main-horizontal
+    commands:
+      - xdg-open http://localhost:1399/torrlinny/
+      - vim -c NERDTree
+  - name: cmd
+    layout: main-horizontal

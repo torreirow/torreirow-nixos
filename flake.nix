@@ -3,9 +3,10 @@
 
   inputs = {
     agenix.url = "github:ryantm/agenix";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
-    nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
     nixpkgs-2405.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-darwin.url = "github:LnL7/nix-darwin";
@@ -27,7 +28,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411}: 
   let 
     system = "x86_64-linux";
     extraPkgs= {
@@ -138,7 +139,8 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       linux-defaults = {pkgs,config,homeage,...}: {
-        home = { ##MAC
+        home = { 
+        username = "root"; # Dynamisch op basis van de huidige gebruiker
         homeDirectory = "/root";
       };
     };
@@ -150,7 +152,10 @@
         # the path to your home.nix.
         modules = [
          #./home/default.nix
-         ./home/linux-desktop.nix
+         ./home/zsh.nix
+         ./home/vim.nix
+         ./home/tmux.nix
+#         ./home/linux-desktop.nix
          ./home/firefox.nix
          linux-defaults
        ];
@@ -160,6 +165,41 @@
       });
   ### LINUX HOMEMANAGER END ROOT
 
+  ## LINUX HOMEMANAGER START ALL
+
+# homeConfigurations."default" = home-manager.lib.homeManagerConfiguration(
+#    let
+#      system = "x86_64-linux";
+#      pkgs = nixpkgs.legacyPackages.${system};
+#
+#      linux-defaults = {pkgs,config,homeage,...}: {
+#        home = { ##MAC
+#        homeDirectory = if config.username == "root" then "/root" else "/home/${config.username}"; 
+#      };
+#    };
+#
+#    in {
+#      inherit pkgs;
+#
+#        # Specify your home configuration modules here, for example,
+#        # the path to your home.nix.
+#
+#        modules = [
+#         #./home/default.nix
+#         ./home/linux-desktop.nix
+#         ./home/firefox.nix
+#         linux-defaults
+#       ];
+#
+#       extraSpecialArgs = {
+#          unstable = import unstable { inherit system; config.allowUnfree = true; };
+#       };
+#
+#        # Optionally use extraSpecialArgs
+#        # to pass through arguments to home.nix
+#
+#      });
+#
   ### LINUX HOMEMANAGER START WTOORREN
   # defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
   homeConfigurations."wtoorren@linuxdesktop" = home-manager.lib.homeManagerConfiguration(
@@ -187,9 +227,15 @@
          linux-defaults
        ];
 
+       extraSpecialArgs = {
+          unstable = import unstable { inherit system; config.allowUnfree = true; };
+       };
+
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
+
       });
+      home.username="wtoorren";
   ### LINUX HOMEMANAGER END WTOORREN
 
   #### LINUX SERVER HOMEMANAGER START

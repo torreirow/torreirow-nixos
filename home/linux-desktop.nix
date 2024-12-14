@@ -1,7 +1,7 @@
 {config,pkgs,...}: {
  imports = [
   ./zsh.nix
-  ./awsconf.nix
+  #./awsconf.nix
   ./common.nix
   ./vim.nix
   ./dotfiles
