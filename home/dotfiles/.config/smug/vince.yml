@@ -1,6 +1,6 @@
 session: Witte Velden
 
-root: ~/data/git/torreirow/temp/stwv/stwv-development
+root: /home/wtoorren/data/git/torreirow/dailydevo
 startup_pane: 1
 
 stop:
@@ -13,11 +13,11 @@ windows:
     panes:
       - type: horizontal
         commands:
-          - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1312
+          - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1402
   - name: infra
     layout: main-horizontal
     commands:
-      - xdg-open http://localhost:1312
+      - xdg-open http://localhost:1402
       - vim -c NERDTree
   - name: cmd
     layout: main-horizontal
