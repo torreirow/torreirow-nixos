@@ -1,0 +1,22 @@
+session: SMC
+
+root: /home/wtoorren/data/git/technative/smc
+
+env:
+  AWS_PROFILE: technative
+
+windows:
+  - name: terraform
+    root: terraform  
+    manual: false # you can start this window only manually, using the -w arg
+    layout: main-vertical
+    panes:
+      - type: horizontal
+        root: .
+
+  - name: infrastructure
+    root: /tmp
+    layout: tiled
+    panes:
+      - type: horizontal
+        root: .

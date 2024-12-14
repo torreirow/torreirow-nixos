@@ -1,6 +1,7 @@
 session: TorrLinny
 
 root: ~/data/git/torreirow/torrlinny
+startup_pane: 1
 
 stop:
 
