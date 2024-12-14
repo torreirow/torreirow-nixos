@@ -14,7 +14,7 @@ in
     ./python.nix
    #./gnome.nix
     ./lobos-secrets.nix
-    ../../modules/teamviewer.nix
+   # ../../modules/teamviewer.nix
     ];
 
 
@@ -27,12 +27,7 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
-  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
-
-  # DisplayLink manager + hardware
-    boot.extraModulePackages = with config.boot.kernelPackages; [
-    evdi
-  ];
+#  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
 
 
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
@@ -42,7 +37,6 @@ in
     ${lib.getBin pkgs.autorandr}/bin/xrandr --setprovideroutputsource 2 0
     ${lib.getBin pkgs.autorandr}/bin/xrandr --auto
     '';
-      boot.kernelModules = [ "evdi" ];
 
 
   ########## NETWORKING ##########
@@ -89,6 +83,11 @@ in
     ];
   };
 
+  environment = {
+    sessionVariables = {
+      LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
+    };
+  };
 
    environment.variables = {
     LANG = "en_US.UTF-8";
@@ -103,6 +102,10 @@ in
     LC_TELEPHONE = "nl_NL.UTF-8";
     LC_TIME = "nl_NL.UTF-8";
   };
+
+
+environment.variables.EDITOR = "vim";
+
 
 #  i18n.extraLocaleSettings = {
 #    LANG = "nl_NL.UTF-8";
@@ -185,25 +188,9 @@ in
   services.avahi.openFirewall = true;
 
 
-  # Enable sound with pipewire.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
+hardware.pulseaudio.enable = false; #### 24.11 workaround
 
-#  security.rtkit.enable = true;
-#  services.pipewire = {
-#    enable = true;
-#    alsa.enable = true;
-#    alsa.support32Bit = true;
-#    pulse.enable = true;
-#    # If you want to use JACK applications, uncomment this
-#    jack.enable = true;
-#
-#    # use the example session manager (no others are packaged yet so this is enabled by default,
-#    # no need to redefine it in your config for now)
-#    # media-session.enable = true;
-#  };
-
-  # Enable touchpad support (enabled default in most desktopManager).
+ # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -291,7 +278,14 @@ in
   "@wheel"
 ];
 
+nixpkgs.config.permittedInsecurePackages = [
+    "qtwebkit-5.212.0-alpha"
+  ];
+
+
 
 services.fwupd.enable = true;
-services.xscreensaver.enable = true;
+services.xscreensaver = {
+  enable = true;
+};
 }

@@ -26,17 +26,18 @@ programs.fzf = {
 
   programs.rbw = {
     enable = true;
-    settings = {
-      base_url = "https://homeassistant.toorren.net:7277";
-      email = "wvdtoorren@gmail.com";
-    };
+#    settings = {
+#      base_url = "https://homeassistant.toorren.net:7277";
+#      email = "wvdtoorren@gmail.com";
+#    };
   };
 
  
  programs.home-manager.enable = true;
- #home.stateVersion = "23.11";
  home.stateVersion = "24.05";
+ #home.stateVersion = "24.11";
  home.username = "wtoorren";
+ #home.username = "${config.username}";
  home.packages = with pkgs; [
     atuin
   ];
