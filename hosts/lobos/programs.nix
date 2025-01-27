@@ -1,8 +1,8 @@
-{config, lib, pkgs,  agenix, toggl-cli, ... }:
+{config, lib, pkgs,  pkgs-luca, agenix, toggl-cli, ... }:
 
 {
+
   environment.systemPackages = with pkgs; [
-    haskellPackages.youtube
     redis
     subtitleedit
     translate-shell
@@ -108,9 +108,9 @@
     texliveFull
     texlivePackages.datetime
     texlivePackages.svg
-#    pgadmin4
-
-  ];
+    pkgs-luca.quiqr
+    xdg-desktop-portal
+  ] ;
 
 
 fonts.packages = with pkgs; [
