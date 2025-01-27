@@ -30,6 +30,7 @@ autocmd FileType qmd, tf, yaml,yml,markdown setlocal expandtab tabstop=2 shiftwi
 set tabstop=2
 set shiftwidth=2
 set expandtab
+set number
 silent !mkdir -p ~/.vim_temp/undodir > /dev/null 2>&1
 set undofile " Maintain undo history between sessions
 set undodir=~/.vim_temp/undodir
