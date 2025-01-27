@@ -1,23 +1,26 @@
-session: Witte Velden
+session: Daily Devo
 
-root: /home/wtoorren/data/git/torreirow/dailydevo
-startup_pane: 1
+startup_window: cmd 
+startup_pane: 2
 
-stop:
+root: /home/wtoorren/data/git/torreirow/dailydevos
 
 windows:
-  - name: sync
-    layout: main-horizontal
-    commands:
-      - #watch -n 60 git-sync -n
-    panes:
-      - type: horizontal
-        commands:
-          - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1402
-  - name: infra
-    layout: main-horizontal
-    commands:
-      - xdg-open http://localhost:1402
-      - vim -c NERDTree
   - name: cmd
     layout: main-horizontal
+    root: /home/wtoorren/Videos/vince
+    commands:
+      - pwd 
+    panes:
+      - type: horizontal
+        root: /tmp/vince
+        commands:
+          - pwd
+  - name: code
+    commands:
+      - vim -c NERDTree 
+  - name: hugo
+    commands:
+      - xdg-open http://localhost:1402
+      - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1402
+      

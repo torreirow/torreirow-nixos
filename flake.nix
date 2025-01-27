@@ -4,6 +4,7 @@
   inputs = {
     agenix.url = "github:ryantm/agenix";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-luca.url = "github:Caspersonn/nixpkgs";
     nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
     nixpkgs-2405.url = "github:NixOS/nixpkgs/nixos-24.05";
     nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
@@ -16,7 +17,7 @@
     jsonify-aws-dotfiles.url = "github:wearetechnative/jsonify-aws-dotfiles";
     dirtygit.url = "github:mipmip/dirtygit";
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.05";
+      url = "github:nix-community/home-manager/release-24.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     homeage = {
@@ -28,7 +29,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-luca}: 
   let 
     system = "x86_64-linux";
     extraPkgs= {
@@ -97,6 +98,7 @@
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
 
         };
