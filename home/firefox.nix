@@ -18,6 +18,7 @@
           (extension "ublock-origin" "uBlock0@raymondhill.net")
           (extension "bitwarden-password-manager" "{446900e4-71c2-419f-a6a7-df9c091e268b}")
           (extension "aws-role-switch" "{31f7b254-7ac9-4f3a-ae3c-ef67ea153e4a}")
+          (extension "sponserblock" "{31f7b254-7ac9-4f3a-ae3c-ef67ea153e4a}")
         ];
         # To add additional extensions, find it on addons.mozilla.org, find
         # the short ID in the url (like https://addons.mozilla.org/en-US/firefox/addon/!SHORT_ID!/)
@@ -26,6 +27,11 @@
         # `jq .applications.gecko.id manifest.json` to get the UUID
       };
       programs.firefox.policies.BookmarksToolbar = "newtab"; 
+      programs.firefox.languagePacks = [
+        "en-US"
+        "nl"
+      ];
+
 
   }
 

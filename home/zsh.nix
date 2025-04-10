@@ -6,7 +6,7 @@ programs.zsh = {
       #syntaxHighlighting.enable = false; 
       initExtraFirst = ''                                                                                                                        
         eval "$(atuin init zsh --disable-up-arrow)"; 
-        PATH=$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools
+        PATH=$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc
         '';     
 
         shellAliases = {
