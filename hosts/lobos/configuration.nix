@@ -149,21 +149,10 @@ environment.variables.EDITOR = "vim";
 			gnome-photos
 			gnome-tour
 		]) ++ (with pkgs.gnome; [
-			cheese # webcam tool
-			gnome-music
 			#gedit # text editor
-			epiphany # web browser
-			geary # email reader
 			#gnome-characters
-			tali # poker game
-			iagno # go game
-			hitori # sudoku game
-			atomix # puzzle game
-			yelp # Help view
-			seahorse
 			#gnome-contacts
-			gnome-initial-setup
-		]);
+					]);
 
   # Configure keymap in X11
   services.xserver = {
@@ -286,9 +275,74 @@ nixpkgs.config.permittedInsecurePackages = [
   ];
 
 
+## SAMBA START
+services.samba = {
+  enable = true;
+  openFirewall = true;
+  settings = {
+      global = {
+      "workgroup" = "WORKGROUP";
+      "server string" = "smbnix";
+      "netbios name" = "smbnix";
+      "security" = "user";
+      #"use sendfile" = "yes";
+      #"max protocol" = "smb2";
+      # note: localhost is the ipv6 localhost ::1
+      "hosts allow" = "192.168.2. 127.0.0.1 localhost";
+      "hosts deny" = "0.0.0.0/0";
+      "guest account" = "nobody";
+      "map to guest" = "bad user";
+    };
+      "private" = {
+      "path" = "/tmp/tmp";
+      "browseable" = "yes";
+      "read only" = "no";
+      "guest ok" = "no";
+      "create mask" = "0644";
+      "directory mask" = "0755";
+      "force user" = "wtoorren";
+      "force group" = "users";
+    };
+  };
+};
+
+services.samba-wsdd = {
+  enable = true;
+  openFirewall = true;
+};
+
+## SAMBA END
+
 
 services.fwupd.enable = true;
 services.xscreensaver = {
   enable = true;
 };
+
+#systemd.services."restart-network-on-sleep" = {
+#  description = "Restart network services after sleep";
+#  wantedBy = [ "sleep.target" "suspend.target" ];
+#  before = [ "sleep.target" "suspend.target" ];
+#  after = [ "network.target" ];
+#  serviceConfig = {
+#    Type = "oneshot";
+#    ExecStartPre = "/run/current-system/sw/bin/modprobe -r ath11k_pci";
+#    ExecStopPost = "/run/current-system/sw/bin/modprobe ath11k_pci";
+#    ExecStop = ''
+#      /run/current-system/sw/bin/systemctl stop NetworkManager.service systemd-networkd.service systemd-networkd.socket
+#    '';
+#    ExecStart = ''
+#      if /run/current-system/sw/bin/systemctl is-enabled NetworkManager.service; then
+#        /run/current-system/sw/bin/systemctl start NetworkManager.service
+#      fi
+#      if /run/current-system/sw/bin/systemctl is-enabled systemd-networkd.socket; then
+#        /run/current-system/sw/bin/systemctl start systemd-networkd.socket
+#      fi
+#      if /run/current-system/sw/bin/systemctl is-enabled systemd-networkd.service; then
+#        /run/current-system/sw/bin/systemctl start systemd-networkd.service
+#      fi
+#    '';
+#  };
+#};
+
 }
