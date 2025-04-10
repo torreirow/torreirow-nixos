@@ -158,7 +158,16 @@ in
         group = "mustad-pg";
         source_profile = "mustad";
       };
-      "profile mustad-jumphost"= {
+      
+      "profile moooi"= {
+        role_arn = "arn:aws:iam::014756588884:role/TechnativeRole";
+        region = "eu-west-1";
+        output = "json";
+        group = "moooi";
+        source_profile = "technative";
+      };
+
+       "profile mustad-jumphost"= {
         role_arn = "arn:aws:iam::925937276627:role/jumphost";
         region = "us-east-2";
         output = "json";

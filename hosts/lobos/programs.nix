@@ -3,6 +3,8 @@
 {
 
   environment.systemPackages = with pkgs; [
+    #cooklang
+    librewolf-unwrapped
     redis
     subtitleedit
     translate-shell
@@ -39,8 +41,18 @@
     git
     git-remote-codecommit
     glibcLocales
-    gnome.gnome-tweaks
-    gnome.gnome-tweaks
+    atomix # puzzle game
+    cheese # webcam tool
+    epiphany # web browser
+    geary # email reader
+    gnome-initial-setup
+    gnome-music
+    hitori # sudoku game
+    iagno # go game
+    seahorse
+    tali # poker game
+    yelp # Help view
+#    gnome.gnome-tweaks
     gnupg
     go
     go-mtpfs
@@ -105,11 +117,15 @@
     zoom-us
     csvkit
     ruby
-    texliveFull
-    texlivePackages.datetime
-    texlivePackages.svg
-    pkgs-luca.quiqr
-    xdg-desktop-portal
+(texlive.combine {
+      inherit (texlive) scheme-medium datetime fmtcount;
+        })
+    #texliveFull
+    #texlivePackages.datetime
+    #texlivePackages.svg
+    #texlivePackages.fmtcount
+#    pkgs-luca.quiqr
+xdg-desktop-portal
   ] ;
 
 
