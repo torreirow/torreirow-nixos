@@ -11,6 +11,7 @@ windows:
     root: /home/wtoorren/Videos/vince
     commands:
       - pwd 
+      - source ~/data/python_envs/devos/bin/activate 
     panes:
       - type: horizontal
         root: /tmp/vince
