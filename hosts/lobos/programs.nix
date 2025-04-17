@@ -4,6 +4,9 @@
 
   environment.systemPackages = with pkgs; [
     #cooklang
+    nerdfetch
+    lua
+    ripgrep
     librewolf-unwrapped
     redis
     subtitleedit
@@ -72,6 +75,7 @@
     mosh
     mplayer
     mpv
+    neovim
     nerdfonts
     nmap
     openai-whisper
@@ -118,8 +122,8 @@
     csvkit
     ruby
 (texlive.combine {
-      inherit (texlive) scheme-medium datetime fmtcount;
-        })
+  inherit (texlive) scheme-full datetime fmtcount textpos makecell lipsum footmisc background ; 
+})
     #texliveFull
     #texlivePackages.datetime
     #texlivePackages.svg
@@ -129,9 +133,11 @@ xdg-desktop-portal
   ] ;
 
 
-fonts.packages = with pkgs; [
-  open-sans
-  google-fonts
-];
+#fonts.packages = with pkgs; [
+#  open-sans
+#  google-fonts
+#];
+
+
 
 }
