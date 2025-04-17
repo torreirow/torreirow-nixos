@@ -11,6 +11,7 @@ in
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./programs.nix
+    ./fonts.nix
     ./python.nix
    #./gnome.nix
     ./lobos-secrets.nix
@@ -27,6 +28,7 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
+#  boot.kernelParams = [ "pci=nomsi" "acpi=off" ];
 #  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
   boot.supportedFilesystems = [ "ntfs" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
@@ -42,8 +44,6 @@ in
 
 
   ########## NETWORKING ##########
-  services.tailscale.enable = true;
-
   # Enable networking
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
