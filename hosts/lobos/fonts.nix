@@ -4,7 +4,9 @@ let
   fontsList = with pkgs; [
     awesome
     dejavu_fonts
+    fira-code-nerdfont
     google-fonts
+    inconsolata-nerdfont
     inter
     lato
     liberation_ttf
@@ -32,5 +34,4 @@ in
     };
   };
   environment.systemPackages = fontsList;
-
 }
