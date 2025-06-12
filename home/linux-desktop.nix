@@ -10,4 +10,15 @@
 #  ./dotfiles/toggl-secret.nix
 ];
 
+#services.flameshot= {
+#  enable = true;
+#  settings = {
+#    General = {
+#      disabledTrayIcon = false;
+#      showStartupLaunchMessage = true;
+#    };
+#  };
+#
+#};
+
 }

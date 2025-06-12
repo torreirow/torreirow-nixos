@@ -3,7 +3,7 @@
 
   inputs = {
     agenix.url = "github:ryantm/agenix";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-luca.url = "github:Caspersonn/nixpkgs";
     nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
     nixpkgs-2405.url = "github:NixOS/nixpkgs/nixos-24.05";
@@ -17,7 +17,7 @@
     jsonify-aws-dotfiles.url = "github:wearetechnative/jsonify-aws-dotfiles";
     dirtygit.url = "github:mipmip/dirtygit";
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.11";
+      url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     homeage = {
