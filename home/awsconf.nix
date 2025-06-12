@@ -18,9 +18,9 @@ let
     improvement_it.shortname = "iit";
     dreamlines.ignore = true;
     default.color = "cccccc";
-    tracklib.ignore = true; 
-    pastbook.ignore = true;
-    splitser.ignore = true;
+    tracklib.ignore = false; 
+    pastbook.ignore = false;
+    splitser.ignore = false;
     taskhero.ignoge = true;
     technative.shortname = "tn";
     innofaith.color="03a5fc";
@@ -33,23 +33,23 @@ let
     ct_lz_audit.ignore = true;
     ct_lz_log_archive.ignore = true;
     finops.ignore = true;
-    playground-student18.ignore = true;
+    playground-student18.ignore = false;
     playground-student17.ignore = false;
-    playground-student16.ignore = true;
-    playground-student15.ignore = true;
-    playground-student14.ignore = true;
+    playground-student16.ignore = false;
+    playground-student15.ignore = false;
+    playground-student14.ignore = false;
     playground-student13.ignore = false;
-    playground-student12.ignore = true;
-    playground-student11.ignore = true;
-    playground-student10.ignore = true;
-    playground-student09.ignore = true;
-    playground-student08.ignore = true;
-    playground-student07.ignore = true;
-    playground-student06.ignore = true;
-    playground-student05.ignore = true;
-    playground-student04.ignore = true;
-    playground-student03.ignore = true;
-    playground-student02.ignore = true;
+    playground-student12.ignore = false;
+    playground-student11.ignore = false;
+    playground-student10.ignore = false;
+    playground-student09.ignore = false;
+    playground-student08.ignore = false;
+    playground-student07.ignore = false;
+    playground-student06.ignore = false;
+    playground-student05.ignore = false;
+    playground-student04.ignore = false;
+    playground-student03.ignore = false;
+    playground-student02.ignore = false;
     playground-student01.ignore = false;
     technative_workload_internal_tools_nonprod.ignore = false;
     prod.ignore = true;
@@ -150,6 +150,13 @@ in
         output = "json";
         group = "waardenburg";
       };
+
+      "bedrock" = {
+        region = "eu-central-1";
+        output = "json";
+        group = "bedrock";
+      };
+
 
       "profile mustad-developer"= {
         role_arn = "arn:aws:iam::925937276627:role/developer";
