@@ -28,6 +28,13 @@
       # START WITH MOUSE MODE ENABLED
       set -g mouse on
 
+      # Synchronize windows
+      bind-key g set-window-option synchronize-panes\; display-message "synchronize-panes is now #{?pane_synchronized,on,off}"
+
+      # VI-mode
+      setw -g mode-keys vi
+
     '';
   };
+  
 }
