@@ -3,11 +3,6 @@
 {
   
   environment.systemPackages = with pkgs; [
-    onedrivegui
-    catppuccin
-    tmuxPlugins.catppuccin
-    librsvg
-    soco-cli
     #cooklang
     #flameshot
     caligula
@@ -75,8 +70,7 @@
     home-manager
     hugo
     inetutils
-   # jellyfin-ffmpeg
-    ffmpeg-full
+    jellyfin-ffmpeg
     kdePackages.kcalc
     kdePackages.powerdevil
     kitty

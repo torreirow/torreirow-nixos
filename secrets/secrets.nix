@@ -21,4 +21,6 @@ in
   "update_laptop.age".publicKeys = users ++ [ wtoorren_workstation ];
   "atticwto.age".publicKeys = users ++ [ wtoorren_workstation ];
   "kar01-lobos-ovpn.age".publicKeys = users ++ [ wtoorren_workstation ];
+  "improvement-ovpn.age".publicKeys = users ++ [ wtoorren_workstation ];
+  "aider.age".publicKeys = users ++ [ wtoorren_workstation ];
 }

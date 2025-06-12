@@ -4,9 +4,6 @@
   age = {
     identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     secrets = {
-      aider = {
-        file = ../../secrets/aider.age;
-};
       togglrc = {
         file = ../../secrets/togglwtoorren.age;
         path = "/tmp/togglrcwtoorren";
@@ -35,25 +32,12 @@
         group = "nogroup";
         mode = "0400";
       };
-     aider = {
-        file = ../../secrets/aider.age;
-        owner = "wtoorren";
-        group = "nogroup";
-        mode = "0400";
-      };
-update_latop = {
+     update_latop = {
         file = ../../secrets/update_laptop.age;
         path = "/data/scripts/update_laptop.sh";
-        owner = "wtoorren";
+        owner = "root";
         group = "root";
-        mode = "0550";
-      };
-     kar01_vpn_lobos = {
-       file = ../../secrets/kar01-lobos-ovpn.age;
-       path = "/data/agenix/kar01-lobos.ovpn";
-       owner = "wtoorren";
-       group = "nogroup";
-       mode = "0400";
+        mode = "0400";
       };
 };
   };
