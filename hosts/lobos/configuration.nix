@@ -318,6 +318,9 @@ services.fwupd.enable = true;
 #services.xscreensaver = {
 #  enable = true;
 #};
+services.xscreensaver = {
+  enable = true;
+};
 
 #systemd.services."restart-network-on-sleep" = {
 #  description = "Restart network services after sleep";
@@ -344,6 +347,7 @@ services.fwupd.enable = true;
 #    '';
 #  };
 #};
+
 networking.wg-quick.interfaces.wg0 = {
     address = [
       "172.27.66.3/24"

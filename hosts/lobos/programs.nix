@@ -87,6 +87,7 @@
     mplayer
     mpv
     neovim
+    nerdfonts
     nmap
     openai-whisper
     openssl
