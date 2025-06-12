@@ -4,9 +4,6 @@
   age = {
     identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     secrets = {
-      aider = {
-        file = ../../secrets/aider.age;
-};
       togglrc = {
         file = ../../secrets/togglwtoorren.age;
         path = "/tmp/togglrcwtoorren";
