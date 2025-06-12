@@ -181,7 +181,8 @@ environment.variables.EDITOR = "vim";
   services.avahi.openFirewall = true;
 
 
-  services.pulseaudio.enable = false;
+hardware.pulseaudio.enable = false; #### 24.11 workaround
+
  # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
@@ -315,9 +316,9 @@ services.samba-wsdd = {
 
 
 services.fwupd.enable = true;
-#services.xscreensaver = {
-#  enable = true;
-#};
+services.xscreensaver = {
+  enable = true;
+};
 
 #systemd.services."restart-network-on-sleep" = {
 #  description = "Restart network services after sleep";
