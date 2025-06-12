@@ -22,8 +22,8 @@ in
   fonts = {
     enableDefaultPackages = true;
     fontconfig.enable = true;
-    packages = fontsList ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts)
-;
+    packages = [ fontsList ] ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
+
 
     fontconfig = {
       defaultFonts = {
