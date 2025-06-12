@@ -3,20 +3,16 @@
 {
   environment.systemPackages = with pkgs; [
     (python311.withPackages(ps: with ps; [ 
-  buienradar
-  icalendar
-  icloudpd
-  ics
-  lxml
-  numpy
-  openpyxl
-  opsgenie-sdk
+  requests
   pandas
+  buienradar
+  lxml
   python-telegram-bot
   pytz
+  opsgenie-sdk
   pyyaml
-  requests
-
+  ics
+  icloudpd
 ]))
 python311Packages.toggl-cli
   ];
