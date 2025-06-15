@@ -1,13 +1,17 @@
-{config,pkgs,...}: {
+{config,pkgs, ...}: {
 programs.zsh = {
       enable = true;
       autosuggestion.enable = true;
 #     zsh.autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
-      initExtraFirst = ''                                                                                                                        
-        eval "$(atuin init zsh --disable-up-arrow)"; 
-        PATH=$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc
-        '';     
+      #initExtraFirst = ''                                                                                                                        
+      #  eval "$(atuin init zsh --disable-up-arrow)"; 
+      #  PATH=$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc
+      #  '';     
+  initContent = pkgs.lib.mkBefore ''
+    eval "$(atuin init zsh --disable-up-arrow)"
+    export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
+  '';
 
         shellAliases = {
           #aws-switch=". $HOME/data/git/wearetechnative/bmc/aws-profile-select.sh";
