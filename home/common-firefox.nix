@@ -8,9 +8,9 @@
 
   programs.firefox = {
     enable = true;
-    extensions = with pkgs; [
-      pkgs.bitwarden
-    ];
+#    extensions = with pkgs; [
+#      pkgs.bitwarden
+#    ];
   };
 }
 

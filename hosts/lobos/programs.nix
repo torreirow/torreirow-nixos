@@ -4,6 +4,7 @@
   
   environment.systemPackages = with pkgs; [
     onedrivegui
+    vista-fonts
     catppuccin
     tmuxPlugins.catppuccin
     librsvg
@@ -87,7 +88,6 @@
     mplayer
     mpv
     neovim
-    nerdfonts
     nmap
     openai-whisper
     openssl
