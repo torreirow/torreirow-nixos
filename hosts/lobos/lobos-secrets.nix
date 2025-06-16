@@ -36,7 +36,7 @@
         file = ../../secrets/aider.age;
         owner = "wtoorren";
         group = "nogroup";
-        mode = "0400";
+        mode = "0500";
       };
 update_latop = {
         file = ../../secrets/update_laptop.age;
