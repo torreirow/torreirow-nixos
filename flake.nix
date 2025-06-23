@@ -262,6 +262,9 @@
          ./home/linux-server.nix
          linux-defaults
        ];
+       extraSpecialArgs = {
+          unstable = import unstable { inherit system; config.allowUnfree = true; };
+       };
 
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
