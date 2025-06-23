@@ -3,91 +3,76 @@
 {
   
   environment.systemPackages = with pkgs; [
-    onedrivegui
-    vista-fonts
-    catppuccin
-    tmuxPlugins.catppuccin
-    librsvg
-    soco-cli
+    #bluez
     #cooklang
     #flameshot
-    caligula
-    unstable.aider-chat-full
-    scrot
-    librewolf
-    nerdfetch
-    lua
-    ripgrep
-    librewolf-unwrapped
-    redis
-    subtitleedit
-    translate-shell
-    #bluez
-    appimage-run
-    awscli2
-    yq
-    gcc
-    git-sync
-    sqlite
     agenix
     alacritty
     amazon-ecs-cli
+    appimage-run
+    atomix # puzzle game
     attic-client
     autorandr
     avahi
     aws-nuke
+    awscli2
     bitwarden
+    caligula
+    catppuccin
+    clementine
     certbot
+    cheese # webcam tool
     copilot-cli
     coreutils
     cowsay
+    csvkit
     curl
     dig
     digikam
     displaylink
     entr
+    epiphany # web browser
     exiftool
+    ffmpeg-full
     file
     fwupd
     fwupd-efi
+    gcc
+    geary # email reader
     gh
     gimp
     git
     git-remote-codecommit
+    git-sync
     glibcLocales
-    atomix # puzzle game
-    cheese # webcam tool
-    epiphany # web browser
-    geary # email reader
     gnome-initial-setup
     gnome-music
-    hitori # sudoku game
-    iagno # go game
-    seahorse
-    tali # poker game
-    yelp # Help view
-#    gnome.gnome-tweaks
     gnupg
     go
     go-mtpfs
     granted
     gum
+    hitori # sudoku game
     home-assistant-component-tests.buienradar
     home-manager
     hugo
+    iagno # go game
     inetutils
-   # jellyfin-ffmpeg
-    ffmpeg-full
     kdePackages.kcalc
     kdePackages.powerdevil
     kitty
     lego
     lf
     libreoffice
+    librewolf
+    librewolf-unwrapped
+    librsvg
+    lua
     mosh
     mplayer
     mpv
     neovim
+    nerdfetch
     nmap
     openai-whisper
     openssl
@@ -101,37 +86,53 @@
     qemu
     qogir-theme
     quarto
+    redis
     remmina
     ripgrep
+    ripgrep
+    ruby
+    scrot
+    seahorse
     signal-desktop
     silver-searcher
     slack
     smplayer
     smug
+    soco-cli
     spotdl
     spotify
+    sqlite
     sqsh
     ssm-session-manager-plugin
     ssmsh
+    subtitleedit
     super-productivity
+    tali # poker game
     teams-for-linux
     telegram-desktop
     terraform
     terraform-docs
     tfswitch
     thunderbird
+    tmuxPlugins.catppuccin
+    translate-shell
+    unstable.aider-chat-full
+    vista-fonts
     vlc
     vscode
     wget
     whatsapp-for-linux
+    zapzap
     xclip
     xorg.xbacklight
+    yelp # Help view
     yj
+    yq
     yt-dlp
     zip
     zoom-us
-    csvkit
-    ruby
+   # jellyfin-ffmpeg
+#    gnome.gnome-tweaks
 (texlive.combine {
   inherit (texlive) scheme-full datetime fmtcount textpos makecell lipsum footmisc background ; 
 })
