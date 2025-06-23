@@ -18,7 +18,7 @@ programs.zsh = {
           #tfapply="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfapply.sh";
           #tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
           #tfplan="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
-          #aider="AWS_PROFILE=TEC-playground-student01 aider aider --model bedrock/eu.anthropic.claude-3-7-sonnet-20250219-v1:0";
+          aider="/run/keys/wouter/aider";
           aws-switch=". bmc profsel";
           boostmic="pactl set-source-volume 2 190%";
           gbdel=" echo Removing branches from git repo: $(basename -s .git \"$(git config --get remote.origin.url)\"); for branch in $(git branch --format=\"%(refname:short)\" | grep -Ev '^(main|master)$'); do echo -n \"Verwijder branch '$branch'? (y/n) \";  read answer ;  [[ $answer == \"y\" ]] && git branch -D \"$branch\"; done";
