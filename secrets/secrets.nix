@@ -23,4 +23,10 @@ in
   "kar01-lobos-ovpn.age".publicKeys = users ++ [ wtoorren_workstation ];
   "improvement-ovpn.age".publicKeys = users ++ [ wtoorren_workstation ];
   "aider.age".publicKeys = users ++ [ wtoorren_workstation ];
+  
+  # Jitsi Meet passwords
+  "jitsi-focus-password.age".publicKeys = users ++ systems;
+  "jitsi-jvb-password.age".publicKeys = users ++ systems;
+  "jitsi-jibri-password.age".publicKeys = users ++ systems;
+  "jitsi-recorder-password.age".publicKeys = users ++ systems;
 }
