@@ -4,6 +4,12 @@ with lib;
 
 let
   cfg = config.services.jitsi-meet;
+  
+  # Get secrets from age files
+  focusPassword = config.age.secrets.jitsi-focus-password.path;
+  jvbPassword = config.age.secrets.jitsi-jvb-password.path;
+  jibriPassword = config.age.secrets.jitsi-jibri-password.path;
+  recorderPassword = config.age.secrets.jitsi-recorder-password.path;
 in {
   options = {
     services.jitsi-meet = {
@@ -40,6 +46,36 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Age secrets for Jitsi passwords
+    age.secrets = {
+      jitsi-focus-password = {
+        file = ../secrets/jitsi-focus-password.age;
+        owner = "prosody";
+        group = "prosody";
+        mode = "0400";
+      };
+      
+      jitsi-jvb-password = {
+        file = ../secrets/jitsi-jvb-password.age;
+        owner = "jitsi-videobridge";
+        group = "jitsi-videobridge";
+        mode = "0400";
+      };
+      
+      jitsi-jibri-password = mkIf cfg.jibri.enable {
+        file = ../secrets/jitsi-jibri-password.age;
+        owner = cfg.jibri.xorgUsername;
+        group = cfg.jibri.xorgUsername;
+        mode = "0400";
+      };
+      
+      jitsi-recorder-password = mkIf cfg.jibri.enable {
+        file = ../secrets/jitsi-recorder-password.age;
+        owner = cfg.jibri.xorgUsername;
+        group = cfg.jibri.xorgUsername;
+        mode = "0400";
+      };
+    };
     # Enable required services
     services = {
       # Prosody XMPP server
@@ -128,7 +164,7 @@ in {
                 hosts = [ "${cfg.hostName}" ];
                 domain = "auth.${cfg.hostName}";
                 username = "focus";
-                password = "focus-password"; # Should be replaced with a secret
+                password-file = focusPassword;
               };
               trusted-domains = [ "recorder.${cfg.hostName}" ];
             };
@@ -146,7 +182,7 @@ in {
                 xmpp-server-addresses = [ "${cfg.hostName}" ];
                 domain = "${cfg.hostName}";
                 username = "jvb";
-                password = "jvb-password"; # Should be replaced with a secret
+                password-file = jvbPassword;
                 muc-jids = "jvbbrewery@internal.${cfg.hostName}";
                 muc-nickname = "jvb-instance";
               };
@@ -216,13 +252,13 @@ in {
               control-login = {
                 domain = "auth.${cfg.hostName}";
                 username = "jibri";
-                password = "jibri-password"; # Should be replaced with a secret
+                password-file = jibriPassword;
               };
               
               call-login = {
                 domain = "recorder.${cfg.hostName}";
                 username = "recorder";
-                password = "recorder-password"; # Should be replaced with a secret
+                password-file = recorderPassword;
               };
               
               strip-from-room-domain = "conference.";
