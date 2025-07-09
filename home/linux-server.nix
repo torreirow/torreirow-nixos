@@ -5,6 +5,7 @@
   ./common.nix
   ./dotfiles
   ./vim.nix
+  ./tmux.nix
  ];
 
 }

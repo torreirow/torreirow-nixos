@@ -1,4 +1,4 @@
-{config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, ... }:
+{config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
 
 {
   
@@ -105,7 +105,7 @@
     sqsh
     ssm-session-manager-plugin
     ssmsh
-    subtitleedit
+    pkgs-2411.subtitleedit
     super-productivity
     tali # poker game
     teams-for-linux
