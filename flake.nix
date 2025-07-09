@@ -39,7 +39,11 @@
         race.packages."${system}".race 
         jsonify-aws-dotfiles.packages."${system}".jsonify-aws-dotfiles
       ];
-  };
+    };
+
+    pkgs-2411 = import nixpkgs-2411 {
+          system = system;
+            };
 
   in
 
@@ -98,6 +102,7 @@
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2411 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
 
