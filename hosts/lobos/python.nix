@@ -2,6 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
+    zstd
     (python311.withPackages(ps: with ps; [ 
   buienradar
   icalendar
