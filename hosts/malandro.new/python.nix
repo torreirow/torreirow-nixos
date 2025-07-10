@@ -2,22 +2,17 @@
 
 {
   environment.systemPackages = with pkgs; [
-    zstd
     (python311.withPackages(ps: with ps; [ 
-  buienradar
-  icalendar
-  icloudpd
-  ics
-  lxml
-  numpy
-  openpyxl
-  opsgenie-sdk
-  pandas
-#  python-telegram-bot
-  pytz
-  pyyaml
   requests
-
+  pandas
+  buienradar
+  lxml
+  python-telegram-bot
+  pytz
+  opsgenie-sdk
+  pyyaml
+  ics
+  icloudpd
 ]))
 python311Packages.toggl-cli
   ];
