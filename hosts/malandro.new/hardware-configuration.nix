@@ -8,26 +8,25 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "ahci" "xhci_pci" "usbhid" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
+  boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/fc19dafe-2028-4aa0-8377-5c1f3330e027";
+    { device = "/dev/disk/by-uuid/d8ded817-ecf8-443d-92cc-4b573b6d1b01";
       fsType = "ext4";
     };
 
-  boot.initrd.luks.devices."luks-a5a0b8c2-2ce3-444b-8bfb-d38796899c4f".device = "/dev/disk/by-uuid/a5a0b8c2-2ce3-444b-8bfb-d38796899c4f";
+  boot.initrd.luks.devices."luks-d5b70829-a72e-4623-a8ce-c0de2f194aed".device = "/dev/disk/by-uuid/d5b70829-a72e-4623-a8ce-c0de2f194aed";
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/29CC-407D";
+    { device = "/dev/disk/by-uuid/75C3-56F6";
       fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/24fe366c-6288-4fa2-b8f9-89085da61585"; }
+    [ { device = "/dev/disk/by-uuid/55e4b1dd-f942-470b-b456-cf78efb12857"; }
     ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
@@ -35,9 +34,10 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.enp3s0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp1s0f0.useDHCP = lib.mkDefault true;
   # networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.bluetooth.enable = true;
 }
