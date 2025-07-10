@@ -4,13 +4,14 @@ let
   fontsList = with pkgs; [
     awesome
     dejavu_fonts
-#    fira-code-nerdfont
+    fira-code-nerdfont
     google-fonts
-#    inconsolata-nerdfont
+    inconsolata-nerdfont
     inter
     lato
     liberation_ttf
     meslo-lg
+    nerdfonts
     noto-fonts
     noto-fonts-color-emoji
     open-sans
@@ -22,7 +23,7 @@ in
   fonts = {
     enableDefaultPackages = true;
     fontconfig.enable = true;
-    packages = fontsList ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts) ;
+    packages = fontsList;
 
     fontconfig = {
       defaultFonts = {
