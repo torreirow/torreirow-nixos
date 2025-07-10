@@ -47,7 +47,7 @@ in
   # Enable networking
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-  networking.hostName = "malandro"; # Define your hostname.
+  networking.hostName = "lobos"; # Define your hostname.
   networking.networkmanager = {
     enable = true;
     dhcp = "internal";

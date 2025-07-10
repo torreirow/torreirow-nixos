@@ -10,9 +10,9 @@
     ".config/attic/config.toml" = {
       source = "/tmp/atticwto";
     };
-    ".config/openvpn/lobos.ovpn" = {
-      source = "/data/agenix/kar01-lobos.ovpn";
-    };
+#    ".config/openvpn/lobos.ovpn" = {
+#      source = "/data/agenix/kar01-lobos.ovpn";
+#    };
 
 };
 }

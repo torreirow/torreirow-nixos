@@ -121,6 +121,35 @@
       ];
     };
 ### LOBOS config END
+### MALANDRO config START
+  nixosConfigurations.malandro = nixpkgs.lib.nixosSystem {
+    modules =
+      let
+        system = "x86_64-linux";
+        defaults = { pkgs, ... }: {
+          nixpkgs.overlays = [(import ./overlays)];
+          _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2411 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
+          _module.args.agenix = inputs.agenix.packages.${system}.default;
+
+        };
+
+
+        
+
+      in [
+        defaults
+        extraPkgs
+        agenix.nixosModules.default
+        ./hosts/malandro/configuration.nix
+        ./modules/tnaws.nix
+        ./modules/general-desktop.nix
+      ];
+    };
+### MALANDRO config END
 
   ## KARLAPI config START
   nixosConfigurations.karlapi = nixpkgs.lib.nixosSystem {
