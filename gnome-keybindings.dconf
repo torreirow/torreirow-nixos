@@ -1,0 +1,11 @@
+[/]
+activate-window-menu=['<Control>space']
+show-desktop=['<Control><Alt>d']
+[/]
+custom-keybindings=@as []
+screensaver=['<Control><Alt><Super>l']
+
+[custom-keybindings/custom0]
+binding='<Ctrl><Alt><Shift>H'
+command='dbus-send --session --dest=com.zoom.HotKeyService --type=method_call /com/zoom/HotKeyListener com.zoom.HotKeyListener.keyPressed int64:55834574920 string:"<Ctrl><Alt><Shift>H"'
+name='ZMHKey55834574920'

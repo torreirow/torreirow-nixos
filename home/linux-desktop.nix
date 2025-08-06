@@ -7,6 +7,7 @@
   ./vim.nix
   ./dotfiles
   ./gnome-desktop
+  ./librewolf.nix
 #  ./dotfiles/toggl-secret.nix
 ];
 

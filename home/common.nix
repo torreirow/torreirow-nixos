@@ -26,6 +26,12 @@ programs.fzf = {
       #sync_address = "https://api.atuin.sh";
       sync_address = "https://atuin.tools.technative.cloud";
       search_mode = "fuzzy";
+      dialect = "uk";
+      filter_mode = "host";
+      common_prefix = [ 
+        "ls"
+      ];
+
     };
   };
 

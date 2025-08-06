@@ -21,7 +21,11 @@
       dot-style-focused = "DOTS";
       dot-style-unfocused = "DOTS";
       extension-version = 68;
-      "org/gnome/shell/favorite-apps" = "[]";
+
+			"org/gnome/shell/favorite-apps" = [
+				"org.gnome.Terminal.desktop"
+				# eventueel meer .desktop-bestanden
+			];
       global-border-radius = 1;
       group-apps = true;
       hide-overview-on-startup = false;
