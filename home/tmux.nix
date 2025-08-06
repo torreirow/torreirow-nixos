@@ -1,40 +1,49 @@
-{ config, pkgs, ... }:
+{config, pkgs, ...}:
 
 {
   programs.tmux = {
     enable = true;
-    sensibleOnTop = true;
-    newSession = false;
-    shortcut = "b";
-    historyLimit = 5000;
+    clock24 = true;
     plugins = [
-      pkgs.tmuxPlugins.urlview
+      pkgs.tmuxPlugins.gruvbox
+      pkgs.tmuxPlugins.sensible
+      pkgs.tmuxPlugins.yank
     ];
-
     extraConfig = ''
-      set -s escape-time 10                     # faster command sequences
-      set -sg repeat-time 600                   # increase repeat timeout
+    # Plugins
+    set -g @plugin 'tmux-plugins/tpm'
+    set -g @plugin 'tmux-plugins/tmux-sensible'
+    set -g @plugin 'tmux-plugins/tmux-yank'
+    set -g @plugin 'tmux-plugins/tmux-resurrect'
+    set -g @plugin 'egel/tmux-gruvbox'
 
-      set -s focus-events on
+    # Basisinstellingen
+    set -g prefix C-a
+    unbind r
+    bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"
 
-      set -g base-index 1           # start windows numbering at 1
-      setw -g pane-base-index 1     # make pane numbering consistent with windows
+    set -g mouse on
+    set -g base-index 1
+    set -g renumber-windows on
+    bind-key g set-window-option synchronize-panes \; display-message "synchronize-panes is now #{?pane_synchronized,on,off}"
 
-      setw -g automatic-rename off  # rename window to reflect current program
-      set -g renumber-windows on    # renumber windows when a window is closed
+    # Gruvbox settings
+    set -g @tmux-gruvbox 'dark'
+    set -g @tmux-gruvbox-statusbar-alpha 'true'
 
-      set -g set-titles on          # set terminal title
+    # Prefix Highlight stijl (optioneel)
+    set -g @prefix_highlight_fg 'black'
+    set -g @prefix_highlight_bg 'yellow'
 
-      # START WITH MOUSE MODE ENABLED
-      set -g mouse on
 
-      # Synchronize windows
-      bind-key g set-window-option synchronize-panes\; display-message "synchronize-panes is now #{?pane_synchronized,on,off}"
+    # Zet statusbar expliciet NA het thema
+    set -g status-left '#{prefix_highlight} | #S '
 
-      # VI-mode
-      setw -g mode-keys vi
+    # TPM loader – moet altijd onderaan staan!
+      run '~/.config/tmux/plugins/tpm/tpm'
+      set -g status-right '#[bg=default,fg=#504945,nobold,nounderscore,noitalics]#[bg=#504945,fg=#a89984] %Y-%m-%d  %H:%M #[bg=#504945,fg=#bdae93,nobold,noitalics,nounderscore]#[bg=#bdae93,fg=#3c3836] #h #[bg=#504945,fg=#a89984]  ⌨️ #(tmux show-option -gqv prefix) #('
 
-    '';
+    ''
+    ;
   };
-  
 }
