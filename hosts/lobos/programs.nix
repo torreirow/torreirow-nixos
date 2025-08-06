@@ -6,6 +6,7 @@
     #bluez
     #cooklang
     #flameshot
+    direnv
     agenix
     alacritty
     amazon-ecs-cli
@@ -49,7 +50,9 @@
     gnome-music
     gnupg
     go
-    go-mtpfs
+    simple-mtpfs
+    mtpfs
+    libmtp
     granted
     gum
     hitori # sudoku game
@@ -116,7 +119,8 @@
     thunderbird
     tmuxPlugins.catppuccin
     translate-shell
-    unstable.aider-chat-full
+#    unstable.aider-chat-full
+    aider-chat-full
     vista-fonts
     vlc
     vscode

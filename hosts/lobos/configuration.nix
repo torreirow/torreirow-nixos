@@ -34,6 +34,10 @@ in
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
 
+  services.flatpak.enable = true;
+  services.gvfs.enable = true;
+  services.udisks2.enable = true;
+
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
   services.xserver.displayManager.sessionCommands = ''
     #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
