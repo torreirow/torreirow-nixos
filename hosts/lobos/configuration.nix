@@ -366,6 +366,7 @@ networking.wg-quick.interfaces.wg0 = {
       }
     ];
     privateKey = "cCvDSo/JY5M76qalXJ/KIk9A13Z4wSv8+b1rxv+OEXc=";
+    autostart = false;
   };
 
 }
