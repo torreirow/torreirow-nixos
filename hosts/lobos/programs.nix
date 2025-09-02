@@ -6,6 +6,7 @@
     #bluez
     #cooklang
     #flameshot
+    go-mtpfs
     direnv
     agenix
     alacritty
