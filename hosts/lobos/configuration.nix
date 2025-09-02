@@ -366,6 +366,7 @@ networking.wg-quick.interfaces.wg0 = {
       }
     ];
     privateKey = "***REMOVED***";
+    autostart = false;
   };
 
 }
