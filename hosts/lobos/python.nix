@@ -17,6 +17,7 @@
   pytz
   pyyaml
   requests
+  flake8
 
 ]))
 python311Packages.toggl-cli

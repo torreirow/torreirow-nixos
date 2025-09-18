@@ -27,9 +27,14 @@
     set -g renumber-windows on
     bind-key g set-window-option synchronize-panes \; display-message "synchronize-panes is now #{?pane_synchronized,on,off}"
 
-    # Gruvbox settings
-    set -g @tmux-gruvbox 'dark'
-    set -g @tmux-gruvbox-statusbar-alpha 'true'
+#    # Gruvbox settings
+#    set -g @tmux-gruvbox 'dark'
+#    set -g @tmux-gruvbox-statusbar-alpha 'true'
+
+     # catppuccin
+     set -g @plugin 'catppuccin/tmux#v2.1.3' # See https://github.com/catppuccin/tmux/tags for additional tags
+     set -g @plugin 'tmux-plugins/tpm'
+     set -g @catppuccin_flavor 'mocha' # latte, frappe, macchiato or mocha
 
     # Prefix Highlight stijl (optioneel)
     set -g @prefix_highlight_fg 'black'

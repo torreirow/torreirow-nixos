@@ -6,6 +6,7 @@
     #bluez
     #cooklang
     #flameshot
+#  solidtime-desktop
     go-mtpfs
     direnv
     agenix
@@ -117,7 +118,7 @@
     terraform
     terraform-docs
     tfswitch
-    thunderbird
+    thunderbird-140
     tmuxPlugins.catppuccin
     translate-shell
 #    unstable.aider-chat-full
