@@ -5,26 +5,52 @@ self: super: {
 
     src = super.fetchurl {
       url = "https://github.com/solidtime-io/solidtime-desktop/releases/download/v${version}/solidtime-x64.tar.gz";
-      sha256 = "sha256-0gywlm0cwlqrpr943fybv2wksk9jvp1kl2047sxdm5l3iqmqzp9p";
+      sha256 = "0gywlm0cwlqrpr943fybv2wksk9jvp1kl2047sxdm5l3iqmqzp9p";
     };
 
-    nativeBuildInputs = [ super.autoPatchelfHook ];
-    buildInputs = [ super.stdenv.cc.cc.lib ];
+    nativeBuildInputs = [ super.makeWrapper super.autoPatchelfHook super.desktop-file-utils ];
 
-    unpackPhase = "true"; # we pakken zelf uit in installPhase
+    buildInputs = with super; [
+      cairo pango atk gtk3 gdk-pixbuf
+      xorg.libX11 xorg.libXext xorg.libXcomposite
+      xorg.libXdamage xorg.libXfixes xorg.libXrandr
+      libgbm expat xorg.libxcb libxkbcommon
+      alsa-lib nss cups mesa 
+    ];
 
     installPhase = ''
       mkdir -p $out/opt/solidtime
       tar -xzf $src -C $out/opt/solidtime
+
+      # Wrapper voor solidtime
       mkdir -p $out/bin
-      ln -s $out/opt/solidtime/solidtime-desktop $out/bin/solidtime-desktop
+        wrapProgram $out/bin/solidtime-desktop \
+          --set LD_LIBRARY_PATH ${super.mesa}/lib:${super.lib.makeLibraryPath buildInputs}:$LD_LIBRARY_PATH
+
+
+
+
+      ln -s $out/opt/solidtime/solidtime-x64/solidtime $out/bin/solidtime-desktop
+
+      # Desktop entry
+      mkdir -p $out/share/applications
+      cat > $out/share/applications/solidtime.desktop <<EOF
+[Desktop Entry]
+Name=Solidtime
+Comment=Solidtime Desktop Client
+Exec=$out/bin/solidtime-desktop
+Icon=$out/opt/solidtime/solidtime-x64/resources/app.asar.unpacked/resources/solidtime.png
+Terminal=false
+Type=Application
+Categories=Utility;
+EOF
     '';
 
     meta = with super.lib; {
-      description = "Solidtime Desktop client for time tracking";
-      homepage = "https://github.com/solidtime-io/solidtime-desktop";
-      license = licenses.agpl3Plus;
-      platforms = [ "x86_64-linux" ];
+      description = "Solidtime Desktop application";
+      homepage = "https://solidtime.com";
+      license = licenses.mit;
+      maintainers = [];
     };
   };
 }
