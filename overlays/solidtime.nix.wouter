@@ -1,4 +1,6 @@
-self: super: {
+# solidtime.nix
+# self en super zijn verplicht voor een overlay
+self: super: { 
   solidtime-desktop = super.stdenv.mkDerivation rec {
     pname = "solidtime-desktop";
     version = "0.0.40";
@@ -10,29 +12,33 @@ self: super: {
 
     nativeBuildInputs = [ super.makeWrapper super.autoPatchelfHook super.desktop-file-utils ];
 
-    buildInputs = with super; [
-      cairo pango atk gtk3 gdk-pixbuf
-      xorg.libX11 xorg.libXext xorg.libXcomposite
-      xorg.libXdamage xorg.libXfixes xorg.libXrandr
-      libgbm expat xorg.libxcb libxkbcommon
-      alsa-lib nss cups mesa 
-    ];
-
+buildInputs = with super; [
+  cairo
+  pango
+  atk
+  gtk3
+  gdk-pixbuf
+  xorg.libX11
+  xorg.libXext
+  xorg.libXcomposite
+  xorg.libXdamage
+  xorg.libXfixes
+  xorg.libXrandr
+  libgbm
+  expat
+  xorg.libxcb
+  libxkbcommon
+  alsa-lib
+  nss
+  cups
+  libgbm
+  mesa
+];
     installPhase = ''
       mkdir -p $out/opt/solidtime
       tar -xzf $src -C $out/opt/solidtime
-
-      # Wrapper voor solidtime
       mkdir -p $out/bin
-        wrapProgram $out/bin/solidtime-desktop \
-          --set LD_LIBRARY_PATH ${super.mesa}/lib:${super.lib.makeLibraryPath buildInputs}:$LD_LIBRARY_PATH
-
-
-
-
       ln -s $out/opt/solidtime/solidtime-x64/solidtime $out/bin/solidtime-desktop
-
-      # Desktop entry
       mkdir -p $out/share/applications
       cat > $out/share/applications/solidtime.desktop <<EOF
 [Desktop Entry]

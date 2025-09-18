@@ -11,6 +11,7 @@ programs.zsh = {
   initContent = pkgs.lib.mkBefore ''
     eval "$(atuin init zsh --disable-up-arrow)"
     export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
+    mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
   '';
 
         shellAliases = {
