@@ -322,11 +322,6 @@ services.fwupd.enable = true;
 #services.xscreensaver = {
 #  enable = true;
 #};
-services.xscreensaver = {
-  enable = true;
-};
-
-#systemd.services."restart-network-on-sleep" = {
 #  description = "Restart network services after sleep";
 #  wantedBy = [ "sleep.target" "suspend.target" ];
 #  before = [ "sleep.target" "suspend.target" ];
@@ -368,5 +363,8 @@ networking.wg-quick.interfaces.wg0 = {
     privateKey = "cCvDSo/JY5M76qalXJ/KIk9A13Z4wSv8+b1rxv+OEXc=";
     autostart = false;
   };
+
+## Fingerprint
+   services.fprintd.enable = true;
 
 }

@@ -3,10 +3,14 @@
 {
   
   environment.systemPackages = with pkgs; [
+  android-tools   # voor adb
+    simple-mtpfs    # om telefoon te mounten
+    wineWowPackages.full winetricks
     #bluez
     #cooklang
     #flameshot
-#  solidtime-desktop
+    unstable.lynis
+    fastfetch
     go-mtpfs
     direnv
     agenix
