@@ -26,11 +26,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1758106839,
-        "narHash": "sha256-GdacCH0M0mf9N5VJrFXBB6/MlreJ9bKS05bUxt51PC0=",
+        "lastModified": 1758619393,
+        "narHash": "sha256-BHIQUEcpX0fIqy2z0S9eCqS78R5XOlv9wsze8wC/YUI=",
         "owner": "wearetechnative",
         "repo": "bmc",
-        "rev": "d17beb03adab1c36f29c06b442332c47faffc55c",
+        "rev": "f5389756bef388c22f009aa3fd6820a11ef182ac",
         "type": "github"
       },
       "original": {
