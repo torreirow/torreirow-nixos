@@ -3,12 +3,16 @@
 {
   
   environment.systemPackages = with pkgs; [
-  android-tools   # voor adb
+    neofetch
+     bambu-studio
+    android-tools   # voor adb
+    perl
     simple-mtpfs    # om telefoon te mounten
     wineWowPackages.full winetricks
     #bluez
     #cooklang
     #flameshot
+    openai
     unstable.lynis
     fastfetch
     go-mtpfs

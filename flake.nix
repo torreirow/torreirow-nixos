@@ -99,7 +99,7 @@
       let
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
-          nixpkgs.overlays = [(import ./overlays) (import ./overlays/solidtime.nix)
+          nixpkgs.overlays = [(import ./overlays) (import ./overlays/cooklang.nix)
         
           ];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
