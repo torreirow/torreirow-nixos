@@ -40,13 +40,6 @@ in {
       # Basic authentication settings
       auth.anonymous.enable = false;
       
-      # Secure installation
-      settings = {
-        security = {
-          admin_user = "admin";
-          admin_password = "$__file{/var/lib/grafana/admin_password}";
-        };
-      };
       
       # Provision dashboards and data sources
       provision = {
