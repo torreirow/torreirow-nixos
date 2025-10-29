@@ -85,10 +85,10 @@ in {
         }
       ] ++ lib.optionals sslCheckerEnabled [
         {
-          job_name = "ssl_exporter";
+          job_name = "blackbox_ssl";
           metrics_path = "/probe";
           params = {
-            module = [ "http_2xx" ];
+            module = [ "https_ssl" ];
           };
           static_configs = [
             {
@@ -109,7 +109,7 @@ in {
             }
             {
               target_label = "__address__";
-              replacement = "localhost:9219"; # SSL exporter address
+              replacement = "localhost:9115"; # Blackbox exporter address
             }
           ];
         }
@@ -144,13 +144,31 @@ in {
       port = 9100;
     };
     
-    # SSL certificate exporter
-    services.prometheus.exporters.ssl = lib.mkIf sslCheckerEnabled {
+    # Blackbox exporter for SSL certificate checks
+    services.prometheus.exporters.blackbox = lib.mkIf sslCheckerEnabled {
       enable = true;
-      port = 9219;
-      extraFlags = [
-        "--web.listen-address=:9219"
-      ];
+      configFile = pkgs.writeText "blackbox-exporter.yml" ''
+        modules:
+          http_2xx:
+            prober: http
+            timeout: 5s
+            http:
+              method: GET
+              preferred_ip_protocol: "ip4"
+              tls_config:
+                insecure_skip_verify: false
+          
+          https_ssl:
+            prober: http
+            timeout: 5s
+            http:
+              method: GET
+              preferred_ip_protocol: "ip4"
+              fail_if_ssl: false
+              fail_if_not_ssl: true
+              tls_config:
+                insecure_skip_verify: false
+      '';
     };
     
     # Systemd timer for website availability checks
