@@ -41,9 +41,11 @@ in {
       auth.anonymous.enable = false;
       
       # Secure installation
-      security = {
-        adminUser = "admin";
-        adminPasswordFile = "/var/lib/grafana/admin_password";
+      settings = {
+        security = {
+          admin_user = "admin";
+          admin_password = "$__file{/var/lib/grafana/admin_password}";
+        };
       };
       
       # Provision dashboards and data sources
@@ -206,6 +208,7 @@ in {
         mkdir -p /var/lib/grafana
         echo "admin" > /var/lib/grafana/admin_password
         chmod 600 /var/lib/grafana/admin_password
+        chown grafana:grafana /var/lib/grafana/admin_password
       fi
     '';
   };
