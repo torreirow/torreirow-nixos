@@ -241,14 +241,6 @@ in {
       9115  # Blackbox exporter
     ];
     
-    # Add SSL certificate monitoring dashboard
-    services.grafana.provision.dashboards.settings.providers = [{
-      name = "ssl-monitoring";
-      options = {
-        path = "/var/lib/grafana/dashboards";
-      };
-    }];
-    
     # Create initial admin password file and dashboard directory
     system.activationScripts.grafana-init = ''
       if [ ! -f /var/lib/grafana/admin_password ]; then
