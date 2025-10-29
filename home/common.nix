@@ -30,8 +30,21 @@ programs.fzf = {
       filter_mode = "host";
       common_prefix = [ 
         "ls"
+        "cd"
+        "z"
+        "grep"
+        "vi"
       ];
-
+      common_subcommands = [ 
+        "aws-switch"
+        "bmc"
+        "race"
+      ];
+      secrets_filter = true;
+      history_filter = [ 
+        "^export.*KEY"
+        "^export.*TOKEN"
+      ]; 
     };
   };
 

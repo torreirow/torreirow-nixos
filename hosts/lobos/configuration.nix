@@ -368,6 +368,8 @@ networking.wg-quick.interfaces.wg0 = {
   };
 
 ## Fingerprint
-   services.fprintd.enable = true;
+services.fprintd.enable = true;
+
+
 
 }
