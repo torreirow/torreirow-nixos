@@ -94,6 +94,8 @@ in
   environment = {
     sessionVariables = {
       LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
+      SAL_USE_VCLPLUGIN = "gtk3";
+      FONTCONFIG_PATH = "/etc/fonts";
     };
   };
 
@@ -365,6 +367,8 @@ networking.wg-quick.interfaces.wg0 = {
   };
 
 ## Fingerprint
-   services.fprintd.enable = true;
+services.fprintd.enable = true;
+
+
 
 }

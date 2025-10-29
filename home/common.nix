@@ -43,6 +43,7 @@ programs.fzf = {
       secrets_filter = true;
       history_filter = [ 
         "^export.*KEY"
+        "^export.*TOKEN"
       ]; 
     };
   };
