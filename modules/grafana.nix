@@ -91,18 +91,14 @@ in {
           check_for_updates = false;
         };
         
-        alerting = {
-          enabled = true;
-          execute_alerts = true;
-          error_or_timeout = "alerting";
-          nodata_or_nullvalues = "alerting";
-          evaluation_timeout_seconds = 30;
-          notification_timeout_seconds = 30;
-          max_attempts = 3;
-        };
-        
+        # Use unified alerting only (legacy alerting is deprecated)
         unified_alerting = {
           enabled = true;
+        };
+        
+        # Disable legacy alerting
+        alerting = {
+          enabled = false;
         };
       };
     };
