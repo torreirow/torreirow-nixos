@@ -2,6 +2,39 @@
 
 {
 
+services.prometheus.alertmanager = {
+  enable = true;
+  port = 9093;
+
+  # Slack-configuratie
+  configuration = {
+    global = {
+      resolve_timeout = "5m";
+    };
+
+    route = {
+      receiver = "slack-notifications";
+      group_wait = "30s";
+      group_interval = "5m";
+      repeat_interval = "3h";
+    };
+
+    receivers = [
+      {
+        name = "slack-notifications";
+        slack_configs = [
+          {
+            send_resolved = true;
+            channel = "#managed-services-alerts"; 
+            api_url = "***REMOVED***";
+            text = "{{ range .Alerts }}*{{ .Annotations.summary }}*\n{{ .Annotations.description }}\n{{ end }}";
+          }
+        ];
+      }
+    ];
+  };
+};
+
 services.prometheus.exporters.blackbox = {
   enable = true;
   port = 9115;
@@ -45,8 +78,8 @@ services.prometheus = {
       job_name = "blackbox";
       metrics_path = "/probe";
       params.module = [ "http_2xx" ];
-      static_configs = [
-        { targets = [ "https://www.nu.nl" "https://technative.eu" ]; }
+      static_configs =  [
+        { targets = [ "https://www.nu.nl" "https://technative.eu" "https://homeassistant.toorren.net:8123" "https://vaultwarden.technative.cloud"]; }
       ];
       relabel_configs = [
         { source_labels = [ "__address__" ]; target_label = "__param_target"; }
@@ -54,6 +87,28 @@ services.prometheus = {
         { target_label = "__address__"; replacement = "localhost:9115"; }
       ];
     }
+  ];
+
+alertmanagers = [
+    {
+      static_configs = [{ targets = [ "localhost:9093" ]; }];
+    }
+  ];
+
+  ruleFiles = [
+    (pkgs.writeText "alert-rules.yml" ''
+      groups:
+        - name: SSL Alerts
+          rules:
+            - alert: SSLCertExpiringSoon
+              expr: (probe_ssl_earliest_cert_expiry - time()) / 86400 < 14
+              for: 1m
+              labels:
+                severity: warning
+              annotations:
+                summary: "SSL-certificaat verloopt binnenkort"
+                description: "Het certificaat van {{ $labels.instance }} verloopt binnen 14 dagen."
+    '')
   ];
 };
 
