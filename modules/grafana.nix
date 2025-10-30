@@ -107,16 +107,9 @@ services.prometheus = {
     ];
   };
 
-  # Create the dashboard files in the Grafana dashboards directory
-  environment.etc."grafana/dashboards/testwouter.json" = {
-    source = ../dashboards/grafana-dashboard-testwouter.json;
-    mode = "0644";
-    user = "grafana";
-    group = "grafana";
-  };
-  
-  environment.etc."grafana/dashboards/wouter.json" = {
-    source = ../dashboards/grafana-dashboard-wouter.json;
+  # Create the dashboard file in the Grafana dashboards directory
+  environment.etc."grafana/dashboards/technative-urls.json" = {
+    source = ../dashboards/technative-urls.json;
     mode = "0644";
     user = "grafana";
     group = "grafana";
@@ -125,8 +118,7 @@ services.prometheus = {
   # Make sure the dashboards directory exists and is writable by Grafana
   systemd.tmpfiles.rules = [
     "d /var/lib/grafana/dashboards 0755 grafana grafana -"
-    "L+ /var/lib/grafana/dashboards/testwouter.json - - - - /etc/grafana/dashboards/testwouter.json"
-    "L+ /var/lib/grafana/dashboards/wouter.json - - - - /etc/grafana/dashboards/wouter.json"
+    "L+ /var/lib/grafana/dashboards/technative-urls.json - - - - /etc/grafana/dashboards/technative-urls.json"
   ];
 
 
