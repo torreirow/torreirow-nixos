@@ -83,8 +83,43 @@ services.prometheus = {
           }
         ];
       };
+      dashboards = {
+        settings = {
+          apiVersion = 1;
+          providers = [
+            {
+              name = "Default";
+              orgId = 1;
+              folder = "";
+              type = "file";
+              disableDeletion = false;
+              editable = true;
+              options = {
+                path = "/var/lib/grafana/dashboards";
+              };
+            }
+          ];
+        };
+      };
     };
+    declarativePlugins = with pkgs.grafanaPlugins; [
+      grafana-piechart-panel
+    ];
   };
+
+  # Create the dashboard file in the Grafana dashboards directory
+  environment.etc."grafana/dashboards/testwouter.json" = {
+    source = ../dashboards/grafana-dashboard-testwouter.json;
+    mode = "0644";
+    user = "grafana";
+    group = "grafana";
+  };
+
+  # Make sure the dashboards directory exists and is writable by Grafana
+  systemd.tmpfiles.rules = [
+    "d /var/lib/grafana/dashboards 0755 grafana grafana -"
+    "L+ /var/lib/grafana/dashboards/testwouter.json - - - - /etc/grafana/dashboards/testwouter.json"
+  ];
 
 
   networking.firewall.allowedTCPPorts = [ 3000 9090 9100 9115 ];
