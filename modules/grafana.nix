@@ -78,8 +78,11 @@ services.prometheus = {
       job_name = "blackbox";
       metrics_path = "/probe";
       params.module = [ "http_2xx" ];
-      static_configs =  [
-        { targets = [ "https://www.nu.nl" "https://technative.eu" "https://homeassistant.toorren.net:8123" "https://vaultwarden.technative.cloud"]; }
+      file_sd_configs = [
+        {
+          files = [ "/etc/prometheus/urls.yaml" ];
+          refresh_interval = "5m";
+        }
       ];
       relabel_configs = [
         { source_labels = [ "__address__" ]; target_label = "__param_target"; }
@@ -170,10 +173,20 @@ alertmanagers = [
     group = "grafana";
   };
 
+  # Create the URLs file for Prometheus
+  environment.etc."prometheus/urls.yaml" = {
+    source = ../alerts/urls.yaml;
+    mode = "0644";
+    user = "prometheus";
+    group = "prometheus";
+  };
+
   # Make sure the dashboards directory exists and is writable by Grafana
   systemd.tmpfiles.rules = [
     "d /var/lib/grafana/dashboards 0755 grafana grafana -"
     "L+ /var/lib/grafana/dashboards/technative-urls.json - - - - /etc/grafana/dashboards/technative-urls.json"
+    "d /etc/prometheus 0755 prometheus prometheus -"
+    "L+ /etc/prometheus/urls.yaml - - - - /etc/prometheus/urls.yaml"
   ];
 
 
