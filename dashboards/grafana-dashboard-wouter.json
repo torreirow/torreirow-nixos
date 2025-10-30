@@ -117,28 +117,73 @@
         {
           "expr": "probe_ssl_earliest_cert_expiry{job=\"blackbox\"}",
           "refId": "A",
-          "legendFormat": "{{instance}}"
+          "instant": true
         },
         {
           "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox\"} - time()) / 86400",
           "refId": "B",
-          "legendFormat": "{{instance}}"
+          "instant": true
+        },
+        {
+          "expr": "label_replace(probe_success{job=\"blackbox\"}, \"instance_clean\", \"$1\", \"instance\", \"https?://([^:/]*).*\")",
+          "refId": "C",
+          "instant": true,
+          "hide": true
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "instance",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "job": true
+            },
+            "indexByName": {
+              "instance": 0,
+              "Value #A": 1,
+              "Value #B": 2
+            },
+            "renameByName": {
+              "instance": "URL",
+              "Value #A": "Expiration Date",
+              "Value #B": "Days Left"
+            }
+          }
         }
       ],
       "pluginVersion": "10.4.0",
       "options": {
         "showHeader": true,
         "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": ["sum"],
+          "countRows": false
+        },
         "sortBy": [
           {
-            "displayName": "Days until expiry",
+            "displayName": "Days Left",
             "desc": false
           }
         ]
       },
       "fieldConfig": {
         "defaults": {
-          "custom": {},
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -151,17 +196,28 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Value #A" },
+            "matcher": { "id": "byName", "options": "Expiration Date" },
             "properties": [
-              { "id": "displayName", "value": "Expiry Date" },
               { "id": "unit", "value": "dateTimeAsLocal" }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Value #B" },
+            "matcher": { "id": "byName", "options": "Days Left" },
             "properties": [
-              { "id": "displayName", "value": "Days until expiry" },
-              { "id": "decimals", "value": 0 }
+              { "id": "unit", "value": "d" },
+              { "id": "decimals", "value": 0 },
+              { "id": "custom.cellOptions", "value": {"type": "color-text"} }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "URL" },
+            "properties": [
+              { "id": "links", "value": [
+                {
+                  "title": "Visit site",
+                  "url": "${__value.text}"
+                }
+              ]}
             ]
           }
         ]
