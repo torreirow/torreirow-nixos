@@ -16,7 +16,8 @@ in
    #./gnome.nix
     ./lobos-secrets.nix
     #../../modules/teamviewer.nix
-    ../../modules/grafana.nix
+#    ../../modules/grafana.nix
+    ../../modules/monitoring
     ];
 
 
