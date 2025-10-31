@@ -1,6 +1,0 @@
-# List of URLs to monitor in Prometheus file_sd_configs format
-- targets:
-  - https://www.nu.nl
-  - https://technative.eu
-  - https://homeassistant.toorren.net:8123
-  - https://vaultwarden.technative.cloud

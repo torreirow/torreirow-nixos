@@ -15,7 +15,8 @@ in
     ./python.nix
    #./gnome.nix
     ./lobos-secrets.nix
-   # ../../modules/teamviewer.nix
+    #../../modules/teamviewer.nix
+    ../../modules/grafana.nix
     ];
 
 
