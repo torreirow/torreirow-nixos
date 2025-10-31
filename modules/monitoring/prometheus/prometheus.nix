@@ -50,7 +50,7 @@
   };
 
   environment.etc."prometheus/urls.yaml" = {
-    source = ./urls.yaml;
+    source = ./probes/urls.yaml;
     mode = "0644";
     user = "prometheus";
     group = "prometheus";
