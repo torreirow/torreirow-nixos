@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, agenix, ... }:
 
 {
+  age.secrets.slackWebhook.file = ../../../secrets/module-monitoring-slack_webhook.age;
+
   services.prometheus.alertmanager = {
     enable = true;
     port = 9093;
@@ -22,7 +24,7 @@
             {
               send_resolved = true;
               channel = "#managed-services-alerts";
-              api_url = "***REMOVED***";
+              api_url_file = config.age.secrets.slackWebhook.path;
               text = ''
                 {{ range .Alerts }}
                 *{{ .Annotations.summary }}*
