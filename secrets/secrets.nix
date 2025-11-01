@@ -30,4 +30,7 @@ in
   "jitsi-jvb-password.age".publicKeys = users ++ systems;
   "jitsi-jibri-password.age".publicKeys = users ++ systems;
   "jitsi-recorder-password.age".publicKeys = users ++ systems;
+
+  # Monitoring
+  "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
 }
