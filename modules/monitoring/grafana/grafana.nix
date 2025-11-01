@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
+
+let
+  dashboardFiles =
+    builtins.attrNames (builtins.readDir ./dashboards);
+in
 {
   services.grafana = {
     enable = true;
@@ -43,12 +48,15 @@
     ];
   };
 
-  environment.etc."grafana/dashboards/technative-urls.json" = {
-    source = ./dashboards/technative-urls.json;
-    mode = "0644";
-    user = "grafana";
-    group = "grafana";
-  };
+  # Dynamisch alle JSON dashboards provisionen
+  environment.etc = lib.mkMerge (map (file: {
+    "grafana/dashboards/${file}" = {
+      source = ./dashboards/${file};
+      mode = "0644";
+      user = "grafana";
+      group = "grafana";
+    };
+  }) dashboardFiles);
 
   networking.firewall.allowedTCPPorts = [ 3000 ];
 }
