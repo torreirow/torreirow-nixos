@@ -15,6 +15,7 @@ in
     ./python.nix
    #./gnome.nix
     ./lobos-secrets.nix
+    ../../modules/monitoring
    # ../../modules/teamviewer.nix
     ];
 
@@ -94,6 +95,8 @@ in
   environment = {
     sessionVariables = {
       LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
+      SAL_USE_VCLPLUGIN = "gtk3";
+      FONTCONFIG_PATH = "/etc/fonts";
     };
   };
 

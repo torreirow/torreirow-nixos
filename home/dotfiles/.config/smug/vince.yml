@@ -23,5 +23,7 @@ windows:
   - name: hugo
     commands:
       - xdg-open http://localhost:1402
+      - xdg-open https://chatgpt.com/c/68c3171d-8854-8332-9860-153317a5c1fb
+      - xdg-open https://chatgpt.com/c/68b458c4-f7dc-8333-be56-816614717863
       - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1402
       
