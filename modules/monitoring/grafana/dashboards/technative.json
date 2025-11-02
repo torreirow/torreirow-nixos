@@ -125,7 +125,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox\"} - time()) / 86400",
+          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-technative\"} - time()) / 86400",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -175,7 +175,7 @@
   "schemaVersion": 41,
   "tags": [
     "ssl",
-    "blackbox",
+    "blackbox-technative",
     "technative"
   ],
   "templating": {
