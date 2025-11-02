@@ -1,31 +1,29 @@
-{ config, pkgs, ... }:
+{ lib, ... }:
 
 {
-  services.prometheus = {
-    scrapeConfigs = [
-      {
-        job_name = "blackbox-technative";
-        metrics_path = "/probe";
-        params.module = [ "http_2xx" ];
-        file_sd_configs = [
-          {
-            files = [ "/etc/prometheus/technative-urls.yaml" ];
-            refresh_interval = "5m";
-          }
-        ];
-        relabel_configs = [
-          { source_labels = [ "__address__" ]; target_label = "__param_target"; }
-          { source_labels = [ "__param_target" ]; target_label = "instance"; }
-          { target_label = "__address__"; replacement = "localhost:9115"; }
-        ];
-      }
-    ];
+  services.prometheus.scrapeConfigs = lib.mkAfter [
+    {
+      job_name = "blackbox-technative";
+      metrics_path = "/probe";
+      params.module = [ "http_2xx" ];
 
-    ruleFiles = [ ./alerts/technative.yml ];
-  };
+      file_sd_configs = [
+        {
+          files = [ "/etc/prometheus/customers/technative/probes/urls.yaml" ];
+          refresh_interval = "5m";
+        }
+      ];
 
-  environment.etc."prometheus/technative-urls.yaml" = {
-    source = ./probes/technative/urls.yaml;
+      relabel_configs = [
+        { source_labels = [ "__address__" ]; target_label = "__param_target"; }
+        { source_labels = [ "__param_target" ]; target_label = "instance"; }
+        { target_label = "__address__"; replacement = "localhost:9115"; }
+      ];
+    }
+  ];
+
+  environment.etc."prometheus/customers/technative/probes/urls.yaml" = {
+    source = ./customers/technative/probes/urls.yaml;
     mode = "0644";
     user = "prometheus";
     group = "prometheus";
