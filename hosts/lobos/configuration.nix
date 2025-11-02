@@ -15,9 +15,8 @@ in
     ./python.nix
    #./gnome.nix
     ./lobos-secrets.nix
-    #../../modules/teamviewer.nix
-#    ../../modules/grafana.nix
     ../../modules/monitoring
+   # ../../modules/teamviewer.nix
     ];
 
 
@@ -369,8 +368,6 @@ networking.wg-quick.interfaces.wg0 = {
   };
 
 ## Fingerprint
-services.fprintd.enable = true;
-
-
+   services.fprintd.enable = true;
 
 }
