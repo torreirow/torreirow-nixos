@@ -3,5 +3,7 @@
 **.sw**
 result/**
 **/result
-iso270001-nixos-up2date**md
-iso270001-nixos-up2date**pdf
+**.bare
+.aider**
+*iso270001**.md
+*iso270001**.pdf
