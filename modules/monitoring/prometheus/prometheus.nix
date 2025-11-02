@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   services.prometheus = {
@@ -7,8 +7,10 @@
     retentionTime = "60d";
 
     exporters.node.enable = true;
+
     globalConfig.scrape_interval = "30s";
 
+    # Basis-scrapes voor Prometheus zelf en de node exporter
     scrapeConfigs = [
       {
         job_name = "prometheus";
@@ -20,9 +22,15 @@
       }
     ];
 
+    # Laat klantmodules extra scrapes toevoegen
     alertmanagers = [
-      { static_configs = [{ targets = [ "localhost:9093" ]; }]; }
+      {
+        static_configs = [{ targets = [ "localhost:9093" ]; }];
+      }
     ];
+
+    # Algemene regels of alerts
+#    ruleFiles = [ ./alerts/alert-rules.yml ];
   };
 
   networking.firewall.allowedTCPPorts = [ 9090 9100 9115 ];
