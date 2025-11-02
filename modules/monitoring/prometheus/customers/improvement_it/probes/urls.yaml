@@ -1,9 +1,5 @@
 # List of URLs to monitor in Prometheus file_sd_configs format
 - targets:
-  - https://technative.eu
-  - https://homeassistant.toorren.net:8123
-  - https://vaultwarden.tools.technative.cloud
-  - https://eu-north-1.signin.aws.amazon.com/oauth?client_id=arn%3Aaws%3Asignin%3A%3A%3Aconsole%2Fcanvas&code_challenge=-Rn-gbTtOVB9x_bmJv8C5-TblrVeYw-hAxG7DF0P1mE&code_challenge_method=SHA-256&response_type=code&redirect_uri=https%3A%2F%2Fconsole.aws.amazon.com%2Fconsole%2Fhome%3FhashArgs%3D%2523%26isauthcode%3Dtrue%26nc2%3Dh_si%26oauthStart%3D1761840005253%26src%3Dheader-signin%26state%3DhashArgsFromTB_eu-north-1_ebe043db3a0dabb1
   - https://2lumc.improvement-it.nl
   - https://2medipoint.improvement-it.nl
   - https://acc.2lumc.improvement-it.nl
