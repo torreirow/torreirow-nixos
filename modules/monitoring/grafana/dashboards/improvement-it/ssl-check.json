@@ -57,20 +57,9 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "red"
-              },
-              {
-                "color": "red",
-                "value": 7
-              },
-              {
-                "color": "orange",
-                "value": 14
-              },
-              {
-                "color": "green",
-                "value": 30
+                { "color": "red", "value": null },
+                { "color": "orange", "value": 1 },
+                { "color": "green", "value": 7 }
               }
             ]
           },
@@ -125,7 +114,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-technative\"} - time()) / 86400",
+          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-improvement_it\"} - time()) / 86400",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -175,8 +164,8 @@
   "schemaVersion": 41,
   "tags": [
     "ssl",
-    "blackbox-technative",
-    "technative"
+    "blackbox-improvement_it",
+    "improvement-it"
   ],
   "templating": {
     "list": []
@@ -187,7 +176,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "TechNative",
-  "uid": "66dd0ac0-b105-4a1e-852b-814ae01a5d20",
+  "title": "Improvement-IT",
+  "uid": "66dd0ac0-b105-4a1e-852b-814ae01a5d19",
   "version": 4
 }
