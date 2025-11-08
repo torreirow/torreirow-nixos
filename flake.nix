@@ -173,7 +173,6 @@
 ### KARLAPI config END
 
   ### LINUX HOMEMANAGER START ROOT
-  #     defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
   homeConfigurations."root@linuxdesktop" = home-manager.lib.homeManagerConfiguration(
     let
       system = "x86_64-linux";
@@ -195,7 +194,7 @@
          ./home/zsh.nix
          ./home/vim.nix
          ./home/tmux.nix
-#         ./home/linux-desktop.nix
+         ./home/linux-desktop.nix
          ./home/firefox.nix
          linux-defaults
        ];

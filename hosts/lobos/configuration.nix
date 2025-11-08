@@ -73,7 +73,7 @@ in
 
   ## Spotify discovery devices
   networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
-  networking.firewall.allowedTCPPorts = [ 57621 ]; # Sync local tracks
+  networking.firewall.allowedTCPPorts = [ 57621 22 443 80]; # Sync local tracks
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
