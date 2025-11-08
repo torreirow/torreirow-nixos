@@ -1,8 +1,40 @@
 { pkgs, lib, ... }:
 
 let
-  dashboardFiles =
-    builtins.attrNames (builtins.readDir ./dashboards);
+  dashboardsDir = ./dashboards;
+
+  # ✅ Alleen echte directories als "klanten"
+  customerDirs = builtins.filter (name:
+    (builtins.readDir dashboardsDir)."${name}" == "directory"
+  ) (builtins.attrNames (builtins.readDir dashboardsDir));
+
+  # Maak voor elke klant een provider aan
+  dashboardProviders =
+    map (customer: {
+      name = customer;
+      folder = customer;
+      type = "file";
+      disableDeletion = false;
+      editable = true;
+      options.path = "/etc/grafana/dashboards/${customer}";
+    }) customerDirs;
+
+  # Maak environment.etc entries voor elke file in elke submap
+  dashboardFiles = lib.flatten (
+    map (customer:
+      let
+        files = builtins.readDir "${dashboardsDir}/${customer}";
+      in
+      map (file: {
+        "grafana/dashboards/${customer}/${file}" = {
+          source = "${dashboardsDir}/${customer}/${file}";
+          mode = "0644";
+          user = "grafana";
+          group = "grafana";
+        };
+      }) (builtins.attrNames files)
+    ) customerDirs
+  );
 in
 {
   services.grafana = {
@@ -29,17 +61,7 @@ in
       };
       dashboards.settings = {
         apiVersion = 1;
-        providers = [
-          {
-            name = "Default";
-            orgId = 1;
-            folder = "";
-            type = "file";
-            disableDeletion = false;
-            editable = true;
-            options.path = "/etc/grafana/dashboards";
-          }
-        ];
+        providers = dashboardProviders;
       };
     };
 
@@ -48,16 +70,29 @@ in
     ];
   };
 
-  # Dynamisch alle JSON dashboards provisionen
-  environment.etc = lib.mkMerge (map (file: {
-    "grafana/dashboards/${file}" = {
-      source = ./dashboards/${file};
-      mode = "0644";
-      user = "grafana";
-      group = "grafana";
-    };
-  }) dashboardFiles);
+  environment.etc = lib.mkMerge dashboardFiles;
 
   networking.firewall.allowedTCPPorts = [ 3000 ];
+
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "info@dutchyland.net";
+  };
+
+  services.nginx = {
+    enable = true;
+    recommendedGzipSettings = true;
+    recommendedOptimisation = true;
+    recommendedProxySettings = true;
+    recommendedTlsSettings = true;
+
+    virtualHosts."torreirow.dutchyland.net" = {
+      enableACME = true;
+      forceSSL = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:3000";
+      };
+    };
+  };
 }
 
