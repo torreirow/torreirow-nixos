@@ -1,0 +1,66 @@
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+nixos-fw   all  --  anywhere             anywhere            
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination         
+DOCKER-USER  all  --  anywhere             anywhere            
+DOCKER-ISOLATION-STAGE-1  all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             anywhere             ctstate RELATED,ESTABLISHED
+DOCKER     all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             anywhere            
+ACCEPT     all  --  anywhere             anywhere            
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain DOCKER (1 references)
+target     prot opt source               destination         
+
+Chain DOCKER-ISOLATION-STAGE-1 (1 references)
+target     prot opt source               destination         
+DOCKER-ISOLATION-STAGE-2  all  --  anywhere             anywhere            
+RETURN     all  --  anywhere             anywhere            
+
+Chain DOCKER-ISOLATION-STAGE-2 (1 references)
+target     prot opt source               destination         
+DROP       all  --  anywhere             anywhere            
+RETURN     all  --  anywhere             anywhere            
+
+Chain DOCKER-USER (1 references)
+target     prot opt source               destination         
+RETURN     all  --  anywhere             anywhere            
+
+Chain nixos-fw (1 references)
+target     prot opt source               destination         
+nixos-fw-accept  all  --  anywhere             anywhere            
+nixos-fw-accept  all  --  anywhere             anywhere             ctstate RELATED,ESTABLISHED
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:ssh
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:netbios-ssn
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:microsoft-ds
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:hbci
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:wsdapi
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:websm
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:hp-pdl-datastr
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:9115
+nixos-fw-accept  tcp  --  anywhere             anywhere             tcp dpt:57621
+nixos-fw-accept  udp  --  anywhere             anywhere             udp dpt:netbios-ns
+nixos-fw-accept  udp  --  anywhere             anywhere             udp dpt:netbios-dgm
+nixos-fw-accept  udp  --  anywhere             anywhere             udp dpt:ws-discovery
+nixos-fw-accept  udp  --  anywhere             anywhere             udp dpt:mdns
+nixos-fw-accept  icmp --  anywhere             anywhere             icmp echo-request
+nixos-fw-log-refuse  all  --  anywhere             anywhere            
+
+Chain nixos-fw-accept (16 references)
+target     prot opt source               destination         
+ACCEPT     all  --  anywhere             anywhere            
+
+Chain nixos-fw-log-refuse (1 references)
+target     prot opt source               destination         
+LOG        tcp  --  anywhere             anywhere             tcp flags:FIN,SYN,RST,ACK/SYN LOG level info prefix "refused connection: "
+nixos-fw-refuse  all  --  anywhere             anywhere             PKTTYPE != unicast
+nixos-fw-refuse  all  --  anywhere             anywhere            
+
+Chain nixos-fw-refuse (2 references)
+target     prot opt source               destination         
+DROP       all  --  anywhere             anywhere            
