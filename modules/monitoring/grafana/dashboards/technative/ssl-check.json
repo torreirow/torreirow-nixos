@@ -1,0 +1,214 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 9,
+      "panels": [],
+      "title": "HTTP Checks",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "blue", "mode": "fixed" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green" }, { "color": "red", "value": 80 }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 2, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [{ "expr": "count(probe_http_status_code{job=\"blackbox-technative\"})", "refId": "A" }],
+      "title": "Total",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "green", "mode": "fixed" }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 2, "x": 2, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [{ "expr": "count(probe_http_status_code{job=\"blackbox-technative\"} == 200)", "refId": "B" }],
+      "title": "200 OK",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "gridPos": { "h": 4, "w": 2, "x": 4, "y": 1 },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [{ "expr": "count(probe_http_status_code{job=\"blackbox-technative\"} == 500)", "refId": "E" }],
+      "title": "500 Server Errors",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "gridPos": { "h": 4, "w": 2, "x": 6, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [{ "expr": "count(probe_http_status_code{job=\"blackbox-technative\"} == 404)", "refId": "D" }],
+      "title": "404 Not Found",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "gridPos": { "h": 4, "w": 2, "x": 8, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [{ "expr": "count(probe_http_status_code{job=\"blackbox-technative\"} == 301) + count(probe_http_status_code{job=\"blackbox-technative\"} == 302)", "refId": "C" }],
+      "title": "301/302 Redirects",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "gridPos": { "h": 4, "w": 2, "x": 10, "y": 1 },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "count(probe_http_status_code{job=\"blackbox-technative\"} != 200 and probe_http_status_code{job=\"blackbox-technative\"} != 301 and probe_http_status_code{job=\"blackbox-technative\"} != 302 and probe_http_status_code{job=\"blackbox-technative\"} != 404 and probe_http_status_code{job=\"blackbox-technative\"} != 500)",
+          "refId": "E"
+        }
+      ],
+      "title": "Other Errors",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 5 },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "expr": "probe_http_status_code{job=\"blackbox-technative\"} != 200",
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "title": "URLs in Error",
+      "transformations": [
+        { "id": "filterFieldsByName", "options": { "include": { "names": ["instance"] } } }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 20,
+      "panels": [],
+      "title": "SSL Certificate Expiry",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "align": "center", "cellOptions": { "type": "auto" }, "filterable": true },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "red" }, { "color": "orange", "value": 1 }, { "color": "green", "value": 7 }]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Days to expiration" },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": { "mode": "gradient", "type": "color-background" }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 15 },
+      "id": 21,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [{ "desc": false, "displayName": "Status" }]
+      },
+      "targets": [
+        {
+          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-technative\"} - time()) / 86400",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "title": "SSL Certificate Expiry (Days Left)",
+      "transformations": [
+        { "id": "reduce", "options": { "reducers": ["lastNotNull"] } },
+        { "id": "organize", "options": { "renameByName": { "Field": "URL", "Last *": "Days to expiration" } } },
+        { "id": "sortBy", "options": { "sort": [{ "desc": false, "field": "Days to expiration" }] } }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["blackbox", "http", "ssl", "technative"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "TechNative - HTTP & SSL Monitoring",
+  "version": 1
+}
+
