@@ -14,7 +14,8 @@ in
     ./fonts.nix
     ./python.nix
    #./gnome.nix
-    ./malandro-secrets.nix
+ ../../modules/monitoring
+   ./malandro-secrets.nix
    # ../../modules/teamviewer.nix
     ];
 

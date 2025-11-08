@@ -6,6 +6,7 @@
     #bluez
     #cooklang
     #flameshot
+    unstable.atuin-desktop
     agenix
     alacritty
     amazon-ecs-cli
