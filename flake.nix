@@ -254,7 +254,6 @@
 
     in {
       inherit pkgs;
-      inherit unstable;
 
 
         # Specify your home configuration modules here, for example,
