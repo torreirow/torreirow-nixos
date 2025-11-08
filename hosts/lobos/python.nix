@@ -20,7 +20,7 @@
   flake8
 
 ]))
-python311Packages.toggl-cli
+#python311Packages.toggl-cli
   ];
 
 }
