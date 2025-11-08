@@ -1,5 +1,7 @@
 {config, pkgs, ...}:
-
+let
+  prefixKey = if builtins.getEnv "HOSTNAME" == "malandro" then "C-a" else "C-b";
+in
 {
   programs.tmux = {
     enable = true;
@@ -10,6 +12,13 @@
       pkgs.tmuxPlugins.yank
     ];
     extraConfig = ''
+    # prefix based on remote/local
+    if -b '[ -n "$SSH_CONNECTION" ]' {
+        set -g prefix C-b
+      } {
+        set -g prefix C-a
+      }
+
     # Plugins
     set -g @plugin 'tmux-plugins/tpm'
     set -g @plugin 'tmux-plugins/tmux-sensible'
