@@ -15,7 +15,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 8,
+  "id": 4,
   "links": [],
   "panels": [
     {
@@ -28,13 +28,13 @@
       },
       "id": 9,
       "panels": [],
-      "title": "Row title",
+      "title": "HTTP Checks",
       "type": "row"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B20931"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -54,8 +54,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -96,7 +95,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B20931"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -116,8 +115,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -158,16 +156,11 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B20931"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "dark-red",
-            "mode": "fixed"
-          },
           "mappings": [],
-          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -179,8 +172,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -221,16 +213,11 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B20931"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "red",
-            "mode": "fixed"
-          },
           "mappings": [],
-          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -242,8 +229,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -284,14 +270,10 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B20931"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "orange",
-            "mode": "fixed"
-          },
           "mappings": [],
           "noValue": "0",
           "thresholds": {
@@ -305,8 +287,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -337,7 +318,7 @@
       "pluginVersion": "12.0.6",
       "targets": [
         {
-          "expr": "count(probe_http_status_code{job=\"blackbox-improvement_it\"} == 301) + count(probe_http_status_code{job=\"blackbox-improvement_it\"} == 302)",
+          "expr": "count(probe_http_status_code{job=\"blackbox-improvement_it\"} == 301) + count(probe_http_status_code{job=\"blackbox-technative\"} == 302)",
           "refId": "C"
         }
       ],
@@ -347,14 +328,10 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B20931"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "dark-red",
-            "mode": "fixed"
-          },
           "mappings": [],
           "noValue": "0",
           "thresholds": {
@@ -368,8 +345,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -401,7 +377,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "count(probe_http_status_code{job=\"blackbox-improvement_it\"} != 200\nand probe_http_status_code{job=\"blackbox-improvement_it\"} != 301\nand probe_http_status_code{job=\"blackbox-improvement_it\"} != 302\nand probe_http_status_code{job=\"blackbox-improvement_it\"} != 404\nand probe_http_status_code{job=\"blackbox-improvement_it\"} != 500)\n",
+          "expr": "count(probe_http_status_code{job=\"blackbox-improvement_it\"} != 200\nand probe_http_status_code{job=\"blackbox-improvement_it\"} != 301\nand probe_http_status_code{job=\"blackbox-improvement_it\"} != 302\nand probe_http_status_code{job=\"blackbox-improvement_it\"} != 404\nand probe_http_status_code{job=\"blackbox-improvement_it\"} != 500)",
           "range": true,
           "refId": "E"
         }
@@ -412,23 +388,18 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B20931"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
           "custom": {
             "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
-            "filterable": false,
             "inspect": false
           },
           "mappings": [],
-          "noValue": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -466,17 +437,8 @@
       "pluginVersion": "12.0.6",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B20931"
-          },
-          "editorMode": "code",
-          "exemplar": false,
           "expr": "probe_http_status_code{job=\"blackbox-improvement_it\"} != 200",
           "format": "table",
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
           "refId": "A"
         }
       ],
@@ -494,6 +456,136 @@
         }
       ],
       "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 20,
+      "panels": [],
+      "title": "SSL Certificate Expiry",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "green",
+                "value": 7
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days to expiration"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 21,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Status"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.6",
+      "targets": [
+        {
+          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-improvement_it\"} - time()) / 86400",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "title": "SSL Certificate Expiry (Days Left)",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "lastNotNull"
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Field": "URL",
+              "Last *": "Days to expiration"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": false,
+                "field": "Days to expiration"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
     }
   ],
   "preload": false,
@@ -502,18 +594,20 @@
   "tags": [
     "blackbox",
     "http",
-    "status"
+    "ssl",
+    "improvement_it",
+    "iac"
   ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
-  "title": "HTTP-check",
-  "uid": "5d64248f-f534-44dd-a7d1-ee2ffea070de",
-  "version": 12
+  "timezone": "browser",
+  "title": "Improvement IT - HTTP & SSL Monitoring",
+  "uid": "72f77aae-4dac-487f-90cc-1f4727f218ee",
+  "version": 3
 }
