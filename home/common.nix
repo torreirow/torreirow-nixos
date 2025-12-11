@@ -58,7 +58,7 @@ programs.fzf = {
 
  
  programs.home-manager.enable = true;
- home.stateVersion = "25.05";
+ home.stateVersion = "25.11";
  #home.stateVersion = "24.11";
  home.username = "wtoorren";
  #home.username = "${config.username}";
