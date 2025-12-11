@@ -2,7 +2,7 @@
 
 let
   pythonEnv = pkgs.python3.withPackages (ps: [
-    ps.prometheus_client
+    ps.prometheus-client
     ps.flask
   ]);
 
@@ -11,55 +11,55 @@ let
     name = "vulnix-exporter.py";
     destination = "/bin/vulnix-exporter.py";
     executable = true;
+text = ''
+  #!/usr/bin/env python3
 
-    text = ''
-      #!/usr/bin/env python3
+import json
+import socket
+from flask import Flask, Response
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Gauge
 
-      import json
-      from flask import Flask, Response
-      from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Gauge
-      import prometheus_client
+app = Flask(__name__)
 
-      app = Flask(__name__)
+# Dynamisch endpoint (hostname)
+endpoint = socket.gethostname()
 
-      # Prometheus metrics
-      g_total = Gauge("vulnix_vulnerabilities_total", "Total vulnerabilities")
-      g_crit = Gauge("vulnix_critical_total", "Critical vulnerabilities")
-      g_high = Gauge("vulnix_high_total", "High vulnerabilities")
-      g_med  = Gauge("vulnix_medium_total", "Medium vulnerabilities")
-      g_low  = Gauge("vulnix_low_total", "Low vulnerabilities")
+# Prometheus metrics with labels
+g_total = Gauge("vulnix_vulnerabilities_total", "Total vulnerabilities", ["endpoint"])
+g_crit  = Gauge("vulnix_critical_total", "Critical vulnerabilities", ["endpoint"])
+g_high  = Gauge("vulnix_high_total", "High vulnerabilities", ["endpoint"])
+g_med   = Gauge("vulnix_medium_total", "Medium vulnerabilities", ["endpoint"])
+g_low   = Gauge("vulnix_low_total", "Low vulnerabilities", ["endpoint"])
 
-      @app.route("/metrics")
-      def metrics():
-          try:
-              with open("/var/lib/vulnix/vulnix.json") as f:
-                  data = json.load(f)
+@app.route("/metrics")
+def metrics():
+    try:
+        with open("/var/lib/vulnix/vulnix.json") as f:
+            vulns = json.load(f)
 
-              vulns = data
-              g_total.set(len(vulns))
+        g_total.labels(endpoint).set(len(vulns))
+        g_crit.labels(endpoint).set(sum(1 for v in vulns if v.get("severity") == "CRITICAL"))
+        g_high.labels(endpoint).set(sum(1 for v in vulns if v.get("severity") == "HIGH"))
+        g_med.labels(endpoint).set(sum(1 for v in vulns if v.get("severity") == "MEDIUM"))
+        g_low.labels(endpoint).set(sum(1 for v in vulns if v.get("severity") == "LOW"))
 
-              g_crit.set(sum(1 for v in vulns if v.get("severity") == "CRITICAL"))
-              g_high.set(sum(1 for v in vulns if v.get("severity") == "HIGH"))
-              g_med.set(sum(1 for v in vulns if v.get("severity") == "MEDIUM"))
-              g_low.set(sum(1 for v in vulns if v.get("severity") == "LOW"))
+    except Exception as e:
+        print("error:", e)
 
-          except Exception as e:
-              print("error:", e)
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
-          return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+@app.route("/vulnix.json")
+def vulnix_json():
+    try:
+        with open("/var/lib/vulnix/vulnix.json") as f:
+            return Response(f.read(), mimetype="application/json")
+    except FileNotFoundError:
+        return Response("{}", mimetype="application/json")
 
-      @app.route("/vulnix.json")
-      def vulnix_json():
-          try:
-              with open("/var/lib/vulnix/vulnix.json") as f:
-                  data = f.read()
-              return Response(data, mimetype="application/json")
-          except FileNotFoundError:
-              return Response("{}", mimetype="application/json")
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(${toString config.services.vulnix-exporter.port}))
+'';
 
-      if __name__ == "__main__":
-          app.run(host="0.0.0.0", port=int(${toString config.services.vulnix-exporter.port}))
-    '';
   };
 
 in {
