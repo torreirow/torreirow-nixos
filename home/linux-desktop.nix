@@ -8,6 +8,7 @@
   ./dotfiles
   ./gnome-desktop
   ./librewolf.nix
+#  ./sshkeys.nix
 #  ./dotfiles/toggl-secret.nix
 ];
 
