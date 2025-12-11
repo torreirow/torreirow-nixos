@@ -13,9 +13,10 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
-   #./gnome.nix
+#   ./gnome.nix
     ./lobos-secrets.nix
-    #../../modules/monitoring
+   ../../modules/monitoring
+#   ../../modules/jitsi.nix
    # ../../modules/teamviewer.nix
     ];
 
@@ -33,6 +34,7 @@ in
 #  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
   boot.supportedFilesystems = [ "ntfs" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
 
 
   services.flatpak.enable = true;
@@ -53,10 +55,16 @@ in
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   networking.hostName = "lobos"; # Define your hostname.
+  networking.nameservers = [ "192.168.0.1" "1.1.1.1" "8.8.8.8" ];
+  networking.search = [ "home" ];
+  networking.domain = "toorren.net";
   networking.networkmanager = {
     enable = true;
     dhcp = "internal";
     wifi.powersave = false;
+    plugins = [
+      pkgs.networkmanager-openvpn
+    ];
 
   };
 
@@ -72,8 +80,8 @@ in
   # networking.firewall.enable = false;
 
   ## Spotify discovery devices
-  networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
-  networking.firewall.allowedTCPPorts = [ 57621 ]; # Sync local tracks
+  networking.firewall.allowedUDPPorts = [ 111 2049 5353 ]; # Spotify Connect
+  networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
@@ -143,9 +151,8 @@ environment.variables.EDITOR = "vim";
   # Enable the KDE Plasma Desktop Environment.
   services.xserver.enable = true;
   services.displayManager.sddm.enable = false;
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = false;
-  services.xserver.desktopManager.gnome.enable = true;
+  services.displayManager.gdm.enable = true;
+  services.desktopManager.gnome.enable = true;
 
   ## NEW CONFIG
   services.displayManager.defaultSession = "gnome";
@@ -278,6 +285,7 @@ environment.variables.EDITOR = "vim";
 ];
 
 nixpkgs.config.permittedInsecurePackages = [
+    "jitsi-meet-1.0.8043"
     "qtwebkit-5.212.0-alpha"
   ];
 
@@ -350,6 +358,27 @@ services.fwupd.enable = true;
 #  };
 #};
 
+networking.wg-quick.interfaces.wg1 = {
+    address = [
+      "10.0.0.3/32"
+    ];
+    peers = [
+      {
+        allowedIPs = [
+          "0.0.0.0/0"
+        ];
+        endpoint = "82.172.137.171:51820";
+        publicKey = "CWdPTt8t7bRVzStETmU8J/QimhdwPTGVH0R0Fn/nPFg=";
+      }
+    ];
+    privateKey = "uCjR+MnrKMCJHo/EssxVWmkbVEae6J03bjQTVawt32E=";
+    autostart = false;
+    postUp = "iptables -A FORWARD -i wg0 -d 224.0.0.251/32 -j ACCEPT";
+    postDown = "iptables -A FORWARD -o wg0 -d 224.0.0.251/32 -j ACCEPT";
+  };
+
+
+
 networking.wg-quick.interfaces.wg0 = {
     address = [
       "172.27.66.3/24"
@@ -368,6 +397,29 @@ networking.wg-quick.interfaces.wg0 = {
   };
 
 ## Fingerprint
-   services.fprintd.enable = true;
+services.fprintd.enable = true;
+systemd.services.sshd.serviceConfig = {
+  ProtectSystem = "strict";
+  ProtectHome = "yes";
+  PrivateTmp = true;
+};
+
+services.nfs.server.enable = true;
+environment.etc."exports-dir".source = "/data";
+services.nfs.server.exports = ''
+          /data 192.168.2.0/24(rw,sync,no_subtree_check)
+    '';
+services.nfs.settings = {
+      nfsd.udp = false;
+      nfsd.vers3 = false;
+      nfsd.vers4 = true;
+      nfsd."vers4.0" = false;
+      nfsd."vers4.1" = false;
+      nfsd."vers4.2" = true;
+    };
+
+
+
+
 
 }

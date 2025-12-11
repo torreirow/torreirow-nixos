@@ -6,6 +6,7 @@
     ./prometheus-technative.nix
     ./alertmanager.nix
     ./exporters/blackbox.nix
+    ./exporters/vulnix.nix
   ];
 }
 

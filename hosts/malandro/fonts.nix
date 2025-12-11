@@ -15,7 +15,7 @@ let
     noto-fonts-color-emoji
     open-sans
     rubik
-    ubuntu_font_family
+    ubuntu-classic
   ];
 in
 {

@@ -1,8 +1,21 @@
 {config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
 
 {
+
+
   
   environment.systemPackages = with pkgs; [
+    R
+    rPackages.knitr
+    rPackages.rmarkdown
+    rPackages.ggplot2
+    rPackages.dplyr
+    rPackages.patchwork
+    onlyoffice-desktopeditors
+    firefox
+    appimage-run
+    lsb-release
+    osv-scanner
     desktop-file-utils
     neofetch
     dstp
@@ -29,7 +42,7 @@
     avahi
     aws-nuke
     awscli2
-    bitwarden
+    bitwarden-desktop
     caligula
     catppuccin
     clementine
@@ -137,7 +150,7 @@
     vlc
     vscode
     wget
-    whatsapp-for-linux
+    wasistlos
     zapzap
     xclip
     xorg.xbacklight
