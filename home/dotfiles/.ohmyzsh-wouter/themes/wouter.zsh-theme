@@ -18,7 +18,7 @@ function tfbackend_prompt_info () {
 PROMPT="%(?:%{$fg_bold[green]%}✔:%{$fg_bold[red]%}✘) "
 
 # Show user, host, and current directory
-PROMPT+='%F{blue}%n%f%{$fg[blue]%}@%M %{$fg[cyan]%}%c%{$reset_color%} '
+PROMPT+='%F{blue}%n%f%{$fg[blue]%}@%m %{$fg[cyan]%}%c%{$reset_color%} '
 
 # Show Git info
 PROMPT+='$(git_prompt_info)'

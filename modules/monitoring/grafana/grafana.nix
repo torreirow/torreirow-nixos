@@ -3,38 +3,42 @@
 let
   dashboardsDir = ./dashboards;
 
-  # ✅ Alleen echte directories als "klanten"
-  customerDirs = builtins.filter (name:
-    (builtins.readDir dashboardsDir)."${name}" == "directory"
-  ) (builtins.attrNames (builtins.readDir dashboardsDir));
+  # Alle subdirectories van ./dashboards (klantnamen)
+  customerDirs =
+    builtins.filter (name:
+      (builtins.readDir dashboardsDir)."${name}" == "directory"
+    ) (builtins.attrNames (builtins.readDir dashboardsDir));
 
-  # Maak voor elke klant een provider aan
-  dashboardProviders =
-    map (customer: {
-      name = customer;
-      folder = customer;
-      type = "file";
-      disableDeletion = false;
-      editable = true;
-      options.path = "/etc/grafana/dashboards/${customer}";
-    }) customerDirs;
+  # Provisioning providers: één per klantmap
+  dashboardProviders = map (customer: {
+    name = customer;
+    folder = customer;
+    type = "file";
+    disableDeletion = false;
+    editable = true;
+    options.path = "/etc/grafana/dashboards/${customer}";
+  }) customerDirs;
 
-  # Maak environment.etc entries voor elke file in elke submap
-  dashboardFiles = lib.flatten (
-    map (customer:
-      let
-        files = builtins.readDir "${dashboardsDir}/${customer}";
-      in
-      map (file: {
-        "grafana/dashboards/${customer}/${file}" = {
-          source = "${dashboardsDir}/${customer}/${file}";
-          mode = "0644";
-          user = "grafana";
-          group = "grafana";
-        };
-      }) (builtins.attrNames files)
-    ) customerDirs
-  );
+  # Genereer één grote attrset voor environment.etc
+  dashboardFiles =
+    lib.foldl' lib.mergeAttrs {} (
+      lib.concatMap (customer:
+        let
+          files =
+            builtins.filter (file: lib.hasSuffix ".json" file)
+            (builtins.attrNames (builtins.readDir "${dashboardsDir}/${customer}"));
+        in
+        map (file: {
+          "grafana/dashboards/${customer}/${file}" = {
+            source = "${dashboardsDir}/${customer}/${file}";
+            mode = "0644";
+            user = "grafana";
+            group = "grafana";
+          };
+        }) files
+      ) customerDirs
+    );
+
 in
 {
   services.grafana = {
@@ -48,6 +52,7 @@ in
 
     provision = {
       enable = true;
+
       datasources.settings = {
         apiVersion = 1;
         datasources = [
@@ -59,6 +64,7 @@ in
           }
         ];
       };
+
       dashboards.settings = {
         apiVersion = 1;
         providers = dashboardProviders;
@@ -70,7 +76,8 @@ in
     ];
   };
 
-  environment.etc = lib.mkMerge dashboardFiles;
+  # Plaats dashboards in /etc/grafana/dashboards/*
+  environment.etc = dashboardFiles;
 
   networking.firewall.allowedTCPPorts = [ 3000 ];
 
