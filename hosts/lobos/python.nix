@@ -11,13 +11,14 @@
   lxml
   numpy
   openpyxl
-  opsgenie-sdk
+ # opsgenie-sdk
   pandas
   python-telegram-bot
   pytz
   pyyaml
   requests
   flake8
+  prometheus-client
 
 ]))
 #python311Packages.toggl-cli
