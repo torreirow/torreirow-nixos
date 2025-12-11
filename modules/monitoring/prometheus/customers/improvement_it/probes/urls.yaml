@@ -1,5 +1,6 @@
 # List of URLs to monitor in Prometheus file_sd_configs format
 - targets:
+  - https://bo.mijzo.alltrackmedical.nl
   - https://2lumc.improvement-it.nl
   - https://2medipoint.improvement-it.nl
   - https://acc.2lumc.improvement-it.nl
