@@ -7,6 +7,7 @@
   ./dotfiles
   ./vim.nix
   ./tmux.nix
+  ./sshkeys.nix
  ];
 
 }
