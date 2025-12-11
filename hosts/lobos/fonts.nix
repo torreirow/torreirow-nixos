@@ -15,38 +15,22 @@ let
     noto-fonts-color-emoji
     open-sans
     rubik
-    ubuntu_font_family
+    ubuntu-classic
   ];
-
-  # 👇 custom fonts (bijv. in je home directory of repository)
-  customFonts = pkgs.stdenv.mkDerivation {
-    pname = "custom-fonts";
-    version = "1.0";
-    src = ../../fonts;  # of bijvoorbeeld ./fonts als je ze in je nixos-config repo zet
-    installPhase = ''
-      mkdir -p $out/share/fonts
-      cp -r $src/* $out/share/fonts/
-    '';
-  };
 in
 {
   fonts = {
     enableDefaultPackages = true;
     fontconfig.enable = true;
-    packages =
-      fontsList
-      ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts)
-      ++ [ customFonts ];
+    packages = fontsList ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts) ;
 
     fontconfig = {
       defaultFonts = {
-        serif = [ "Liberation Serif" ];
+        serif = [  "Liberation Serif"  ];
         sansSerif = [ "Ubuntu" "Vazirmatn" ];
         monospace = [ "Ubuntu Mono" ];
       };
     };
   };
-
   environment.systemPackages = fontsList;
 }
-
