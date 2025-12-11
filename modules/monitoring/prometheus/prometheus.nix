@@ -20,6 +20,11 @@
         job_name = "node";
         static_configs = [{ targets = [ "localhost:9100" ]; }];
       }
+      {
+        job_name = "vulnix";
+        static_configs = [{ targets = [ "localhost:9109" ]; }];
+      }
+
     ];
 
     # Laat klantmodules extra scrapes toevoegen
@@ -33,6 +38,6 @@
 #    ruleFiles = [ ./alerts/alert-rules.yml ];
   };
 
-  networking.firewall.allowedTCPPorts = [ 9090 9100 9115 ];
+  networking.firewall.allowedTCPPorts = [ 9090 9100 9115 9109];
 }
 

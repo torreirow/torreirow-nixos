@@ -1,8 +1,44 @@
 { pkgs, lib, ... }:
 
 let
+  dashboardsDir = ./dashboards;
+
+  # Alle subdirectories van ./dashboards (klantnamen)
+  customerDirs =
+    builtins.filter (name:
+      (builtins.readDir dashboardsDir)."${name}" == "directory"
+    ) (builtins.attrNames (builtins.readDir dashboardsDir));
+
+  # Provisioning providers: één per klantmap
+  dashboardProviders = map (customer: {
+    name = customer;
+    folder = customer;
+    type = "file";
+    disableDeletion = false;
+    editable = true;
+    options.path = "/etc/grafana/dashboards/${customer}";
+  }) customerDirs;
+
+  # Genereer één grote attrset voor environment.etc
   dashboardFiles =
-    builtins.attrNames (builtins.readDir ./dashboards);
+    lib.foldl' lib.mergeAttrs {} (
+      lib.concatMap (customer:
+        let
+          files =
+            builtins.filter (file: lib.hasSuffix ".json" file)
+            (builtins.attrNames (builtins.readDir "${dashboardsDir}/${customer}"));
+        in
+        map (file: {
+          "grafana/dashboards/${customer}/${file}" = {
+            source = "${dashboardsDir}/${customer}/${file}";
+            mode = "0644";
+            user = "grafana";
+            group = "grafana";
+          };
+        }) files
+      ) customerDirs
+    );
+
 in
 {
   services.grafana = {
@@ -16,6 +52,7 @@ in
 
     provision = {
       enable = true;
+
       datasources.settings = {
         apiVersion = 1;
         datasources = [
@@ -27,19 +64,10 @@ in
           }
         ];
       };
+
       dashboards.settings = {
         apiVersion = 1;
-        providers = [
-          {
-            name = "Default";
-            orgId = 1;
-            folder = "";
-            type = "file";
-            disableDeletion = false;
-            editable = true;
-            options.path = "/etc/grafana/dashboards";
-          }
-        ];
+        providers = dashboardProviders;
       };
     };
 
@@ -48,16 +76,30 @@ in
     ];
   };
 
-  # Dynamisch alle JSON dashboards provisionen
-  environment.etc = lib.mkMerge (map (file: {
-    "grafana/dashboards/${file}" = {
-      source = ./dashboards/${file};
-      mode = "0644";
-      user = "grafana";
-      group = "grafana";
-    };
-  }) dashboardFiles);
+  # Plaats dashboards in /etc/grafana/dashboards/*
+  environment.etc = dashboardFiles;
 
   networking.firewall.allowedTCPPorts = [ 3000 ];
+
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "info@dutchyland.net";
+  };
+
+  services.nginx = {
+    enable = true;
+    recommendedGzipSettings = true;
+    recommendedOptimisation = true;
+    recommendedProxySettings = true;
+    recommendedTlsSettings = true;
+
+    virtualHosts."torreirow.dutchyland.net" = {
+      enableACME = true;
+      forceSSL = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:3000";
+      };
+    };
+  };
 }
 
