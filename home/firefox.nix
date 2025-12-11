@@ -4,7 +4,7 @@
   in
   {
      programs.google-chrome.enable = true;
-     programs.firefox.enable = true;
+     programs.firefox.enable = false;
      programs.firefox.policies = {
       ExtensionSettings = with builtins;
         let extension = shortId: uuid: {
