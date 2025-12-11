@@ -3,9 +3,11 @@
 {
   
   environment.systemPackages = with pkgs; [
-    #bluez
+    wireguard-tools
     #cooklang
     #flameshot
+    bluez
+    bluez-tools
     unstable.atuin-desktop
     agenix
     alacritty
