@@ -19,7 +19,7 @@
 
     environment = {
       WG_HOST = "wg.toorren.net";
-      PASSWORD_HASH = "$argon2id$v=19$m=65540,t=3,p=4$ZGVoZWVyaXNtaWpuaGVyZGVy$3kx+J19Ce0zEt5fgA1bwbevgcMrgW2x08bjk3u54e4o"; 
+      PASSWORD_HASH = "$argon2i$v=19$m=4096,t=3,p=1$c2FsdEl0V2l0aFNhbHQ$iXQSPtFr16sdDm39PKQiGU2s6OtCjP2ZocsF1XIOlUs"; 
       WG_PORT = "51820";
       WG_DEFAULT_DNS = "1.1.1.1";
       WG_DEFAULT_ADDRESS = "10.8.0.x";
