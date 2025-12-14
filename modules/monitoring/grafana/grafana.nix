@@ -81,10 +81,6 @@ in
 
   networking.firewall.allowedTCPPorts = [ 3000 ];
 
-  security.acme = {
-    acceptTerms = true;
-    defaults.email = "info@dutchyland.net";
-  };
 
   services.nginx = {
     enable = true;
