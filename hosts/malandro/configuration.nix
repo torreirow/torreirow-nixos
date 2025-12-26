@@ -19,8 +19,10 @@ in
  ./malandro-secrets.nix
  ../../modules/nginx.nix
  ../../modules/vaultwarden.nix
+ ../../modules/baikal.nix
  ../../modules/wg.nix
  ../../modules/nfs.nix
+ ../../modules/monitoring
    # ../../modules/teamviewer.nix
     ];
 
