@@ -23,6 +23,7 @@ in
  ../../modules/wg.nix
  ../../modules/nfs.nix
  ../../modules/monitoring
+ ../../modules/erugo.nix
    # ../../modules/teamviewer.nix
     ];
 

@@ -11,7 +11,6 @@
     volumes = [
       "/var/lib/erugo/config:/var/www/html/storage"
     ];
-;
   };
 
   services.nginx = {
