@@ -15,7 +15,7 @@ in
     ./python.nix
 #   ./gnome.nix
     ./lobos-secrets.nix
-   ../../modules/monitoring
+#   ../../modules/monitoring
 #   ../../modules/jitsi.nix
    # ../../modules/teamviewer.nix
     ];
