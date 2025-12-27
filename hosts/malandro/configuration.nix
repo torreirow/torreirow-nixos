@@ -47,6 +47,19 @@ in
   boot.initrd.systemd.enable = true;
   security.tpm2.enable = true;
 
+  FileSystems."/data/external" = {
+    device = "/dev/disk/by-uuid/bb0a5762-c7d8-4bf9-a350-0eb87379c880";
+    fsType = "ext4";
+    options = [
+      "nofail"
+      "x-systemd.device-timeout=10"
+    ];
+  };
+
+	systemd.tmpfiles.rules = [
+		"d /data/external 2775 root wheel -"
+	]
+
   ########## NETWORKING ##########
   # Enable networking
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
