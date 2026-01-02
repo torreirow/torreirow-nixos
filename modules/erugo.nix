@@ -9,7 +9,7 @@
       "127.0.0.1:8083:80"
     ];
     volumes = [
-      "/var/lib/erugo/config:/var/www/html/storage"
+      "/data/external/erugo/config:/var/www/html/storage"
     ];
   };
 
