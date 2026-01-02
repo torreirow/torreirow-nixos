@@ -6,7 +6,7 @@
     autoStart = true;
 
     ports = [
-      "127.0.0.1:8083:8080"
+      "127.0.0.1:8084:8080"
     ];
 
     environment = {
