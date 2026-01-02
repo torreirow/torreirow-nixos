@@ -24,6 +24,13 @@ in
   "kar01-lobos-ovpn.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "improvement-ovpn.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "aider.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "postgresql-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "postgresql-admin-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "crowdsec-postgres-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "castopod-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "castopod-admin-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "castopod-analytics-salt.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
   
   # Jitsi Meet passwords
   "jitsi-focus-password.age".publicKeys = users ++ systems;

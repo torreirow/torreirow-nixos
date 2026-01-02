@@ -13,6 +13,7 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
+    ../../modules/mariadb.nix
    #./gnome.nix
  ../../modules/monitoring
  ../../modules/hassio
@@ -24,6 +25,9 @@ in
  ../../modules/nfs.nix
  ../../modules/monitoring
  ../../modules/erugo.nix
+ ../../modules/postgres.nix
+# ../../modules/castopod.nix
+# ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
     ];
 
@@ -47,7 +51,7 @@ in
   boot.initrd.systemd.enable = true;
   security.tpm2.enable = true;
 
-  FileSystems."/data/external" = {
+  fileSystems."/data/external" = {
     device = "/dev/disk/by-uuid/bb0a5762-c7d8-4bf9-a350-0eb87379c880";
     fsType = "ext4";
     options = [
@@ -58,7 +62,7 @@ in
 
 	systemd.tmpfiles.rules = [
 		"d /data/external 2775 root wheel -"
-	]
+	];
 
   ########## NETWORKING ##########
   # Enable networking
@@ -146,10 +150,10 @@ environment.variables.EDITOR = "vim";
 #  };
 #
   # Enable the X11 windowing system.
-  services.mysql = {
-    enable = true;
-    package = pkgs.mariadb;
-  };
+#  services.mysql = {
+#    enable = true;
+#    package = pkgs.mariadb;
+#  };
 
 
   ## NEW CONFIG
@@ -348,5 +352,7 @@ services.xscreensaver = {
 #    ];
 #    privateKey = "cCvDSo/JY5M76qalXJ/KIk9A13Z4wSv8+b1rxv+OEXc=";
 #  };
+
+
 
 }
