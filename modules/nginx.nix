@@ -1,0 +1,21 @@
+{ pkgs, config,  ... }:
+
+{
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "wouter@toorren.net";
+  };
+
+  services.nginx = {
+    enable = true;
+    recommendedGzipSettings = true;
+    recommendedOptimisation = true;
+    recommendedProxySettings = true;
+    recommendedTlsSettings = true;
+  };
+  networking.firewall = {
+    allowedTCPPorts = [ 80 443 ];
+  };
+
+
+}
