@@ -13,7 +13,7 @@ in
   enableDefaultConfig = false;
 
   matchBlocks."*" = {
-    identitiesOnly = true;
+#    identitiesOnly = true;
     addKeysToAgent = "yes";
   };
 };
