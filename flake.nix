@@ -150,7 +150,6 @@
         agenix.nixosModules.default
         ./hosts/malandro/configuration.nix
         ./modules/tnaws.nix
-        ./modules/general-desktop.nix
       ];
     };
 ### MALANDRO config END
