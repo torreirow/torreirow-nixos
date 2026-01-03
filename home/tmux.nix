@@ -5,7 +5,6 @@
     enable = true;
     clock24 = true;
 
-    # BELANGRIJK voor Alacritty
     terminal = "xterm-256color";
 
     plugins = with pkgs.tmuxPlugins; [
@@ -16,7 +15,7 @@
     ];
 
     extraConfig = ''
-      ##### Basisinstellingen #####
+      ##### Basis #####
       set -g prefix C-a
       unbind C-b
       unbind r
@@ -32,7 +31,10 @@
       set -g @tmux-gruvbox 'dark'
       set -g @tmux-gruvbox-statusbar-alpha 'true'
 
-      ##### Clipboard (Alacritty / Wayland / X11) #####
+      ##### OSC52 / Clipboard #####
+      set -g set-clipboard on
+      set -g allow-passthrough all
+      set -ga terminal-overrides ',xterm-256color:Ms=\E]52;c;%p1%s\007'
       set -as terminal-features ',xterm-256color:clipboard'
 
       ##### Statusbar #####
