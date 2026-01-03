@@ -34,6 +34,7 @@
     direnv
     agenix
     alacritty
+    ncurses
     amazon-ecs-cli
     appimage-run
     atomix # puzzle game
