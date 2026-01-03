@@ -26,6 +26,7 @@ in
  ../../modules/monitoring
  ../../modules/erugo.nix
  ../../modules/postgres.nix
+ ../../modules/paperless.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
