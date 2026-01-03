@@ -12,6 +12,7 @@ programs.zsh = {
     eval "$(atuin init zsh --disable-up-arrow)"
     export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
     mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
   '';
 
         shellAliases = {
