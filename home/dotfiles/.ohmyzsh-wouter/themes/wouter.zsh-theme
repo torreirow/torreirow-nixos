@@ -1,4 +1,7 @@
 # Vim: set filetype=zsh:
+# autoload -U colors && colors
+autoload -U colors && colors
+
 
 # Show current AWS profile with a Nerd Font icon ()
 function aws_prompt_info() {
@@ -15,7 +18,9 @@ function tfbackend_prompt_info () {
 }
 
 # Prompt symbol: green (✔) if last command succeeded, red (✘) if failed
-PROMPT="%(?:%{$fg_bold[green]%}✔:%{$fg_bold[red]%}✘) "
+#PROMPT="%(?:%{$fg_bold[green]%}✔:%{$fg_bold[red]%}✘) "
+PROMPT="%(?:%{$fg[green]%}✔:%{$fg[red]%}✘)%{$reset_color%} "
+
 
 # Show user, host, and current directory
 PROMPT+='%F{blue}%n%f%{$fg[blue]%}@%m %{$fg[cyan]%}%c%{$reset_color%} '
@@ -27,7 +32,9 @@ PROMPT+='$(git_prompt_info)'
 RPROMPT='$(aws_prompt_info)$(tfbackend_prompt_info)'
 
 # Git prompt settings with Nerd Fonts
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%} %{$fg[red]%}"
+#ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%} %{$fg[red]%}"
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[blue]%} %{$fg[red]%}"
+
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
 ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[yellow]%}"
 ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[green]%}✓"
