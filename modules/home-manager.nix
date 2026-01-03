@@ -4,5 +4,5 @@
  # programs.home-manager.enable = true;
  #};
 
-  programs.ssh.startAgent = true;
+#  programs.ssh.startAgent = true;
 }
