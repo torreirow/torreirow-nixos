@@ -46,8 +46,8 @@ in
 
     settings.server = {
       http_port = 3000;
-      domain = "localhost";
-      root_url = "http://localhost:3000";
+      domain = "toorren.net";
+      root_url = "http://192.168.2.52:3000";
     };
 
     provision = {
@@ -81,10 +81,6 @@ in
 
   networking.firewall.allowedTCPPorts = [ 3000 ];
 
-  security.acme = {
-    acceptTerms = true;
-    defaults.email = "info@dutchyland.net";
-  };
 
   services.nginx = {
     enable = true;
@@ -93,11 +89,11 @@ in
     recommendedProxySettings = true;
     recommendedTlsSettings = true;
 
-    virtualHosts."torreirow.dutchyland.net" = {
+    virtualHosts."grafana.dutchyland.net" = {
       enableACME = true;
       forceSSL = true;
       locations."/" = {
-        proxyPass = "http://127.0.0.1:3000";
+        proxyPass = "http://0.0.0.0:3000";
       };
     };
   };

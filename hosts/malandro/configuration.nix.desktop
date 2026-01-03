@@ -13,22 +13,9 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
-    ../../modules/mariadb.nix
    #./gnome.nix
  ../../modules/monitoring
- ../../modules/hassio
- ./malandro-secrets.nix
- ../../modules/nginx.nix
- ../../modules/vaultwarden.nix
- ../../modules/baikal.nix
- ../../modules/wg.nix
- ../../modules/nfs.nix
- ../../modules/monitoring
- ../../modules/erugo.nix
- ../../modules/postgres.nix
- ../../modules/paperless.nix
-# ../../modules/castopod.nix
-# ../../modules/crowdsec.nix
+   ./malandro-secrets.nix
    # ../../modules/teamviewer.nix
     ];
 
@@ -41,29 +28,21 @@ in
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.initrd.luks.devices."luks-0d63b3e4-41ea-4a66-b020-c1f162b8a944"= {
-    device = "/dev/disk/by-uuid/0d63b3e4-41ea-4a66-b020-c1f162b8a944";
-    crypttabExtraOpts = [ "tpm2-device=auto" ];
-  };
+  boot.initrd.luks.devices."luks-0d63b3e4-41ea-4a66-b020-c1f162b8a944".device = "/dev/disk/by-uuid/0d63b3e4-41ea-4a66-b020-c1f162b8a944";
 #  boot.kernelParams = [ "pci=nomsi" "acpi=off" ];
 #  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
   boot.supportedFilesystems = [ "ntfs" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-  boot.initrd.systemd.enable = true;
-  security.tpm2.enable = true;
 
-  fileSystems."/data/external" = {
-    device = "/dev/disk/by-uuid/bb0a5762-c7d8-4bf9-a350-0eb87379c880";
-    fsType = "ext4";
-    options = [
-      "nofail"
-      "x-systemd.device-timeout=10"
-    ];
-  };
 
-	systemd.tmpfiles.rules = [
-		"d /data/external 2775 root wheel -"
-	];
+  services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
+  services.xserver.displayManager.sessionCommands = ''
+    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
+    ${lib.getBin pkgs.autorandr}/bin/xrandr --setprovideroutputsource 2 0
+    ${lib.getBin pkgs.autorandr}/bin/xrandr --auto
+    '';
+
 
   ########## NETWORKING ##########
   # Enable networking
@@ -89,12 +68,11 @@ in
   # networking.firewall.enable = false;
 
   ## Spotify discovery devices
-  networking.firewall.allowedUDPPorts = [ 111 2049  5353 ]; # Spotify Connect
-  networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
+  networking.firewall.allowedUDPPorts = [ 5353 ]; # Spotify Connect
+  networking.firewall.allowedTCPPorts = [ 57621 ]; # Sync local tracks
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
-  hardware.bluetooth.package = pkgs.bluez;
   hardware.bluetooth.powerOnBoot = true;
 #  services.blueman.enable = true;
 
@@ -151,17 +129,34 @@ environment.variables.EDITOR = "vim";
 #  };
 #
   # Enable the X11 windowing system.
-#  services.mysql = {
-#    enable = true;
-#    package = pkgs.mariadb;
-#  };
+  services.mysql = {
+    enable = true;
+    package = pkgs.mariadb;
+  };
 
+  # Enable the KDE Plasma Desktop Environment.
+  services.xserver.enable = true;
+  services.displayManager.sddm.enable = false;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.plasma5.enable = false;
+  services.xserver.desktopManager.gnome.enable = true;
 
   ## NEW CONFIG
+  services.displayManager.defaultSession = "gnome";
 
 
 
-	  # Configure keymap in X11
+## exclude packages
+	environment.gnome.excludePackages = (with pkgs; [
+			gnome-photos
+			gnome-tour
+		]) ++ (with pkgs.gnome; [
+			#gedit # text editor
+			#gnome-characters
+			#gnome-contacts
+					]);
+
+  # Configure keymap in X11
   services.xserver = {
     xkb.layout = "us";
     xkb.variant = "intl";
@@ -170,16 +165,32 @@ environment.variables.EDITOR = "vim";
   # Configure console keymap
   console.keyMap = "us-acentos";
 
+#  # Enable CUPS to print documents.
+  services.printing.enable = true;
+  #services.printing.drivers = [ pkgs.brlaser ];
+  services.printing.browsedConf = ''
+  BrowseDNSSDSubTypes _cups,_print
+  BrowseLocalProtocols all
+  BrowseRemoteProtocols all
+  CreateIPPPrinterQueues All
+  BrowseProtocols all
+    '';
+
+  services.printing.drivers = [ pkgs.cups-dymo ];
   services.avahi.enable = true;
   services.avahi.nssmdns4 = true;
   services.avahi.openFirewall = true;
 
 
+  services.pulseaudio.enable = false;
+ # Enable touchpad support (enabled default in most desktopManager).
+  # services.xserver.libinput.enable = true;
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.wtoorren = {
     isNormalUser = true;
     description = "Wouter van der Toorren";
-    extraGroups = [ "wheel" "keys"];
+    extraGroups = [ "networkmanager" "wheel" "keys"];
     # packages = with pkgs; [
     #  thunderbird
     # ];
@@ -338,22 +349,20 @@ services.xscreensaver = {
 #  };
 #};
 
-#networking.wg-quick.interfaces.wg0 = {
-#    address = [
-#      "172.27.66.3/24"
-#    ];
-#    peers = [
-#      {
-#        allowedIPs = [
-#          "0.0.0.0/0"
-#        ];
-#        endpoint = "homeassistant.toorren.net:51820";
-#        publicKey = "8TLZ86+PygfP3GzrBUiBtXOleSSO9ODnQPxzXZtQNHk=";
-#      }
-#    ];
-#    privateKey = "cCvDSo/JY5M76qalXJ/KIk9A13Z4wSv8+b1rxv+OEXc=";
-#  };
-
-
+networking.wg-quick.interfaces.wg0 = {
+    address = [
+      "172.27.66.3/24"
+    ];
+    peers = [
+      {
+        allowedIPs = [
+          "0.0.0.0/0"
+        ];
+        endpoint = "homeassistant.toorren.net:51820";
+        publicKey = "8TLZ86+PygfP3GzrBUiBtXOleSSO9ODnQPxzXZtQNHk=";
+      }
+    ];
+    privateKey = "cCvDSo/JY5M76qalXJ/KIk9A13Z4wSv8+b1rxv+OEXc=";
+  };
 
 }
