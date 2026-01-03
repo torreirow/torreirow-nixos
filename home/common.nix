@@ -69,6 +69,8 @@ programs.fzf = {
 home.sessionVariables = {
     LANG= "en_US.UTF-8";
     LC_ALL= "en_US.UTF-8";
+    SSH_ASKPASS = "${pkgs.seahorse}/libexec/seahorse-ssh-askpass";
+    SSH_ASKPASS_REQUIRE = "prefer";
   };
 
 #  home.file.".togglrcnew".source = "/tmp/toggl.txt";
