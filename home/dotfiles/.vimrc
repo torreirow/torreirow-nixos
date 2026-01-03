@@ -14,6 +14,7 @@ call plug#begin('~/.local/share/nvim/plugged')
   Plug 'mipmip/vim-hotpop' 
   Plug 'vim-pandoc/vim-pandoc-syntax'  " Vereiste plugin voor syntax
   Plug 'quarto-dev/quarto-vim', { 'for': 'quarto' }
+  Plug 'ojroques/vim-oscyank',
 call plug#end()
 
 nmap ,, :NERDTreeFind <CR>
@@ -48,6 +49,9 @@ let ayucolor="dark"   " for dark
 colorscheme ayu
 autocmd BufNewFile,BufRead *.qmd set filetype=markdown
 
+nmap ,c <Plug>OSCYankOperator
+nmap ,cc <leader>c_
+vmap ,c <Plug>OSCYankVisual
 
 let g:linny_open_notebook_path       = $HOME . '/data/git/torreirow/torrlinny'
 call linny#Init()
