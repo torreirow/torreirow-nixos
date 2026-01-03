@@ -3,70 +3,48 @@
 {
   
   environment.systemPackages = with pkgs; [
-    #bluez
+    wireguard-tools
     #cooklang
     #flameshot
-    unstable.atuin-desktop
+    bluez
+    bluez-tools
     agenix
-    alacritty
-    amazon-ecs-cli
-    appimage-run
-    atomix # puzzle game
     attic-client
-    autorandr
     avahi
     aws-nuke
     awscli2
-    bitwarden
     caligula
     catppuccin
-    clementine
     certbot
-    cheese # webcam tool
     copilot-cli
     coreutils
     cowsay
     csvkit
     curl
     dig
-    digikam
-    displaylink
     entr
-    epiphany # web browser
     exiftool
     ffmpeg-full
     file
     fwupd
     fwupd-efi
     gcc
-    geary # email reader
     gh
     gimp
     git
     git-remote-codecommit
     git-sync
     glibcLocales
-    gnome-initial-setup
-    gnome-music
     gnupg
     go
     go-mtpfs
     granted
     gum
-    hitori # sudoku game
-    home-assistant-component-tests.buienradar
     home-manager
     hugo
-    iagno # go game
     inetutils
-    kdePackages.kcalc
-    kdePackages.powerdevil
-    kitty
     lego
     lf
-    libreoffice
-    librewolf
-    librewolf-unwrapped
     librsvg
     lua
     mosh
@@ -94,27 +72,17 @@
     ruby
     scrot
     seahorse
-    signal-desktop
     silver-searcher
-    slack
-    smplayer
     smug
-    soco-cli
     spotdl
     spotify
     sqlite
     sqsh
     ssm-session-manager-plugin
     ssmsh
-    pkgs-2411.subtitleedit
-    super-productivity
-    tali # poker game
-    teams-for-linux
-    #telegram-desktop
     terraform
     terraform-docs
     tfswitch
-    thunderbird
     tmuxPlugins.catppuccin
     translate-shell
     unstable.aider-chat-full
@@ -122,8 +90,6 @@
     vlc
     vscode
     wget
-    whatsapp-for-linux
-    zapzap
     xclip
     xorg.xbacklight
     yelp # Help view
