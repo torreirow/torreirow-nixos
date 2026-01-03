@@ -21,7 +21,6 @@
     set -g prefix C-a
     unbind r
     bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"
-
     set -g mouse on
     set -g base-index 1
     set -g renumber-windows on
@@ -35,6 +34,7 @@
     set -g @prefix_highlight_fg 'black'
     set -g @prefix_highlight_bg 'yellow'
 
+    set -as terminal-features ',rxvt-unicode-256color:clipboard'
 
     # Zet statusbar expliciet NA het thema
     set -g status-left '#{prefix_highlight} | #S '
