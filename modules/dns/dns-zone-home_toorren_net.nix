@@ -30,9 +30,11 @@
 
     # Services
     { name = "ha"; type = "CNAME"; value = "nas.home.toorren.net."; }
+    {
+      name = "_acme-challenge";
+      type = "TXT";
+      value = "dummy"; # wordt dynamisch overschreven door acme
+    }
   ];
 }
-
-}
-
 
