@@ -23,11 +23,30 @@ in
 {
   services.knot = {
     enable = true;
-    listen = [ "0.0.0.0@53" "::@53" ];
 
-    zones = {
-      "${zoneDef.zone}" = {
+    settings = {
+      # Luister extern op TCP+UDP 53
+      server.listen = [
+        "0.0.0.0@53"
+        "::@53"
+      ];
+
+      # TSIG key voor ACME DNS-01
+      key."acme-key" = {
+        algorithm = "hmac-sha256";
+        secret = "BASE64SECRET==";
+      };
+
+      # ACL die dynamic updates toestaat
+      acl."acme-update" = {
+        key = "acme-key";
+        action = "update";
+      };
+
+      # De ENIGE definitie van de zone home.toorren.net
+      zone."${zoneDef.zone}" = {
         file = zoneFile;
+        acl = [ "acme-update" ];
       };
     };
   };
