@@ -27,6 +27,8 @@ in
  ../../modules/erugo.nix
  ../../modules/postgres.nix
  ../../modules/paperless.nix
+ ../../modules/dns
+ ../../modules/acme-dns.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
@@ -51,6 +53,9 @@ in
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   boot.initrd.systemd.enable = true;
   security.tpm2.enable = true;
+  security.sudo = {
+    wheelNeedsPassword = false;
+  };
 
   fileSystems."/data/external" = {
     device = "/dev/disk/by-uuid/bb0a5762-c7d8-4bf9-a350-0eb87379c880";
@@ -180,6 +185,9 @@ environment.variables.EDITOR = "vim";
     isNormalUser = true;
     description = "Wouter van der Toorren";
     extraGroups = [ "wheel" "keys"];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFH+KiVBYLoBByXonUb7Hq7JfZpJJYag1eK5/EQEQKvp wtoorren@lobos"
+    ];
     # packages = with pkgs; [
     #  thunderbird
     # ];
@@ -199,8 +207,23 @@ environment.variables.EDITOR = "vim";
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-  services.openssh.extraConfig = "LoginGracetime=0";
+  services.openssh = {
+    enable = true;
+    banner =  ''
+ __  __         _                    _
+|  \/  |  __ _ | |  __ _  _ __    __| | _ __  ___
+| |\/| | / _` || | / _` || '_ \  / _` || '__|/ _ \
+| |  | || (_| || || (_| || | | || (_| || |  | (_) |
+|_|  |_| \__,_||_| \__,_||_| |_| \__,_||_|   \___/
+'';
+
+    extraConfig = "LoginGracetime=2m";
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "no";
+    };
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
