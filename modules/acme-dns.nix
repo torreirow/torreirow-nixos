@@ -1,5 +1,6 @@
 { config, lib, pkgs, agenix, ... }:
 
+{
 age.secrets.rfc2136-env = {
     file = ../secrets/rfc2136.env.age;
     path = "/run/secrets/rfc2136.env";
@@ -8,9 +9,6 @@ age.secrets.rfc2136-env = {
   };
 
   security.acme = {
-  acceptTerms = true;
-  defaults.email = "admin@toorren.net";
-
   certs."toorren.net" = {
     domain = "*.toorren.net";
     extraDomainNames = [ "toorren.net" ];
@@ -20,5 +18,10 @@ age.secrets.rfc2136-env = {
     credentialsFile = "/run/secrets/rfc2136.env";
   };
 };
+
+systemd.services.acme-pre = {
+    after = [ "knot.service" ];
+    requires = [ "knot.service" ];
+  };
 }
 
