@@ -19,31 +19,44 @@ let
       "${r.name} IN ${r.type} ${r.value}"
     ) zoneDef.records)}
   '';
+
+  # TSIG secret (1x bron)
+  tsigSecret =
+  lib.removeSuffix "\n"
+    (builtins.readFile config.age.secrets.rfc2136.path);
+
 in
 {
+  #### Secrets ####
+  age.secrets.rfc2136 = {
+    file = ../secrets/rfc2136.age;
+    owner = "root";
+    mode = "0400";
+  };
+
+  #### Knot DNS ####
   services.knot = {
     enable = true;
 
     settings = {
-      # Luister extern op TCP+UDP 53
       server.listen = [
         "0.0.0.0@53"
         "::@53"
       ];
 
-      # TSIG key voor ACME DNS-01
+      # TSIG key voor ACME
       key."acme-key" = {
         algorithm = "hmac-sha256";
-        secret = "BASE64SECRET==";
+        secret = tsigSecret;
       };
 
-      # ACL die dynamic updates toestaat
+      # ACL die updates toestaat
       acl."acme-update" = {
         key = "acme-key";
         action = "update";
       };
 
-      # De ENIGE definitie van de zone home.toorren.net
+      # Zone definitie
       zone."${zoneDef.zone}" = {
         file = zoneFile;
         acl = [ "acme-update" ];
@@ -51,6 +64,7 @@ in
     };
   };
 
+  #### Firewall ####
   networking.firewall.allowedUDPPorts = [ 53 ];
   networking.firewall.allowedTCPPorts = [ 53 ];
 }
