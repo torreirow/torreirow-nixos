@@ -1,10 +1,6 @@
 { pkgs, config,  ... }:
 
 {
-  security.acme = {
-    acceptTerms = true;
-    defaults.email = "wouter@toorren.net";
-  };
 
   services.nginx = {
     enable = true;
