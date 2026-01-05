@@ -34,8 +34,7 @@ in
   "authelia-session.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
   "authelia-storage.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
   "authelia-users.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
-  "rfc2136.env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "rfc2136.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "route53.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   
   # Jitsi Meet passwords
