@@ -11,6 +11,7 @@
     rPackages.ggplot2
     rPackages.dplyr
     rPackages.patchwork
+    claude-code
     onlyoffice-desktopeditors
     firefox
     appimage-run

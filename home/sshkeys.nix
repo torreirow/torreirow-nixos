@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, agenix, ... }:
 
 {
   ## SSH client configuratie
@@ -14,13 +14,13 @@
   ## Use rbw-agent as SSH agent
   home.sessionVariables = {
     SSH_AUTH_SOCK = "\${XDG_RUNTIME_DIR}/rbw/ssh-agent-socket";
+    GSM_SKIP_SSH_AGENT_WORKAROUND = "1";  # Prevent gnome-session from starting SSH agent
   };
 
-  ## GNOME keyring mag géén ssh-agent zijn
-  services.gnome-keyring.components = [
-    "pkcs11"
-    "secrets"
-    "crypto"
-  ];
+  # Agenix secrets for SSH host configurations
+  programs.ssh-config-hosts.agenixSecrets = [{
+    name = "customer-prod";
+    path = "/run/secrets/ssh-hosts-customer-prod";  # Direct path to decrypted secret
+  }];
 }
 

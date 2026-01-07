@@ -9,6 +9,9 @@ programs.zsh = {
       #  PATH=$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc
       #  '';     
   initContent = pkgs.lib.mkBefore ''
+    # Force SSH agent to use rbw
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
+
     eval "$(atuin init zsh --disable-up-arrow)"
     export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
     mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
