@@ -108,7 +108,8 @@
     p3x-onenote
     pandoc
     pavucontrol
-    pinentry-gtk2
+    #pinentry-gtk2
+    pinentry-curses
     postgresql
     pre-commit
     prowler
