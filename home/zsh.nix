@@ -49,6 +49,15 @@ programs.zsh = {
         #  nix-zsh-completions                                                                                                                          
         #];  
       };
+      initExtra = ''
+        # Fix Home / End keys (alacritty-direct, tmux, atuin, oh-my-zsh safe)
+        for km in emacs viins vicmd; do
+        bindkey -M $km '\e[H' beginning-of-line
+        bindkey -M $km '\e[F' end-of-line
+        bindkey -M $km '\e[1~' beginning-of-line
+        bindkey -M $km '\e[4~' end-of-line
+        done
+      '';
   };
 
 }
