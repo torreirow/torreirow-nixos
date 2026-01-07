@@ -27,8 +27,10 @@ in
  ../../modules/erugo.nix
  ../../modules/postgres.nix
  ../../modules/paperless.nix
- ../../modules/dns
- ../../modules/acme-dns.nix
+ ../../modules/acme.nix
+ ../../modules/authelia.nix
+ ../../modules/authelia-users.nix
+ ../../modules/claude.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
@@ -273,6 +275,10 @@ environment.variables.EDITOR = "vim";
     hashedPasswordFile = config.age.secrets.secret1.path;
   };
 
+  # Authelia gebruikers configuratie
+  # Genereer password hash met: authelia crypto hash generate argon2 --password 'jouwwachtwoord'
+  # Zie modules/authelia-users-README.md voor meer informatie
+  
   nix.settings.trusted-public-keys= [
     "cache-key:XR6zauyKza9AMuNDgp7eo91xxCpXaU4D8SKvZw/Mu0Q="
   ];
@@ -376,6 +382,17 @@ services.xscreensaver = {
 #    ];
 #    privateKey = "***REMOVED***";
 #  };
+
+services.authelia.users = [
+  {
+    username = "wouter";
+    displayname = "Wouter van der Toorren";
+    email = "wouter@toorren.net";
+    passwordHash = "***REMOVED***";
+    groups = [ "admins" "users" "monitoring" "network" ];
+    disabled = false;
+  }
+];
 
 
 
