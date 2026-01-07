@@ -35,7 +35,7 @@
   services.nginx.enable = true;
   services.nginx.virtualHosts."podcast.toorren.net" = {
     serverAliases = ["castopod.toorren.net"];
-    enableACME = true;
+    useACMEHost = "toorren.net";
     forceSSL = true;
 		extraConfig = ''
 						index index.php;
