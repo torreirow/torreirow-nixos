@@ -11,6 +11,7 @@
     rPackages.ggplot2
     rPackages.dplyr
     rPackages.patchwork
+    claude-code
     onlyoffice-desktopeditors
     firefox
     appimage-run
@@ -108,7 +109,8 @@
     p3x-onenote
     pandoc
     pavucontrol
-    pinentry-gtk2
+    #pinentry-gtk2
+    pinentry-curses
     postgresql
     pre-commit
     prowler
