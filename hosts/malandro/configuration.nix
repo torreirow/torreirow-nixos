@@ -27,6 +27,10 @@ in
  ../../modules/erugo.nix
  ../../modules/postgres.nix
  ../../modules/paperless.nix
+ ../../modules/acme.nix
+ ../../modules/authelia.nix
+ ../../modules/authelia-users.nix
+ ../../modules/claude.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
@@ -51,6 +55,9 @@ in
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   boot.initrd.systemd.enable = true;
   security.tpm2.enable = true;
+  security.sudo = {
+    wheelNeedsPassword = false;
+  };
 
   fileSystems."/data/external" = {
     device = "/dev/disk/by-uuid/bb0a5762-c7d8-4bf9-a350-0eb87379c880";
@@ -180,6 +187,9 @@ environment.variables.EDITOR = "vim";
     isNormalUser = true;
     description = "Wouter van der Toorren";
     extraGroups = [ "wheel" "keys"];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFH+KiVBYLoBByXonUb7Hq7JfZpJJYag1eK5/EQEQKvp wtoorren@lobos"
+    ];
     # packages = with pkgs; [
     #  thunderbird
     # ];
@@ -199,8 +209,23 @@ environment.variables.EDITOR = "vim";
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-  services.openssh.extraConfig = "LoginGracetime=0";
+  services.openssh = {
+    enable = true;
+    banner =  ''
+ __  __         _                    _
+|  \/  |  __ _ | |  __ _  _ __    __| | _ __  ___
+| |\/| | / _` || | / _` || '_ \  / _` || '__|/ _ \
+| |  | || (_| || || (_| || | | || (_| || |  | (_) |
+|_|  |_| \__,_||_| \__,_||_| |_| \__,_||_|   \___/
+'';
+
+    extraConfig = "LoginGracetime=2m";
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "no";
+    };
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -250,6 +275,10 @@ environment.variables.EDITOR = "vim";
     hashedPasswordFile = config.age.secrets.secret1.path;
   };
 
+  # Authelia gebruikers configuratie
+  # Genereer password hash met: authelia crypto hash generate argon2 --password 'jouwwachtwoord'
+  # Zie modules/authelia-users-README.md voor meer informatie
+  
   nix.settings.trusted-public-keys= [
     "cache-key:XR6zauyKza9AMuNDgp7eo91xxCpXaU4D8SKvZw/Mu0Q="
   ];
@@ -353,6 +382,17 @@ services.xscreensaver = {
 #    ];
 #    privateKey = "cCvDSo/JY5M76qalXJ/KIk9A13Z4wSv8+b1rxv+OEXc=";
 #  };
+
+services.authelia.users = [
+  {
+    username = "wouter";
+    displayname = "Wouter van der Toorren";
+    email = "wouter@toorren.net";
+    passwordHash = "$argon2id$v=19$m=65536,t=3,p=4$i3rOqBLo2Oy8OxfSWJB+pw$tcfwS0+IT8uV5Po9vSQqVxCHIeVfIKEm5uTVrIi8fwg";
+    groups = [ "admins" "users" "monitoring" "network" ];
+    disabled = false;
+  }
+];
 
 
 
