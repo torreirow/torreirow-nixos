@@ -2,7 +2,7 @@
 
 {
   age.secrets.route53-env = {
-    file = ../secrets/route53.env.age;
+    file = ../secrets/route53.age;
     path = "/run/secrets/route53.env";
     owner = "root";
     mode = "0400";
@@ -20,6 +20,8 @@
     certs."toorren.net" = {
       domain = "*.toorren.net";
       extraDomainNames = [ "toorren.net" ];
+      group = "nginx";
     };
   };
+  users.users.nginx.extraGroups = [ "acme" ];
 }

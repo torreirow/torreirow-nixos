@@ -26,8 +26,8 @@
   ];
 
 services.nginx.virtualHosts."pdf.toorren.net" = {
-  enableACME = true;
   forceSSL = true;
+  useACMEHost = "toorren.net";
 
   locations."/" = {
     proxyPass = "http://127.0.0.1:8083";

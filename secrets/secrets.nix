@@ -36,6 +36,15 @@ in
   "authelia-users.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
   "route53.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  "authelia-jwt-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];  
+  "authelia-session-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "authelia-storage-encryption-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "authelia-oidc-hmac-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "authelia-oidc-issuer-private-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
+  "claude.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
+
   
   # Jitsi Meet passwords
   "jitsi-focus-password.age".publicKeys = users ++ systems;
