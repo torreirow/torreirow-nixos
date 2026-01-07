@@ -18,6 +18,12 @@ age = {
 #        group = "wtoorren";
 #        mode = "600";
 #      };
+ssh-hosts-customer-prod = {
+  file = ../../secrets/ssh-hosts-customer-prod.json.age;
+  path = "/run/secrets/ssh-hosts-customer-prod";
+  owner = "wtoorren";
+  mode = "0400";
+};
 spotifywto = {
   file = ../../secrets/spotifywto.age;
   path = "/home/wtoorren/.config/spotify/prefs";
