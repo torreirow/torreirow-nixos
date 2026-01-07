@@ -90,8 +90,8 @@ in
     recommendedTlsSettings = true;
 
     virtualHosts."grafana.dutchyland.net" = {
-      enableACME = true;
       forceSSL = true;
+      useACMEHost = "toorren.net";
       locations."/" = {
         proxyPass = "http://0.0.0.0:3000";
       };
