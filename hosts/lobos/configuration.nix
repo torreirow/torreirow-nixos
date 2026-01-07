@@ -14,7 +14,8 @@ in
     ./fonts.nix
     ./python.nix
 #   ./gnome.nix
-    ./lobos-secrets.nix
+./lobos-secrets.nix
+../../modules/claude.nix
 #   ../../modules/monitoring
 #   ../../modules/jitsi.nix
    # ../../modules/teamviewer.nix
@@ -258,10 +259,11 @@ environment.variables.EDITOR = "vim";
 
   virtualisation.docker.enable = true;
 
-  programs.gnupg.agent.pinentryPackage = {
-   enable = true;
-   pinentryFlavor = "gtk2";
- };
+  programs.gnupg.agent = {
+  enable = true;
+  pinentryPackage = pkgs.pinentry-curses;
+};
+
   programs.openvpn3 = {
     enable = true;
   };
