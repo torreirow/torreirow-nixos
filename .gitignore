@@ -7,3 +7,5 @@ result/**
 .aider**
 *iso270001**.md
 *iso270001**.pdf
+secrets/*.pem
+secrets/*.key
