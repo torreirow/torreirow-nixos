@@ -6,6 +6,7 @@ let
 
 #  technative_profiles = import ./dotfiles/managed_service_accounts.nix;
 technative_profiles = "${config.home.homeDirectory}/.aws/managed_service_accounts.json";
+#technative_profiles = /home/pim/.aws/managed_service_accounts.json;
 aws_accounts = builtins.fromJSON (lib.readFile technative_profiles);
 
 groups = {
