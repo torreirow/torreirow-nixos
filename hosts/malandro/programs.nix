@@ -6,6 +6,7 @@
     wireguard-tools
     #cooklang
     #flameshot
+    claude-code
     bluez
     bluez-tools
     agenix
