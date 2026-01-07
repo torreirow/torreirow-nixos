@@ -17,7 +17,7 @@ final: prev:
   };
 
     # importeer Solidtime overlay
-    inherit (import ./solidtime.nix) solidtime-desktop;
+#    inherit (import ./solidtime.nix) solidtime-desktop;
 
 #    opsgenie-sdk = prev.python311Packages.buildPythonPackage rec {
 #      pname = "opsgenie-sdk";
