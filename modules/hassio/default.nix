@@ -25,7 +25,7 @@
   };
 
   services.nginx.virtualHosts."homeassistant.toorren.net" = {
-    enableACME = true;
+    useACMEHost = "toorren.net";
     forceSSL = true;
     locations = {
       "/" = {
