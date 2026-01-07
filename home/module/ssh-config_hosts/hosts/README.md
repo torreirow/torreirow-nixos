@@ -1,15 +1,19 @@
 # SSH Host Configurations
 
-This directory contains SSH host configuration files that are automatically loaded to generate `~/.ssh/config.d/rbw.conf`.
+This directory contains SSH host configuration files that are automatically loaded to generate separate SSH config files.
 
 ## How it works
 
-**All `.json` files in this directory are automatically discovered and loaded!**
+**All `.json` files in this directory are automatically discovered and each generates its own config file!**
+
+- `ssh-hosts.json` → `~/.ssh/config.d/rbw-ssh-hosts.conf`
+- `customer-a.json` → `~/.ssh/config.d/rbw-customer-a.conf`
+- `customer-b.json` → `~/.ssh/config.d/rbw-customer-b.conf`
 
 No need to manually add files to a list in the Nix configuration. Just:
 1. Create a new `.json` file here
 2. Run `home-manager switch`
-3. Done!
+3. Done! A new config file is automatically created.
 
 ## File naming convention
 
@@ -116,9 +120,15 @@ Rename `.example` files to `.json` to enable them.
 
 ## Troubleshooting
 
-### Check generated config
+### Check all generated configs
 ```bash
-cat ~/.ssh/config.d/rbw.conf
+ls -la ~/.ssh/config.d/rbw-*.conf
+```
+
+### Check a specific config file
+```bash
+cat ~/.ssh/config.d/rbw-ssh-hosts.conf
+cat ~/.ssh/config.d/rbw-customer-a.conf
 ```
 
 ### Test SSH config syntax
@@ -134,4 +144,12 @@ ls -la ~/.ssh/rbw-keys/
 ### Re-export SSH keys
 ```bash
 ~/bin/export-ssh-keys.sh
+```
+
+### Disable a customer temporarily
+```bash
+# Rename the file to skip it
+mv customer-a.json customer-a.json.disabled
+home-manager switch
+# The rbw-customer-a.conf will be automatically removed
 ```
