@@ -3,18 +3,28 @@
 {
   services.nginx = {
     enable = true;
+    #sslCertificate = "/var/lib/acme/toorren.net/fullchain.pem";
+    #sslCertificateKey = "/var/lib/acme/toorren.net/key.pem";
+
+    defaultListenAddresses = [ "0.0.0.0" ];
+    defaultSSLListenPort = 443;
+    defaultHTTPListenPort = 80;
 
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
     recommendedTlsSettings = true;
-    appendHttpConfig = ''
-        limit_req_zone $binary_remote_addr zone=vwlogin:10m rate=5r/m;
+    commonHttpConfig = ''
+      limit_req_zone $binary_remote_addr zone=vwlogin:10m rate=5r/m;
     '';
 
     virtualHosts."wildcard-placeholder" = {
       default = true;
       serverName = "_";
+      listen = [
+        { addr = "0.0.0.0"; port = 80; }
+        { addr = "[::]"; port = 80; }
+      ];
 
       root = "/var/www/default";
 
@@ -26,9 +36,6 @@
         index index.html;
       '';
 
-      sslCertificate = "/var/lib/acme/toorren.net/fullchain.pem";
-      sslCertificateKey = "/var/lib/acme/toorren.net/key.pem";
-      forceSSL = true;
     };
   };
 
