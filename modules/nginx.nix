@@ -8,6 +8,9 @@
     recommendedOptimisation = true;
     recommendedProxySettings = true;
     recommendedTlsSettings = true;
+    appendHttpConfig = ''
+        limit_req_zone $binary_remote_addr zone=vwlogin:10m rate=5r/m;
+    '';
 
     virtualHosts."wildcard-placeholder" = {
       default = true;

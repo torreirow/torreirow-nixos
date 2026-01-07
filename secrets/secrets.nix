@@ -43,6 +43,8 @@ in
   "authelia-oidc-issuer-private-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   "claude.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "ssh-hosts-customer-prod.json.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 
 
   
