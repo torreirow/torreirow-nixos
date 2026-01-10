@@ -263,8 +263,8 @@
          ./home/linux-desktop.nix
          ./home/firefox.nix
          ./home/dotfiles/toggl-secret-wtoorren.nix
-         ./home/sshkeys.nix
          ./home/module/ssh-config_hosts
+         ./home/sshkeys.nix
          linux-defaults
        ];
 
