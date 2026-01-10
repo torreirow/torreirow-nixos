@@ -21,7 +21,7 @@
 
     virtualHosts."wildcard-placeholder" = {
       default = true;
-      serverName = "_";
+      serverName = "catch-all";
       listen = [
         { addr = "0.0.0.0"; port = 80; }
         { addr = "[::]"; port = 80; }
