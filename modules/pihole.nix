@@ -103,7 +103,7 @@
       
       # Webserver en API configuratie
       webserver = {
-        port = 8084;  # Poort voor web interface (8080-8083 zijn in gebruik)
+        # Port wordt geconfigureerd via services.pihole-web.ports
         
         api = {
           # Wachtwoord hash - zie hieronder hoe deze te genereren
@@ -157,22 +157,6 @@
       # Hoofdlocatie - geen Authelia bescherming voor API calls en assets
       locations."/" = {
         proxyPass = "http://127.0.0.1:8084";
-        extraConfig = ''
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-          
-          # WebSocket support voor live updates
-          proxy_http_version 1.1;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection "upgrade";
-        '';
-      };
-      
-      # Admin interface - beschermd door Authelia
-      locations."/admin" = {
-        proxyPass = "http://127.0.0.1:8084/admin";
         extraConfig = ''
           auth_request /authelia;
           error_page 401 = @authelia_portal;
