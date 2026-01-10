@@ -24,7 +24,13 @@
       listen = [
         { addr = "0.0.0.0"; port = 80; }
         { addr = "[::]"; port = 80; }
+        { addr = "0.0.0.0"; port = 443; ssl = true; }
+        { addr = "[::]"; port = 443; ssl = true; }
       ];
+
+      forceSSL = false;
+      sslCertificate = "${config.security.acme.certs."toorren.net".directory}/fullchain.pem";
+      sslCertificateKey = "${config.security.acme.certs."toorren.net".directory}/key.pem";
 
       root = "/var/www/default";
 
