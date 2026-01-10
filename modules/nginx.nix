@@ -29,8 +29,8 @@
       ];
 
       forceSSL = false;
-      sslCertificate = "${config.security.acme.certs."toorren.net".directory}/fullchain.pem";
-      sslCertificateKey = "${config.security.acme.certs."toorren.net".directory}/key.pem";
+      sslCertificate = "/var/lib/acme/toorren.net/fullchain.pem";
+      sslCertificateKey = "/var/lib/acme/toorren.net/key.pem";
 
       root = "/var/www/default";
 
