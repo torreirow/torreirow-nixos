@@ -31,7 +31,7 @@
     ];
     
     # Open firewall poorten automatisch
-    openFirewallDNS = true;
+    openFirewallDNS = false;
     openFirewallDHCP = false;  # Alleen indien DHCP nodig is
     openFirewallWebserver = true;
     
@@ -208,4 +208,16 @@
     "192.168.2.52" = [ "pihole.toorren.net" "pihole" ];
     "192.168.2.1" = [ "gateway.local" "gateway" ];
   };
+
+  networking.firewall = {
+  enable = true;
+
+  extraInputRules = ''
+    ip saddr 192.168.2.0/24 udp dport 53 accept
+    ip saddr 192.168.2.0/24 tcp dport 53 accept
+    udp dport 53 drop
+    tcp dport 53 drop
+  '';
+};
+
 }
