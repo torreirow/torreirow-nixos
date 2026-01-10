@@ -21,15 +21,9 @@
 
     virtualHosts."wildcard-placeholder" = {
       default = true;
-      serverName = "catch-all";
-      listen = [
-        { addr = "0.0.0.0"; port = 80; }
-        { addr = "[::]"; port = 80; }
-        { addr = "0.0.0.0"; port = 443; ssl = true; }
-        { addr = "[::]"; port = 443; ssl = true; }
-      ];
+      serverName = "_";
 
-      forceSSL = false;
+      addSSL = true;
       sslCertificate = "/var/lib/acme/toorren.net/fullchain.pem";
       sslCertificateKey = "/var/lib/acme/toorren.net/key.pem";
 
