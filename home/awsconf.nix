@@ -1,13 +1,9 @@
 { lib, pkgs,config, unstable, ... }:
 
 let
-
-  ## NOTE RUN aws --nrofile=web_dns s3 cp s3://docs-mcs.technative.eu-longhorn/managed_service_accounts.json ~/.aws/
-
-#  technative_profiles = import ./dotfiles/managed_service_accounts.nix;
-technative_profiles = "${config.home.homeDirectory}/.aws/managed_service_accounts.json";
-#technative_profiles = /home/pim/.aws/managed_service_accounts.json;
-aws_accounts = builtins.fromJSON (lib.readFile technative_profiles);
+  ## JSON wordt runtime gedownload via systemd service, niet tijdens build
+  ## Gebruik empty list als fallback voor pure build
+  aws_accounts = [];
 
 groups = {
   mustad_hoofcare.color = "e5a50a";
@@ -117,6 +113,85 @@ alternative_regions = {
       then groups.${groupnorm}.color
       else groups.default.color;
     };
+
+  # Script to generate AWS config from JSON
+  awsConfigGenerator = pkgs.writeShellScript "generate-aws-config" ''
+    set -e
+
+    JSON_FILE="$HOME/.aws/managed_service_accounts.json"
+    CONFIG_FILE="$HOME/.aws/config"
+
+    # Check if JSON exists
+    if [ ! -f "$JSON_FILE" ]; then
+      echo "Error: $JSON_FILE not found. Run sync service first."
+      exit 1
+    fi
+
+    # Generate AWS config using jq
+    echo "[default]" > "$CONFIG_FILE.tmp"
+    echo "" >> "$CONFIG_FILE.tmp"
+
+    # Add static profiles from home-manager
+    cat >> "$CONFIG_FILE.tmp" << 'EOF'
+[technative]
+aws_account_id = technativebv
+account_id = technativebv
+region = eu-central-1
+output = table
+group = Technative
+
+[profile ActiFlow]
+role_arn = arn:aws:iam::337810061405:role/TechnativeFullAccessRole
+region = eu-north-1
+group = ActiFlow
+output = json
+source_profile = technative
+
+[499164406685-wouter]
+region = eu-central-1
+output = json
+group = toorren
+
+[255418484322-waardenburg]
+region = eu-central-1
+output = json
+group = waardenburg
+
+[bedrock]
+region = eu-central-1
+output = json
+group = bedrock
+
+[profile mustad-developer]
+role_arn = arn:aws:iam::925937276627:role/developer
+region = us-east-2
+output = json
+group = mustad-pg
+source_profile = mustad
+
+[profile moooi]
+role_arn = arn:aws:iam::014756588884:role/TechnativeRole
+region = eu-west-1
+output = json
+group = moooi
+source_profile = technative
+
+[profile mustad-jumphost]
+role_arn = arn:aws:iam::925937276627:role/jumphost
+region = us-east-2
+output = json
+group = mustad-pg
+source_profile = mustad
+
+EOF
+
+    # TODO: Add dynamic profiles from JSON using jq
+    # This requires parsing the JSON and applying the same logic as the Nix code
+
+    mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+    echo "AWS config updated successfully"
+  '';
+
 in
   {
     imports = [
@@ -194,4 +269,27 @@ in
 
     };
 
-  }
+    # Systemd services for syncing AWS accounts
+  systemd.user.services.aws-accounts-sync = {
+    Unit = {
+      Description = "Sync AWS managed service accounts JSON";
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.python3}/bin/python3 ${./scripts/sync-aws-accounts.py}";
+    };
+  };
+
+  systemd.user.timers.aws-accounts-sync = {
+    Unit = {
+      Description = "Sync AWS accounts daily";
+    };
+    Timer = {
+      OnCalendar = "daily";
+      Persistent = true;
+    };
+    Install = {
+      WantedBy = [ "timers.target" ];
+    };
+  };
+}

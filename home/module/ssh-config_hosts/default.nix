@@ -5,8 +5,8 @@ with lib;
 let
   cfg = config.programs.ssh-config-hosts;
 
-  # Base directory for this module
-  module_dir = "${config.home.homeDirectory}/data/git/torreirow/torreirow-nixos/home/module/ssh-config_hosts";
+  # Base directory for this module - use relative path from module location
+  module_dir = ./.;
   hosts_dir = "${module_dir}/hosts";
 
   # Automatically discover all .json files in the hosts directory
@@ -90,7 +90,7 @@ let
   generateConfigForFile = jsonFile:
     let
       hosts = readHostsFile jsonFile;
-      fileName = getFileName jsonFile;
+      fileName = builtins.unsafeDiscardStringContext (getFileName jsonFile);
       sourceComment = if isAgenixFile jsonFile
         then "agenix secret (encrypted)"
         else lib.removePrefix hosts_dir jsonFile;

@@ -39,6 +39,13 @@
         group = "root";
         mode = "0400";
       };
+     ssh-hosts-customer-prod = {
+        file = ../../secrets/ssh-hosts-customer-prod.json.age;
+        path = "/run/secrets/ssh-hosts-customer-prod";
+        owner = "wtoorren";
+        group = "nogroup";
+        mode = "0400";
+      };
 };
   };
 
