@@ -1,5 +1,6 @@
 { pkgs, config, ... }:
 
+# Fixed HTTPS support for catch-all server
 {
   services.nginx = {
     enable = true;
