@@ -31,6 +31,7 @@ in
  ../../modules/authelia.nix
  ../../modules/authelia-users.nix
  ../../modules/claude.nix
+ ../../modules/pihole.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
