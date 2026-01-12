@@ -11,5 +11,11 @@
     "user": "admin",
     "identity_file": "technative_rsa",
     "port": 22
+  },
+  {
+    "host": "192.168.2.*",
+    "user": "pim",
+    "identity_file": "technative_rsa",
+    "port": 8022
   }
 ]
