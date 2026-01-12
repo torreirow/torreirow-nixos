@@ -48,7 +48,7 @@
 
     # Hoofdlocatie met Authelia authenticatie
     locations."/" = {
-      proxyPass = "https://192.168.2.254";
+      proxyPass = "http://192.168.2.254";
       proxyWebsockets = true;
 
       extraConfig = ''
