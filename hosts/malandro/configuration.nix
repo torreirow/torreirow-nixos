@@ -33,7 +33,7 @@ in
  ../../modules/authelia-users.nix
  ../../modules/claude.nix
  ../../modules/pihole.nix
- ../../modules/magister-service.nix
+ ../../modules/magister/magister-service.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
