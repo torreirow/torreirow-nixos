@@ -17,6 +17,7 @@
     appimage-run
     lsb-release
     osv-scanner
+    claude-code
     desktop-file-utils
     neofetch
     dstp

@@ -1,9 +1,12 @@
 { lib, pkgs,config, unstable, ... }:
 
 let
-  ## JSON wordt runtime gedownload via systemd service, niet tijdens build
-  ## Gebruik empty list als fallback voor pure build
-  aws_accounts = [];
+  ## JSON wordt ingelezen via symlink tijdens build met --impure flag
+  ## Fallback naar empty list als file niet bestaat
+  aws_accounts =
+    if builtins.pathExists ./managed_service_accounts.json
+    then builtins.fromJSON (builtins.readFile ./managed_service_accounts.json)
+    else [];
 
 groups = {
   mustad_hoofcare.color = "e5a50a";
