@@ -5,6 +5,7 @@ with lib;
 let
   cfg = config.services.magister-sync;
   nginxCfg = config.services.magister-sync.nginx;
+  autheliaHelpers = import ../authelia-nginx.nix { inherit lib; };
 
   # Python omgeving met alle dependencies
   pythonEnv = pkgs.python3.withPackages (ps: with ps; [
@@ -13,6 +14,9 @@ let
     python-dateutil
     ics
   ]);
+
+  # Magister server script uit de module directory
+  magisterServerScript = ./magister_server.py;
 
   # Wrapper script dat checkt op sessie validiteit
   magisterScript = pkgs.writeShellScript "magister-sync" ''
@@ -107,9 +111,19 @@ in {
       home = cfg.workingDirectory;
       createHome = true;
       description = "Magister sync service user";
+      extraGroups = [ "wheel" ];
     };
 
     users.groups.${cfg.group} = {};
+
+    # Zorg dat de working directory de juiste permissies heeft
+    # Group is nginx zodat nginx de bestanden kan lezen
+    systemd.tmpfiles.rules = [
+      "d ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
+      "z ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
+      "L+ ${cfg.workingDirectory}/magister_server.py - - - - ${magisterServerScript}"
+      "z ${cfg.workingDirectory}/*.ics 0664 ${cfg.user} nginx -"
+    ];
 
     # Systemd service
     systemd.services.magister-sync = {
@@ -117,6 +131,9 @@ in {
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
+
+      # Maak chromium en which beschikbaar in PATH
+      path = with pkgs; [ chromium which ];
 
       # Service configuratie
       serviceConfig = {
@@ -151,14 +168,8 @@ in {
       preStart = ''
         # Check of sessie bestand bestaat
         if [ ! -f "${cfg.workingDirectory}/magister_session.json" ]; then
-          echo "WAARSCHUWING: magister_session.json niet gevonden!"
-          echo "Plaats het bestand in ${cfg.workingDirectory}/ en herstart de service"
-          exit 1
-        fi
-
-        # Check of magister_server.py bestaat
-        if [ ! -f "${cfg.workingDirectory}/magister_server.py" ]; then
-          echo "ERROR: magister_server.py niet gevonden in ${cfg.workingDirectory}!"
+          echo "ERROR: magister_session.json niet gevonden in ${cfg.workingDirectory}!"
+          echo "Kopieer het sessie bestand naar ${cfg.workingDirectory}/ en herstart de service"
           exit 1
         fi
 
@@ -188,11 +199,11 @@ in {
           add_header Referrer-Policy "strict-origin-when-cross-origin" always;
         '';
 
-        # Locaties voor elk kind
-        locations = listToAttrs (map (child: {
-          name = child.path;
-          value = {
-            alias = "${cfg.workingDirectory}/magister_${child.name}.ics";
+        # Locaties
+        locations = {
+          # Serve calendar .ics bestanden
+          "~ ^/calendars/(.+\\.ics)$" = {
+            root = cfg.workingDirectory;
             extraConfig = ''
               # iCalendar MIME type
               default_type text/calendar;
@@ -201,59 +212,54 @@ in {
               # Cache headers (5 minuten)
               add_header Cache-Control "public, max-age=300";
 
+              # Security headers
+              add_header X-Content-Type-Options "nosniff" always;
+              add_header X-Frame-Options "SAMEORIGIN" always;
+              add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
               # CORS headers (voor Google Calendar)
               add_header Access-Control-Allow-Origin "*";
               add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS";
               add_header Access-Control-Allow-Headers "Authorization";
 
+              # Rewrite naar het juiste bestand
+              rewrite ^/calendars/(.+)$ /$1 break;
+
               # Handle OPTIONS requests
               if ($request_method = 'OPTIONS') {
-                add_header Access-Control-Allow-Origin "*";
-                add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS";
-                add_header Access-Control-Max-Age 1728000;
-                add_header Content-Type "text/plain charset=UTF-8";
-                add_header Content-Length 0;
+                add_header X-Content-Type-Options "nosniff" always;
+                add_header X-Frame-Options "SAMEORIGIN" always;
+                add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+                add_header Access-Control-Allow-Origin "*" always;
+                add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS" always;
+                add_header Access-Control-Allow-Headers "Authorization" always;
+                add_header Access-Control-Max-Age 1728000 always;
+                add_header Cache-Control "public, max-age=300" always;
+                add_header Content-Type "text/plain; charset=UTF-8" always;
+                add_header Content-Length 0 always;
                 return 204;
               }
             '';
           };
-        }) nginxCfg.children);
+          # Authelia verify endpoint
+          "/authelia" = autheliaHelpers.autheliaVerifyLocation;
 
-        # Root locatie met overzicht
-        locations."/".extraConfig = ''
-          default_type text/html;
-          return 200 '<!DOCTYPE html>
-<html>
-<head>
-  <title>Magister Agenda Feeds</title>
-  <style>
-    body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
-    h1 { color: #333; }
-    .feed { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
-    .url { background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 3px;
-           font-family: monospace; word-break: break-all; }
-    code { background: #e0e0e0; padding: 2px 5px; border-radius: 3px; }
-  </style>
-</head>
-<body>
-  <h1>Magister Agenda Feeds</h1>
-  <p>Beschikbare iCalendar feeds:</p>
-  ${concatMapStringsSep "\n" (child: ''
-    <div class="feed">
-      <h2>${child.name}</h2>
-      <div class="url">https://${nginxCfg.domain}${child.path}</div>
-      <p>Gebruik deze URL in Google Calendar via <code>Toevoegen</code> → <code>Via URL</code></p>
-    </div>
-  '') nginxCfg.children}
-  <hr>
-  <p><small>Updates elke 28 minuten</small></p>
-</body>
-</html>';
-        '';
+          # Root locatie met overzicht (beschermd door Authelia)
+          "/" = {
+            root = cfg.workingDirectory;
+            extraConfig = ''
+              # Authelia authentication
+              ${autheliaHelpers.autheliaAuthConfig}
+
+              # Serve index.html als die bestaat
+              try_files /index.html =404;
+            '';
+          };
+        };
       };
     };
 
-    # Zorg dat nginx de iCal bestanden kan lezen
-    users.users.nginx.extraGroups = mkIf nginxCfg.enable [ cfg.group ];
+    # Nginx hoeft niet aan extra groepen toegevoegd te worden
+    # De bestanden zijn owned door magister:nginx
   };
 }
