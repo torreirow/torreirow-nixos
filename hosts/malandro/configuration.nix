@@ -45,7 +45,6 @@ in
      enable = true;
      domain = "agenda.toorren.net";
      acmeHost = "toorren.net";
-     basicAuth = { "family" = "jouw-wachtwoord"; };
    };
  };
 
