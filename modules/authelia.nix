@@ -132,7 +132,7 @@
           {
             domain = "edge.toorren.net";
             policy = "two_factor";
-            subject = [ "group:admins" ];
+            subject = [ "group:users" ];
           }
 
           # Admin groep heeft toegang tot alles met 2FA
