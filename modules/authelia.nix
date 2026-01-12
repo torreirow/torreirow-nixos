@@ -118,6 +118,23 @@
             policy = "bypass";
           }
 
+          # KPN Modem - bypass voor lokale netwerken, 2FA voor externe toegang
+          {
+            domain = "edge.toorren.net";
+            policy = "bypass";
+            networks = [
+              "192.168.0.0/16"
+              "10.0.0.0/8"
+              "172.16.0.0/12"
+              "127.0.0.1/8"
+            ];
+          }
+          {
+            domain = "edge.toorren.net";
+            policy = "two_factor";
+            subject = [ "group:users" ];
+          }
+
           # Admin groep heeft toegang tot alles met 2FA
           {
             domain = "*.toorren.net";

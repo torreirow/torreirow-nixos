@@ -1,5 +1,6 @@
 { pkgs, config, ... }:
 
+# Fixed HTTPS support for catch-all server
 {
   services.nginx = {
     enable = true;
@@ -21,10 +22,10 @@
     virtualHosts."wildcard-placeholder" = {
       default = true;
       serverName = "_";
-      listen = [
-        { addr = "0.0.0.0"; port = 80; }
-        { addr = "[::]"; port = 80; }
-      ];
+
+      addSSL = true;
+      sslCertificate = "/var/lib/acme/toorren.net/fullchain.pem";
+      sslCertificateKey = "/var/lib/acme/toorren.net/key.pem";
 
       root = "/var/www/default";
 
