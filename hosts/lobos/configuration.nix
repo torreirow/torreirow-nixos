@@ -158,18 +158,6 @@ environment.variables.EDITOR = "vim";
   ## NEW CONFIG
   services.displayManager.defaultSession = "gnome";
 
-  ## Disable GNOME Keyring SSH agent (we use rbw SSH agent instead)
-  ## Keep gnome-keyring enabled for secrets/passwords, but NOT for SSH
-  programs.ssh.startAgent = false;
-
-  ## Override PAM to not start gnome-keyring with SSH component
-  security.pam.services.gdm.text = lib.mkAfter ''
-    session optional ${pkgs.gnome-keyring}/lib/security/pam_gnome_keyring.so auto_start components=secrets,pkcs11
-  '';
-  security.pam.services.login.text = lib.mkAfter ''
-    session optional ${pkgs.gnome-keyring}/lib/security/pam_gnome_keyring.so auto_start components=secrets,pkcs11
-  '';
-
 
 
 ## exclude packages
