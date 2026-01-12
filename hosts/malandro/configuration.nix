@@ -33,10 +33,21 @@ in
  ../../modules/authelia-users.nix
  ../../modules/claude.nix
  ../../modules/pihole.nix
+ ../../modules/magister-service.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
-    ];
+ ];
+
+ services.magister-sync = {
+   enable = true;
+   nginx = {
+     enable = true;
+     domain = "agenda.toorren.net";
+     acmeHost = "toorren.net";
+     basicAuth = { "family" = "jouw-wachtwoord"; };
+   };
+ };
 
 
 
