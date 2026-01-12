@@ -42,6 +42,65 @@ def find_chromium_executable():
     return None
 
 
+def generate_index_html(domain="agenda.toorren.net"):
+    """Genereer index.html met lijst van beschikbare calendars"""
+    try:
+        # Zoek alle magister_*.ics bestanden
+        ics_files = sorted(Path(".").glob("magister_*.ics"))
+
+        if not ics_files:
+            print("⚠ Geen .ics bestanden gevonden, genereer geen index.html")
+            return False
+
+        # Start HTML
+        html = """<!DOCTYPE html>
+<html>
+<head>
+  <title>Magister Agenda Feeds</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+    h1 { color: #333; }
+    .feed { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+    .url { background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 3px;
+           font-family: monospace; word-break: break-all; }
+    code { background: #e0e0e0; padding: 2px 5px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>Magister Agenda Feeds</h1>
+  <p>Beschikbare iCalendar feeds:</p>
+"""
+
+        # Voeg elke calendar toe
+        for ics_file in ics_files:
+            naam = ics_file.stem.replace("magister_", "")
+            bestandsnaam = ics_file.name  # magister_naam.ics
+            html += f"""  <div class="feed">
+    <h2>{naam}</h2>
+    <div class="url">https://{domain}/calendars/{bestandsnaam}</div>
+    <p>Gebruik deze URL in Google Calendar via <code>Toevoegen</code> → <code>Via URL</code></p>
+  </div>
+"""
+
+        # Sluit HTML af
+        html += """  <hr>
+  <p><small>Updates elke 28 minuten</small></p>
+</body>
+</html>
+"""
+
+        # Schrijf naar bestand
+        with open("index.html", "w") as f:
+            f.write(html)
+
+        print(f"✓ index.html gegenereerd met {len(ics_files)} calendar(s)")
+        return True
+
+    except Exception as e:
+        print(f"✗ Fout bij genereren index.html: {e}")
+        return False
+
+
 class MagisterServerClient:
     def __init__(self):
         self.session_file = Path(SESSION_FILE)
@@ -436,6 +495,10 @@ def main():
         print("\n✗ Kon geen agenda's ophalen voor kinderen")
         return
 
+    # Genereer index.html met lijst van calendars
+    print("\n=== Index genereren ===")
+    generate_index_html()
+
     # Keep-alive loop
     print(f"\n=== Keep-alive gestart (elke {KEEP_ALIVE_INTERVAL//60} minuten) ===")
     print(f"Het script update {len(kind_data)} agenda bestand(en) automatisch")
@@ -457,6 +520,13 @@ def main():
                     client.export_to_ical(appointments, info['file'])
                 else:
                     print("⚠ Mislukt")
+
+            # Update index.html na het updaten van alle calendars
+            print(f"  → index.html...", end=" ")
+            if generate_index_html():
+                print()  # Newline na success bericht
+            else:
+                print()  # Newline na foutmelding
 
     except KeyboardInterrupt:
         print("\n\n✓ Server gestopt door gebruiker")
