@@ -44,6 +44,7 @@ in
 
   "claude.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "ssh-hosts-customer-prod.json.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "postfix-sasl-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
 
 
