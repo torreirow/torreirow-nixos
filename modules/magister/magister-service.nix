@@ -116,13 +116,15 @@ in {
 
     users.groups.${cfg.group} = {};
 
-    # Zorg dat de working directory de juiste permissies heeft
+    # Zorg dat de working directory en log directory de juiste permissies hebben
     # Group is nginx zodat nginx de bestanden kan lezen
     systemd.tmpfiles.rules = [
       "d ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
       "z ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
       "L+ ${cfg.workingDirectory}/magister_server.py - - - - ${magisterServerScript}"
       "z ${cfg.workingDirectory}/*.ics 0664 ${cfg.user} nginx -"
+      # Log directory voor magister
+      "d /var/log/magister 0755 ${cfg.user} ${cfg.group} -"
     ];
 
     # Systemd service
@@ -158,7 +160,7 @@ in {
         PrivateTmp = true;
         ProtectSystem = "strict";
         ProtectHome = true;
-        ReadWritePaths = [ cfg.workingDirectory ];
+        ReadWritePaths = [ cfg.workingDirectory "/var/log/magister" ];
 
         # Geef toegang tot network
         PrivateNetwork = false;
@@ -261,5 +263,21 @@ in {
 
     # Nginx hoeft niet aan extra groepen toegevoegd te worden
     # De bestanden zijn owned door magister:nginx
+
+    # Log rotation configuratie
+    services.logrotate.settings.magister = {
+      files = "/var/log/magister/*.log";
+      frequency = "daily";
+      rotate = 3;  # Bewaar 3 dagen
+      compress = true;
+      delaycompress = true;
+      missingok = true;
+      notifempty = true;
+      su = "${cfg.user} ${cfg.group}";
+      postrotate = ''
+        # Optional: Signal de service om nieuwe log te starten
+        # systemctl kill -s USR1 magister-sync.service 2>/dev/null || true
+      '';
+    };
   };
 }
