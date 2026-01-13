@@ -1,0 +1,100 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:ics.py - http://git.io/lLljaA
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): L.J. Scheijgrond
+DTEND:20260116T141000Z
+LOCATION:235
+DTSTART:20260116T123000Z
+SUMMARY:Engels – en - sdl - h5b
+UID:magister-5749418@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): B.D. Horst\nDoor file ben ik iets vertraagd. Ga alvast in het lokaal zitten en pak je spullen erbij. Als ik er ben starten we met een spel waarbij je kennis getest wordt. Dat kun je dus al een beetje  voorbereiden. \;)Boek Cultuur van de Kerk meenemen. 
+DTEND:20260113T100000Z
+LOCATION:104
+DTSTART:20260113T082000Z
+SUMMARY:Kunst Algemeen – ka
+UID:magister-5741335@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): R. Feteris
+DTEND:20260114T100000Z
+LOCATION:ex2
+DTSTART:20260114T082000Z
+SUMMARY:zs
+UID:magister-5741324@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): A. van Ark
+DTEND:20260113T120000Z
+LOCATION:149
+DTSTART:20260113T102000Z
+SUMMARY:Economie – ec
+UID:magister-5741369@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M.J. Meijer
+DTEND:20260112T082000Z
+LOCATION:247
+DTSTART:20260112T073000Z
+SUMMARY:[VERPLAATST] Mentorles – me - mrm - h5b
+UID:magister-5725407@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.D. de Groot\nBeste leerlingen\,Morgen moet ik helaas naar een begrafenis.Er wordt gekeken of de keuzeles door meneer Wilts kan worden gegeven. Als dat lukt gaat de les door.Mocht dat niet lukken dan vervalt de keuzeles helaas.Succes bij de toetsJDdeGroot
+DTEND:20260113T141000Z
+LOCATION:227
+DTSTART:20260113T123000Z
+SUMMARY:Wiskunde B – wb
+UID:magister-5741332@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.D. de Groot
+DTEND:20260112T100000Z
+LOCATION:228
+DTSTART:20260112T091000Z
+SUMMARY:Wiskunde B – wb - gtj - h5.wb2
+UID:magister-5725660@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): N.M. van Hattum
+DTEND:20260115T100000Z
+LOCATION:145
+DTSTART:20260115T082000Z
+SUMMARY:Spaans – sp
+UID:magister-5741415@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M.J. Meijer
+DTEND:20260112T132000Z
+LOCATION:247
+DTSTART:20260112T123000Z
+SUMMARY:[VERPLAATST] Engels – en - mrm - h5b
+UID:magister-5725910@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): T.W. Schuiling
+DTEND:20260115T120000Z
+LOCATION:135
+DTSTART:20260115T102000Z
+SUMMARY:Geschiedenis – gs
+UID:magister-5741276@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): B. Gijsbertsen
+DTEND:20260116T093000Z
+LOCATION:227
+DTSTART:20260116T073000Z
+SUMMARY:Economie – ec - gnd - h5.ec1
+UID:magister-5749415@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M.J. Meijer
+DTEND:20260112T120000Z
+LOCATION:259
+DTSTART:20260112T111000Z
+SUMMARY:[VERPLAATST] Engels – en - mrm - h5b
+UID:magister-5725829@groevenbeek
+END:VEVENT
+END:VCALENDAR
