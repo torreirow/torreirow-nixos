@@ -1,0 +1,302 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:ics.py - http://git.io/lLljaA
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): N.R. Bakker\, K. van Norel
+DTEND:20260115T091000Z
+LOCATION:122\, 123
+DTSTART:20260115T082000Z
+SUMMARY:Atelier – al - nlk\,brn - n34\,n33
+UID:magister-5727811@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): E.J.W. Duran
+DTEND:20260114T111000Z
+LOCATION:230
+DTSTART:20260114T102000Z
+SUMMARY:[VERPLAATST] Nederlands – ne - dne - n34
+UID:magister-5728413@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift
+DTEND:20260116T111000Z
+LOCATION:247
+DTSTART:20260116T102000Z
+SUMMARY:Spaans – sp - ktj - n3ah.sp1
+UID:magister-5728971@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift\nLever vandaag vóór 17:00 uur je Tarea: Mi animal favorito opnieuw in.
+DTEND:20260112T160000Z
+LOCATION:Thuis
+DTSTART:20260112T080000Z
+SUMMARY:[GEWIJZIGD] Tarea: Mi animal favorito
+UID:magister-5749561@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\, T.W. Schuiling
+DTEND:20260115T150000Z
+LOCATION:521
+DTSTART:20260115T141000Z
+SUMMARY:Next-uren – nx - sgw\,skm - n34\,n33
+UID:magister-5728719@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\, A. van Harten
+DTEND:20260112T111000Z
+LOCATION:286\, 287
+DTSTART:20260112T102000Z
+SUMMARY:Next-uren – nx - skm\,hza - n34\,n33
+UID:magister-5725761@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\nHavo HS 5- 5.3 (theorie A\, B en C)- 5.5 (theorie A)Vwo HS 6- 6.5 (theorie A)- 6.3 (theorie A & B)- 6.2 (Theorie A)
+DTEND:20260116T132000Z
+LOCATION:145
+DTSTART:20260116T123000Z
+SUMMARY:Wiskunde – wi - skm - n34
+UID:magister-5729201@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift\nControleer voor of je onderstaande hebt afgerond voor Spaans:Deel 1: PortfolioWat is belangrijk:1) Staat alles erin?2) Is het overzichtelijk en duidelijk waar wat staat? Denk bijvoorbeeld aan kopjes\, zie bijlage.3) Is de checklist ingevuld?4) Is alles nagekeken?5) Opnieuw inleveren (als je dit nog niet gedaan hebt).Deel 2: Presentatie en quiz Fiestas1) Is alles klaar om te kunnen presenteren? We presenteren vrijdag tijdens de les.Deel 3: Feedback Mi animal favorito1) Heb je de feedback verwerkt en opnieuw ingeleverd? De feedback staat in Teams opdrachten -> Mi animal favorito. In Magister kun je zien of je een NNA hebt of A.Alles klaar? ¡Buen hecho!Alvast verder werken? -> 1\, 2\, 3\, 4\, 5 pág. 82 (Unidad 8).¡Mucha suerte!
+DTEND:20260113T091000Z
+LOCATION:247
+DTSTART:20260113T082000Z
+SUMMARY:[VERPLAATST] Spaans – sp - ktj - n3ah.sp1
+UID:magister-5726525@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DTEND:20260113T150000Z
+DTSTART:20260113T141000Z
+SUMMARY:[GEWIJZIGD] Inhaaltoets NEXT
+UID:magister-5720131@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift
+DTEND:20260116T120000Z
+LOCATION:247
+DTSTART:20260116T111000Z
+SUMMARY:[UITGEVALLEN] Spaans – sp - ktj - n3ah.sp1
+UID:magister-5726876@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): A.G. van Dijk
+DTEND:20260114T132000Z
+LOCATION:259
+DTSTART:20260114T123000Z
+SUMMARY:Engels – en - dkn - n34
+UID:magister-5727560@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): L. van Meerveld
+DTEND:20260115T100000Z
+LOCATION:dindoa 2
+DTSTART:20260115T091000Z
+SUMMARY:Lich. opvoeding – lo - mdl - n34
+UID:magister-5728013@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): E.J.W. Duran
+DTEND:20260114T120000Z
+LOCATION:230
+DTSTART:20260114T111000Z
+SUMMARY:Nederlands – ne - dne - n34
+UID:magister-5727497@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\nVergeet niet je wiskunde spullen mee te nemen!
+DTEND:20260113T111000Z
+LOCATION:307
+DTSTART:20260113T102000Z
+SUMMARY:Mentorles – me - skm - n34
+UID:magister-5726595@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DTEND:20260113T150000Z
+DTSTART:20260113T141000Z
+SUMMARY:[GEWIJZIGD] INH
+UID:magister-5720206@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): T. Liefting\, J. Brundel
+DTEND:20260116T091000Z
+LOCATION:521
+DTSTART:20260116T082000Z
+SUMMARY:Next-uren – nx - brj\,lgt - n34\,n33
+UID:magister-5728741@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): L. van Meerveld
+DTEND:20260113T100000Z
+LOCATION:143
+DTSTART:20260113T091000Z
+SUMMARY:Lich. opvoeding – lo - mdl - n34
+UID:magister-5726616@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift\, M. Schenk\nBeste leerlingen uit N34\,Helaas ben ik er vandaag nog niet\, maar dat betekent niet dat jij niet gewoon verder kunt met het voorbereiden van je Duits :-).Wat verwacht ik dat er af is voor de volgende les:1) Portfolio* Je hebt je portfolio nagekeken (zie bijlage Korrekturen voor de antwoorden).*? Je hebt de lay-out van je portfolio aangepast volgens de eisen van een verslag (zie bijlagen opzet verslag en hoe maak ik een overzichtelijk verslag).--> OPNIEUW INLEVEREN IN MAGISTER OPDRACHTEN2) Luistervaardigheid trainen (toets plannen we samen opnieuw in)* Je oefent verder aan luistervaardigheid als voorbereiding op de luistertoets (5-10 min. per dag). Kies uit onderstaande linkjes:Duitse jeugdjournaal -> Die Kindernachrichten des ZDF - Alle Videos und Artikel - logo!Korte filmpjes met opdrachten -> Das DeutschlandlaborLuisterfragementen -> GOETHE-ZERTIFIKAT A2 - HörenKorte luisterfragementen -> Prüfung Hören A2 | Aufgaben mit Lösungen | A2-Deutsch3) Presentatie* We werken donderdag tijdens de les nog aan de presentatie. Zorg dat je een goede taakverdeling hebt in je groepje zodat je de presentatie en de quiz donderdag kan afronden. Vrijdag starten we met presentaties.Wat handig is om alvast door te nemen en te plannen:Taaldorp (zie bijlage).Je kunt hiervoor alvast een planning maken om voor te bereiden.Het onderdeel BEIM ARZT hoef je niet voor te bereiden.Viel Erfolg und bis bald!
+DTEND:20260113T120000Z
+LOCATION:Zelfstandig
+DTSTART:20260113T111000Z
+SUMMARY:[GEWIJZIGD] Aufgaben für Deutsch/ Opdrachten voor Duits
+UID:magister-5766122@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\, T.W. Schuiling
+DTEND:20260115T141000Z
+LOCATION:521
+DTSTART:20260115T132000Z
+SUMMARY:[UITGEVALLEN] Next-uren – nx - sgw\,skm - n34\,n33
+UID:magister-5728951@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): C. van Dijk
+DTEND:20260114T150000Z
+LOCATION:319
+DTSTART:20260114T141000Z
+SUMMARY:LAB – lab - dkc - n34
+UID:magister-5727802@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): E.J.W. Duran
+DTEND:20260112T082000Z
+LOCATION:234
+DTSTART:20260112T073000Z
+SUMMARY:Nederlands – ne - dne - n34
+UID:magister-5725417@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\, T.W. Schuiling
+DTEND:20260115T132000Z
+LOCATION:521
+DTSTART:20260115T123000Z
+SUMMARY:[UITGEVALLEN] Next-uren – nx - sgw\,skm - n34\,n33
+UID:magister-5728452@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): L. van Meerveld
+DTEND:20260115T111000Z
+LOCATION:dindoa 2
+DTSTART:20260115T102000Z
+SUMMARY:Lich. opvoeding – lo - mdl - n34
+UID:magister-5728245@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DTEND:20260113T150000Z
+DTSTART:20260113T141000Z
+SUMMARY:[GEWIJZIGD] INH
+UID:magister-5720167@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): A.G. van Dijk
+DTEND:20260116T150000Z
+LOCATION:256
+DTSTART:20260116T141000Z
+SUMMARY:Engels – en - dkn - n34
+UID:magister-5729370@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk
+DTEND:20260116T141000Z
+LOCATION:145
+DTSTART:20260116T132000Z
+SUMMARY:Mentorles – me - skm - n34
+UID:magister-5729317@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): E.J.W. Duran
+DTEND:20260114T111000Z
+LOCATION:230
+DTSTART:20260114T102000Z
+SUMMARY:Nederlands\, Leeshalfuurtje – ne\,lhu - dne - n34
+UID:magister-5749754@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): T. Liefting\, J. Brundel
+DTEND:20260116T082000Z
+LOCATION:521
+DTSTART:20260116T073000Z
+SUMMARY:Next-uren – nx - brj\,lgt - n34\,n33
+UID:magister-5728599@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\nHavo -->  62\, 63\, 64\, 67 Vwo -->  12\, 13 \,14
+DTEND:20260112T120000Z
+LOCATION:227
+DTSTART:20260112T111000Z
+SUMMARY:Wiskunde – wi - skm - n34
+UID:magister-5726086@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\, B. Veeningen
+DTEND:20260113T132000Z
+LOCATION:521
+DTSTART:20260113T123000Z
+SUMMARY:Next-uren – nx - vnb\,skm - n34\,n33
+UID:magister-5726747@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\, A. van Harten
+DTEND:20260112T100000Z
+LOCATION:286\, 287
+DTSTART:20260112T091000Z
+SUMMARY:Next-uren – nx - skm\,hza - n34\,n33
+UID:magister-5725638@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): C. van Dijk
+DTEND:20260114T141000Z
+LOCATION:319
+DTSTART:20260114T132000Z
+SUMMARY:LAB – lab - dkc - n34
+UID:magister-5727758@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): M. Schenk\, B. Veeningen
+DTEND:20260113T141000Z
+LOCATION:521
+DTSTART:20260113T132000Z
+SUMMARY:Next-uren – nx - vnb\,skm - n34\,n33
+UID:magister-5726864@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): N.R. Bakker\, K. van Norel
+DTEND:20260115T082000Z
+LOCATION:122\, 123
+DTSTART:20260115T073000Z
+SUMMARY:Atelier – al - nlk\,brn - n34\,n33
+UID:magister-5727718@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift\n1) Voorbereiden taaldorp.Verdeel het leerwerk in stukjes. Liever elke dag/ meerdere dagen 10 minuten oefenen dan in één keer een uur.2) Afronden van de presentatie en de quiz - Feste.
+DTEND:20260115T120000Z
+LOCATION:234
+DTSTART:20260115T111000Z
+SUMMARY:[UITGEVALLEN] Duits – du - ktj - n34
+UID:magister-5729336@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift\nControleer voor of je onderstaande hebt afgerond voor Spaans:Deel 1: PortfolioWat is belangrijk:1) Staat alles erin?2) Is het overzichtelijk en duidelijk waar wat staat? Denk bijvoorbeeld aan kopjes\, zie bijlage.3) Is de checklist ingevuld?4) Is alles nagekeken?5) Opnieuw inleveren (als je dit nog niet gedaan hebt).Deel 2: Presentatie en quiz Fiestas1) Is alles klaar om te kunnen presenteren? We presenteren vrijdag tijdens de les.Deel 3: Feedback Mi animal favorito1) Heb je de feedback verwerkt en opnieuw ingeleverd? De feedback staat in Teams opdrachten -> Mi animal favorito. In Magister kun je zien of je een NNA hebt of A.Alles klaar? ¡Buen hecho!Alvast verder werken? -> 1\, 2\, 3\, 4\, 5 pág. 82 (Unidad 8).¡Mucha suerte!
+DTEND:20260113T230000Z
+LOCATION:Zelfstandig
+DTSTART:20260112T230000Z
+SUMMARY:[GEWIJZIGD] Español
+UID:magister-5766309@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift\nPresentaties + quiz.Vandaag moet alles ingeleverd zijn:Het invulsjabloon met het onderzoek\, de presentatie en de quiz.Zorg dat het document er netjes en overzichtelijk uitziet.
+DTEND:20260113T120000Z
+LOCATION:257
+DTSTART:20260113T111000Z
+SUMMARY:[VERPLAATST] Duits – du - ktj - n34
+UID:magister-5726564@groevenbeek
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Docent(en): J.J. van der Klift\nVoorbereiden taaldorp.Verdeel het leerwerk in stukjes. Liever elke dag/ meerdere dagen 10 minuten oefenen dan in één keer een uur.Presentaties + Luistertoets? 
+DTEND:20260116T100000Z
+LOCATION:247
+DTSTART:20260116T091000Z
+SUMMARY:Duits – du - ktj - n34
+UID:magister-5728793@groevenbeek
+END:VEVENT
+END:VCALENDAR

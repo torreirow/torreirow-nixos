@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Magister Server Script - Voor op je SERVER (headless)
+Magister Server Script - Voor op je SERVER (headless) - DEV VERSION
 Dit script draait zonder GUI en gebruikt alleen magister_session.json
+Met logging naar /var/log/magister.log
 """
 
 import time
@@ -19,25 +20,27 @@ from bs4 import BeautifulSoup
 
 # Configuratie
 MAGISTER_URL = "https://groevenbeek.magister.net"
-SESSION_FILE = "magister_session.json"
+OUTPUT_DIR = "/var/lib/magister"  # Directory waar .ics bestanden worden geschreven
+SESSION_FILE = f"{OUTPUT_DIR}/magister_session.json"  # Sessie bestand in OUTPUT_DIR
 ICAL_FILE = "magister.ics"
 KEEP_ALIVE_INTERVAL = 10 * 60  # 10 minuten in seconden
-LOG_FILE = "/var/log/magister/magister.log"
+LOG_FILE = "/var/log/magister.log"
 
 # Logging configuratie
 def setup_logging():
     """Setup logging naar file en console"""
     global LOG_FILE
 
-    log_dir = Path(LOG_FILE).parent
-
-    # Probeer log directory aan te maken als het niet bestaat
+    # Test of we naar /var/log kunnen schrijven
     try:
-        log_dir.mkdir(parents=True, exist_ok=True)
+        # Probeer een test file te schrijven
+        test_file = Path(LOG_FILE)
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.touch()
     except (PermissionError, OSError):
         # Fallback naar local directory als we geen rechten hebben
         LOG_FILE = "./magister.log"
-        logger.warning(f"⚠ Geen write permissie voor /var/log/magister, gebruik {LOG_FILE}")
+        print(f"⚠ Geen write permissie voor /var/log, gebruik {LOG_FILE}")
 
     # Configureer logging
     logging.basicConfig(
@@ -77,8 +80,8 @@ def find_chromium_executable():
 def generate_index_html(domain="agenda.toorren.net"):
     """Genereer index.html met lijst van beschikbare calendars"""
     try:
-        # Zoek alle magister_*.ics bestanden
-        ics_files = sorted(Path(".").glob("magister_*.ics"))
+        # Zoek alle magister_*.ics bestanden in OUTPUT_DIR
+        ics_files = sorted(Path(OUTPUT_DIR).glob("magister_*.ics"))
 
         # Huidige timestamp voor footer
         update_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -143,11 +146,12 @@ def generate_index_html(domain="agenda.toorren.net"):
 </html>
 """
 
-        # Schrijf naar bestand
-        with open("index.html", "w") as f:
+        # Schrijf naar bestand in OUTPUT_DIR
+        index_path = Path(OUTPUT_DIR) / "index.html"
+        with open(index_path, "w") as f:
             f.write(html)
 
-        logger.info(f"✓ index.html gegenereerd met {len(ics_files)} calendar(s)")
+        logger.info(f"✓ index.html gegenereerd met {len(ics_files)} calendar(s) in {OUTPUT_DIR}")
         return True
 
     except Exception as e:
@@ -180,6 +184,7 @@ class MagisterServerClient:
             return None
 
         try:
+            logger.info("Ophalen lijst kinderen...")
             with sync_playwright() as p:
                 browser = p.chromium.launch(**self.get_browser_launch_options())
                 context = browser.new_context(storage_state=str(self.session_file))
@@ -251,7 +256,7 @@ class MagisterServerClient:
                             'url': response.url,
                             'status': response.status
                         })
-                        print(f"  ⚠ HTTP {response.status} op {response.url}")
+                        logger.warning(f"  ⚠ HTTP {response.status} op {response.url}")
 
                 page.on("response", handle_response)
 
@@ -348,7 +353,7 @@ class MagisterServerClient:
 
                 # Nieuwe aanpak: DIRECT de API aanroepen via page.evaluate
                 if persoon_id:
-                    print(f"  Direct API call naar /api/personen/{persoon_id}/afspraken")
+                    logger.debug(f"  Direct API call naar /api/personen/{persoon_id}/afspraken")
 
                     # Eerst een pagina laden om cookies/sessie te initialiseren
                     page.goto(f"{MAGISTER_URL}/magister/", wait_until="networkidle")
@@ -499,9 +504,19 @@ class MagisterServerClient:
 def main():
     """Hoofdfunctie voor server"""
     logger.info("="*70)
-    logger.info("MAGISTER SERVER - HEADLESS MODE (MULTI-KIND)")
+    logger.info("MAGISTER SERVER - HEADLESS MODE (MULTI-KIND) - DEV VERSION")
     logger.info(f"Log file: {LOG_FILE}")
+    logger.info(f"Output directory: {OUTPUT_DIR}")
     logger.info("="*70)
+
+    # Zorg dat OUTPUT_DIR bestaat
+    try:
+        Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
+        logger.info(f"✓ Output directory gereed: {OUTPUT_DIR}")
+    except Exception as e:
+        logger.error(f"✗ Kan output directory niet aanmaken: {e}")
+        import sys
+        sys.exit(1)
 
     client = MagisterServerClient()
 
@@ -540,46 +555,45 @@ def main():
         return
 
     # Haal voor elk kind de agenda op
-    logger.info("\n=== Agenda's ophalen ===")
+    logger.info("=== Agenda's ophalen ===")
     kind_data = {}
 
     for kind in kinderen:
         naam = kind['Roepnaam']
         persoon_id = kind['Id']
 
-        logger.info(f"\n→ {naam} (ID: {persoon_id})...")
+        logger.info(f"→ {naam} (ID: {persoon_id})...")
         appointments = client.fetch_afspraken(days=7, persoon_id=persoon_id)
 
         if appointments:
-            # Maak bestandsnaam: magister_<naam>.ics
-            output_file = f"magister_{naam.lower()}.ics"
+            # Maak bestandsnaam: magister_<naam>.ics in OUTPUT_DIR
+            output_file = str(Path(OUTPUT_DIR) / f"magister_{naam.lower()}.ics")
             client.export_to_ical(appointments, output_file)
             kind_data[naam] = {
                 'id': persoon_id,
                 'file': output_file
             }
         else:
-            logger.info(f"  ⚠ Kon agenda voor {naam} niet ophalen")
+            logger.warning(f"  ⚠ Kon agenda voor {naam} niet ophalen")
 
     if not kind_data:
-        logger.info("\n✗ Kon geen agenda's ophalen voor kinderen")
+        logger.error("✗ Kon geen agenda's ophalen voor kinderen")
         return
 
     # Genereer index.html met lijst van calendars
-    logger.info("\n=== Index genereren ===")
+    logger.info("=== Index genereren ===")
     generate_index_html()
 
     # Keep-alive loop
-    logger.info(f"\n=== Keep-alive gestart (elke {KEEP_ALIVE_INTERVAL//60} minuten) ===")
+    logger.info(f"=== Keep-alive gestart (elke {KEEP_ALIVE_INTERVAL//60} minuten) ===")
     logger.info(f"Het script update {len(kind_data)} agenda bestand(en) automatisch")
-    logger.info("Druk op Ctrl+C om te stoppen\n")
+    logger.info("Druk op Ctrl+C om te stoppen")
 
     try:
         while True:
             time.sleep(KEEP_ALIVE_INTERVAL)
 
-            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            logger.info(f"\n[{timestamp}] Keep-alive: agenda's ophalen...")
+            logger.info(f"Keep-alive: agenda's ophalen...")
 
             # Update elk kind
             for naam, info in kind_data.items():
@@ -596,7 +610,7 @@ def main():
             generate_index_html()
 
     except KeyboardInterrupt:
-        logger.info("\n\n✓ Server gestopt door gebruiker")
+        logger.info("✓ Server gestopt door gebruiker")
 
 
 if __name__ == "__main__":
