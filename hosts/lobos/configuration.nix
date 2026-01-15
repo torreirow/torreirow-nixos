@@ -382,21 +382,23 @@ networking.wg-quick.interfaces.wg1 = {
 
 
 networking.wg-quick.interfaces.wg0 = {
-    address = [
-      "172.27.66.3/24"
-    ];
-    peers = [
-      {
-        allowedIPs = [
-          "0.0.0.0/0"
-        ];
-        endpoint = "homeassistant.toorren.net:51820";
-        publicKey = "8TLZ86+PygfP3GzrBUiBtXOleSSO9ODnQPxzXZtQNHk=";
-      }
-    ];
-    privateKey = "***REMOVED***";
-    autostart = false;
-  };
+  address = [ "10.8.0.6/24" ];
+  dns = [ "1.1.1.1" ];
+  
+  peers = [
+    {
+      publicKey = "MFE+s8GZbNLzbaQwMyb7AGSbdBg6rTPEYjpeaaJYiVY=";           # Vervang met echte public key
+      presharedKey = "***REMOVED***";    # Vervang met echte preshared key  
+      allowedIPs = [ "0.0.0.0/0" ];
+      endpoint = "wg.toorren.net:51820";
+      persistentKeepalive = 25;         # Cruciaal voor jouw Docker issue!
+    }
+  ];
+  
+  privateKey = "***REMOVED***";             # Vervang met echte private key
+  autostart = false;
+};
+
 
 ## Fingerprint
 services.fprintd.enable = true;
