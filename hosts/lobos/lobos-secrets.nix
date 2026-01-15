@@ -58,6 +58,23 @@ kar01_vpn_lobos = {
   group = "nogroup";
   mode = "0400";
 };
+
+# WireGuard secrets
+wg-toorren-private-key = {
+  file = ../../secrets/wg-toorren-private-key.age;
+  mode = "0400";
+  owner = "root";
+};
+wg-toorren-preshared-key = {
+  file = ../../secrets/wg-toorren-preshared-key.age;
+  mode = "0400";
+  owner = "root";
+};
+wg-tn_arkana-private-key = {
+  file = ../../secrets/wg-tn_arkana-private-key.age;
+  mode = "0400";
+  owner = "root";
+};
 };
   };
 
