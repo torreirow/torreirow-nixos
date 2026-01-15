@@ -243,7 +243,11 @@
   homeConfigurations."wtoorren@linuxdesktop" = home-manager.lib.homeManagerConfiguration(
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        overlays = [(import ./overlays) (import ./overlays/cooklang.nix)];
+      };
 
       linux-defaults = {pkgs,config,homeage,...}: {
         home = { ##MAC
