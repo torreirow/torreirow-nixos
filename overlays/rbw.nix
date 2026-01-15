@@ -7,10 +7,12 @@ self: super:
     src = super.fetchFromGitHub {
       owner = "doy";
       repo = "rbw";
-      rev = "v${version}";
-      sha256 = "sha256:d8174b0aeaccbcd80322ca41fb48bf2dbad8fc4d5d9c509c42bbb46d5e195395";
+      rev = "${version}";
+      hash = "sha256-N/s1flB+s2HwEeLsf7YlJG+5TJgP8Wu7PHNPWmVfpIo=";
     };
 
-    cargoHash = "sha256-BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=";
+    cargoDeps = super.rustPlatform.importCargoLock {
+      lockFile = "${src}/Cargo.lock";
+    };
   });
 }
