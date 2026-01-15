@@ -39,21 +39,38 @@ class CallbackHandler(BaseHTTPRequestHandler):
 
         html = """
         <html>
-        <head><title>Authentication Success</title></head>
+        <head>
+            <title>Authentication Success</title>
+            <style>
+                body {
+                    font-family: system-ui, -apple-system, sans-serif;
+                    max-width: 600px;
+                    margin: 100px auto;
+                    padding: 20px;
+                    text-align: center;
+                }
+                h1 { color: #2ecc71; }
+                .info {
+                    background: #ecf0f1;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin-top: 20px;
+                }
+            </style>
+        </head>
         <body>
-            <h1>✓ Authentication successful!</h1>
-            <p>You can close this window and return to the terminal.</p>
+            <h1>✓ Authentication Successful!</h1>
+            <p><strong>Your session cookies have been captured.</strong></p>
+            <div class="info">
+                <p>You can now close this window and return to your terminal.</p>
+                <p>The script will automatically download the AWS accounts.</p>
+            </div>
             <script>
-                // Try to fetch the JSON with the current session
-                fetch('""" + ACCOUNTS_URL + """')
-                    .then(response => response.json())
-                    .then(data => {
-                        // Send cookies back to parent
-                        window.close();
-                    })
-                    .catch(err => {
-                        document.body.innerHTML += '<p style="color: red;">Error: Could not access JSON. Please check permissions.</p>';
-                    });
+                // Cookies are already captured by the server
+                // No need for additional JavaScript actions
+                setTimeout(() => {
+                    try { window.close(); } catch(e) {}
+                }, 2000);
             </script>
         </body>
         </html>
