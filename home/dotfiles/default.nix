@@ -10,7 +10,10 @@
       source = ./.config/rbw/config.json;
       recursive = true;
     };
-    ".config/smug" = {
+    ".config/rbw-technative/config.json" = {
+      source = ./.config/rbw-technative/config.json;
+      recursive = true;
+    };".config/smug" = {
       source = ./.config/smug;
       recursive = true;
     }; 
