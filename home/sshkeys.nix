@@ -18,9 +18,10 @@
   };
 
   # Agenix secrets for SSH host configurations
+  # These are processed at activation time (not evaluation time)
   programs.ssh-config-hosts.agenixSecrets = [{
     name = "customer-prod";
-    path = "/run/secrets/ssh-hosts-customer-prod";  # Direct path to decrypted secret
+    path = "/run/secrets/ssh-hosts-customer-prod";
   }];
 }
 

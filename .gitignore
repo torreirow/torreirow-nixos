@@ -9,3 +9,4 @@ result/**
 *iso270001**.pdf
 secrets/*.pem
 secrets/*.key
+home/managed_service_accounts.json
