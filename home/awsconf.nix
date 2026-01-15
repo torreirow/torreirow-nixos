@@ -1,11 +1,12 @@
 { lib, pkgs,config, unstable, ... }:
 
 let
-  ## JSON wordt ingelezen via symlink tijdens build met --impure flag
+  ## JSON wordt ingelezen vanaf home directory tijdens build met --impure flag
   ## Fallback naar empty list als file niet bestaat
+  json_path = "${config.home.homeDirectory}/.aws/managed_service_accounts.json";
   aws_accounts =
-    if builtins.pathExists ./managed_service_accounts.json
-    then builtins.fromJSON (builtins.readFile ./managed_service_accounts.json)
+    if builtins.pathExists json_path
+    then builtins.fromJSON (builtins.readFile json_path)
     else [];
 
 groups = {
