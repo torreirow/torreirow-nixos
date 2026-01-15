@@ -32,101 +32,105 @@ class CallbackHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html; charset=utf-8')
         self.end_headers()
 
-        html = """
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>AWS Account Sync - Cookie Capture</title>
-            <style>
-                body {
-                    font-family: system-ui, -apple-system, sans-serif;
-                    max-width: 800px;
-                    margin: 50px auto;
-                    padding: 20px;
-                    background: #f5f5f5;
-                }
-                .container {
-                    background: white;
-                    padding: 30px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-                h1 { color: #2c3e50; margin-top: 0; }
-                .step {
-                    background: #ecf0f1;
-                    padding: 15px;
-                    margin: 15px 0;
-                    border-radius: 5px;
-                    border-left: 4px solid #3498db;
-                }
-                .bookmarklet {
-                    display: inline-block;
-                    background: #3498db;
-                    color: white;
-                    padding: 12px 24px;
-                    text-decoration: none;
-                    border-radius: 5px;
-                    font-weight: bold;
-                    margin: 10px 0;
-                    cursor: move;
-                }
-                .bookmarklet:hover {
-                    background: #2980b9;
-                }
-                code {
-                    background: #34495e;
-                    color: #ecf0f1;
-                    padding: 2px 6px;
-                    border-radius: 3px;
-                    font-size: 0.9em;
-                }
-                .success {
-                    display: none;
-                    background: #2ecc71;
-                    color: white;
-                    padding: 15px;
-                    border-radius: 5px;
-                    margin-top: 20px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>🔐 AWS Account Cookie Capture</h1>
+        # Bookmarklet JavaScript (minified, no quotes issues)
+        bookmarklet_js = (
+            "javascript:(function(){"
+            "fetch('http://localhost:8765/cookies',{"
+            "method:'POST',"
+            "headers:{'Content-Type':'text/plain'},"
+            "body:document.cookie"
+            "}).then(function(){"
+            "document.body.innerHTML="
+            "'<div style=\"font-family:sans-serif;text-align:center;margin-top:100px;\">"
+            "<h1 style=\"color:green;\">&#10004; Cookies Sent!</h1>"
+            "<p>Return to terminal - sync will continue automatically</p>"
+            "</div>';"
+            "}).catch(function(e){alert('Error: '+e);});"
+            "})();"
+        )
 
-                <div class="step">
-                    <strong>Step 1:</strong> Drag this button to your bookmarks bar:
-                    <br><br>
-                    <a href="javascript:(function(){fetch('http://localhost:8765/cookies',{method:'POST',headers:{'Content-Type':'text/plain'},body:document.cookie}).then(()=>{document.body.innerHTML='<div style=\\"font-family:sans-serif;text-align:center;margin-top:100px;\\"><h1 style=\\"color:green;\\">✓ Cookies Sent!</h1><p>Return to terminal - sync will continue automatically</p></div>';}).catch(e=>alert('Error: '+e))})();"
-                       class="bookmarklet">📤 Send Cookies to Sync</a>
-                </div>
+        html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AWS Account Sync - Cookie Capture</title>
+    <style>
+        body {{
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }}
+        .container {{
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        h1 {{ color: #2c3e50; margin-top: 0; }}
+        .step {{
+            background: #ecf0f1;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }}
+        .bookmarklet {{
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px 0;
+            cursor: move;
+        }}
+        .bookmarklet:hover {{
+            background: #2980b9;
+        }}
+        code {{
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 AWS Account Cookie Capture</h1>
 
-                <div class="step">
-                    <strong>Step 2:</strong> Go to
-                    <code>https://docs-mcs.technative.eu/</code> and log in if needed
-                </div>
+        <div class="step">
+            <strong>Step 1:</strong> Drag this button to your bookmarks bar:
+            <br><br>
+            <a href="{bookmarklet_js}" class="bookmarklet">📤 Send Cookies to Sync</a>
+        </div>
 
-                <div class="step">
-                    <strong>Step 3:</strong> On that page, click the bookmarklet you just saved
-                </div>
+        <div class="step">
+            <strong>Step 2:</strong> Go to
+            <code>https://docs-mcs.technative.eu/</code> and log in if needed
+        </div>
 
-                <div class="step">
-                    <strong>Alternative:</strong> If bookmarklets don't work, open DevTools (F12),
-                    go to Console tab, and paste:
-                    <br><br>
-                    <code style="display:block;padding:10px;word-break:break-all;">
-                    fetch('http://localhost:8765/cookies',{method:'POST',headers:{'Content-Type':'text/plain'},body:document.cookie})
-                    </code>
-                </div>
+        <div class="step">
+            <strong>Step 3:</strong> On that page, click the bookmarklet you just saved
+        </div>
 
-                <div id="success" class="success">
-                    ✓ Cookies received! You can close this window.
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        self.wfile.write(html.encode())
+        <div class="step">
+            <strong>Alternative:</strong> If bookmarklets don't work, open DevTools (F12),
+            go to Console tab, and paste:
+            <br><br>
+            <code style="display:block;padding:10px;word-break:break-all;">
+            fetch('http://localhost:8765/cookies',{{method:'POST',headers:{{'Content-Type':'text/plain'}},body:document.cookie}})
+            </code>
+        </div>
+    </div>
+</body>
+</html>
+"""
+        self.wfile.write(html.encode('utf-8'))
 
     def do_POST(self):
         """Handle POST request with cookies from JavaScript."""
