@@ -96,7 +96,7 @@ def interactive_login():
     """
     print("🔐 Opening browser for authentication...")
     print(f"   Please login at: {LOGIN_URL}")
-    print("   After login, navigate to the accounts page to capture your session.")
+    print("   After login, visit the callback URL to complete authentication.")
     print()
 
     # Start callback server
@@ -106,33 +106,53 @@ def interactive_login():
     callback_url = f"http://localhost:8765/callback"
     webbrowser.open(LOGIN_URL)
 
-    # Wait for user input
+    # Poll for cookies with timeout
     print("After you've logged in successfully:")
     print(f"  Visit: {callback_url}")
-    print("  Or press Enter to manually provide cookies...")
-    input()
-
-    # Check if we got cookies
-    if CallbackHandler.cookies:
-        print("✓ Session captured!")
-        # Save cookies
-        COOKIE_FILE.write_text(CallbackHandler.cookies)
-        server.shutdown()
-        return True
-
-    # Manual cookie input
-    print("\nNo cookies captured automatically.")
-    print("Please copy your session cookies from browser DevTools:")
-    print("  1. Open DevTools (F12)")
-    print(f"  2. Go to: {ACCOUNTS_URL}")
-    print("  3. Network tab -> find request -> Copy 'Cookie' header")
     print()
-    cookies = input("Paste cookies here: ").strip()
+    print("⏳ Waiting for authentication (timeout: 5 minutes)...")
+    print("   Press Ctrl+C to cancel and enter cookies manually")
+    print()
 
-    if cookies:
-        COOKIE_FILE.write_text(cookies)
-        server.shutdown()
-        return True
+    import time
+    timeout = 300  # 5 minutes
+    poll_interval = 0.5  # Check every 0.5 seconds
+    elapsed = 0
+
+    try:
+        while elapsed < timeout:
+            if CallbackHandler.cookies:
+                print("\n✓ Session captured!")
+                # Save cookies
+                COOKIE_FILE.write_text(CallbackHandler.cookies)
+                server.shutdown()
+                return True
+
+            time.sleep(poll_interval)
+            elapsed += poll_interval
+
+            # Print progress every 30 seconds
+            if int(elapsed) % 30 == 0 and elapsed > 0:
+                remaining = int(timeout - elapsed)
+                print(f"   Still waiting... ({remaining}s remaining)")
+
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Automatic capture cancelled")
+
+    # Timeout or cancelled - try manual cookie input
+    if not CallbackHandler.cookies:
+        print("\nNo cookies captured automatically.")
+        print("Please copy your session cookies from browser DevTools:")
+        print("  1. Open DevTools (F12)")
+        print(f"  2. Go to: {ACCOUNTS_URL}")
+        print("  3. Network tab -> find request -> Copy 'Cookie' header")
+        print()
+        cookies = input("Paste cookies here: ").strip()
+
+        if cookies:
+            COOKIE_FILE.write_text(cookies)
+            server.shutdown()
+            return True
 
     server.shutdown()
     return False
