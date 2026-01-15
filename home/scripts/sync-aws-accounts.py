@@ -183,13 +183,12 @@ def interactive_login():
     # Start callback server
     server = start_callback_server()
 
-    # Open browser
+    # Open browser to callback page (with instructions)
     callback_url = f"http://localhost:8765/callback"
-    webbrowser.open(LOGIN_URL)
+    webbrowser.open(callback_url)
 
     # Poll for cookies with timeout
-    print("After you've logged in successfully:")
-    print(f"  Visit: {callback_url}")
+    print("Instructions opened in browser.")
     print()
     print("⏳ Waiting for authentication (timeout: 5 minutes)...")
     print("   Press Ctrl+C to cancel and enter cookies manually")
