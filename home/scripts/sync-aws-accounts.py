@@ -321,7 +321,7 @@ def main():
             print("\n✓ Authentication successful!")
             print("  Now downloading accounts...")
             if download_accounts():
-                print("\n✓ All done! Run 'systemctl --user start aws-config-generate' to update config.")
+                print("\n✓ All done! Run 'home-manager switch --flake .#wtoorren@linuxdesktop --impure' to update config.")
         else:
             print("\n❌ Authentication failed")
             sys.exit(1)
