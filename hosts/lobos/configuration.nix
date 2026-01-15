@@ -360,7 +360,7 @@ services.fwupd.enable = true;
 #  };
 #};
 
-networking.wg-quick.interfaces.wg1 = {
+networking.wg-quick.interfaces.tn_arkana = {
     address = [
       "10.0.0.3/32"
     ];
@@ -373,29 +373,29 @@ networking.wg-quick.interfaces.wg1 = {
         publicKey = "CWdPTt8t7bRVzStETmU8J/QimhdwPTGVH0R0Fn/nPFg=";
       }
     ];
-    privateKey = "uCjR+MnrKMCJHo/EssxVWmkbVEae6J03bjQTVawt32E=";
+    privateKeyFile = config.age.secrets.wg-tn_arkana-private-key.path;
     autostart = false;
-    postUp = "iptables -A FORWARD -i wg0 -d 224.0.0.251/32 -j ACCEPT";
-    postDown = "iptables -A FORWARD -o wg0 -d 224.0.0.251/32 -j ACCEPT";
+    postUp = "iptables -A FORWARD -i tn_arkana -d 224.0.0.251/32 -j ACCEPT";
+    postDown = "iptables -A FORWARD -o tn_arkana -d 224.0.0.251/32 -j ACCEPT";
   };
 
 
 
-networking.wg-quick.interfaces.wg0 = {
+networking.wg-quick.interfaces.toorren = {
   address = [ "10.8.0.6/24" ];
   dns = [ "1.1.1.1" ];
-  
+
   peers = [
     {
-      publicKey = "MFE+s8GZbNLzbaQwMyb7AGSbdBg6rTPEYjpeaaJYiVY=";           # Vervang met echte public key
-      presharedKey = "NMlI9WrL0jgOqoOIhQBCb1V69NL/8OYr3JD0sl21onw=";    # Vervang met echte preshared key  
+      publicKey = "MFE+s8GZbNLzbaQwMyb7AGSbdBg6rTPEYjpeaaJYiVY=";
+      presharedKeyFile = config.age.secrets.wg-toorren-preshared-key.path;
       allowedIPs = [ "0.0.0.0/0" ];
       endpoint = "wg.toorren.net:51820";
       persistentKeepalive = 25;         # Cruciaal voor jouw Docker issue!
     }
   ];
-  
-  privateKey = "CBbi4VtOVLywNNhnQwKX4Ts4ui9UO/x+M4HJCzaMZmo=";             # Vervang met echte private key
+
+  privateKeyFile = config.age.secrets.wg-toorren-private-key.path;
   autostart = false;
 };
 
