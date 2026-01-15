@@ -8,7 +8,7 @@ programs.zsh = {
       #  eval "$(atuin init zsh --disable-up-arrow)"; 
       #  PATH=$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc
       #  '';     
-  initContent = pkgs.lib.mkBefore ''
+  initContent = ''
     # Force SSH agent to use rbw
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
 
@@ -16,6 +16,14 @@ programs.zsh = {
     export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
     mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
+
+    # Fix Home / End keys (alacritty-direct, tmux, atuin, oh-my-zsh safe)
+    for km in emacs viins vicmd; do
+      bindkey -M $km '\e[H' beginning-of-line
+      bindkey -M $km '\e[F' end-of-line
+      bindkey -M $km '\e[1~' beginning-of-line
+      bindkey -M $km '\e[4~' end-of-line
+    done
   '';
 
         shellAliases = {
@@ -50,17 +58,8 @@ programs.zsh = {
         ];
         #customPkgs = with pkgs; [                                                                                                                      
         #  nix-zsh-completions                                                                                                                          
-        #];  
+        #];
       };
-      initExtra = ''
-        # Fix Home / End keys (alacritty-direct, tmux, atuin, oh-my-zsh safe)
-        for km in emacs viins vicmd; do
-        bindkey -M $km '\e[H' beginning-of-line
-        bindkey -M $km '\e[F' end-of-line
-        bindkey -M $km '\e[1~' beginning-of-line
-        bindkey -M $km '\e[4~' end-of-line
-        done
-      '';
   };
 
 }

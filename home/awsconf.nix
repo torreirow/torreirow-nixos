@@ -1,12 +1,62 @@
 { lib, pkgs,config, unstable, ... }:
 
 let
-  ## JSON wordt ingelezen via symlink tijdens build met --impure flag
+  ## JSON wordt ingelezen vanaf home directory tijdens build met --impure flag
   ## Fallback naar empty list als file niet bestaat
+  json_path = /. + "${config.home.homeDirectory}/.aws/managed_service_accounts.json";
+
+  ## Helper om AWS accounts in te lezen met waarschuwingen
   aws_accounts =
-    if builtins.pathExists ./managed_service_accounts.json
-    then builtins.fromJSON (builtins.readFile ./managed_service_accounts.json)
-    else [];
+    let
+      accounts_data =
+        if builtins.pathExists json_path
+        then builtins.fromJSON (builtins.readFile json_path)
+        else [];
+
+      account_count = builtins.length accounts_data;
+    in
+      # Waarschuwing als bestand niet bestaat (waarschijnlijk geen --impure flag)
+      if !builtins.pathExists json_path
+      then builtins.warn ''
+
+        ⚠️  AWS CONFIG WARNING ⚠️
+        JSON file not found: ${json_path}
+
+        This likely means you're running without --impure flag.
+        AWS profiles cannot be generated without reading this file.
+
+        → Run: home-manager switch --flake .#wtoorren@linuxdesktop --impure
+
+        Only static profiles will be available.
+        ''
+        []
+      # Waarschuwing als bestand leeg is
+      else if account_count == 0
+      then builtins.warn ''
+
+        ⚠️  AWS CONFIG WARNING ⚠️
+        JSON file is empty: ${json_path}
+
+        → Run: systemctl --user start aws-accounts-sync.service
+
+        Only static profiles will be available.
+        ''
+        []
+      # Waarschuwing als er verdacht weinig accounts zijn
+      else if account_count < 50
+      then builtins.warn ''
+
+        ⚠️  AWS CONFIG WARNING ⚠️
+        Only ${toString account_count} accounts found in JSON (expected 100+)
+        The JSON file might be outdated.
+
+        → Consider running: systemctl --user start aws-accounts-sync.service
+
+        Generating ${toString account_count} dynamic profiles...
+        ''
+        accounts_data
+      # Alles is goed, geen waarschuwing
+      else accounts_data;
 
 groups = {
   mustad_hoofcare.color = "e5a50a";
