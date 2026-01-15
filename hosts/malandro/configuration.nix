@@ -34,6 +34,7 @@ in
  ../../modules/claude.nix
  ../../modules/pihole.nix
  ../../modules/magister/magister-service.nix
+ ../../modules/postfix.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix

@@ -40,6 +40,7 @@ let
   '';
 
 in {
+
   options.services.magister-sync = {
     enable = mkEnableOption "Magister agenda synchronisatie service";
 
@@ -109,7 +110,7 @@ in {
       isSystemUser = true;
       group = cfg.group;
       home = cfg.workingDirectory;
-      createHome = true;
+      createHome = false;  # tmpfiles.rules maakt de directory aan met juiste permissies
       description = "Magister sync service user";
       extraGroups = [ "wheel" ];
     };
@@ -120,12 +121,18 @@ in {
     # Group is nginx zodat nginx de bestanden kan lezen
     systemd.tmpfiles.rules = [
       "d ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
-      "z ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
+      "Z ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
       "L+ ${cfg.workingDirectory}/magister_server.py - - - - ${magisterServerScript}"
       "z ${cfg.workingDirectory}/*.ics 0664 ${cfg.user} nginx -"
       # Log directory voor magister
       "d /var/log/magister 0755 ${cfg.user} ${cfg.group} -"
     ];
+
+    # Forceer tmpfiles rules bij elke rebuild om permissions te fixen
+    system.activationScripts.magister-permissions = lib.stringAfter [ "users" "groups" ] ''
+      ${pkgs.systemd}/bin/systemd-tmpfiles --create --prefix=${cfg.workingDirectory}
+      ${pkgs.systemd}/bin/systemd-tmpfiles --create --prefix=/var/log/magister
+    '';
 
     # Systemd service
     systemd.services.magister-sync = {
