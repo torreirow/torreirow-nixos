@@ -29,12 +29,13 @@ class CallbackHandler(BaseHTTPRequestHandler):
         """Handle GET request and show instructions page."""
         # Send instructions page
         self.send_response(200)
-        self.send_header('Content-type', 'text/html')
+        self.send_header('Content-type', 'text/html; charset=utf-8')
         self.end_headers()
 
         html = """
         <html>
         <head>
+            <meta charset="UTF-8">
             <title>AWS Account Sync - Cookie Capture</title>
             <style>
                 body {
