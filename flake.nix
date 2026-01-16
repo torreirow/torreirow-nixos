@@ -18,6 +18,7 @@
     race.url = "github:wearetechnative/race";
     jsonify-aws-dotfiles.url = "github:wearetechnative/jsonify-aws-dotfiles";
     dirtygit.url = "github:mipmip/dirtygit";
+    openspec.url = "github:mipmip/OpenSpec";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -31,7 +32,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec}: 
   let 
     system = "x86_64-linux";
     extraPkgs= {
@@ -40,6 +41,7 @@
         dirtygit.packages."${system}".dirtygit
         race.packages."${system}".race 
         jsonify-aws-dotfiles.packages."${system}".jsonify-aws-dotfiles
+        openspec.packages."${system}".default
       ];
     };
 
