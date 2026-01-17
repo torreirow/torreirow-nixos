@@ -1,0 +1,9 @@
+[
+  {
+    "host": "alkana",
+    "hostname": "192.168.0.222",
+    "user": "wtoorren",
+    "identity_file": "toorren-lobos-ed25519",
+    "port": 22
+  }
+]
