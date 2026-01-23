@@ -16,8 +16,11 @@
 
     extraConfig = ''
       ##### Basis #####
-      set -g prefix C-a
-      unbind C-b
+      # Gebruik C-b voor remote sessies (SSH), C-a voor lokaal
+      if-shell '[ -n "$SSH_CONNECTION" ]' \
+        'set -g prefix C-b; unbind C-a' \
+        'set -g prefix C-a; unbind C-b'
+
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"
       set -g mouse on

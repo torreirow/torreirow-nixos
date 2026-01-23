@@ -5,7 +5,14 @@
 
   
   environment.systemPackages = with pkgs; [
+    gst_all_1.gstreamer
+    gst_all_1.gst-plugins-base
+    gst_all_1.gst-plugins-good
+    gst_all_1.gst-plugins-bad
+    gst_all_1.gst-plugins-ugly
+    gst_all_1.gst-libav
     R
+    gnome-network-displays
     rPackages.knitr
     rPackages.rmarkdown
     rPackages.ggplot2
@@ -238,6 +245,14 @@ programs.nix-ld = {
 #  open-sans
 #  google-fonts
 #];
+
+ programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 7d --keep 5";
+    flake = "/home/wtoorren/data/git/torreirow/torreirow-nixos"; # sets NH_OS_FLAKE variable for you
+  };
+
 
 
 
