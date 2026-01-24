@@ -445,4 +445,9 @@ xdg.portal = {
   ];
 };
 
+#Chrome crash fix
+environment.variables = {
+  CHROME_FLAGS = "--disable-gpu --disable-software-rasterizer";
+};
+
 }
