@@ -1,38 +1,48 @@
-# printers.nix
 { config, pkgs, ... }:
 
 {
-  # Brother drivers toevoegen aan printing service
-  services.printing.drivers = with pkgs; [
-    brlaser           # Open source Brother laser driver
-    cups-filters      # Nodig voor PDF conversie
-    ghostscript       # PDF naar PostScript conversie
-  ];
+  services.printing = {
+    enable = true;
+    browsing = false;
+  };
 
-  # Browsing uitschakelen voor snelheid
-  # (voorkomt dat CUPS automatisch naar printers zoekt bij elke print)
-  services.printing.browsing = false;
-
-  # Hardware printer configuratie
   hardware.printers = {
     ensurePrinters = [
-      # Thuisprinter met vast IP (snel en betrouwbaar)
+
       {
         name = "Brother-Thuis";
         location = "Thuis";
-        description = "Brother DCP-L3550CDW (Thuis)";
-        deviceUri = "socket://192.168.2.199:9100";
-        model = "drv:///brlaser.drv/br3550cdw.ppd";
+        description = "Brother DCP-L3550CDW";
+
+        # IPP Everywhere — VAST IP
+        deviceUri = "ipp://192.168.2.199/ipp/print";
+
+        model = "everywhere";
+
         ppdOptions = {
           PageSize = "A4";
           Duplex = "DuplexNoTumble";
           ColorModel = "Gray";
         };
       }
-      
+
+      {
+        name = "Brother-Kantoor";
+        location = "Kantoortje";
+        description = "Brother L8410CDW";
+
+        deviceUri = "ipp://BRW30C9AB2865A2.local/ipp/print";
+        model = "everywhere";
+
+        ppdOptions = {
+          PageSize = "A4";
+          Duplex = "DuplexNoTumble";
+          ColorModel = "Gray";
+        };
+      }
     ];
-    
-    # Standaard printer (thuisprinter als default)
+
     ensureDefaultPrinter = "Brother-Thuis";
   };
 }
+
