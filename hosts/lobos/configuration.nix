@@ -92,10 +92,10 @@ in
     fsType = "proc";
     options = [ "defaults" "hidepid=2" ];
   };
-  security.pam.loginLimits = [
-    { domain = "*"; item = "PASS_MAX_DAYS"; value = 90; }
-    { domain = "*"; item = "PASS_MIN_DAYS"; value = 7; }
-  ];
+#  security.pam.loginLimits = [
+#    { domain = "*"; item = "PASS_MAX_DAYS"; value = 90; }
+#    { domain = "*"; item = "PASS_MIN_DAYS"; value = 7; }
+#  ];
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
