@@ -13,6 +13,7 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
+    ../../modules/printer-thuis.nix
 #   ./gnome.nix
 ./lobos-secrets.nix
 ../../modules/claude.nix
