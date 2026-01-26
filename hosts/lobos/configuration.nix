@@ -13,7 +13,7 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
-    ../../modules/printer-thuis.nix
+#    ../../modules/printer-thuis.nix
 #   ./gnome.nix
 ./lobos-secrets.nix
 ../../modules/claude.nix
@@ -448,6 +448,8 @@ xdg.portal = {
 #Chrome crash fix
 environment.variables = {
   CHROME_FLAGS = "--disable-gpu --disable-software-rasterizer";
+  # Electron apps (Bitwarden, VSCode, etc.) Wayland fix for GNOME 49+
+  ELECTRON_OZONE_PLATFORM_HINT = "wayland";
 };
 
 }
