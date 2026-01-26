@@ -1,0 +1,259 @@
+{config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
+
+{
+  
+  environment.systemPackages = with pkgs; [
+    gst_all_1.gstreamer
+    gst_all_1.gst-plugins-base
+    gst_all_1.gst-plugins-good
+    gst_all_1.gst-plugins-bad
+    gst_all_1.gst-plugins-ugly
+    gst_all_1.gst-libav
+    R
+    gnome-network-displays
+    rPackages.knitr
+    rPackages.rmarkdown
+    rPackages.ggplot2
+    rPackages.dplyr
+    rPackages.patchwork
+    claude-code
+    onlyoffice-desktopeditors
+    firefox
+    appimage-run
+    lsb-release
+    osv-scanner
+    claude-code
+    desktop-file-utils
+    neofetch
+    dstp
+    orca-slicer
+    android-tools   # voor adb
+    perl
+    simple-mtpfs    # om telefoon te mounten
+    wineWowPackages.full winetricks
+    #bluez
+    #cooklang
+    #flameshot
+    openai
+    unstable.lynis
+    fastfetch
+    go-mtpfs
+    direnv
+    agenix
+    alacritty
+    ncurses
+    amazon-ecs-cli
+    appimage-run
+    atomix # puzzle game
+    attic-client
+    autorandr
+    avahi
+    aws-nuke
+    awscli2
+    bitwarden-desktop
+    caligula
+    catppuccin
+    clementine
+    certbot
+    cheese # webcam tool
+    copilot-cli
+    coreutils
+    cowsay
+    csvkit
+    curl
+    dig
+    digikam
+    displaylink
+    entr
+    epiphany # web browser
+    exiftool
+    ffmpeg-full
+    file
+    fwupd
+    fwupd-efi
+    gcc
+    geary # email reader
+    gh
+    gimp
+    git
+    git-remote-codecommit
+    git-sync
+    glibcLocales
+    gnome-initial-setup
+    gnome-music
+    gnupg
+    go
+    simple-mtpfs
+    mtpfs
+    libmtp
+    granted
+    gum
+    hitori # sudoku game
+    home-assistant-component-tests.buienradar
+    home-manager
+    hugo
+    iagno # go game
+    inetutils
+    kdePackages.kcalc
+    kdePackages.powerdevil
+    kitty
+    lego
+    lf
+    libreoffice
+    librewolf
+    librewolf-unwrapped
+    librsvg
+    lua
+    mosh
+    mplayer
+    mpv
+    neovim
+    nerdfetch
+    nmap
+    openai-whisper
+    openssl
+    p3x-onenote
+    pandoc
+    pavucontrol
+    #pinentry-gtk2
+    pinentry-tty
+    postgresql
+    pre-commit
+    prowler
+    qemu
+    qogir-theme
+    quarto
+    redis
+    remmina
+    ripgrep
+    ripgrep
+    ruby
+    scrot
+    seahorse
+    signal-desktop
+    silver-searcher
+    slack
+    smplayer
+    smug
+    soco-cli
+    spotdl
+    spotify
+    sqlite
+    sqsh
+    ssm-session-manager-plugin
+    ssmsh
+    pkgs-2411.subtitleedit
+    super-productivity
+    tali # poker game
+    teams-for-linux
+    telegram-desktop
+    terraform
+    terraform-docs
+    tfswitch
+    thunderbird-140
+    tmuxPlugins.catppuccin
+    translate-shell
+#    unstable.aider-chat-full
+    aider-chat-full
+    vista-fonts
+    vlc
+    vscode
+    wget
+    wasistlos
+    zapzap
+    xclip
+    xorg.xbacklight
+    yelp # Help view
+    yj
+    yq
+    yt-dlp
+    zip
+    zoom-us
+   # jellyfin-ffmpeg
+#    gnome.gnome-tweaks
+(texlive.combine {
+  inherit (texlive) scheme-full datetime fmtcount textpos makecell lipsum footmisc background ; 
+})
+    #texliveFull
+    #texlivePackages.datetime
+    #texlivePackages.svg
+    #texlivePackages.fmtcount
+#    pkgs-luca.quiqr
+xdg-desktop-portal
+  ] ;
+
+programs.nix-ld = {
+    enable = true;
+
+    libraries = with pkgs; [
+      # C/C++ runtime
+      stdenv.cc.cc
+
+      # Core GLib/GObject/GIO
+      glib
+      dbus
+
+      # GTK stack
+      gtk3
+      atk
+      at-spi2-core
+      at-spi2-atk
+      gdk-pixbuf
+      pango
+      cairo
+
+      # Audio
+      alsa-lib
+
+      # Printing (needed by Electron)
+      cups
+
+      # Crypto/Networking
+      nss
+      nspr
+      nssTools
+
+      # Fonts
+      fontconfig
+      freetype
+      expat
+
+      # Graphics & GPU
+      mesa
+      libdrm
+      libglvnd
+      libgbm
+
+    ] ++ (with pkgs.xorg; [
+      libX11
+      libXcomposite
+      libXdamage
+      libXext
+      libXfixes
+      libXrandr
+      libXcursor
+      libXi
+      libXrender
+      libxcb
+      libxkbcommon
+    ]);
+ };
+
+#fonts.packages = with pkgs; [
+#  open-sans
+#  google-fonts
+#];
+
+ programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 7d --keep 5";
+    flake = "/home/wtoorren/data/git/torreirow/torreirow-nixos"; # sets NH_OS_FLAKE variable for you
+  };
+
+
+  
+
+
+
+}
