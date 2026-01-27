@@ -34,6 +34,7 @@ in
  ../../modules/claude.nix
  ../../modules/pihole.nix
  ../../modules/magister/magister-service.nix
+ ../../modules/ittools.nix
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
@@ -269,7 +270,12 @@ environment.variables.EDITOR = "vim";
 
   programs.zsh.enable = true;
 
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+        daemon.settings = {
+      data-root = "/data/external/dockerlibs";
+    };
+  };
 
   programs.gnupg.agent.pinentryPackage = {
    enable = true;
