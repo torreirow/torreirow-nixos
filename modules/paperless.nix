@@ -40,5 +40,5 @@
     };
   };
 
-  networking.firewall.interfaces.docker0.allowedTCPPorts = [ 5432 ];
+#  networking.firewall.interfaces.docker0.allowedTCPPorts = [ 5432 ];
 }
