@@ -102,8 +102,8 @@
     lego
     lf
     libreoffice
-    librewolf
-    librewolf-unwrapped
+    #librewolf
+    #librewolf-unwrapped
     librsvg
     lua
     mosh
