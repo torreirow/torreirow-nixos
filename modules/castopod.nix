@@ -66,7 +66,7 @@ in
   };
 
   #### Network & Firewall ###########################################
-  networking.firewall.allowedTCPPorts = [ 8000 ];
+#  networking.firewall.allowedTCPPorts = [ 8000 ];
 
   #### Nginx Reverse Proxy ##########################################
   services.nginx = {
