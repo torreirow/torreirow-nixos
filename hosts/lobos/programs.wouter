@@ -53,7 +53,12 @@
     bitwarden-desktop
     caligula
     catppuccin
-    clementine
+ (pkgs.clementine.overrideAttrs (old: {
+      postFixup = (old.postFixup or "") + ''
+        wrapProgram $out/bin/clementine \
+          --set QT_QPA_PLATFORM wayland
+      '';
+    }))
     certbot
     cheese # webcam tool
     copilot-cli

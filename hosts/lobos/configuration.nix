@@ -14,7 +14,7 @@ in
     ./fonts.nix
     ./python.nix
 #    ../../modules/printer-thuis.nix
-#   ./gnome.nix
+    ./gnome.nix
 ./lobos-secrets.nix
 ../../modules/claude.nix
 #   ../../modules/monitoring
@@ -119,6 +119,10 @@ in
       LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
       SAL_USE_VCLPLUGIN = "gtk3";
       FONTCONFIG_PATH = "/etc/fonts";
+      # Enable Wayland voor GTK3/4 apps (als fallback naar X11 bij problemen)
+      # GDK_BACKEND = "wayland,x11";  # Uitgecommentarieerd: veroorzaakt problemen met wxWidgets apps
+      # Electron apps kunnen Wayland hints krijgen
+      # ELECTRON_OZONE_PLATFORM_HINT = "wayland";  # Uitgecommentarieerd: test eerst zonder
     };
   };
 
@@ -166,6 +170,7 @@ environment.variables.EDITOR = "vim";
   services.xserver.enable = true;
   services.displayManager.sddm.enable = false;
   services.displayManager.gdm.enable = true;
+  services.displayManager.gdm.wayland = false;  # Gebruik X11 voor wxWidgets compatibiliteit (bambu-studio)
   services.desktopManager.gnome.enable = true;
 
   ## NEW CONFIG
@@ -439,17 +444,13 @@ services.nfs.settings = {
 
 xdg.portal = {
   enable = true;
-  wlr.enable = true; # Als je Wayland gebruikt
+  # wlr.enable is voor wlroots compositors (Sway, etc), niet voor GNOME
+  # GNOME gebruikt zijn eigen portal (xdg-desktop-portal-gnome)
   extraPortals = with pkgs; [
     xdg-desktop-portal-gtk
+    xdg-desktop-portal-gnome
   ];
-};
-
-#Chrome crash fix
-environment.variables = {
-  CHROME_FLAGS = "--disable-gpu --disable-software-rasterizer";
-  # Electron apps (Bitwarden, VSCode, etc.) Wayland fix for GNOME 49+
-  ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+  config.common.default = "gtk";
 };
 
 }

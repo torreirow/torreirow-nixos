@@ -13,7 +13,7 @@
     gnomeExtensions.gsconnect
     gnomeExtensions.night-light-slider-updated
     gnomeExtensions.power-profile-switcher
-    gnome.gpaste
+    gpaste  # Verplaatst van gnome.gpaste naar top-level
     gnomeExtensions.unite
 
     # 🔧 Toegevoegde extensies voor DevOps-setup
@@ -23,28 +23,11 @@
     gnomeExtensions.clipboard-indicator
   ];
 
-  # 📌 Extensies automatisch inschakelen
-  gnome = {
-    enable = true;
-    extraGSettingsOverrides = ''
-      [org/gnome/shell]
-      enabled-extensions=[
-        'dash-to-panel@jderose9.github.com',
-        'clipboard-indicator@tudmotu.com',
-        'Vitals@CoreCoding.com',
-        'argos@pew.worldwidemann.com',
-        'appindicatorsupport@rgcjonas.gmail.com',
-        'astra-monitor@elhan.io',
-        'caffeine@patapon.info',
-        'dock-from-dash@hiddenirony.net',
-        'date-menu-formatter@marcinjakubowski.github.com',
-        'gsconnect@andyholmes.github.io',
-        'night-light-slider-updated@reelgiant.com',
-        'power-profile-switcher@luisfpaz',
-        'gpaste@gnome-shell-extensions.gnome.org',
-        'unite@hardpixel.eu'
-      ]
-    '';
-  };
+  # 📌 Extensies automatisch inschakelen via dconf
+  programs.dconf.enable = true;
+
+  # Je kunt extensies ook handmatig enablen via dconf settings:
+  # Gebruik: dconf write /org/gnome/shell/enabled-extensions "['dash-to-panel@jderose9.github.com', ...]"
+  # Of gebruik GNOME Extensions app om ze in te schakelen
 }
 

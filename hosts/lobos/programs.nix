@@ -164,6 +164,7 @@
     wasistlos
     zapzap
     xclip
+    xsel
     xorg.xbacklight
     yelp # Help view
     yj
