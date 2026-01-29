@@ -14,11 +14,6 @@
           "8085:80"
         ];
         
-        # Restart policy
-        extraOptions = [
-          "--restart=unless-stopped"
-        ];
-        
         # Optional: Add labels for better organization
         labels = {
           "app" = "it-tools";
