@@ -19,6 +19,7 @@ in
  ../../modules/hassio
  ./malandro-secrets.nix
  ../../modules/nginx.nix
+ ../../modules/mqtt.nix
  ../../modules/kpn-modem.nix
  ../../modules/vaultwarden.nix
  ../../modules/baikal.nix
