@@ -111,7 +111,7 @@
     pandoc
     pavucontrol
     #pinentry-gtk2
-    pinentry-curses
+    pinentry-tty
     postgresql
     pre-commit
     prowler
