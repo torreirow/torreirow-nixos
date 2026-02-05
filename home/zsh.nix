@@ -1,8 +1,10 @@
 {config,pkgs, ...}: {
   programs.zsh = {
     enable = true;
-    completionInit = ''
+    initExtra = ''
       fpath=("$HOME/.zsh/completions" $fpath)
+      autoload -Uz compinit
+      compinit
     '';
     autosuggestion.enable = true;
 #     zsh.autosuggestion.enable = true;
