@@ -36,6 +36,10 @@ in
  ../../modules/pihole.nix
  ../../modules/magister/magister-service.nix
  ../../modules/ittools.nix
+ ../../modules/nginx-cv-jolijn.nix
+ ../../modules/onlyoffice.nix
+ ../../modules/chhoto-urlshortner.nix
+
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
