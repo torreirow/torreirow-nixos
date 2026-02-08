@@ -261,7 +261,7 @@ environment.variables.EDITOR = "vim";
 
   programs.gnupg.agent = {
   enable = true;
-  pinentryPackage = pkgs.pinentry-curses;
+  pinentryPackage = pkgs.pinentry-tty;
 };
 
   programs.openvpn3 = {
