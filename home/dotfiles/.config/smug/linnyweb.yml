@@ -1,0 +1,12 @@
+session: LinnyWeb
+root: /home/wtoorren/data/git/torreirow/torrlinny/
+
+windows:
+  - name: hugo-server
+    commands:
+      - ./start-web.sh
+  
+  - name: browser
+    commands:
+      - sleep 2
+      - firefox http://localhost:9999
