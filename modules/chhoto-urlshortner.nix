@@ -18,35 +18,39 @@
     mode = "0400";
   };
 
-  # PostgreSQL database configuratie
-  services.postgresql = {
-    enable = true;
-    ensureDatabases = [ "chhoto_url" ];
-    ensureUsers = [
-      {
-        name = "chhoto_url";
-        ensureDBOwnership = true;
-      }
-    ];
+  age.secrets.chhoto-url-adminpwd = {
+    file = ../secrets/chhoto-url-adminpwd.age;
+    path = "/run/agenix/chhoto-url-adminpwd";
+    owner = "chhoto-url";
+    group = "chhoto-url";
+    mode = "0400";
   };
 
+   age.secrets.chhoto-url-env = {
+    file = ../secrets/chhoto-url-env.age;
+    path = "/run/agenix/chhoto-url-env";
+    owner = "chhoto-url";
+    group = "chhoto-url";
+    mode = "0400";
+ };
+
   # Chhoto-url service configuratie
-  services.chhoto-url = {
+services.chhoto-url = {
     enable = true;
-    
-    port = 4567;
-    
-    siteUrl = "https://url.toorren.net";
-    
-    # PostgreSQL database connection string via age file
-    databaseFile = config.age.secrets.chhoto-url-database.path;
-    
-    # API key voor authenticatie
-    apiKeyFile = config.age.secrets.chhoto-url-api-key.path;
-    
-    # Slug configuratie
-    slugStyle = "petname";
-    slugLength = 8;
+
+    # Niet publiek
+    settings = {
+      public_mode = false;
+      port = 4567;
+      site_url = "https://url.toorren.net";
+      slug_length = 8;
+      try_longer_slugs = true;
+    };
+
+    # Admin password via age secret
+    environmentFiles = [
+      config.age.secrets.chhoto-url-env.path
+    ];
   };
 
   # Nginx reverse proxy
