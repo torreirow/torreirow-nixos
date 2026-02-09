@@ -37,6 +37,10 @@ in
   "route53.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "chhoto-url-database.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "chhoto-url-api-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "chhoto-url-adminpwd.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "chhoto-url-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "gitea-admin.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 
   "authelia-jwt-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];  
   "authelia-session-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
