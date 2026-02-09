@@ -37,8 +37,9 @@ in
  ../../modules/magister/magister-service.nix
  ../../modules/ittools.nix
  ../../modules/nginx-cv-jolijn.nix
- ../../modules/onlyoffice.nix
+ #../../modules/onlyoffice.nix
  ../../modules/chhoto-urlshortner.nix
+ ../../modules/gitea.nix
 
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
