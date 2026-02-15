@@ -40,6 +40,7 @@ in
  #../../modules/onlyoffice.nix
  ../../modules/chhoto-urlshortner.nix
  ../../modules/gitea.nix
+ ../../modules/memos.nix
 
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
