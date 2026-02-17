@@ -1,10 +1,38 @@
-{ config, pkgs, lib, agenix, ... }:
+{ config, pkgs, ... }:
+
 {
-  services.nginx.virtualHosts."docs.toorren.net" = {
+  # Enable OCI container support (compatible with Docker)
+  virtualisation.oci-containers = {
+    backend = "docker"; # or "podman" if you prefer
+    
+    containers = {
+      it-tools = {
+        image = "corentinth/it-tools:latest";
+        
+        # Port mapping: host:container
+        ports = [
+          "8085:80"
+        ];
+        
+        # Optional: Add labels for better organization
+        labels = {
+          "app" = "it-tools";
+          "description" = "IT-Tools - Handy tools for developers";
+        };
+        
+         environment = {
+           TZ = "Europe/Amsterdam";
+         };
+        
+      };
+    };
+  };
+
+  services.nginx.virtualHosts."ittools.toorren.net" = {
     forceSSL = true;
     useACMEHost = "toorren.net";
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8181";
+      proxyPass = "http://127.0.0.1:8085";
       proxyWebsockets = false;
       extraConfig = ''
         auth_request /authelia;
@@ -40,5 +68,5 @@
     };
   };
 
-#  networking.firewall.interfaces.docker0.allowedTCPPorts = [ 5432 ];
+  
 }
