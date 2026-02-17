@@ -16,8 +16,14 @@
 
     extraConfig = ''
       ##### Basis #####
-      set -g prefix C-a
-      unbind C-b
+      # Update SSH variabelen in tmux environment
+      set-option -g update-environment "SSH_CLIENT SSH_TTY SSH_CONNECTION"
+
+      # Gebruik C-b voor SSH sessies, C-a voor lokaal
+      if-shell 'test -n "$SSH_CLIENT" || test -n "$SSH_TTY" || test -n "$SSH_CONNECTION"' \
+        'set -g prefix C-b; unbind C-a; bind C-b send-prefix' \
+        'set -g prefix C-a; unbind C-b; bind C-a send-prefix'
+
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"
       set -g mouse on

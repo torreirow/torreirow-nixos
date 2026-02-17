@@ -11,8 +11,6 @@
     nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nix-darwin.url = "github:LnL7/nix-darwin";
-    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     bmc.url = "github:wearetechnative/bmc";
     #bmc.url = "github:wearetechnative/bmc?rev=3cfa158a5a622df59686537c68b256ecb4bff74c";
     race.url = "github:wearetechnative/race";
@@ -32,10 +30,10 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, bmc, homeage, dirtygit, race, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec}: 
   let 
     system = "x86_64-linux";
-    extraPkgs= {
+    extraPkgs= { pkgs, ...}: {
       environment.systemPackages = [ 
         bmc.packages."${system}".bmc 
         dirtygit.packages."${system}".dirtygit
@@ -51,48 +49,7 @@
 
   in
   {
-  inherit unstable;
-
-
-### MEALHADA HOMEMANAGER START
-  #defaultPackage.aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;   ## bootstrap for homemanager
-  homeConfigurations."wtoorren@macbook" = home-manager.lib.homeManagerConfiguration(
-
-    let
-      system = "aarch64-darwin";
-      pkgs = nixpkgs.legacyPackages.${system};
-      mac-defaults = {pkgs,config,...}: {
-        home = { ##MAC
-        homeDirectory = "/Users/wtoorren";
-      };
-    };
-
-    in {
-
-    # Specify your home configuration modules here, for example,
-    # the path to your home.nix.
-    modules = [
-         #./home/default.nix
-         ./home/linux-desktop.nix
-         mac-defaults
-       ];
-
-        # Optionally use extraSpecialArgs
-        # to pass through arguments to home.nix
-      });
-### MEALHADA HOMEMANAGER START
-
-  ## MEALHADA config START
-  darwinConfigurations."mealhada" = nix-darwin.lib.darwinSystem {
-    specialArgs = { inherit inputs; } ;
-    modules = [
-      ./hosts/mealhada/configuration.nix
-      ./modules/tnaws.nix
-    ];
-  };
-  inputs.
-  darwinPackages = self.darwinConfigurations."mealhada".pkgs;
-# ## MEALHADA config END
+  ## wtremove inherit unstable;
 
 
   ## LOBOS config START
@@ -107,7 +64,7 @@
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2411 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2411 = import nixpkgs-2411 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
 
@@ -282,7 +239,7 @@
         # to pass through arguments to home.nix
 
       });
-      home.username="wtoorren";
+      ##wtremove home.username="wtoorren";
   ### LINUX HOMEMANAGER END WTOORREN
 
   #### LINUX SERVER HOMEMANAGER START
