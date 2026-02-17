@@ -59,7 +59,7 @@
     p3x-onenote
     pandoc
     pavucontrol
-    pinentry-gtk2
+    pinentry-tty
     postgresql
     pre-commit
     prowler
