@@ -284,10 +284,12 @@ environment.variables.EDITOR = "vim";
     };
   };
 
-  programs.gnupg.agent.pinentryPackage = {
-   enable = true;
-   pinentryFlavor = "gtk2";
- };
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-tty;
+  };
+
+
   programs.openvpn3 = {
     enable = true;
   };
