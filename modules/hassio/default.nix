@@ -18,6 +18,11 @@
       extraOptions = [
         "--network=host"
         "--volume=/run/dbus:/run/dbus:ro"
+        # Bluetooth permissions for full hardware access
+        "--cap-add=NET_ADMIN"
+        "--cap-add=NET_RAW"
+        # DSMR P1 Smart Meter (FTDI USB serial)
+        "--device=/dev/ttyUSB0:/dev/ttyUSB0"
       ];
     };
 
