@@ -2,7 +2,10 @@
 
 {
 
-
+programs.ssh = {
+  enableAskPassword = false;
+  askPassword = null;
+};
   
   environment.systemPackages = with pkgs; [
     R
