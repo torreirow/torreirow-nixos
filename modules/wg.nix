@@ -14,6 +14,16 @@
 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
+  # Laad benodigde kernel modules voor iptables/WireGuard
+  boot.kernelModules = [
+    "wireguard"
+    "iptable_nat"
+    "iptable_filter"
+    "ip_tables"
+    "nf_nat"
+    "nf_conntrack"
+  ];
+
   # NAT voor Docker bridge
   networking.nat = {
     enable = true;

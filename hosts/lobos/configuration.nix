@@ -13,6 +13,7 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
+#    ../../modules/printer-thuis.nix
 #   ./gnome.nix
 ./lobos-secrets.nix
 ../../modules/claude.nix
@@ -78,12 +79,24 @@ in
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+   networking.firewall.enable = true;
 
   ## Spotify discovery devices
   networking.firewall.allowedUDPPorts = [ 111 2049 5353 ]; # Spotify Connect
   networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
+
+  ## Security
+  security.auditd.enable = true;
+  security.apparmor.enable = true;
+  fileSystems."/proc" = {
+    device = "proc";
+    fsType = "proc";
+    options = [ "defaults" "hidepid=2" ];
+  };
+#  security.pam.loginLimits = [
+#    { domain = "*"; item = "PASS_MAX_DAYS"; value = 90; }
+#    { domain = "*"; item = "PASS_MIN_DAYS"; value = 7; }
+#  ];
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
@@ -158,7 +171,7 @@ environment.variables.EDITOR = "vim";
 
   ## NEW CONFIG
   services.displayManager.defaultSession = "gnome";
-
+  services.gnome.gnome-settings-daemon.enable = true;
 
 
 ## exclude packages
@@ -440,6 +453,19 @@ services.nfs.settings = {
 
 
 
+xdg.portal = {
+  enable = true;
+  wlr.enable = true; # Als je Wayland gebruikt
+  extraPortals = with pkgs; [
+    xdg-desktop-portal-gtk
+  ];
+};
 
+#Chrome crash fix
+environment.variables = {
+  CHROME_FLAGS = "--disable-gpu --disable-software-rasterizer";
+  # Electron apps (Bitwarden, VSCode, etc.) Wayland fix for GNOME 49+
+  ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+};
 
 }
