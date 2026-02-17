@@ -2,5 +2,6 @@
   "base_url": "https://vaultwarden.tools.technative.cloud",
   "email": "wouter@technative.eu",
   "identity_url": null,
-  "lock_timeout": 600
+  "lock_timeout": 600,
+  "pinentry": "pinentry-tty"
 }
