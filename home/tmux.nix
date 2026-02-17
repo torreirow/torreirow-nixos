@@ -43,9 +43,13 @@
       set -ga terminal-overrides ',xterm-256color:Ms=\E]52;c;%p1%s\007'
       set -as terminal-features ',xterm-256color:clipboard'
 
+      set-window-option -g window-active-style bg=black
+      set-window-option -g window-style bg='#141414'
+
       ##### Statusbar #####
       set -g status-left "#S "
       set -g status-right "#[fg=#a89984]%Y-%m-%d  %H:%M #[fg=#bdae93] #h #[fg=#a89984] ⌨ #{prefix}"
+
     '';
   };
 }
