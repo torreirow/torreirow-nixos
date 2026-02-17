@@ -19,6 +19,7 @@ in
  ../../modules/hassio
  ./malandro-secrets.nix
  ../../modules/nginx.nix
+ ../../modules/mqtt.nix
  ../../modules/kpn-modem.nix
  ../../modules/vaultwarden.nix
  ../../modules/baikal.nix
@@ -34,6 +35,13 @@ in
  ../../modules/claude.nix
  ../../modules/pihole.nix
  ../../modules/magister/magister-service.nix
+ ../../modules/ittools.nix
+ ../../modules/nginx-cv-jolijn.nix
+ #../../modules/onlyoffice.nix
+ ../../modules/chhoto-urlshortner.nix
+ ../../modules/gitea.nix
+ ../../modules/memos.nix
+
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
    # ../../modules/teamviewer.nix
@@ -269,7 +277,12 @@ environment.variables.EDITOR = "vim";
 
   programs.zsh.enable = true;
 
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+        daemon.settings = {
+      data-root = "/data/external/dockerlibs";
+    };
+  };
 
   programs.gnupg.agent.pinentryPackage = {
    enable = true;

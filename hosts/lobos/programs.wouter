@@ -1,11 +1,6 @@
 {config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
 
 {
-
-programs.ssh = {
-  enableAskPassword = false;
-  askPassword = null;
-};
   
   environment.systemPackages = with pkgs; [
     gst_all_1.gstreamer
@@ -31,7 +26,7 @@ programs.ssh = {
     desktop-file-utils
     neofetch
     dstp
-    bambu-studio
+    orca-slicer
     android-tools   # voor adb
     perl
     simple-mtpfs    # om telefoon te mounten
@@ -46,6 +41,7 @@ programs.ssh = {
     direnv
     agenix
     alacritty
+    ncurses
     amazon-ecs-cli
     appimage-run
     atomix # puzzle game
@@ -104,8 +100,8 @@ programs.ssh = {
     lego
     lf
     libreoffice
-    #librewolf
-    #librewolf-unwrapped
+    librewolf
+    librewolf-unwrapped
     librsvg
     lua
     mosh
@@ -241,7 +237,7 @@ programs.nix-ld = {
       libxcb
       libxkbcommon
     ]);
-  };
+ };
 
 #fonts.packages = with pkgs; [
 #  open-sans
@@ -255,6 +251,8 @@ programs.nix-ld = {
     flake = "/home/wtoorren/data/git/torreirow/torreirow-nixos"; # sets NH_OS_FLAKE variable for you
   };
 
+
+  
 
 
 
