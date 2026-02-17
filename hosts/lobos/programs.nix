@@ -2,7 +2,10 @@
 
 {
 
-
+programs.ssh = {
+  enableAskPassword = false;
+  askPassword = null;
+};
   
   environment.systemPackages = with pkgs; [
     gst_all_1.gstreamer
@@ -43,7 +46,6 @@
     direnv
     agenix
     alacritty
-    ncurses
     amazon-ecs-cli
     appimage-run
     atomix # puzzle game
