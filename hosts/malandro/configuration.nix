@@ -31,7 +31,6 @@ in
  ../../modules/magister/magister-service.nix
  ../../modules/memos.nix
  ../../modules/monitoring
- ../../modules/monitoring
  ../../modules/mqtt.nix
  ../../modules/nfs.nix
  ../../modules/nginx-cv-jolijn.nix
@@ -43,6 +42,7 @@ in
  ../../modules/wg.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
+ ../../modules/fail2ban.nix
 
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
@@ -286,10 +286,12 @@ environment.variables.EDITOR = "vim";
     };
   };
 
-  programs.gnupg.agent.pinentryPackage = {
-   enable = true;
-   pinentryFlavor = "gtk2";
- };
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-tty;
+  };
+
+
   programs.openvpn3 = {
     enable = true;
   };
