@@ -25,6 +25,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | 9091 | Authelia | 127.0.0.1 | Native | Single sign-on authentication |
 | 9093 | Alertmanager | 0.0.0.0 | Native | Alert management (main) |
 | 9094 | Alertmanager | 0.0.0.0 | Native | Alert management (cluster) |
+| 9095 | Cockpit | 0.0.0.0 | Docker | Cockpit Server admin interface |
 
 ## Network Services
 
