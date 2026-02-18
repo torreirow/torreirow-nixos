@@ -1,7 +1,20 @@
 {config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
 
+let
+  # Clementine wrapper that forces Wayland to fix window display issues
+  clementine-wayland = pkgs.symlinkJoin {
+    name = "clementine-wayland";
+    paths = [ pkgs.clementine ];
+    buildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/clementine \
+        --set QT_QPA_PLATFORM wayland
+    '';
+  };
+in
+
 {
-  
+
   environment.systemPackages = with pkgs; [
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
@@ -53,7 +66,8 @@
     bitwarden-desktop
     caligula
     catppuccin
-    clementine
+    #clementine-wayland  # Replaced with Strawberry
+    strawberry
     certbot
     cheese # webcam tool
     copilot-cli
