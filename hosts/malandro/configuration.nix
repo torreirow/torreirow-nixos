@@ -41,6 +41,7 @@ in
  ../../modules/chhoto-urlshortner.nix
  ../../modules/gitea.nix
  ../../modules/memos.nix
+ ../../modules/fail2ban.nix
 
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
