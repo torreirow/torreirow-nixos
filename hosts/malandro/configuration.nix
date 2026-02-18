@@ -39,8 +39,9 @@ in
  ../../modules/nginx-cv-jolijn.nix
  #../../modules/onlyoffice.nix
  ../../modules/chhoto-urlshortner.nix
- ../../modules/gitea.nix
+# ../../modules/gitea.nix
  ../../modules/memos.nix
+ ../../modules/cockpit.nix
 
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
