@@ -26,6 +26,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | 9093 | Alertmanager | 0.0.0.0 | Native | Alert management (main) |
 | 9094 | Alertmanager | 0.0.0.0 | Native | Alert management (cluster) |
 | 9095 | Cockpit | 0.0.0.0 | Docker | Cockpit Server admin interface |
+| 9096 | Fail2ban Control | 0.0.0.0 | Docker | Fail2Ban Web Console / Control 
 
 ## Network Services
 
