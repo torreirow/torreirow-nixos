@@ -25,6 +25,7 @@ in
  ../../modules/cockpit.nix
  ../../modules/erugo.nix
  ../../modules/fail2ban.nix
+ ../../modules/fail2bancontrol.nix
  ../../modules/hassio
  ../../modules/ittools.nix
  ../../modules/kpn-modem.nix
@@ -42,7 +43,6 @@ in
  ../../modules/wg.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
- ../../modules/fail2ban.nix
 
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
