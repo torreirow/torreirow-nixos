@@ -22,35 +22,41 @@
     # Jail configurations
     jails = {
       # SSH protection
-      sshd = ''
-        enabled = true
-        port = ssh
-        filter = sshd
-        maxretry = 5
-        findtime = 10m
-        bantime = 10m
-      '';
+      sshd = {
+        settings = {
+          enabled = true;
+          port = "ssh";
+          filter = "sshd";
+          maxretry = 5;
+          findtime = "10m";
+          bantime = "10m";
+        };
+      };
     } // lib.optionalAttrs config.services.nginx.enable {
       # Nginx protection (only if nginx is enabled)
-      nginx-http-auth = ''
-        enabled = true
-        filter = nginx-http-auth
-        port = http,https
-        logpath = /var/log/nginx/error.log
-        maxretry = 5
-        findtime = 10m
-        bantime = 10m
-      '';
+      nginx-http-auth = {
+        settings = {
+          enabled = true;
+          filter = "nginx-http-auth";
+          port = "http,https";
+          logpath = "/var/log/nginx/error.log";
+          maxretry = 5;
+          findtime = "10m";
+          bantime = "10m";
+        };
+      };
 
-      nginx-limit-req = ''
-        enabled = true
-        filter = nginx-limit-req
-        port = http,https
-        logpath = /var/log/nginx/error.log
-        maxretry = 10
-        findtime = 10m
-        bantime = 10m
-      '';
+      nginx-limit-req = {
+        settings = {
+          enabled = true;
+          filter = "nginx-limit-req";
+          port = "http,https";
+          logpath = "/var/log/nginx/error.log";
+          maxretry = 10;
+          findtime = "10m";
+          bantime = "10m";
+        };
+      };
     };
   };
 }

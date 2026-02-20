@@ -23,6 +23,7 @@
         "--cap-add=NET_RAW"
         # DSMR P1 Smart Meter (FTDI USB serial)
         "--device=/dev/ttyUSB0:/dev/ttyUSB0"
+        "--device=/dev/ttyUSB1:/dev/ttyUSB1"
       ];
     };
 
