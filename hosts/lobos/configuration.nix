@@ -13,10 +13,10 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
+    ./gnome-wayland.nix
 #    ../../modules/printer-thuis.nix
-#   ./gnome.nix
-./lobos-secrets.nix
-../../modules/claude.nix
+    ./lobos-secrets.nix
+    ../../modules/claude.nix
 #   ../../modules/monitoring
 #   ../../modules/jitsi.nix
    # ../../modules/teamviewer.nix
@@ -86,7 +86,7 @@ in
 
   ## Security
   security.auditd.enable = true;
-  security.apparmor.enable = true;
+  security.apparmor.enable = false;
   fileSystems."/proc" = {
     device = "proc";
     fsType = "proc";
@@ -119,6 +119,7 @@ in
       LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
       SAL_USE_VCLPLUGIN = "gtk3";
       FONTCONFIG_PATH = "/etc/fonts";
+      # QT_QPA_PLATFORM en ELECTRON_OZONE_PLATFORM_HINT staan in gnome-wayland.nix
     };
   };
 
@@ -162,28 +163,9 @@ environment.variables.EDITOR = "vim";
     package = pkgs.mariadb;
   };
 
-  # Enable the KDE Plasma Desktop Environment.
-  services.xserver.enable = true;
-  services.displayManager.sddm.enable = false;
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+  # GNOME Desktop configuratie staat in gnome-wayland.nix
 
-  ## NEW CONFIG
-  services.displayManager.defaultSession = "gnome";
-  services.gnome.gnome-settings-daemon.enable = true;
-
-
-## exclude packages
-	environment.gnome.excludePackages = (with pkgs; [
-			gnome-photos
-			gnome-tour
-		]) ++ (with pkgs.gnome; [
-			#gedit # text editor
-			#gnome-characters
-			#gnome-contacts
-					]);
-
-  # Configure keymap in X11
+  # Configure keymap in X11 + XWayland
   services.xserver = {
     xkb.layout = "us";
     xkb.variant = "intl";
@@ -437,19 +419,11 @@ services.nfs.settings = {
 
 
 
-xdg.portal = {
-  enable = true;
-  wlr.enable = true; # Als je Wayland gebruikt
-  extraPortals = with pkgs; [
-    xdg-desktop-portal-gtk
-  ];
-};
+# XDG portals en Wayland environment variables staan in gnome-wayland.nix
 
 #Chrome crash fix
 environment.variables = {
   CHROME_FLAGS = "--disable-gpu --disable-software-rasterizer";
-  # Electron apps (Bitwarden, VSCode, etc.) Wayland fix for GNOME 49+
-  ELECTRON_OZONE_PLATFORM_HINT = "wayland";
 };
 
 }
