@@ -41,6 +41,7 @@ in
  ../../modules/postgres.nix
  ../../modules/vaultwarden.nix
  ../../modules/wg.nix
+ ../../modules/bento-pdf.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
