@@ -1,6 +1,6 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-02-24 (16:00)
+**Laatst bijgewerkt:** 2026-02-25
 
 ## Huidige Status
 
@@ -69,22 +69,14 @@ De GNOME/Wayland configuratie is gerefactored:
 - GNOME extensions en packages
 
 ### Git Status
-- **Branch:** main (28 commits achter origin, met staged changes)
-- **Staged files:**
-  - `CLAUDE.md` (nieuw)
-  - `hosts/lobos/configuration.nix` (gewijzigd)
-  - `hosts/lobos/gnome-wayland.nix` (nieuw)
-  - `hosts/lobos/gnome.nix` (verwijderd)
-  - `home/gnome-desktop/default.nix` (gewijzigd)
-  - `todo-wouter.md` (nieuw)
-- **Backup branch:** `backup-before-reset-2026-02-24`
+- **Branch:** main (gesynchroniseerd met origin)
+- **Laatste commit:** `2c85dce fix flatpak and x11-on-wayland apps`
+- **Backup branch:** `backup-before-reset-2026-02-24` (oude staat voor reset)
 
 ## Te doen
 
-- [ ] Uitloggen en opnieuw inloggen
+- [ ] Uitloggen en opnieuw inloggen (om sessionVariables permanent te laden)
 - [ ] Test Clementine en mscore zonder environment variable prefix
-- [ ] Commit de wijzigingen
-- [ ] Beslissen of wijzigingen naar remote gepusht moeten worden
 - [ ] Overweeg Flatpak MuseScore te verwijderen (`flatpak uninstall org.musescore.MuseScore`)
 
 ## Configuratie bestanden
