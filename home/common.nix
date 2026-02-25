@@ -50,10 +50,8 @@ programs.fzf = {
 
   programs.rbw = {
     enable = true;
-#    settings = {
-#      base_url = "https://homeassistant.toorren.net:7277";
-#      email = "wvdtoorren@gmail.com";
-#    };
+    # settings worden beheerd via home/dotfiles/.config/rbw/config.json
+    # (om meerdere rbw endpoints te ondersteunen: toorren + technative)
   };
 
  
