@@ -43,8 +43,8 @@ environment.variables = {
 - [x] `sudo nixos-rebuild switch --flake .#lobos` succesvol uitgevoerd
 - [x] Clementine werkt met `QT_QPA_PLATFORM=wayland`
 - [x] NixOS MuseScore (`mscore` 4.4.3) werkt met `QT_QPA_PLATFORM=wayland`
-- [ ] Uitloggen en opnieuw inloggen (om sessionVariables permanent te laden)
-- [ ] Test apps zonder environment variable prefix
+- [x] Uitloggen en opnieuw inloggen (om sessionVariables permanent te laden)
+- [x] Test apps zonder environment variable prefix
 
 ### MuseScore: Flatpak vs NixOS
 
@@ -75,9 +75,7 @@ De GNOME/Wayland configuratie is gerefactored:
 
 ## Te doen
 
-- [ ] Uitloggen en opnieuw inloggen (om sessionVariables permanent te laden)
-- [ ] Test Clementine en mscore zonder environment variable prefix
-- [ ] Overweeg Flatpak MuseScore te verwijderen (`flatpak uninstall org.musescore.MuseScore`)
+Alle taken zijn afgerond.
 
 ## Configuratie bestanden
 
