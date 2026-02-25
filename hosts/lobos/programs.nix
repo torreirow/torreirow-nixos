@@ -144,7 +144,7 @@
     sqsh
     ssm-session-manager-plugin
     ssmsh
-    pkgs-2411.subtitleedit
+#    pkgs-2411.subtitleedit
     super-productivity
     tali # poker game
     teams-for-linux
