@@ -14,6 +14,7 @@ in
     ./fonts.nix
     ./python.nix
     ./gnome-wayland.nix
+    ./app-wrappers.nix  # X11 wrappers voor problematische apps
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix
     ../../modules/claude.nix
