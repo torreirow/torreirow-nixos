@@ -62,13 +62,15 @@
     gnomeExtensions.gsconnect
     gnomeExtensions.night-light-slider-updated
     gnomeExtensions.power-profile-switcher
-    gpaste
     gnomeExtensions.unite
     gnomeExtensions.dash-to-panel
     gnomeExtensions.vitals
-    gnomeExtensions.clipboard-indicator
+    # Clipboard: clipboard-history@alexsaveau.dev is handmatig geïnstalleerd en werkt goed
 
     # GNOME tools
     dconf
+    wl-clipboard  # Wayland clipboard tools voor screenshot-to-file script
   ];
+
+  programs.dconf.enable = true;
 }

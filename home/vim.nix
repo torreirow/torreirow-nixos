@@ -9,8 +9,8 @@
         let g:clipboard = {
           \   'name': 'wl-clipboard',
           \   'copy': {
-          \      '+': ['wl-copy', '--foreground', '--type', 'text/plain'],
-          \      '*': ['wl-copy', '--foreground', '--primary', '--type', 'text/plain'],
+          \      '+': ['wl-copy', '--foreground'],
+          \      '*': ['wl-copy', '--foreground', '--primary'],
           \    },
           \   'paste': {
           \      '+': ['wl-paste', '--no-newline'],
