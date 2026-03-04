@@ -421,8 +421,8 @@ services.nfs.settings = {
 
 # XDG portals en Wayland environment variables staan in gnome-wayland.nix
 
-#Chrome crash fix
-environment.variables = {
+# Chrome crash fix - gebruik sessionVariables om geen conflict te krijgen met gnome-wayland.nix
+environment.sessionVariables = {
   CHROME_FLAGS = "--disable-gpu --disable-software-rasterizer";
 };
 

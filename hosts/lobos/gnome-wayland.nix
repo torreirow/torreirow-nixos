@@ -31,15 +31,34 @@
   };
 
   # ===== Wayland Environment Variables =====
+  # System-wide Wayland compatibility voor alle applicaties
   environment.sessionVariables = {
-    # Force Qt apps to use native Wayland (fixes invisible windows on GNOME 49+)
-    # Werkt voor: Clementine, mscore/MuseScore, etc.
+    # Qt apps - force native Wayland (fixes invisible windows op GNOME 49+)
+    # Werkt voor: Clementine, MuseScore, KDE apps, etc.
     QT_QPA_PLATFORM = "wayland";
+
+    # Mozilla apps - enable native Wayland
+    MOZ_ENABLE_WAYLAND = "1";
+
+    # SDL apps/games - prefer Wayland
+    SDL_VIDEODRIVER = "wayland";
+
+    # GTK apps - prefer Wayland met X11 fallback
+    GDK_BACKEND = "wayland,x11";
+
+    # Clutter apps - use Wayland
+    CLUTTER_BACKEND = "wayland";
   };
 
   environment.variables = {
-    # Electron apps (Bitwarden, VSCode, Signal, etc.) Wayland fix for GNOME 49+
+    # Electron apps (Bitwarden, VSCode, Signal, etc.) - Wayland via Ozone
     ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+
+    # NixOS-specific Electron Wayland hint
+    NIXOS_OZONE_WL = "1";
+
+    # Java apps - fix voor tiling/reparenting onder Wayland
+    _JAVA_AWT_WM_NONREPARENTING = "1";
   };
 
   # ===== GNOME Packages =====
