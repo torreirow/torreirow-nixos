@@ -31,20 +31,23 @@
   };
 
   # ===== Wayland Environment Variables =====
-  # System-wide Wayland compatibility voor alle applicaties
+  # System-wide Wayland compatibility met pragmatische fallbacks
+  # Principe: PREFER Wayland waar mogelijk, maar ALLOW XWayland fallback
   environment.sessionVariables = {
-    # Qt apps - force native Wayland (fixes invisible windows op GNOME 49+)
-    # Werkt voor: Clementine, MuseScore, KDE apps, etc.
-    QT_QPA_PLATFORM = "wayland";
+    # Qt apps - prefer Wayland met XCB (X11) fallback
+    # Dit lost invisible window bugs op zonder apps te breken
+    # Werkt voor: Clementine, MuseScore, EN Zoom, OnlyOffice, etc.
+    QT_QPA_PLATFORM = "wayland;xcb";  # Fallback naar XWayland als Wayland faalt
 
-    # Mozilla apps - enable native Wayland
+    # Mozilla apps - enable native Wayland (werkt goed)
     MOZ_ENABLE_WAYLAND = "1";
 
-    # SDL apps/games - prefer Wayland
-    SDL_VIDEODRIVER = "wayland";
+    # SDL apps/games - prefer Wayland met X11 fallback
+    SDL_VIDEODRIVER = "wayland,x11";
 
-    # GTK apps - prefer Wayland met X11 fallback
-    GDK_BACKEND = "wayland,x11";
+    # GTK apps - prefer X11 fallback voor sandboxed apps (OnlyOffice, Flatpaks)
+    # Veel GTK apps in sandboxes hebben geen Wayland socket toegang
+    GDK_BACKEND = "x11,wayland";
 
     # Clutter apps - use Wayland
     CLUTTER_BACKEND = "wayland";
