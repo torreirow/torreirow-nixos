@@ -14,6 +14,7 @@ in
     ./fonts.nix
     ./python.nix
     ./gnome.nix  # Minimale GNOME configuratie
+    ./hyprland.nix  # Hyprland window manager
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix
     ../../modules/claude.nix

@@ -7,6 +7,7 @@
   ./vim.nix
   ./dotfiles
   ./gnome-desktop
+  ./hyprland-desktop
 #  ./librewolf.nix
 #  ./sshkeys.nix
 #  ./dotfiles/toggl-secret.nix
