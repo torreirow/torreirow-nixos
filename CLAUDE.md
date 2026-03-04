@@ -168,3 +168,4 @@ git log backup-before-reset-2026-02-24 --oneline
 flatpak list --app
 flatpak uninstall org.musescore.MuseScore
 ```
+- bij uitvoeren home-manager commandos op lobos:  home-manager  switch --flake .#wtoorren@linuxdesktop --extra-experimental-features nix-command -b backup-$(date +%s) --impure
