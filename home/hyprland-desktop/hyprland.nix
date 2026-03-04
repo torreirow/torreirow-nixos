@@ -4,6 +4,10 @@
   wayland.windowManager.hyprland = {
     enable = true;
 
+    # Use system-installed Hyprland (from programs.hyprland.enable)
+    # This prevents library version conflicts
+    package = null;
+
     # systemd integration (recommended)
     systemd.enable = true;
     systemd.variables = ["--all"];

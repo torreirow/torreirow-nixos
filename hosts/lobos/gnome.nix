@@ -6,7 +6,11 @@
 {
   # ===== GNOME Desktop Environment =====
   services.xserver.enable = true;
-  services.displayManager.gdm.enable = true;
+
+  # Use LightDM instead of GDM - it always shows session selector
+  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.displayManager.lightdm.greeters.gtk.enable = true;
+
   services.desktopManager.gnome.enable = true;
 
   # ===== XDG Portals (nodig voor screen sharing, file dialogs, etc.) =====

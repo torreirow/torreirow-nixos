@@ -11,6 +11,7 @@
     nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    hyprland.url = "github:hyprwm/Hyprland";
     bmc.url = "github:wearetechnative/bmc";
     #bmc.url = "github:wearetechnative/bmc?rev=3cfa158a5a622df59686537c68b256ecb4bff74c";
     race.url = "github:wearetechnative/race";
@@ -31,7 +32,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, bmc, homeage, dirtygit, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, hyprland, home-manager, agenix, bmc, homeage, dirtygit, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec}: 
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -61,7 +62,7 @@
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
           nixpkgs.overlays = [(import ./overlays) (import ./overlays/cooklang.nix)
-        
+
           ];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
@@ -69,16 +70,18 @@
           _module.args.pkgs-2411 = import nixpkgs-2411 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
+          _module.args.hyprland-pkg = inputs.hyprland.packages.${system}.hyprland;
 
         };
 
 
-        
+
 
       in [
         defaults
         extraPkgs
         agenix.nixosModules.default
+        hyprland.nixosModules.default
         ./hosts/lobos/configuration.nix
         ./modules/tnaws.nix
         ./modules/general-desktop.nix
