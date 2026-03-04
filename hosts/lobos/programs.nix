@@ -5,6 +5,7 @@
 
   
   environment.systemPackages = with pkgs; [
+      wineWowPackages.stable
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
