@@ -13,8 +13,7 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
-    ./gnome-wayland.nix
-    ./app-wrappers.nix  # X11 wrappers voor problematische apps
+    ./gnome.nix  # Minimale GNOME configuratie
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix
     ../../modules/claude.nix
@@ -120,7 +119,6 @@ in
       LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
       SAL_USE_VCLPLUGIN = "gtk3";
       FONTCONFIG_PATH = "/etc/fonts";
-      # QT_QPA_PLATFORM en ELECTRON_OZONE_PLATFORM_HINT staan in gnome-wayland.nix
     };
   };
 
@@ -164,9 +162,7 @@ environment.variables.EDITOR = "vim";
     package = pkgs.mariadb;
   };
 
-  # GNOME Desktop configuratie staat in gnome-wayland.nix
-
-  # Configure keymap in X11 + XWayland
+  # Configure keymap in X11
   services.xserver = {
     xkb.layout = "us";
     xkb.variant = "intl";
@@ -420,9 +416,7 @@ services.nfs.settings = {
 
 
 
-# XDG portals en Wayland environment variables staan in gnome-wayland.nix
-
-# Chrome crash fix - gebruik sessionVariables om geen conflict te krijgen met gnome-wayland.nix
+# Chrome crash fix
 environment.sessionVariables = {
   CHROME_FLAGS = "--disable-gpu --disable-software-rasterizer";
 };
