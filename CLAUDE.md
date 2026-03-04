@@ -1,8 +1,44 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-02-25
+**Laatst bijgewerkt:** 2026-03-04
 
 ## Huidige Status
+
+### Sessie 2026-03-04 - Wayland Best Practices & App Compatibility Fix
+
+**Branch:** `wayland-best-practices`
+
+**Probleem:** Veel apps werken niet (OnlyOffice, SubtitleEdit, Zoom, etc.)
+- Apps draaien maar tonen geen venster
+- Te agressieve Wayland forcing breekt sandboxed apps
+- Sandboxed apps (bubblewrap/Flatpak) hebben geen Wayland socket toegang
+
+**Oplossing:**
+- Pragmatische fallbacks: PREFER Wayland, ALLOW XWayland
+- `QT_QPA_PLATFORM = "wayland;xcb"` (met fallback)
+- `GDK_BACKEND = "x11,wayland"` (X11 eerst voor sandboxes)
+- `SDL_VIDEODRIVER = "wayland,x11"` (met fallback)
+
+**Status:**
+- ✅ Branch `wayland-best-practices` aangemaakt
+- ✅ Environment variables conflict gefixed in configuration.nix
+- ✅ Uitgebreide Wayland vars toegevoegd (MOZ, SDL, GDK, Clutter, Java)
+- ✅ Pragmatische fallbacks geïmplementeerd
+- ✅ Home-manager wayland-fixes.nix geactiveerd
+- ✅ System rebuild uitgevoerd
+- ⏳ **WACHT OP:** Uitloggen/inloggen om environment vars te activeren
+- ⏳ **TEST:** Run `./test-wayland-apps.sh` na inloggen
+
+**Test Script:** `./test-wayland-apps.sh` - test apps na inloggen
+
+**Git:**
+- Branch: `wayland-best-practices`
+- Commits: 2 (initial best practices + pragmatic fallback fix)
+- Main branch: ongewijzigd (fallback beschikbaar)
+
+---
+
+## Huidige Status (OUDE SESSIE - OPGELOST)
 
 ### Sessie 2026-02-24 (middag) - OPGELOST
 
