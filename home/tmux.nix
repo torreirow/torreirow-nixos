@@ -45,7 +45,7 @@
 
       ##### Statusbar #####
       set -g status-left "#S "
-      set -g status-right "#[fg=#a89984]%Y-%m-%d  %H:%M #[fg=#bdae93] #h #[fg=#a89984] ⌨ #{prefix}"
+      set -g status-right "#[fg=#a89984,bg=#282828] %Y-%m-%d  %H:%M #[fg=#3c3836,bg=#282828]#[fg=#ebdbb2,bg=#3c3836] #(if rbw unlocked; then echo '🔓 unlocked'; else echo '🔒 locked'; fi) #[fg=#504945,bg=#3c3836]#[fg=#ebdbb2,bg=#504945] #h #[fg=#fe8019,bg=#504945]#[fg=#282828,bg=#fe8019] ⌨ #{prefix} "
     '';
   };
 }
