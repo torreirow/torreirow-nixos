@@ -1,32 +1,37 @@
 {config,pkgs, ...}: {
-programs.zsh = {
-      enable = true;
-      autosuggestion.enable = true;
+  programs.zsh = {
+    enable = true;
+    initExtra = ''
+      fpath=("$HOME/.zsh/completions" $fpath)
+      autoload -Uz compinit
+      compinit
+    '';
+    autosuggestion.enable = true;
 #     zsh.autosuggestion.enable = true;
-      syntaxHighlighting.enable = true;
+    syntaxHighlighting.enable = true;
       #initExtraFirst = ''                                                                                                                        
       #  eval "$(atuin init zsh --disable-up-arrow)"; 
       #  PATH=$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc
       #  '';     
-  initContent = ''
+    initContent = ''
     # Force SSH agent to use rbw
-    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
+        export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
 
-    eval "$(atuin init zsh --disable-up-arrow)"
-    export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
-    mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
-    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
+        eval "$(atuin init zsh --disable-up-arrow)"
+        export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
+        mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
+        ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
 
     # Fix Home / End keys (alacritty-direct, tmux, atuin, oh-my-zsh safe)
-    for km in emacs viins vicmd; do
-      bindkey -M $km '\e[H' beginning-of-line
-      bindkey -M $km '\e[F' end-of-line
-      bindkey -M $km '\e[1~' beginning-of-line
-      bindkey -M $km '\e[4~' end-of-line
-    done
-  '';
+        for km in emacs viins vicmd; do
+        bindkey -M $km '\e[H' beginning-of-line
+        bindkey -M $km '\e[F' end-of-line
+        bindkey -M $km '\e[1~' beginning-of-line
+        bindkey -M $km '\e[4~' end-of-line
+        done
+      '';
 
-        shellAliases = {
+      shellAliases = {
           #aws-switch=". $HOME/data/git/wearetechnative/bmc/aws-profile-select.sh";
           #tfapply="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfapply.sh";
           #tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
@@ -48,10 +53,10 @@ programs.zsh = {
         };
 
 
-     oh-my-zsh = {
-        enable = true;
-        theme = "wouter";
-        custom = "$HOME/.ohmyzsh-wouter";
+        oh-my-zsh = {
+          enable = true;
+          theme = "wouter";
+          custom = "$HOME/.ohmyzsh-wouter";
         #theme = "gnzh";
         plugins = [
           "git z kubectl emoji encode64 aws terraform"
@@ -60,6 +65,6 @@ programs.zsh = {
         #  nix-zsh-completions                                                                                                                          
         #];
       };
-  };
+    };
 
-}
+  }
