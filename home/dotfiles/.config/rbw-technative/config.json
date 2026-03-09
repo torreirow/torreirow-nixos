@@ -3,5 +3,5 @@
   "email": "wouter@technative.eu",
   "identity_url": null,
   "lock_timeout": 600,
-  "pinentry": "pinentry-tty"
+  "pinentry": "/run/current-system/sw/bin/pinentry-tty"
 }

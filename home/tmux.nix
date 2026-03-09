@@ -47,9 +47,16 @@
       set-window-option -g window-style bg='#141414'
 
       ##### Statusbar #####
-      set -g status-left "#S "
-      set -g status-right "#[fg=#a89984]%Y-%m-%d  %H:%M #[fg=#bdae93] #h #[fg=#a89984] ⌨ #{prefix}"
+      # Status background
+      set -g status-style bg=#282828,fg=#ebdbb2
 
+      # Window status formats (rectangular blocks without arrows)
+      set -g window-status-current-format "#[fg=#282828,bg=#fe8019] #I > #W #[bg=#282828] "
+      set -g window-status-format "#[fg=#a89984,bg=#3c3836] #I > #W #[bg=#282828] "
+      set -g window-status-separator ""
+
+      set -g status-left "#[fg=#282828,bg=#8ec07c] #S #[bg=#282828] "
+      set -g status-right "#[fg=#a89984,bg=#282828] %Y-%m-%d  %H:%M #[fg=#3c3836,bg=#282828]#[fg=#ebdbb2,bg=#3c3836] #(if rbw unlocked; then echo '🔓 unlocked'; else echo '🔒 locked'; fi) #[fg=#504945,bg=#3c3836]#[fg=#ebdbb2,bg=#504945] #h #[fg=#fe8019,bg=#504945]#[fg=#282828,bg=#fe8019] ⌨ #{prefix} "
     '';
   };
 }
