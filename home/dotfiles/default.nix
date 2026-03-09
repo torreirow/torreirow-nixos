@@ -6,6 +6,10 @@
       source = ./.ohmyzsh-wouter;
       recursive = true;
     };
+    ".zsh/completions" = {
+    source = ./.zsh/completions;
+    recursive = true;
+    };
     ".config/rbw/config.json" = {
       source = ./.config/rbw/config.json;
       recursive = true;

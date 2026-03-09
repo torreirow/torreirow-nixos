@@ -1,63 +1,32 @@
 { config, pkgs, ... }:
 
 {
-  # Firewall
-  networking.firewall = {
-    enable = true;
-    allowedUDPPorts = [ 51820 ];
-    checkReversePath = "loose";
-    trustedInterfaces = [ "docker0" ];
-  };
-
-  boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
-
-  # Laad benodigde kernel modules voor iptables/WireGuard
-  boot.kernelModules = [
-    "wireguard"
-    "iptable_nat"
-    "iptable_filter"
-    "ip_tables"
-    "nf_nat"
-    "nf_conntrack"
-  ];
-
-  # NAT voor Docker bridge
-  networking.nat = {
-    enable = true;
-    externalInterface = "enp3s0";
-    internalInterfaces = [ "docker0" ];
-  };
-
-  # wg-easy DOCKER container (GEEN host networking)
+  # fail2bancontrol - Web GUI for fail2ban management
   virtualisation.oci-containers = {
     backend = "docker";
-    containers.wg-easy = {
-      image = "ghcr.io/wg-easy/wg-easy:latest";
+    containers.fail2bancontrol = {
+      image = "oweitman/fail2bancontrol:latest";
       ports = [
-        "51820:51820/udp"
-        "51821:51821/tcp"
+        "127.0.0.1:9096:9000"
       ];
-      volumes = [ "/var/lib/wg-easy:/etc/wireguard" ];
+      volumes = [
+        "/var/run/fail2ban:/var/run/fail2ban:ro"
+        "/var/log/nginx:/var/log/nginx:ro"
+      ];
       environment = {
-        WG_HOST = "wg.toorren.net";
-        PASSWORD_HASH = "$2a$12$2kO66Q7Xg4JI/n2QzXW9ROTZ0O2yJA/NJCuYMDl.YU9g8PS.ZYJsi";
-        WG_DEFAULT_DNS = "1.1.1.1";
-        WG_ALLOWED_IPS = "0.0.0.0/0";  # Belangrijk voor Android full tunnel
-      };
-      capabilities = {
-        NET_ADMIN = true;
-        SYS_MODULE = false;
+        TZ = "Europe/Amsterdam";
       };
       autoStart = true;
     };
   };
 
+  # Nginx reverse proxy with Authelia authentication
   services.nginx.enable = true;
-  services.nginx.virtualHosts."wg.toorren.net" = {
+  services.nginx.virtualHosts."fail2ban.toorren.net" = {
     forceSSL = true;
     useACMEHost = "toorren.net";
     locations."/" = {
-      proxyPass = "http://127.0.0.1:51821";
+      proxyPass = "http://127.0.0.1:9096";
       proxyWebsockets = true;
       extraConfig = ''
         # Forward authentication to Authelia
@@ -109,4 +78,3 @@
     };
   };
 }
-
