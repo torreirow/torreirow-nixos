@@ -20,6 +20,7 @@ in
 #   ../../modules/monitoring
 #   ../../modules/jitsi.nix
    # ../../modules/teamviewer.nix
+   ../../modules/torrlinny-web.nix
     ];
 
 
@@ -224,6 +225,10 @@ environment.variables.EDITOR = "vim";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   services.openssh.extraConfig = "LoginGracetime=0";
+  services.gnome.gnome-keyring.enable = lib.mkForce false;
+programs.seahorse.enable = false;
+security.pam.services.login.enableGnomeKeyring = false;
+security.pam.services.sddm.enableGnomeKeyring = false;  # als je SDDM gebruikt
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -259,7 +264,7 @@ environment.variables.EDITOR = "vim";
 
   programs.gnupg.agent = {
   enable = true;
-  pinentryPackage = pkgs.pinentry-curses;
+  pinentryPackage = pkgs.pinentry-tty;
 };
 
   programs.openvpn3 = {
@@ -295,7 +300,7 @@ services.samba = {
   enable = true;
   openFirewall = true;
   settings = {
-      global = {
+    global = {
       "workgroup" = "WORKGROUP";
       "server string" = "smbnix";
       "netbios name" = "smbnix";
@@ -308,18 +313,29 @@ services.samba = {
       "guest account" = "nobody";
       "map to guest" = "bad user";
     };
-      "private" = {
-      "path" = "/tmp/tmp";
-      "browseable" = "yes";
-      "read only" = "no";
-      "guest ok" = "no";
-      "create mask" = "0644";
-      "directory mask" = "0755";
-      "force user" = "wtoorren";
-      "force group" = "users";
-    };
+    "private" = {
+    "path" = "/tmp/tmp";
+    "browseable" = "yes";
+    "read only" = "no";
+    "guest ok" = "no";
+    "create mask" = "0644";
+    "directory mask" = "0755";
+    "force user" = "wtoorren";
+    "force group" = "users";
   };
-};
+"private2" = {
+    "path" = "/tmp/tmp2";
+    "browseable" = "yes";
+    "read only" = "no";
+    "guest ok" = "no";
+    "create mask" = "0644";
+    "directory mask" = "0755";
+    "force user" = "wtoorren";
+    "force group" = "users";
+    };
+
+    };
+    };
 
 services.samba-wsdd = {
   enable = true;
