@@ -2,7 +2,10 @@
 
 {
 
-
+programs.ssh = {
+  enableAskPassword = false;
+  askPassword = null;
+};
   
   environment.systemPackages = with pkgs; [
       wineWowPackages.stable
@@ -44,7 +47,6 @@
     direnv
     agenix
     alacritty
-    ncurses
     amazon-ecs-cli
     appimage-run
     atomix # puzzle game
@@ -56,7 +58,7 @@
     bitwarden-desktop
     caligula
     catppuccin
-    clementine
+    strawberry  # Replaced Clementine - better maintained, native Wayland support
     certbot
     cheese # webcam tool
     copilot-cli

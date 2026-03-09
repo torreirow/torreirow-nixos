@@ -14,6 +14,7 @@ windows:
       - type: horizontal
         commands:
           - hugo server --ignoreCache --forceSyncStatic --cleanDestinationDir --disableFastRender -e private -p 1399
+          
   - name: infra
     layout: main-horizontal
     commands:

@@ -1,0 +1,41 @@
+#compdef bmc
+
+# Zsh completion for bmc command
+_bmc() {
+    local -a commands
+    local -a command_descriptions
+
+    # Get available commands dynamically from bmc usage output
+    local usage_output
+    usage_output=$(bmc usage 2>/dev/null)
+
+    # Parse commands and descriptions
+    while IFS= read -r line; do
+        if [[ $line =~ ^[[:space:]]+([a-z0-9_-]+)[[:space:]]+(.+)$ ]]; then
+            local cmd="${match[1]}"
+            local desc="${match[2]}"
+            commands+=("$cmd")
+            command_descriptions+=("$cmd:$desc")
+        fi
+    done <<< "$usage_output"
+
+    if (( CURRENT == 2 )); then
+        _describe 'bmc command' command_descriptions
+    fi
+}
+
+_bmc
+
+# Installation instructions:
+# 1. Add to your ~/.zshrc:
+#    source <(bmc gencompletions zsh)
+#
+# 2. Or save to a completion directory:
+#    mkdir -p ~/.zsh/completions
+#    bmc gencompletions zsh > ~/.zsh/completions/_bmc
+#    # Add to ~/.zshrc if not already present:
+#    fpath=(~/.zsh/completions $fpath)
+#    autoload -Uz compinit
+#    compinit
+#
+# Then restart your shell or run: source ~/.zshrc
