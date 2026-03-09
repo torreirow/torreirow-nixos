@@ -2,6 +2,13 @@ set nocompatible
 syntax on
 filetype plugin indent on
 
+" Wayland clipboard support - use wl-copy/wl-paste
+if $WAYLAND_DISPLAY != ""
+  vnoremap "+y :w !wl-copy<CR><CR>
+  nnoremap "+p :r !wl-paste<CR>
+  vnoremap "+p :r !wl-paste<CR>
+endif
+
 call plug#begin('~/.local/share/nvim/plugged')
   Plug 'preservim/nerdtree'
   Plug 'junegunn/fzf.vim'
