@@ -20,7 +20,7 @@
       set-option -g update-environment "SSH_CLIENT SSH_TTY SSH_CONNECTION"
 
       # Gebruik C-b voor SSH sessies, C-a voor lokaal
-      if-shell 'test -n "$SSH_CLIENT" || test -n "$SSH_TTY" || test -n "$SSH_CONNECTION"' \
+      if-shell '[ -n "$SSH_CONNECTION" ]' \
         'set -g prefix C-b; unbind C-a; bind C-b send-prefix' \
         'set -g prefix C-a; unbind C-b; bind C-a send-prefix'
 
@@ -42,6 +42,9 @@
       set -g allow-passthrough all
       set -ga terminal-overrides ',xterm-256color:Ms=\E]52;c;%p1%s\007'
       set -as terminal-features ',xterm-256color:clipboard'
+
+      set-window-option -g window-active-style bg=black
+      set-window-option -g window-style bg='#141414'
 
       ##### Statusbar #####
       # Status background

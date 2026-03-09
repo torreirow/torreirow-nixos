@@ -15,31 +15,35 @@ in
     ./python.nix
     ../../modules/mariadb.nix
    #./gnome.nix
- ../../modules/monitoring
- ../../modules/hassio
- ./malandro-secrets.nix
- ../../modules/nginx.nix
- ../../modules/mqtt.nix
- ../../modules/kpn-modem.nix
- ../../modules/vaultwarden.nix
- ../../modules/baikal.nix
- ../../modules/wg.nix
- ../../modules/nfs.nix
- ../../modules/monitoring
- ../../modules/erugo.nix
- ../../modules/postgres.nix
- ../../modules/paperless.nix
- ../../modules/acme.nix
- ../../modules/authelia.nix
- ../../modules/authelia-users.nix
- ../../modules/claude.nix
- ../../modules/pihole.nix
- ../../modules/magister/magister-service.nix
- ../../modules/ittools.nix
- ../../modules/nginx-cv-jolijn.nix
  #../../modules/onlyoffice.nix
+ ../../modules/acme.nix
+ ../../modules/authelia-users.nix
+ ../../modules/authelia.nix
+ ../../modules/baikal.nix
  ../../modules/chhoto-urlshortner.nix
- ../../modules/gitea.nix
+ ../../modules/claude.nix
+ ../../modules/cockpit.nix
+ ../../modules/erugo.nix
+ ../../modules/fail2ban.nix
+ ../../modules/fail2bancontrol.nix
+ ../../modules/hassio
+ ../../modules/ittools.nix
+ ../../modules/kpn-modem.nix
+ ../../modules/magister/magister-service.nix
+ ../../modules/memos.nix
+ ../../modules/monitoring
+ ../../modules/mqtt.nix
+ ../../modules/nfs.nix
+ ../../modules/nginx-cv-jolijn.nix
+ ../../modules/nginx.nix
+ ../../modules/paperless.nix
+ ../../modules/pihole.nix
+ ../../modules/postgres.nix
+ ../../modules/vaultwarden.nix
+ ../../modules/wg.nix
+ ../../modules/bento-pdf.nix
+ ./malandro-secrets.nix
+# ../../modules/gitea.nix
 
 # ../../modules/castopod.nix
 # ../../modules/crowdsec.nix
@@ -283,10 +287,12 @@ environment.variables.EDITOR = "vim";
     };
   };
 
-  programs.gnupg.agent.pinentryPackage = {
-   enable = true;
-   pinentryFlavor = "gtk2";
- };
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-tty;
+  };
+
+
   programs.openvpn3 = {
     enable = true;
   };
