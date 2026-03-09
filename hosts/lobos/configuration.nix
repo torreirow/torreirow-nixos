@@ -112,6 +112,9 @@ in
       "en_US.UTF-8/UTF-8"
       "nl_NL.UTF-8/UTF-8"
     ];
+    extraLocaleSettings = {
+      LC_TIME = "nl_NL.UTF-8";
+    };
   };
 
   environment = {
@@ -124,7 +127,7 @@ in
   };
 
    environment.variables = {
-    LANG = "en_US.UTF-8";
+    #LANG = "en_US.UTF-8";
     LC_ALL = "";
     LC_ADDRESS = "nl_NL.UTF-8";
     LC_IDENTIFICATION = "nl_NL.UTF-8";
