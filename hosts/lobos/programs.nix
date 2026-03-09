@@ -8,6 +8,7 @@ programs.ssh = {
 };
   
   environment.systemPackages = with pkgs; [
+      wineWowPackages.stable
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
@@ -146,7 +147,7 @@ programs.ssh = {
     sqsh
     ssm-session-manager-plugin
     ssmsh
-    pkgs-2411.subtitleedit
+#    pkgs-2411.subtitleedit
     super-productivity
     tali # poker game
     teams-for-linux
