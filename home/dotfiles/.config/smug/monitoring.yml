@@ -1,0 +1,8 @@
+session: monitoring
+root: ~
+
+windows:
+  - name: system
+    layout: main-vertical
+    panes:
+      - btop
