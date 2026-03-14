@@ -23,13 +23,13 @@
         ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
 
     # Fix Home / End keys (alacritty-direct, tmux, atuin, oh-my-zsh safe)
-        for km in emacs viins vicmd; do
-        bindkey -M $km '\e[H' beginning-of-line
-        bindkey -M $km '\e[F' end-of-line
-        bindkey -M $km '\e[1~' beginning-of-line
-        bindkey -M $km '\e[4~' end-of-line
-        done
-      '';
+    for km in emacs viins vicmd; do
+      bindkey -M $km '\e[H' beginning-of-line
+      bindkey -M $km '\e[F' end-of-line
+      bindkey -M $km '\e[1~' beginning-of-line
+      bindkey -M $km '\e[4~' end-of-line
+    done
+  '';
 
       shellAliases = {
           #aws-switch=". $HOME/data/git/wearetechnative/bmc/aws-profile-select.sh";
