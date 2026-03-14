@@ -2,7 +2,10 @@ session: monitoring
 root: ~
 
 windows:
-  - name: system
-    layout: main-vertical
-    panes:
+  - name: BTOP
+    commands:
       - btop
+
+  - name: claudemon
+    commands:
+      - claude-monitor --plan max5
