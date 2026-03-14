@@ -39,7 +39,8 @@
 
       ##### OSC52 / Clipboard #####
       set -g set-clipboard on
-      set -g allow-passthrough all
+      #set -g allow-passthrough all
+      set -gq allow-passthrough on
       set -ga terminal-overrides ',xterm-256color:Ms=\E]52;c;%p1%s\007'
       set -as terminal-features ',xterm-256color:clipboard'
 
