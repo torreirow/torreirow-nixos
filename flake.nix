@@ -12,6 +12,7 @@
     nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     bmc.url = "github:wearetechnative/bmc";
+    nixvim.url = "github:caspersonn/nixvim";
     #bmc.url = "github:wearetechnative/bmc?rev=3cfa158a5a622df59686537c68b256ecb4bff74c";
     race.url = "github:wearetechnative/race";
     brigit.url = "github:wearetechnative/brigit";
@@ -31,14 +32,15 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, bmc, homeage, dirtygit, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirtygit, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec}: 
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
-      environment.systemPackages = [ 
-        bmc.packages."${system}".bmc 
+      environment.systemPackages = [
+        bmc.packages."${system}".bmc
+        nixvim.packages."${system}".default
         dirtygit.packages."${system}".dirtygit
-        race.packages."${system}".race 
+        race.packages."${system}".race
         brigit.packages."${system}".brigit
         jsonify-aws-dotfiles.packages."${system}".jsonify-aws-dotfiles
         openspec.packages."${system}".default
