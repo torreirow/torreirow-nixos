@@ -1,12 +1,10 @@
 {config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
 
 {
-
 programs.ssh = {
   enableAskPassword = false;
   askPassword = null;
 };
-  
   environment.systemPackages = with pkgs; [
       wineWowPackages.stable
     gst_all_1.gstreamer
@@ -112,7 +110,7 @@ programs.ssh = {
     mosh
     mplayer
     mpv
-    neovim
+    # nixvim wordt toegevoegd via extraPkgs in flake.nix
     nerdfetch
     nmap
     openai-whisper
@@ -142,7 +140,14 @@ programs.ssh = {
     smug
     soco-cli
     spotdl
-    spotify
+    # Spotify met Wayland GPU fix - wrapper die Spotify met correcte flags start
+    (pkgs.writeShellScriptBin "spotify" ''
+      exec ${pkgs.spotify}/bin/spotify \
+        --disable-gpu-sandbox \
+        --enable-features=UseOzonePlatform \
+        --ozone-platform=wayland \
+        "$@"
+    '')
     sqlite
     sqsh
     ssm-session-manager-plugin
