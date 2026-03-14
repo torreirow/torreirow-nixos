@@ -17,8 +17,6 @@ call plug#begin('~/.local/share/nvim/plugged')
   Plug 'LnL7/vim-nix'
   Plug 'luizribeiro/vim-cooklang', { 'for': 'cook' }
   Plug 'ayu-theme/ayu-vim' 
-  Plug 'linden-project/linny.vim' 
-  Plug 'mipmip/vim-hotpop' 
   Plug 'vim-pandoc/vim-pandoc-syntax'  " Vereiste plugin voor syntax
   Plug 'quarto-dev/quarto-vim', { 'for': 'quarto' }
   Plug 'ojroques/vim-oscyank',
@@ -61,5 +59,4 @@ nmap ,cc <leader>c_
 vmap ,c <Plug>OSCYankVisual
 
 let g:linny_open_notebook_path       = $HOME . '/data/git/torreirow/torrlinny'
-call linny#Init()
 
