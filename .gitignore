@@ -10,3 +10,5 @@ result/**
 secrets/*.pem
 secrets/*.key
 home/managed_service_accounts.json
+nvim.log
+magister_session.json
