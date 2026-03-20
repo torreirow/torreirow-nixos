@@ -1,5 +1,19 @@
 { config, lib, pkgs, ... }:
 
+# Magister Sync Service Module
+#
+# Error Handling & Email Notificaties:
+# - Bij sessie problemen (bestand niet gevonden of ongeldig):
+#   * Python script verstuurt email naar: wvdtoorren@gmail.com (hardcoded in magister_server.py:26)
+#   * Service stopt met exit code 1 en wordt NIET automatisch herstart
+#   * Handmatige interventie vereist: nieuwe sessie aanmaken met magister_login.py
+#
+# - Bij andere fouten (netwerk, tijdelijke problemen):
+#   * Service herstart automatisch na 60 seconden (max 5 pogingen binnen 10 minuten)
+#
+# - Bij succesvolle start:
+#   * Nginx wordt gereload om nieuwe .ics bestanden beschikbaar te maken
+
 with lib;
 
 let
@@ -117,8 +131,10 @@ in {
     # Alleen .ics bestanden hebben nginx group voor webserver toegang
     systemd.tmpfiles.rules = [
       "d ${cfg.workingDirectory} 0750 ${cfg.user} ${cfg.group} -"
+      "z ${cfg.workingDirectory} 0750 ${cfg.user} ${cfg.group} -"  # Force correct permissions
       "L+ ${cfg.workingDirectory}/magister_server.py - - - - ${magisterServerScript}"
       "z ${cfg.workingDirectory}/*.ics 0664 ${cfg.user} nginx -"
+      "z ${cfg.workingDirectory}/index.html 0664 ${cfg.user} nginx -"
       # Log directory voor magister
       "d /var/log/magister 0750 ${cfg.user} ${cfg.group} -"
     ];
@@ -143,13 +159,13 @@ in {
         # Start het script
         ExecStart = "${magisterScript}";
 
-        # Restart policy: stop bij sessie errors, anders herstart
+        # Restart policy: voorkom herhaaldelijke failures bij sessie problemen
+        # - Bij exit code 1 (sessie ongeldig): GEEN restart, service stopt definitief
+        # - Bij andere failures: herstart na 60 seconden (bijv. tijdelijke netwerkproblemen)
+        # - Python script verstuurt email naar ${ERROR_EMAIL} bij sessie problemen
         Restart = "on-failure";
         RestartSec = "60s";
-
-        # Stop service als script zelf stopt (bijv. bij ongeldige sessie)
-        # En herstart NIET als exit code 1 is (sessie ongeldig)
-        RestartPreventExitStatus = "1";
+        RestartPreventExitStatus = "1";  # Exit code 1 = sessie ongeldig, geen retry
 
         # Security hardening
         NoNewPrivileges = true;
@@ -175,6 +191,12 @@ in {
         else
           echo "Pre-flight checks geslaagd"
         fi
+      '';
+
+      # Post-start: reload nginx om nieuwe .ics bestanden beschikbaar te maken
+      postStart = mkIf nginxCfg.enable ''
+        echo "Magister sync gestart - nginx herladen om nieuwe calendars beschikbaar te maken..."
+        ${pkgs.systemd}/bin/systemctl reload nginx.service || true
       '';
     };
 
