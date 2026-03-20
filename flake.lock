@@ -421,6 +421,22 @@
         "type": "indirect"
       }
     },
+    "nixpkgs_11": {
+      "locked": {
+        "lastModified": 1773282481,
+        "narHash": "sha256-b/GV2ysM8mKHhinse2wz+uP37epUrSE+sAKXy/xvBY4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "fe416aaedd397cacb33a610b33d60ff2b431b127",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1724727824,
@@ -666,6 +682,7 @@
         "nixvim": "nixvim",
         "openspec": "openspec",
         "race": "race",
+        "teejay": "teejay",
         "unstable": "unstable"
       }
     },
@@ -711,6 +728,24 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "teejay": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_11"
+      },
+      "locked": {
+        "lastModified": 1774009372,
+        "narHash": "sha256-gA71lLQ/6CJ1XdofZFvGzfyBMI1CSjBI47s27oeBOaY=",
+        "owner": "mipmip",
+        "repo": "teejay",
+        "rev": "d795e33d0dfdbf22a6776e6f14df7ffac0425a0f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mipmip",
+        "repo": "teejay",
         "type": "github"
       }
     },
