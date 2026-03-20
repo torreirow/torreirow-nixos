@@ -1,6 +1,6 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-03-14
+**Laatst bijgewerkt:** 2026-03-15
 
 ## Huidige Status
 
@@ -52,6 +52,66 @@ environment.variables = {
 | NixOS 4.4.3 (`mscore`) | Respecteert env var | **WERKT** met `QT_QPA_PLATFORM=wayland` |
 
 **Aanbeveling:** Gebruik de NixOS versie (`mscore`) in plaats van Flatpak.
+
+### Tijdlijn Wayland/Qt wijzigingen
+
+Volledige chronologie van Wayland en Qt configuratiewijzigingen:
+
+#### **26 januari 2026** - Electron Wayland fixes (commit `615209a`)
+**Eerste Wayland fixes voor Electron apps**
+
+- **Probleem:** Bitwarden en andere Electron apps toonden geen window op GNOME 49.2 Wayland
+- **Oplossing:**
+  - `ELECTRON_OZONE_PLATFORM_HINT = "wayland"` toegevoegd aan `hosts/lobos/configuration.nix:452`
+  - Nieuwe file `home/gnome-desktop/wayland-fixes.nix` met Mutter experimental features
+  - Mutter settings: `scale-monitor-framebuffer` en `center-new-windows`
+- **Beïnvloed:** Bitwarden, VSCode, Signal, Slack, Teams, etc.
+
+#### **18 februari 2026** - Eerste Qt Wayland poging (commit `87e61ec`)
+**Clementine wrapper met QT_QPA_PLATFORM**
+
+- **Benadering:** Wrapper in `hosts/lobos/programs.wouter` die Clementine start met `QT_QPA_PLATFORM=wayland`
+- **Status:** Experimenteel, niet de uiteindelijke oplossing
+
+#### **24 februari 2026** - Definitieve Qt oplossing (commit `2c85dce`)
+**Nieuwe gnome-wayland.nix met systeem-brede Qt Wayland support**
+
+- **Belangrijkste wijzigingen:**
+  - Nieuwe file `hosts/lobos/gnome-wayland.nix` aangemaakt
+  - `environment.sessionVariables.QT_QPA_PLATFORM = "wayland"` (systeem-breed)
+  - `environment.variables.ELECTRON_OZONE_PLATFORM_HINT = "wayland"` verplaatst naar gnome-wayland.nix
+  - Alle GNOME/Wayland settings geconsolideerd in één bestand
+  - Oude gnome.nix uitgecommentarieerd/verwijderd
+- **Resultaat:** Qt apps (Clementine, MuseScore) werken nu correct op Wayland
+
+#### **4 maart 2026** - Kleine aanpassingen (commit `82411bb`)
+**Opruimen gnome-wayland.nix**
+
+- Enkele GNOME extensions verwijderd/aangepast
+- `wl-clipboard` toegevoegd
+- `programs.dconf.enable = true` toegevoegd
+
+#### **14 maart 2026** - Documentatie update (commit `ee6189d`)
+**CLAUDE.md bijgewerkt met volledige Qt/Wayland documentatie**
+
+**Huidige configuratie:**
+```nix
+# Qt apps (Clementine, mscore, Strawberry, etc.)
+environment.sessionVariables = {
+  QT_QPA_PLATFORM = "wayland";
+};
+
+# Electron apps (Bitwarden, VSCode, Signal, etc.)
+environment.variables = {
+  ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+};
+```
+
+**Impact:**
+- ✅ Alle Qt apps draaien native op Wayland
+- ✅ Alle Electron apps draaien native op Wayland
+- ✅ Geen invisible window problemen meer
+- ✅ Betere performance (geen XWayland overhead)
 
 ### Sessie 2026-02-18 - Strawberry & Fail2ban
 

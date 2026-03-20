@@ -140,14 +140,7 @@ programs.ssh = {
     smug
     soco-cli
     spotdl
-    # Spotify met Wayland GPU fix - wrapper die Spotify met correcte flags start
-    (pkgs.writeShellScriptBin "spotify" ''
-      exec ${pkgs.spotify}/bin/spotify \
-        --disable-gpu-sandbox \
-        --enable-features=UseOzonePlatform \
-        --ozone-platform=wayland \
-        "$@"
-    '')
+    spotify
     sqlite
     sqsh
     ssm-session-manager-plugin
