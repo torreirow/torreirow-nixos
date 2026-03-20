@@ -29,19 +29,14 @@ in
   services.postfix = {
     enable = true;
 
-    # Basis configuratie
-    hostname = "toorren.net"; # Pas aan naar jouw hostname
+    # NixOS 25.11 configuratie formaat
+    settings.main = {
+      # Basis configuratie
+      myhostname = "toorren.net"; # Pas aan naar jouw hostname
+      # AWS SES relay configuratie (host:port formaat met brackets voor SASL)
+      relayhost = ["[${relayHost}]:587"]; # Brackets matchen SASL password map formaat
 
-    # AWS SES relay configuratie
-    relayHost = relayHost;
-    relayPort = 587; # STARTTLS port (AWS SES ondersteunt 25, 587, 2587)
-    
-    # Gebruik SASL authenticatie
-    setSasl = true;
-
-    config = {
       # TLS configuratie voor uitgaande verbindingen naar AWS SES
-      smtp_use_tls = "yes";
       smtp_tls_security_level = "encrypt"; # Verplicht TLS voor AWS SES
       smtp_tls_CAfile = "/etc/ssl/certs/ca-certificates.crt";
       smtp_tls_note_starttls_offer = "yes";
@@ -49,7 +44,7 @@ in
       # SASL authenticatie (AWS SES)
       smtp_sasl_auth_enable = "yes";
       smtp_sasl_security_options = "noanonymous";
-      smtp_sasl_password_maps = "hash:/run/agenix/postfix-sasl-password";
+      smtp_sasl_password_maps = "hash:/etc/postfix/sasl_passwd";
       smtp_sasl_mechanism_filter = "plain,login"; # AWS SES ondersteunt alleen PLAIN en LOGIN
 
       # Optioneel: TLS loglevel voor debugging (uncomment indien nodig)
@@ -57,15 +52,22 @@ in
 
       # AWS SES specifieke instellingen
       # Beperk message size tot AWS SES limiet (10 MB voor raw message, 40 MB na base64 encoding)
-      message_size_limit = "10485760"; # 10 MB
+      message_size_limit = 10485760; # 10 MB
 
-      # Sender rewriting (optioneel, pas aan indien nodig)
-      # Nuttig als je mail wilt versturen vanuit verschillende adressen
-      # sender_canonical_maps = "hash:/etc/postfix/sender_canonical";
-
-      # Fallback relay (optioneel)
-      # smtp_fallback_relay = "";
+      # Sender rewriting - herschrijf @malandro naar @toorren.net
+      sender_canonical_maps = "regexp:/etc/postfix/sender_canonical";
+      smtp_header_checks = "regexp:/etc/postfix/header_checks";
     };
+
+    # Sender canonical maps - herschrijf lokale adressen naar toorren.net
+    mapFiles."sender_canonical" = pkgs.writeText "sender_canonical" ''
+      /@malandro$/ wtoorren@toorren.net
+    '';
+
+    # Header checks - herschrijf From header
+    mapFiles."header_checks" = pkgs.writeText "header_checks" ''
+      /^From:(.*)@malandro/ REPLACE From:''${1}@toorren.net
+    '';
   };
 
   # Agenix configuratie voor AWS SES SMTP credentials
@@ -85,30 +87,45 @@ in
     before = [ "postfix.service" ];
     after = [ "agenix.service" ];
     wantedBy = [ "multi-user.target" ];
-    
+    partOf = [ "postfix.service" ];  # Herstart samen met postfix
+
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      User = "root";
     };
-    
+
     script = ''
       # Wacht tot het secret bestand beschikbaar is
       while [ ! -f /run/agenix/postfix-sasl-password ]; do
         sleep 0.1
       done
-      
-      # Maak postmap database
-      ${pkgs.postfix}/bin/postmap /run/agenix/postfix-sasl-password
-      
-      # Zet juiste permissies
-      chown postfix:postfix /run/agenix/postfix-sasl-password.db
-      chmod 0400 /run/agenix/postfix-sasl-password.db
+
+      # Kopieer het secret bestand naar /etc/postfix/
+      cp /run/agenix/postfix-sasl-password /etc/postfix/sasl_passwd
+      chown root:root /etc/postfix/sasl_passwd
+      chmod 0600 /etc/postfix/sasl_passwd
+
+      # Maak postmap database in /etc/postfix/
+      ${pkgs.postfix}/bin/postmap /etc/postfix/sasl_passwd
+
+      # Zet juiste permissies voor de database
+      chown root:root /etc/postfix/sasl_passwd.db
+      chmod 0600 /etc/postfix/sasl_passwd.db
     '';
   };
 
-  # Zorg dat postfix na de SASL setup start
+  # Zorg dat postfix na de SASL setup start en altijd de database opnieuw aanmaakt
   systemd.services.postfix = {
     after = [ "postfix-sasl-setup.service" ];
     requires = [ "postfix-sasl-setup.service" ];
+
+    # Run SASL setup script before starting/restarting postfix
+    serviceConfig.ExecStartPre = [
+      # Wacht op agenix secret
+      ''+${pkgs.bash}/bin/bash -c 'while [ ! -f /run/agenix/postfix-sasl-password ]; do sleep 0.1; done' ''
+      # Setup SASL database
+      "+${pkgs.bash}/bin/bash -c 'cp /run/agenix/postfix-sasl-password /etc/postfix/sasl_passwd && chown root:root /etc/postfix/sasl_passwd && chmod 0600 /etc/postfix/sasl_passwd && ${pkgs.postfix}/bin/postmap /etc/postfix/sasl_passwd && chown root:root /etc/postfix/sasl_passwd.db && chmod 0600 /etc/postfix/sasl_passwd.db'"
+    ];
   };
 }
