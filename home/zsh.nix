@@ -48,6 +48,17 @@
           vpnkardisconnect="openvpn3 session-manage --disconnect --config $HOME/.config/openvpn/lobos.ovpn";
           t="tmux attach -t main";
         };
+        initExtra = ''
+  nixhost() {
+    NIXHOST=$(bmc ec2ls | awk -F'│' '/nixhost/{gsub(/ /,"",$2); print $2}')
+    if [ -z "$NIXHOST" ]; then
+      echo "nixhost not found, check AWS profile"
+    else
+      bmc ec2connect -u ''${USER} -h $NIXHOST
+    fi
+  }
+'';
+
 
 
         oh-my-zsh = {
