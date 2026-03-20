@@ -232,6 +232,7 @@
          ./home/dotfiles/toggl-secret-wtoorren.nix
          ./home/module/ssh-config_hosts
          ./home/sshkeys.nix
+         ./home/module/opencode.nix
          linux-defaults
        ];
 
