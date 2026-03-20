@@ -56,7 +56,7 @@ programs.ssh = {
     bitwarden-desktop
     caligula
     catppuccin
-    strawberry  # Replaced Clementine - better maintained, native Wayland support
+    unstable.strawberry  # Replaced Clementine - better maintained, native Wayland support
     certbot
     cheese # webcam tool
     copilot-cli
