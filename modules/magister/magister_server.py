@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from playwright.sync_api import sync_playwright
 from dateutil import parser
 from bs4 import BeautifulSoup
+from email.message import EmailMessage
 
 
 # Configuratie
@@ -22,6 +23,7 @@ SESSION_FILE = "magister_session.json"
 ICAL_FILE = "magister.ics"
 KEEP_ALIVE_INTERVAL = 10 * 60  # 10 minuten in seconden
 LOG_FILE = "/var/log/magister/magister.log"
+ERROR_EMAIL = "wvdtoorren@gmail.com"
 
 # Logging configuratie
 def setup_logging():
@@ -51,6 +53,38 @@ def setup_logging():
     return logging.getLogger(__name__)
 
 logger = setup_logging()
+
+
+def send_error_email(subject, body):
+    """Stuur een error email via postfix/sendmail"""
+    try:
+        msg = EmailMessage()
+        msg['Subject'] = f"[Magister Sync] {subject}"
+        msg['From'] = f"magister@{os.uname().nodename}"
+        msg['To'] = ERROR_EMAIL
+        msg.set_content(body)
+
+        # Gebruik sendmail (NixOS wrapper)
+        sendmail_process = subprocess.Popen(
+            ['/run/wrappers/bin/sendmail', '-t', '-oi'],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        stdout, stderr = sendmail_process.communicate(msg.as_string())
+
+        if sendmail_process.returncode == 0:
+            logger.info(f"✓ Error email verzonden naar {ERROR_EMAIL}")
+            return True
+        else:
+            logger.error(f"✗ Kon email niet verzenden: {stderr}")
+            return False
+
+    except Exception as e:
+        logger.error(f"✗ Fout bij verzenden email: {e}", exc_info=True)
+        return False
 
 
 def find_chromium_executable():
@@ -577,11 +611,20 @@ def main():
 
     # Check of sessie bestaat
     if not client.session_exists():
-        logger.error(f"✗ Geen sessie gevonden: {SESSION_FILE}")
-        logger.info("Voer de volgende stappen uit:")
-        logger.info("1. Draai magister_login.py op je laptop")
-        logger.info(f"2. Kopieer {SESSION_FILE} naar deze server")
-        logger.info("3. Start dit script opnieuw")
+        error_msg = f"Geen sessie gevonden: {SESSION_FILE}\n\n"
+        error_msg += "Voer de volgende stappen uit:\n"
+        error_msg += "1. Draai magister_login.py op je laptop\n"
+        error_msg += f"2. Kopieer {SESSION_FILE} naar deze server\n"
+        error_msg += "3. Start dit script opnieuw\n"
+
+        logger.error(f"✗ {error_msg}")
+
+        # Stuur email
+        send_error_email(
+            subject="Sessie bestand niet gevonden",
+            body=error_msg
+        )
+
         import sys
         sys.exit(1)  # Exit met code 1 = sessie probleem
 
@@ -589,11 +632,22 @@ def main():
 
     # Test sessie
     if not client.test_session():
-        logger.error("✗ Sessie is niet meer geldig!")
-        logger.info("De sessie is verlopen. Voer de volgende stappen uit:")
-        logger.info("1. Draai magister_login.py op je laptop (opnieuw inloggen)")
-        logger.info(f"2. Kopieer het nieuwe {SESSION_FILE} naar deze server")
-        logger.info("3. Start dit script opnieuw")
+        error_msg = "Sessie is niet meer geldig!\n\n"
+        error_msg += "De sessie is verlopen. Voer de volgende stappen uit:\n"
+        error_msg += "1. Draai magister_login.py op je laptop (opnieuw inloggen)\n"
+        error_msg += f"2. Kopieer het nieuwe {SESSION_FILE} naar deze server\n"
+        error_msg += "3. Start dit script opnieuw\n\n"
+        error_msg += f"Server: {os.uname().nodename}\n"
+        error_msg += f"Tijdstip: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+
+        logger.error(f"✗ {error_msg}")
+
+        # Stuur email
+        send_error_email(
+            subject="Sessie ongeldig - opnieuw inloggen vereist",
+            body=error_msg
+        )
+
         import sys
         sys.exit(1)  # Exit met code 1 = sessie probleem
 
@@ -644,6 +698,9 @@ def main():
     logger.info(f"Het script update {len(kind_data)} agenda bestand(en) automatisch")
     logger.info("Druk op Ctrl+C om te stoppen\n")
 
+    failed_updates = 0  # Teller voor mislukte updates
+    max_failed_updates = 3  # Aantal mislukte updates voordat we sessie testen
+
     try:
         while True:
             time.sleep(KEEP_ALIVE_INTERVAL)
@@ -652,14 +709,51 @@ def main():
             logger.info(f"\n[{timestamp}] Keep-alive: agenda's ophalen...")
 
             # Update elk kind
+            update_success = False
             for naam, info in kind_data.items():
                 logger.info(f"  → {naam}...")
                 appointments = client.fetch_afspraken(days=7, persoon_id=info['id'])
 
                 if appointments:
                     client.export_to_ical(appointments, info['file'])
+                    update_success = True
                 else:
                     logger.warning(f"  ⚠ Kon agenda voor {naam} niet ophalen")
+
+            # Check of er updates zijn gelukt
+            if not update_success:
+                failed_updates += 1
+                logger.warning(f"  ⚠ Geen agenda's konden worden opgehaald ({failed_updates}/{max_failed_updates})")
+
+                # Na 3 mislukte updates, test of sessie nog geldig is
+                if failed_updates >= max_failed_updates:
+                    logger.warning("  → Testen van sessie...")
+                    if not client.test_session():
+                        error_msg = "Sessie is ongeldig geworden tijdens runtime!\n\n"
+                        error_msg += "De sessie is verlopen tijdens het draaien van de service.\n"
+                        error_msg += "Voer de volgende stappen uit:\n"
+                        error_msg += "1. Draai magister_login.py op je laptop (opnieuw inloggen)\n"
+                        error_msg += f"2. Kopieer het nieuwe {SESSION_FILE} naar deze server\n"
+                        error_msg += "3. Herstart de magister-sync service\n\n"
+                        error_msg += f"Server: {os.uname().nodename}\n"
+                        error_msg += f"Tijdstip: {timestamp}\n"
+
+                        logger.error(f"✗ {error_msg}")
+
+                        # Stuur email
+                        send_error_email(
+                            subject="Sessie ongeldig - service gestopt",
+                            body=error_msg
+                        )
+
+                        import sys
+                        sys.exit(1)  # Stop service, NixOS zal NIET herstarten (RestartPreventExitStatus=1)
+                    else:
+                        logger.info("  ✓ Sessie is nog geldig, mogelijk tijdelijk probleem")
+                        failed_updates = 0  # Reset teller
+            else:
+                # Reset teller bij succesvolle update
+                failed_updates = 0
 
             # Update index.html na het updaten van alle calendars
             logger.info("  → index.html...")
