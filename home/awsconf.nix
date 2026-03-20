@@ -110,7 +110,12 @@ alternative_regions = {
   "221539347604" = "us-east-2"; #mustad 
   "925937276627" = "us-east-2"; #mustad 
   "906347402442" = "us-west-2"; #pastbook
-  };
+  "353319268640" = "eu-west-1"; #docrev
+  "255217714588" = "eu-west-1"; #docrev
+  "189796657102" = "eu-west-1"; #docrev
+  "945695383844" = "eu-west-1"; #docrev
+  "975050060686" = "eu-west-1"; #docrev
+};
   alternative_names = {
     #"760178553019" = "pg_wtoorren";
     "992382674167" = "iit-rrs-nonprod";
