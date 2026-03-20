@@ -37,6 +37,7 @@
           boostmic="pactl set-source-volume 2 190%";
           gbdel=" echo Removing branches from git repo: $(basename -s .git \"$(git config --get remote.origin.url)\"); for branch in $(git branch --format=\"%(refname:short)\" | grep -Ev '^(main|master)$'); do echo -n \"Verwijder branch '$branch'? (y/n) \";  read answer ;  [[ $answer == \"y\" ]] && git branch -D \"$branch\"; done";
           ghrmbranch="for branch in $(git branch |grep -v -i -e main -e master); do git branch -D $branch; done";
+          mcsjsonsync="systemctl --user start aws-accounts-sync.service";
           qdm="cd ./output; qdm=$(gum choose $(ls -t *.html ; echo none| head -5)); if [[ $qdm != 'none' ]]; then firefox --new-tab $qdm 2>/dev/null;fi";
           smg="smug $(basename -s \".yml\" $(gum filter  $(ls ~/.config/smug/*.yml)))";
           tfapply="$HOME/data/git/wearetechnative/race/tfapply.sh";
