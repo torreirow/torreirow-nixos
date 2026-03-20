@@ -18,24 +18,18 @@ let
   # Magister server script uit de module directory
   magisterServerScript = ./magister_server.py;
 
-  # Wrapper script dat checkt op sessie validiteit
+  # Wrapper script - laat Python script alle checks en emails afhandelen
   magisterScript = pkgs.writeShellScript "magister-sync" ''
     set -e
 
     cd ${cfg.workingDirectory}
 
-    # Check of sessie bestand bestaat
-    if [ ! -f "${cfg.workingDirectory}/magister_session.json" ]; then
-      echo "ERROR: magister_session.json niet gevonden in ${cfg.workingDirectory}"
-      echo "Kopieer het sessie bestand en herstart de service"
-      exit 1
-    fi
-
-    # Voer het script uit
+    # Voer het script uit - Python script handelt alle checks en emails af
     export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
     export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
     # Start het script - als de sessie ongeldig is, stopt het script met exit code != 0
+    # en verstuurt het een email
     ${pythonEnv}/bin/python ${cfg.workingDirectory}/magister_server.py
   '';
 
@@ -111,20 +105,22 @@ in {
       home = cfg.workingDirectory;
       createHome = true;
       description = "Magister sync service user";
-      extraGroups = [ "wheel" ];
+      extraGroups = [ "wheel" "postdrop" ];  # postdrop nodig voor email verzending
     };
 
     users.groups.${cfg.group} = {};
 
+    # Voeg nginx toe aan magister group zodat nginx de .ics bestanden kan lezen
+    users.users.nginx.extraGroups = [ cfg.group ];
+
     # Zorg dat de working directory en log directory de juiste permissies hebben
-    # Group is nginx zodat nginx de bestanden kan lezen
+    # Alleen .ics bestanden hebben nginx group voor webserver toegang
     systemd.tmpfiles.rules = [
-      "d ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
-      "z ${cfg.workingDirectory} 0775 ${cfg.user} nginx -"
+      "d ${cfg.workingDirectory} 0750 ${cfg.user} ${cfg.group} -"
       "L+ ${cfg.workingDirectory}/magister_server.py - - - - ${magisterServerScript}"
       "z ${cfg.workingDirectory}/*.ics 0664 ${cfg.user} nginx -"
       # Log directory voor magister
-      "d /var/log/magister 0755 ${cfg.user} ${cfg.group} -"
+      "d /var/log/magister 0750 ${cfg.user} ${cfg.group} -"
     ];
 
     # Systemd service
@@ -134,8 +130,8 @@ in {
       wants = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
 
-      # Maak chromium en which beschikbaar in PATH
-      path = with pkgs; [ chromium which ];
+      # Maak chromium, which en sendmail beschikbaar in PATH
+      path = with pkgs; [ chromium which postfix ];
 
       # Service configuratie
       serviceConfig = {
@@ -160,22 +156,25 @@ in {
         PrivateTmp = true;
         ProtectSystem = "strict";
         ProtectHome = true;
-        ReadWritePaths = [ cfg.workingDirectory "/var/log/magister" ];
+        ReadWritePaths = [
+          cfg.workingDirectory
+          "/var/log/magister"
+          "/var/lib/postfix/queue"  # Nodig voor email verzending via postfix
+        ];
 
         # Geef toegang tot network
         PrivateNetwork = false;
       };
 
-      # Pre-start checks
+      # Pre-start checks (alleen warning, laat Python script de email verzorgen)
       preStart = ''
-        # Check of sessie bestand bestaat
+        # Check of sessie bestand bestaat (maar fail niet, laat Python script errors afhandelen)
         if [ ! -f "${cfg.workingDirectory}/magister_session.json" ]; then
-          echo "ERROR: magister_session.json niet gevonden in ${cfg.workingDirectory}!"
-          echo "Kopieer het sessie bestand naar ${cfg.workingDirectory}/ en herstart de service"
-          exit 1
+          echo "WARNING: magister_session.json niet gevonden in ${cfg.workingDirectory}!"
+          echo "Het Python script zal een error email verzenden en stoppen."
+        else
+          echo "Pre-flight checks geslaagd"
         fi
-
-        echo "Pre-flight checks geslaagd"
       '';
     };
 
