@@ -24,7 +24,11 @@ in
    ../../modules/torrlinny-web.nix
     ];
 
-
+  # Safety check: prevent building wrong config on wrong host
+  assertions = [{
+    assertion = config.networking.hostName == "lobos";
+    message = "ERROR: Deze configuratie is voor 'lobos', maar hostname is '${config.networking.hostName}'. Gebruik --flake .#${config.networking.hostName}";
+  }];
 
   nix.extraOptions = ''
     experimental-features = nix-command flakes
