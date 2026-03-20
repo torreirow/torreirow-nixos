@@ -2,6 +2,6 @@
   "base_url": "https://vw.toorren.net",
   "email": "wvdtoorren@gmail.com",
   "identity_url": null,
-  "lock_timeout": 10800,
+  "lock_timeout": 28800,
   "pinentry": "/run/current-system/sw/bin/pinentry-tty"
 }
