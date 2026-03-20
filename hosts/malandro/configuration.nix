@@ -50,6 +50,12 @@ in
    # ../../modules/teamviewer.nix
  ];
 
+  # Safety check: prevent building wrong config on wrong host
+  assertions = [{
+    assertion = config.networking.hostName == "malandro";
+    message = "ERROR: Deze configuratie is voor 'malandro', maar hostname is '${config.networking.hostName}'. Gebruik --flake .#${config.networking.hostName}";
+  }];
+
  services.magister-sync = {
    enable = true;
    nginx = {
