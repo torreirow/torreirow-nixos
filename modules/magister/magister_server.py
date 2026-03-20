@@ -87,6 +87,52 @@ def send_error_email(subject, body):
         return False
 
 
+def send_success_email(kinderen_count, calendars):
+    """Stuur een succes notificatie email bij succesvolle start"""
+    try:
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        body = f"De Magister synchronisatie service is succesvol gestart!\n\n"
+        body += f"Server: {os.uname().nodename}\n"
+        body += f"Tijdstip: {timestamp}\n"
+        body += f"Aantal kinderen: {kinderen_count}\n\n"
+        body += "Agenda's beschikbaar:\n"
+
+        for naam, info in calendars.items():
+            body += f"  - {naam}: {info['file']}\n"
+
+        body += f"\nDe agenda's worden automatisch bijgewerkt elke {KEEP_ALIVE_INTERVAL//60} minuten.\n"
+        body += "\nBekijk de agenda's op: https://agenda.toorren.net/\n"
+
+        msg = EmailMessage()
+        msg['Subject'] = f"[Magister Sync] Service gestart"
+        msg['From'] = f"magister@{os.uname().nodename}"
+        msg['To'] = ERROR_EMAIL
+        msg.set_content(body)
+
+        # Gebruik sendmail (NixOS wrapper)
+        sendmail_process = subprocess.Popen(
+            ['/run/wrappers/bin/sendmail', '-t', '-oi'],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        stdout, stderr = sendmail_process.communicate(msg.as_string())
+
+        if sendmail_process.returncode == 0:
+            logger.info(f"✓ Succes notificatie verzonden naar {ERROR_EMAIL}")
+            return True
+        else:
+            logger.error(f"✗ Kon succes email niet verzenden: {stderr}")
+            return False
+
+    except Exception as e:
+        logger.error(f"✗ Fout bij verzenden succes email: {e}", exc_info=True)
+        return False
+
+
 def find_chromium_executable():
     """Vind Chromium executable op NixOS of standaard systeem"""
     # Probeer NixOS locaties
@@ -692,6 +738,10 @@ def main():
     # Genereer index.html met lijst van calendars
     logger.info("\n=== Index genereren ===")
     generate_index_html()
+
+    # Stuur succes notificatie email
+    logger.info("\n=== Succes notificatie ===")
+    send_success_email(len(kinderen), kind_data)
 
     # Keep-alive loop
     logger.info(f"\n=== Keep-alive gestart (elke {KEEP_ALIVE_INTERVAL//60} minuten) ===")
