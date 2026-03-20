@@ -14,6 +14,7 @@ in
     ./fonts.nix
     ./python.nix
     ./gnome-wayland.nix
+    ./sudo-nopasswd.nix  # Comment deze regel om sudo password weer aan te zetten
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix
     ../../modules/claude.nix
@@ -123,7 +124,6 @@ in
       LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
       SAL_USE_VCLPLUGIN = "gtk3";
       FONTCONFIG_PATH = "/etc/fonts";
-      # QT_QPA_PLATFORM en ELECTRON_OZONE_PLATFORM_HINT staan in gnome-wayland.nix
     };
   };
 
@@ -225,10 +225,10 @@ environment.variables.EDITOR = "vim";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   services.openssh.extraConfig = "LoginGracetime=0";
-  services.gnome.gnome-keyring.enable = lib.mkForce false;
-programs.seahorse.enable = false;
-security.pam.services.login.enableGnomeKeyring = false;
-security.pam.services.sddm.enableGnomeKeyring = false;  # als je SDDM gebruikt
+  services.gnome.gnome-keyring.enable = true;
+programs.seahorse.enable = true;
+security.pam.services.login.enableGnomeKeyring = true;
+#security.pam.services.sddm.enableGnomeKeyring = false;  # niet nodig, je gebruikt GDM
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

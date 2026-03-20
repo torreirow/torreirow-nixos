@@ -8,17 +8,12 @@
   services.xserver.enable = true;
   services.displayManager.sddm.enable = false;
   services.displayManager.gdm.enable = true;
+  services.displayManager.gdm.wayland = true;
   services.desktopManager.gnome.enable = true;
   services.displayManager.defaultSession = "gnome";
   services.gnome.gnome-settings-daemon.enable = true;
-
-  # ===== Mutter/Wayland Settings =====
-  # Experimental features voor betere Wayland/XWayland compatibility
-  services.desktopManager.gnome.extraGSettingsOverrides = ''
-    [org/gnome/mutter]
-    experimental-features=['scale-monitor-framebuffer', 'xwayland-native-scaling']
-    center-new-windows=true
-  '';
+  services.gnome.gnome-keyring.enable = true;  # Voor VPN/WiFi secrets (NetworkManager)
+  programs.xwayland.enable = true;
 
   # ===== XDG Portals =====
   # Voor Wayland screen sharing, file dialogs, etc.
@@ -28,18 +23,6 @@
       xdg-desktop-portal-gnome
       xdg-desktop-portal-gtk
     ];
-  };
-
-  # ===== Wayland Environment Variables =====
-  environment.sessionVariables = {
-    # Force Qt apps to use native Wayland (fixes invisible windows on GNOME 49+)
-    # Werkt voor: Clementine, mscore/MuseScore, etc.
-    QT_QPA_PLATFORM = "wayland";
-  };
-
-  environment.variables = {
-    # Electron apps (Bitwarden, VSCode, Signal, etc.) Wayland fix for GNOME 49+
-    ELECTRON_OZONE_PLATFORM_HINT = "wayland";
   };
 
   # ===== GNOME Packages =====
@@ -70,6 +53,8 @@
     # GNOME tools
     dconf
     wl-clipboard  # Wayland clipboard tools voor screenshot-to-file script
+    networkmanagerapplet  # GUI voor VPN wachtwoord dialogen
+    libsecret  # Voor secret-tool (GNOME Keyring beheer)
   ];
 
   programs.dconf.enable = true;
