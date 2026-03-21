@@ -176,6 +176,7 @@ in {
           cfg.workingDirectory
           "/var/log/magister"
           "/var/lib/postfix/queue"  # Nodig voor email verzending via postfix
+          "/var/lib/prometheus-node-exporter-textfiles"  # Nodig voor heartbeat metric
         ];
 
         # Geef toegang tot network

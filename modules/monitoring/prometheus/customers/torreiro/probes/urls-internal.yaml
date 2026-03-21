@@ -1,0 +1,85 @@
+# Interne localhost endpoints voor backend service health monitoring (blackbox http_2xx_internal)
+# Core services
+- targets:
+  - http://127.0.0.1:9091
+  labels:
+    service_name: "auth"
+
+- targets:
+  - http://127.0.0.1:3000
+  labels:
+    service_name: "grafana"
+
+- targets:
+  - http://127.0.0.1:9090
+  labels:
+    service_name: "prometheus"
+
+- targets:
+  - http://127.0.0.1:9093
+  labels:
+    service_name: "alertmanager"
+
+# Home automation
+- targets:
+  - http://127.0.0.1:8123
+  labels:
+    service_name: "homeassistant"
+
+# Infrastructure tools
+- targets:
+  - http://127.0.0.1:9095
+  labels:
+    service_name: "cockpit"
+
+- targets:
+  - http://127.0.0.1:9096
+  labels:
+    service_name: "fail2ban"
+
+- targets:
+  - http://127.0.0.1:51821
+  labels:
+    service_name: "wg"
+
+# Productivity tools
+- targets:
+  - http://127.0.0.1:8085
+  labels:
+    service_name: "ittools"
+
+- targets:
+  - http://127.0.0.1:9097
+  labels:
+    service_name: "pdftools"
+
+- targets:
+  - http://127.0.0.1:8080
+  labels:
+    service_name: "vaultwarden"
+
+- targets:
+  - http://127.0.0.1:4567
+  labels:
+    service_name: "url"
+
+# File/Document services
+- targets:
+  - http://127.0.0.1:8181
+  labels:
+    service_name: "paperless"
+
+- targets:
+  - http://127.0.0.1:8081
+  labels:
+    service_name: "contacts"
+
+- targets:
+  - http://127.0.0.1:8082
+  labels:
+    service_name: "adresses"
+
+- targets:
+  - http://127.0.0.1:8083
+  labels:
+    service_name: "filesender"
