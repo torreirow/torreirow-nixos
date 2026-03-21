@@ -3,7 +3,6 @@ final: prev:
 
 {
   inherit (import ./rbw.nix final prev) rbw;
-  inherit (import ./ssmsh.nix final prev) ssmsh;
 
   quarto = prev.quarto.override {
     extraRPackages = [
