@@ -1,0 +1,19 @@
+groups:
+  - name: SSL Alerts Torreiro
+    rules:
+      - alert: SSL Expiration month - Torreiro
+        expr: (probe_ssl_earliest_cert_expiry{job="blackbox-torreiro"} - time()) / 86400 < 14
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring < 14 days"
+          description: "The certificate {{ $labels.instance }} will expire in less than 14 days"
+      - alert: SSL Expiration week - Torreiro
+        expr: (probe_ssl_earliest_cert_expiry{job="blackbox-torreiro"} - time()) / 86400 < 7
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SSL certificate expiring < 7 days"
+          description: "The certificate {{ $labels.instance }} will expire in less than 7 days"
