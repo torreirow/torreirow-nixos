@@ -145,7 +145,7 @@ programs.ssh = {
     sqsh
     ssm-session-manager-plugin
     # ssmsh wordt toegevoegd via extraPkgs in flake.nix (flake input torreirow/ssmsh)
-#    pkgs-2411.subtitleedit
+    pkgs-2411.subtitleedit
     super-productivity
     tali # poker game
     teams-for-linux
