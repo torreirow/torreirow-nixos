@@ -1,0 +1,26 @@
+groups:
+  - name: Service Monitoring
+    rules:
+      # Alert: Magister sync service niet actief
+      - alert: MagisterSyncDown
+        expr: (time() - magister_sync_heartbeat_timestamp) > 600
+        for: 1m
+        labels:
+          severity: critical
+          component: magister-sync
+          service: magister
+        annotations:
+          summary: "Magister sync service is niet actief"
+          description: "De magister-sync service heeft geen heartbeat gestuurd in de laatste {{ $value | humanizeDuration }}. Laatste heartbeat: {{ $value }} seconden geleden."
+
+      # Alert: Magister heartbeat metric ontbreekt
+      - alert: MagisterSyncHeartbeatMissing
+        expr: absent(magister_sync_heartbeat_timestamp)
+        for: 15m
+        labels:
+          severity: warning
+          component: magister-sync
+          service: magister
+        annotations:
+          summary: "Magister sync heartbeat metric ontbreekt"
+          description: "De magister_sync_heartbeat_timestamp metric wordt niet meer gerapporteerd. De service is mogelijk gestopt of de textfile wordt niet meer bijgewerkt."
