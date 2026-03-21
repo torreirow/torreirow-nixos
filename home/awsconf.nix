@@ -110,7 +110,12 @@ alternative_regions = {
   "221539347604" = "us-east-2"; #mustad 
   "925937276627" = "us-east-2"; #mustad 
   "906347402442" = "us-west-2"; #pastbook
-  };
+  "353319268640" = "eu-west-1"; #docrev
+  "255217714588" = "eu-west-1"; #docrev
+  "189796657102" = "eu-west-1"; #docrev
+  "945695383844" = "eu-west-1"; #docrev
+  "975050060686" = "eu-west-1"; #docrev
+};
   alternative_names = {
     #"760178553019" = "pg_wtoorren";
     "992382674167" = "iit-rrs-nonprod";
@@ -167,82 +172,76 @@ alternative_regions = {
       else groups.default.color;
     };
 
-  # Script to generate AWS config from JSON
-  awsConfigGenerator = pkgs.writeShellScript "generate-aws-config" ''
-    set -e
+  # Sync script to download AWS accounts JSON from S3
+  awsAccountsSyncScript = pkgs.writeShellScript "sync-aws-accounts" ''
+    set -euo pipefail
 
-    JSON_FILE="$HOME/.aws/managed_service_accounts.json"
-    CONFIG_FILE="$HOME/.aws/config"
+    AWS_DIR="$HOME/.aws"
+    JSON_FILE="$AWS_DIR/managed_service_accounts.json"
+    S3_PATH="s3://docs-mcs.technative.eu-longhorn/managed_service_accounts.json"
+    AWS_PROFILE="TN-web_dns"
 
-    # Check if JSON exists
-    if [ ! -f "$JSON_FILE" ]; then
-      echo "Error: $JSON_FILE not found. Run sync service first."
-      exit 1
+    # Function to send GNOME notification
+    notify() {
+        local urgency="$1"
+        local summary="$2"
+        local body="$3"
+
+        if command -v ${pkgs.libnotify}/bin/notify-send &> /dev/null; then
+            ${pkgs.libnotify}/bin/notify-send --urgency="$urgency" "$summary" "$body"
+        fi
+    }
+
+    # Ensure .aws directory exists
+    mkdir -p "$AWS_DIR"
+
+    # Try to download from S3
+    echo "📥 Downloading AWS accounts JSON from S3..."
+    echo "   Profile: $AWS_PROFILE"
+    echo "   Source: $S3_PATH"
+    echo "   Target: $JSON_FILE"
+
+    if ${pkgs.awscli2}/bin/aws --profile="$AWS_PROFILE" s3 cp "$S3_PATH" "$JSON_FILE" 2>&1; then
+        # Success - count accounts
+        if [ -f "$JSON_FILE" ]; then
+            account_count=$(${pkgs.jq}/bin/jq '. | length' "$JSON_FILE" 2>/dev/null || echo "unknown")
+
+            echo "✓ Successfully downloaded $account_count accounts"
+            notify "normal" \
+                   "AWS Accounts Sync - Success" \
+                   "Downloaded $account_count managed service accounts"
+
+            exit 0
+        else
+            echo "❌ Download succeeded but file not found"
+            notify "critical" \
+                   "AWS Accounts Sync - Error" \
+                   "Download succeeded but file not found at $JSON_FILE"
+            exit 1
+        fi
+    else
+        # Failed - check for common errors
+        exit_code=$?
+
+        if [[ $exit_code -eq 255 ]] || grep -q "ExpiredToken\|InvalidAccessKeyId\|SignatureDoesNotMatch" "$JSON_FILE" 2>/dev/null; then
+            echo "❌ Authentication failed - AWS session expired or invalid credentials"
+            notify "critical" \
+                   "AWS Accounts Sync - Auth Failed" \
+                   "AWS session expired for profile '$AWS_PROFILE'. Please refresh your credentials."
+        elif [[ $exit_code -eq 1 ]]; then
+            echo "❌ Profile not found or AWS CLI error"
+            notify "critical" \
+                   "AWS Accounts Sync - Profile Error" \
+                   "Profile '$AWS_PROFILE' not found or AWS CLI error"
+        else
+            echo "❌ Download failed with exit code $exit_code"
+            notify "critical" \
+                   "AWS Accounts Sync - Failed" \
+                   "Download failed with exit code $exit_code. Check logs with: journalctl --user -u aws-accounts-sync"
+        fi
+
+        exit $exit_code
     fi
-
-    # Generate AWS config using jq
-    echo "[default]" > "$CONFIG_FILE.tmp"
-    echo "" >> "$CONFIG_FILE.tmp"
-
-    # Add static profiles from home-manager
-    cat >> "$CONFIG_FILE.tmp" << 'EOF'
-[technative]
-aws_account_id = technativebv
-account_id = technativebv
-region = eu-central-1
-output = table
-group = Technative
-
-[profile ActiFlow]
-role_arn = arn:aws:iam::337810061405:role/TechnativeFullAccessRole
-region = eu-north-1
-group = ActiFlow
-output = json
-source_profile = technative
-
-[499164406685-wouter]
-region = eu-central-1
-output = json
-group = toorren
-
-[255418484322-waardenburg]
-region = eu-central-1
-output = json
-group = waardenburg
-
-[bedrock]
-region = eu-central-1
-output = json
-group = bedrock
-
-[profile mustad-developer]
-role_arn = arn:aws:iam::925937276627:role/developer
-region = us-east-2
-output = json
-group = mustad-pg
-source_profile = mustad
-
-[profile moooi]
-role_arn = arn:aws:iam::014756588884:role/TechnativeRole
-region = eu-west-1
-output = json
-group = moooi
-source_profile = technative
-
-[profile mustad-jumphost]
-role_arn = arn:aws:iam::925937276627:role/jumphost
-region = us-east-2
-output = json
-group = mustad-pg
-source_profile = mustad
-
-EOF
-
-    # TODO: Add dynamic profiles from JSON using jq
-    # This requires parsing the JSON and applying the same logic as the Nix code
-
-    mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    echo "AWS config updated successfully"
   '';
 
 in
@@ -314,6 +313,13 @@ in
           group = "mustad-pg";
           source_profile = "mustad";
         };
+        "profile DOC-docrevolution-readonly" = {
+            group = "DocRevolution";
+            output = "json";
+            region = "eu-central-1";
+            role_arn = "arn:aws:iam::267166554494:role/TechnativeRole";
+            source_profile = "technative";
+          };
       }
       // builtins.listToAttrs (builtins.map (account: {
         name = "profile ${shortname_group account}-${account_name account}";
@@ -322,27 +328,14 @@ in
 
     };
 
-    # Systemd services for syncing AWS accounts
+    # Systemd service for syncing AWS accounts (manual only, no timer)
   systemd.user.services.aws-accounts-sync = {
     Unit = {
-      Description = "Sync AWS managed service accounts JSON";
+      Description = "Sync AWS managed service accounts JSON from S3";
     };
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.python3}/bin/python3 ${./scripts/sync-aws-accounts.py}";
-    };
-  };
-
-  systemd.user.timers.aws-accounts-sync = {
-    Unit = {
-      Description = "Sync AWS accounts daily";
-    };
-    Timer = {
-      OnCalendar = "daily";
-      Persistent = true;
-    };
-    Install = {
-      WantedBy = [ "timers.target" ];
+      ExecStart = "${awsAccountsSyncScript}";
     };
   };
 }
