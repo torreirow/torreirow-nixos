@@ -12,3 +12,4 @@ secrets/*.key
 home/managed_service_accounts.json
 nvim.log
 magister_session.json
+modules/magister/magister_session.json
