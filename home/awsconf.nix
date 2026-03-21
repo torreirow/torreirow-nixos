@@ -313,6 +313,13 @@ in
           group = "mustad-pg";
           source_profile = "mustad";
         };
+        "profile DOC-docrevolution-readonly" = {
+            group = "DocRevolution";
+            output = "json";
+            region = "eu-central-1";
+            role_arn = "arn:aws:iam::267166554494:role/TechnativeRole";
+            source_profile = "technative";
+          };
       }
       // builtins.listToAttrs (builtins.map (account: {
         name = "profile ${shortname_group account}-${account_name account}";
