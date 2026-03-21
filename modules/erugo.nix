@@ -21,6 +21,11 @@
       locations."/" = {
         proxyPass = "http://127.0.0.1:8083";
         proxyWebsockets = true;
+        extraConfig = ''
+          client_max_body_size 50G;
+          client_body_timeout 3600s;
+          proxy_request_buffering off;
+        '';
       };
     };
 
