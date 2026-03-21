@@ -13,10 +13,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     inputs.agenix.url = "github:ryantm/agenix";
+    inputs.ssmsh.url = "github:torreirow/ssmsh";
   };
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix }: {
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, nix-darwin, home-manager, agenix, ssmsh }: {
   
 ### MEALHADA HOMEMANAGER START
      #defaultPackage.aarch64-darwin = home-manager.defaultPackage.aarch64-darwin;   ## bootstrap for homemanager

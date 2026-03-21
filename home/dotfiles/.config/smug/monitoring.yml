@@ -1,0 +1,11 @@
+session: monitoring
+root: ~
+
+windows:
+  - name: BTOP
+    commands:
+      - btop
+
+  - name: claudemon
+    commands:
+      - claude-monitor --plan max5
