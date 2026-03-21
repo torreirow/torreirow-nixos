@@ -1,6 +1,21 @@
 { config, pkgs, ... }:
 
 {
+  # Systemd service om tmux server te starten bij login
+  systemd.user.services.tmux = {
+    Unit = {
+      Description = "tmux server";
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -A -s main";
+      RemainAfterExit = "yes";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
   programs.tmux = {
     enable = true;
     clock24 = true;
@@ -11,6 +26,7 @@
       sensible
       yank
       resurrect
+      continuum
       gruvbox
     ];
 
@@ -39,7 +55,8 @@
 
       ##### OSC52 / Clipboard #####
       set -g set-clipboard on
-      set -g allow-passthrough all
+      #set -g allow-passthrough all
+      set -gq allow-passthrough on
       set -ga terminal-overrides ',xterm-256color:Ms=\E]52;c;%p1%s\007'
       set -as terminal-features ',xterm-256color:clipboard'
 
@@ -57,6 +74,23 @@
 
       set -g status-left "#[fg=#282828,bg=#8ec07c] #S #[bg=#282828] "
       set -g status-right "#[fg=#a89984,bg=#282828] %Y-%m-%d  %H:%M #[fg=#3c3836,bg=#282828]#[fg=#ebdbb2,bg=#3c3836] #(if rbw unlocked; then echo '🔓 unlocked'; else echo '🔒 locked'; fi) #[fg=#504945,bg=#3c3836]#[fg=#ebdbb2,bg=#504945] #h #[fg=#fe8019,bg=#504945]#[fg=#282828,bg=#fe8019] ⌨ #{prefix} "
+
+      ##### Resurrect & Continuum #####
+      # Herstel vim/nvim sessies
+      set -g @resurrect-strategy-vim 'session'
+      set -g @resurrect-strategy-nvim 'session'
+
+      # Herstel pane inhoud (optioneel, kan traag zijn)
+      set -g @resurrect-capture-pane-contents 'on'
+
+      # Automatisch opslaan elke 15 minuten
+      set -g @continuum-save-interval '15'
+
+      # Automatisch herstellen bij tmux start
+      set -g @continuum-restore 'on'
+
+      # Toon laatste opslaan tijd in statusbar (optioneel)
+      # set -g status-right 'Continuum: #{continuum_status}'
     '';
   };
 }
