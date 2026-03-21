@@ -1,6 +1,16 @@
 { config, pkgs, agenix,... }:
 
 {
+  # Expliciete user/group voor chhoto-url
+  # (in plaats van DynamicUser, zodat agenix kan chownen tijdens activatie)
+  users.users.chhoto-url = {
+    isSystemUser = true;
+    group = "chhoto-url";
+    description = "Chhoto URL shortener service user";
+  };
+
+  users.groups.chhoto-url = {};
+
   # Agenix configuratie voor credentials
   age.secrets.chhoto-url-database = {
     file = ../secrets/chhoto-url-database.age;
@@ -35,7 +45,7 @@
  };
 
   # Chhoto-url service configuratie
-services.chhoto-url = {
+  services.chhoto-url = {
     enable = true;
 
     # Niet publiek
@@ -51,6 +61,16 @@ services.chhoto-url = {
     environmentFiles = [
       config.age.secrets.chhoto-url-env.path
     ];
+  };
+
+  # Override systemd service om DynamicUser uit te schakelen
+  # en onze expliciete user/group te gebruiken
+  systemd.services.chhoto-url = {
+    serviceConfig = {
+      DynamicUser = pkgs.lib.mkForce false;
+      User = "chhoto-url";
+      Group = "chhoto-url";
+    };
   };
 
   # Nginx reverse proxy
