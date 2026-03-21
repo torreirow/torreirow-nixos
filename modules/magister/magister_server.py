@@ -24,6 +24,7 @@ ICAL_FILE = "magister.ics"
 KEEP_ALIVE_INTERVAL = 10 * 60  # 10 minuten in seconden
 LOG_FILE = "/var/log/magister/magister.log"
 ERROR_EMAIL = "wvdtoorren@gmail.com"
+HEARTBEAT_FILE = "/var/lib/prometheus-node-exporter-textfiles/magister_heartbeat.prom"
 
 # Logging configuratie
 def setup_logging():
@@ -84,6 +85,24 @@ def send_error_email(subject, body):
 
     except Exception as e:
         logger.error(f"✗ Fout bij verzenden email: {e}", exc_info=True)
+        return False
+
+
+def write_heartbeat():
+    """Schrijf heartbeat metric voor Prometheus monitoring"""
+    try:
+        timestamp = time.time()
+        with open(HEARTBEAT_FILE + ".tmp", "w") as f:
+            f.write(f"# HELP magister_sync_heartbeat_timestamp Unix timestamp van laatste heartbeat\n")
+            f.write(f"# TYPE magister_sync_heartbeat_timestamp gauge\n")
+            f.write(f"magister_sync_heartbeat_timestamp {timestamp}\n")
+
+        # Atomic rename
+        os.rename(HEARTBEAT_FILE + ".tmp", HEARTBEAT_FILE)
+        logger.debug(f"Heartbeat geschreven: {timestamp}")
+        return True
+    except Exception as e:
+        logger.warning(f"Kon heartbeat niet schrijven: {e}")
         return False
 
 
@@ -743,6 +762,9 @@ def main():
     logger.info("\n=== Succes notificatie ===")
     send_success_email(len(kinderen), kind_data)
 
+    # Schrijf initiële heartbeat
+    write_heartbeat()
+
     # Keep-alive loop
     logger.info(f"\n=== Keep-alive gestart (elke {KEEP_ALIVE_INTERVAL//60} minuten) ===")
     logger.info(f"Het script update {len(kind_data)} agenda bestand(en) automatisch")
@@ -808,6 +830,9 @@ def main():
             # Update index.html na het updaten van alle calendars
             logger.info("  → index.html...")
             generate_index_html()
+
+            # Update heartbeat
+            write_heartbeat()
 
     except KeyboardInterrupt:
         logger.info("\n\n✓ Server gestopt door gebruiker")

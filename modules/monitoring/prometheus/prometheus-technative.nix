@@ -23,7 +23,7 @@
       }
     ];
 
-    ruleFiles = [
+    ruleFiles = lib.mkAfter [
       ./customers/technative/alerts/alert-ssl_expiration.yml
     ];
   };
