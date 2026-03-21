@@ -13,7 +13,6 @@ import logging
 from pathlib import Path
 from datetime import datetime, timedelta
 from playwright.sync_api import sync_playwright
-from ics import Calendar, Event
 from dateutil import parser
 from bs4 import BeautifulSoup
 
@@ -436,18 +435,66 @@ class MagisterServerClient:
             logger.error(f"✗ Fout bij ophalen afspraken: {e}", exc_info=True)
             return None
 
+    def ical_escape(self, text):
+        """
+        Escape text for iCalendar format according to RFC5545.
+        - Escape backslashes first (to avoid double-escaping)
+        - Escape semicolons and commas
+        - Replace newlines with \\n (literal backslash-n)
+        """
+        if not text:
+            return ""
+
+        # Order matters: backslash first to avoid double-escaping
+        text = str(text).replace("\\", "\\\\")  # Backslash -> \\
+        text = text.replace(";", "\\;")          # Semicolon -> \;
+        text = text.replace(",", "\\,")          # Comma -> \,
+        text = text.replace("\r\n", "\\n")       # CRLF -> \n
+        text = text.replace("\n", "\\n")         # LF -> \n
+        text = text.replace("\r", "\\n")         # CR -> \n
+
+        return text
+
+    def fold_ical_line(self, line):
+        """
+        Fold iCalendar lines according to RFC5545:
+        - Lines should not exceed 75 octets
+        - Folding is done by inserting CRLF followed by a single space
+        """
+        if len(line) <= 75:
+            return line
+
+        folded = []
+        start = 0
+
+        # First line can be 75 chars
+        folded.append(line[start:75])
+        start = 75
+
+        # Subsequent lines can be 74 chars (account for leading space)
+        while start < len(line):
+            folded.append(" " + line[start:start + 74])
+            start += 74
+
+        return "\r\n".join(folded)
+
     def export_to_ical(self, appointments, output_file=ICAL_FILE):
-        """Exporteer afspraken naar iCal formaat"""
+        """Exporteer afspraken naar iCal formaat met RFC5545 compliance"""
         if not appointments or 'Items' not in appointments:
             logger.error("✗ Geen afspraken om te exporteren")
             return False
 
         try:
-            cal = Calendar()
+            lines = []
+
+            # Calendar header
+            lines.append("BEGIN:VCALENDAR")
+            lines.append("VERSION:2.0")
+            lines.append("PRODID:-//Magister//Agenda Sync//NL")
+            lines.append("CALSCALE:GREGORIAN")
+            lines.append("METHOD:PUBLISH")
 
             for item in appointments['Items']:
-                e = Event()
-
                 # Check status en voeg prefix toe
                 status = item.get("Status", 1)
                 status_prefix = ""
@@ -466,13 +513,18 @@ class MagisterServerClient:
                     titel = f"{vakken} – {titel}"
 
                 # Voeg status prefix toe
-                e.name = f"{status_prefix}{titel}"
-                e.begin = parser.isoparse(item["Start"])
-                e.end = parser.isoparse(item["Einde"])
+                summary = f"{status_prefix}{titel}"
+
+                # Parse dates
+                dt_start = parser.isoparse(item["Start"])
+                dt_end = parser.isoparse(item["Einde"])
+
+                # DTSTAMP in UTC (now)
+                dtstamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
                 # Locatie
                 lokalen = ", ".join(l["Naam"] for l in item.get("Lokalen", []))
-                e.location = lokalen or item.get("Lokatie")
+                location = lokalen or item.get("Lokatie", "")
 
                 # Beschrijving
                 beschrijving = []
@@ -484,16 +536,34 @@ class MagisterServerClient:
                     soup = BeautifulSoup(item["Inhoud"], "html.parser")
                     beschrijving.append(soup.get_text())
 
-                e.description = "\n".join(beschrijving)
-                e.uid = f"magister-{item['Id']}@groevenbeek"
+                description = "\n".join(beschrijving)
 
-                cal.events.add(e)
+                # UID
+                uid = f"magister-{item['Id']}@groevenbeek"
 
-            # Schrijf naar bestand
-            with open(output_file, "w") as f:
-                f.writelines(cal)
+                # Build event
+                lines.append("BEGIN:VEVENT")
+                lines.append(self.fold_ical_line(f"UID:{self.ical_escape(uid)}"))
+                lines.append(self.fold_ical_line(f"DTSTAMP:{dtstamp}"))
+                lines.append(self.fold_ical_line(f"DTSTART:{dt_start.strftime('%Y%m%dT%H%M%S')}"))
+                lines.append(self.fold_ical_line(f"DTEND:{dt_end.strftime('%Y%m%dT%H%M%S')}"))
+                lines.append(self.fold_ical_line(f"SUMMARY:{self.ical_escape(summary)}"))
 
-            logger.info(f"✓ iCal bestand bijgewerkt: {output_file} ({len(cal.events)} afspraken)")
+                if description:
+                    lines.append(self.fold_ical_line(f"DESCRIPTION:{self.ical_escape(description)}"))
+
+                if location:
+                    lines.append(self.fold_ical_line(f"LOCATION:{self.ical_escape(location)}"))
+
+                lines.append("END:VEVENT")
+
+            lines.append("END:VCALENDAR")
+
+            # Write to file with CRLF line endings
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write("\r\n".join(lines) + "\r\n")
+
+            logger.info(f"✓ iCal bestand bijgewerkt: {output_file} ({len(appointments['Items'])} afspraken)")
             return True
 
         except Exception as e:

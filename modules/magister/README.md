@@ -129,18 +129,53 @@ De service zal **automatisch stoppen** als:
 
 De service zal **NIET automatisch herstarten** bij exit code 1 (sessie probleem).
 
+### Email notificaties
+
+Bij sessie problemen wordt automatisch een email gestuurd naar: **wvdtoorren@gmail.com**
+
+De email wordt verzonden in de volgende gevallen:
+1. **Sessie bestand niet gevonden** bij service start
+2. **Sessie ongeldig** bij initiële validatie
+3. **Sessie verlopen** tijdens runtime (na 3 mislukte update pogingen)
+
+Email verzending vereist:
+- Werkende postfix configuratie op de server
+- User `magister` in de `postdrop` group (wordt automatisch geconfigureerd)
+
+### Herstel stappen bij sessie problemen
+
 Je moet dan handmatig:
-1. Een nieuwe sessie genereren op je laptop
+1. Een nieuwe sessie genereren op je laptop met `magister_login.py`
 2. Het sessie bestand kopiëren naar de server
 3. De service herstarten met `sudo systemctl restart magister-sync`
+4. Nginx wordt automatisch gereload na succesvolle start
+
+## Restart gedrag bij fouten
+
+De service heeft intelligente error handling:
+
+### Exit code 1 (Sessie problemen)
+- **GEEN automatische restart** - voorkomt spam van herhaalde login pogingen
+- Email notificatie wordt verstuurd
+- Service blijft gestopt tot handmatige interventie
+
+### Andere fouten (netwerk, tijdelijke problemen)
+- **Automatische restart** na 60 seconden
+- Maximaal 5 pogingen binnen 10 minuten (systemd default StartLimitBurst)
+- Geschikt voor tijdelijke netwerkproblemen of Magister API downtime
+
+### Bij succesvolle start
+- Nginx wordt automatisch gereload
+- Nieuwe .ics bestanden worden direct beschikbaar via https://agenda.toorren.net
 
 ## Output bestanden
 
 De service maakt de volgende iCal bestanden aan in `/var/lib/magister/`:
 - `magister_noraly.ics`
 - `magister_boaz.ics`
+- `index.html` - Overzichtspagina met links naar alle calendars
 
-Deze worden elke 28 minuten bijgewerkt.
+Deze worden elke 10 minuten bijgewerkt.
 
 ## Troubleshooting
 
