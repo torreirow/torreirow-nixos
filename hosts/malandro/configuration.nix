@@ -39,6 +39,7 @@ in
  ../../modules/paperless.nix
  ../../modules/pihole.nix
  ../../modules/postgres.nix
+ ../../modules/postfix.nix
  ../../modules/vaultwarden.nix
  ../../modules/wg.nix
  ../../modules/bento-pdf.nix
