@@ -1,35 +1,31 @@
 {config,pkgs, ...}: {
   programs.zsh = {
     enable = true;
-    initExtra = ''
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+
+    initContent = ''
+      # Custom completions
       fpath=("$HOME/.zsh/completions" $fpath)
       autoload -Uz compinit
       compinit
-    '';
-    autosuggestion.enable = true;
-#     zsh.autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
-      #initExtraFirst = ''                                                                                                                        
-      #  eval "$(atuin init zsh --disable-up-arrow)"; 
-      #  PATH=$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc
-      #  '';     
-    initContent = ''
-    # Force SSH agent to use rbw
-        export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
 
-        eval "$(atuin init zsh --disable-up-arrow)"
-        export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
-        mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
-        ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
+      # Force SSH agent to use rbw
+      export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
 
-    # Fix Home / End keys (alacritty-direct, tmux, atuin, oh-my-zsh safe)
-        for km in emacs viins vicmd; do
+      eval "$(atuin init zsh --disable-up-arrow)"
+      export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
+      mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
+      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
+
+      # Fix Home / End keys (alacritty-direct, tmux, atuin, oh-my-zsh safe)
+      for km in emacs viins vicmd; do
         bindkey -M $km '\e[H' beginning-of-line
         bindkey -M $km '\e[F' end-of-line
         bindkey -M $km '\e[1~' beginning-of-line
         bindkey -M $km '\e[4~' end-of-line
-        done
-      '';
+      done
+    '';
 
       shellAliases = {
           #aws-switch=". $HOME/data/git/wearetechnative/bmc/aws-profile-select.sh";
@@ -41,6 +37,7 @@
           boostmic="pactl set-source-volume 2 190%";
           gbdel=" echo Removing branches from git repo: $(basename -s .git \"$(git config --get remote.origin.url)\"); for branch in $(git branch --format=\"%(refname:short)\" | grep -Ev '^(main|master)$'); do echo -n \"Verwijder branch '$branch'? (y/n) \";  read answer ;  [[ $answer == \"y\" ]] && git branch -D \"$branch\"; done";
           ghrmbranch="for branch in $(git branch |grep -v -i -e main -e master); do git branch -D $branch; done";
+          mcsjsonsync="systemctl --user start aws-accounts-sync.service";
           qdm="cd ./output; qdm=$(gum choose $(ls -t *.html ; echo none| head -5)); if [[ $qdm != 'none' ]]; then firefox --new-tab $qdm 2>/dev/null;fi";
           smg="smug $(basename -s \".yml\" $(gum filter  $(ls ~/.config/smug/*.yml)))";
           tfapply="$HOME/data/git/wearetechnative/race/tfapply.sh";
@@ -50,7 +47,19 @@
           tfunlock="terraform force-unlock -force ";
           vpnkarconnect="openvpn3 session-start --config $HOME/.config/openvpn/lobos.ovpn";
           vpnkardisconnect="openvpn3 session-manage --disconnect --config $HOME/.config/openvpn/lobos.ovpn";
+          t="tmux attach -t main";
         };
+        initExtra = ''
+  nixhost() {
+    NIXHOST=$(bmc ec2ls | awk -F'│' '/nixhost/{gsub(/ /,"",$2); print $2}')
+    if [ -z "$NIXHOST" ]; then
+      echo "nixhost not found, check AWS profile"
+    else
+      bmc ec2connect -u ''${USER} -h $NIXHOST
+    fi
+  }
+'';
+
 
 
         oh-my-zsh = {
