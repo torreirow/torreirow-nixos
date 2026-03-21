@@ -1,0 +1,27 @@
+# Externe HTTPS URLs voor SSL certificaat monitoring (blackbox http_2xx)
+- targets:
+  # Publieke services
+  - https://toorren.net
+  - https://auth.toorren.net
+  - https://vw.toorren.net
+  - https://url.toorren.net
+  - https://contacts.toorren.net
+  - https://adresses.toorren.net
+  - https://cv-jolijn.toorren.net
+  - https://homeassistant.toorren.net
+  - https://memos.toorren.net
+  - https://filesender.toorren.net
+  - https://edge.toorren.net
+
+  # Authelia-protected services (checkt SSL + Authelia redirect)
+  - https://grafana.toorren.net
+  - https://prometheus.toorren.net
+  - https://alertmanager.toorren.net
+  - https://wg.toorren.net
+  - https://ittools.toorren.net
+  - https://pdftools.toorren.net
+  - https://fail2ban.toorren.net
+  - https://cockpit.toorren.net
+  - https://pihole.toorren.net
+  - https://zigbee2mqtt.toorren.net
+  - https://docs.toorren.net

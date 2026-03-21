@@ -12,9 +12,9 @@ import logging
 from pathlib import Path
 from datetime import datetime, timedelta
 from playwright.sync_api import sync_playwright
-from ics import Calendar, Event
 from dateutil import parser
 from bs4 import BeautifulSoup
+from email.message import EmailMessage
 
 
 # Configuratie
@@ -23,6 +23,8 @@ SESSION_FILE = "magister_session.json"
 ICAL_FILE = "magister.ics"
 KEEP_ALIVE_INTERVAL = 10 * 60  # 10 minuten in seconden
 LOG_FILE = "/var/log/magister/magister.log"
+ERROR_EMAIL = "wvdtoorren@gmail.com"
+HEARTBEAT_FILE = "/var/lib/prometheus-node-exporter-textfiles/magister_heartbeat.prom"
 
 # Logging configuratie
 def setup_logging():
@@ -52,6 +54,102 @@ def setup_logging():
     return logging.getLogger(__name__)
 
 logger = setup_logging()
+
+
+def send_error_email(subject, body):
+    """Stuur een error email via postfix/sendmail"""
+    try:
+        msg = EmailMessage()
+        msg['Subject'] = f"[Magister Sync] {subject}"
+        msg['From'] = f"magister@{os.uname().nodename}"
+        msg['To'] = ERROR_EMAIL
+        msg.set_content(body)
+
+        # Gebruik sendmail (NixOS wrapper)
+        sendmail_process = subprocess.Popen(
+            ['/run/wrappers/bin/sendmail', '-t', '-oi'],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        stdout, stderr = sendmail_process.communicate(msg.as_string())
+
+        if sendmail_process.returncode == 0:
+            logger.info(f"✓ Error email verzonden naar {ERROR_EMAIL}")
+            return True
+        else:
+            logger.error(f"✗ Kon email niet verzenden: {stderr}")
+            return False
+
+    except Exception as e:
+        logger.error(f"✗ Fout bij verzenden email: {e}", exc_info=True)
+        return False
+
+
+def write_heartbeat():
+    """Schrijf heartbeat metric voor Prometheus monitoring"""
+    try:
+        timestamp = time.time()
+        with open(HEARTBEAT_FILE + ".tmp", "w") as f:
+            f.write(f"# HELP magister_sync_heartbeat_timestamp Unix timestamp van laatste heartbeat\n")
+            f.write(f"# TYPE magister_sync_heartbeat_timestamp gauge\n")
+            f.write(f"magister_sync_heartbeat_timestamp {timestamp}\n")
+
+        # Atomic rename
+        os.rename(HEARTBEAT_FILE + ".tmp", HEARTBEAT_FILE)
+        logger.debug(f"Heartbeat geschreven: {timestamp}")
+        return True
+    except Exception as e:
+        logger.warning(f"Kon heartbeat niet schrijven: {e}")
+        return False
+
+
+def send_success_email(kinderen_count, calendars):
+    """Stuur een succes notificatie email bij succesvolle start"""
+    try:
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        body = f"De Magister synchronisatie service is succesvol gestart!\n\n"
+        body += f"Server: {os.uname().nodename}\n"
+        body += f"Tijdstip: {timestamp}\n"
+        body += f"Aantal kinderen: {kinderen_count}\n\n"
+        body += "Agenda's beschikbaar:\n"
+
+        for naam, info in calendars.items():
+            body += f"  - {naam}: {info['file']}\n"
+
+        body += f"\nDe agenda's worden automatisch bijgewerkt elke {KEEP_ALIVE_INTERVAL//60} minuten.\n"
+        body += "\nBekijk de agenda's op: https://agenda.toorren.net/\n"
+
+        msg = EmailMessage()
+        msg['Subject'] = f"[Magister Sync] Service gestart"
+        msg['From'] = f"magister@{os.uname().nodename}"
+        msg['To'] = ERROR_EMAIL
+        msg.set_content(body)
+
+        # Gebruik sendmail (NixOS wrapper)
+        sendmail_process = subprocess.Popen(
+            ['/run/wrappers/bin/sendmail', '-t', '-oi'],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        stdout, stderr = sendmail_process.communicate(msg.as_string())
+
+        if sendmail_process.returncode == 0:
+            logger.info(f"✓ Succes notificatie verzonden naar {ERROR_EMAIL}")
+            return True
+        else:
+            logger.error(f"✗ Kon succes email niet verzenden: {stderr}")
+            return False
+
+    except Exception as e:
+        logger.error(f"✗ Fout bij verzenden succes email: {e}", exc_info=True)
+        return False
 
 
 def find_chromium_executable():
@@ -431,18 +529,66 @@ class MagisterServerClient:
             logger.error(f"✗ Fout bij ophalen afspraken: {e}", exc_info=True)
             return None
 
+    def ical_escape(self, text):
+        """
+        Escape text for iCalendar format according to RFC5545.
+        - Escape backslashes first (to avoid double-escaping)
+        - Escape semicolons and commas
+        - Replace newlines with \\n (literal backslash-n)
+        """
+        if not text:
+            return ""
+
+        # Order matters: backslash first to avoid double-escaping
+        text = str(text).replace("\\", "\\\\")  # Backslash -> \\
+        text = text.replace(";", "\\;")          # Semicolon -> \;
+        text = text.replace(",", "\\,")          # Comma -> \,
+        text = text.replace("\r\n", "\\n")       # CRLF -> \n
+        text = text.replace("\n", "\\n")         # LF -> \n
+        text = text.replace("\r", "\\n")         # CR -> \n
+
+        return text
+
+    def fold_ical_line(self, line):
+        """
+        Fold iCalendar lines according to RFC5545:
+        - Lines should not exceed 75 octets
+        - Folding is done by inserting CRLF followed by a single space
+        """
+        if len(line) <= 75:
+            return line
+
+        folded = []
+        start = 0
+
+        # First line can be 75 chars
+        folded.append(line[start:75])
+        start = 75
+
+        # Subsequent lines can be 74 chars (account for leading space)
+        while start < len(line):
+            folded.append(" " + line[start:start + 74])
+            start += 74
+
+        return "\r\n".join(folded)
+
     def export_to_ical(self, appointments, output_file=ICAL_FILE):
-        """Exporteer afspraken naar iCal formaat"""
+        """Exporteer afspraken naar iCal formaat met RFC5545 compliance"""
         if not appointments or 'Items' not in appointments:
             logger.error("✗ Geen afspraken om te exporteren")
             return False
 
         try:
-            cal = Calendar()
+            lines = []
+
+            # Calendar header
+            lines.append("BEGIN:VCALENDAR")
+            lines.append("VERSION:2.0")
+            lines.append("PRODID:-//Magister//Agenda Sync//NL")
+            lines.append("CALSCALE:GREGORIAN")
+            lines.append("METHOD:PUBLISH")
 
             for item in appointments['Items']:
-                e = Event()
-
                 # Check status en voeg prefix toe
                 status = item.get("Status", 1)
                 status_prefix = ""
@@ -461,13 +607,18 @@ class MagisterServerClient:
                     titel = f"{vakken} – {titel}"
 
                 # Voeg status prefix toe
-                e.name = f"{status_prefix}{titel}"
-                e.begin = parser.isoparse(item["Start"])
-                e.end = parser.isoparse(item["Einde"])
+                summary = f"{status_prefix}{titel}"
+
+                # Parse dates
+                dt_start = parser.isoparse(item["Start"])
+                dt_end = parser.isoparse(item["Einde"])
+
+                # DTSTAMP in UTC (now)
+                dtstamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
                 # Locatie
                 lokalen = ", ".join(l["Naam"] for l in item.get("Lokalen", []))
-                e.location = lokalen or item.get("Lokatie")
+                location = lokalen or item.get("Lokatie", "")
 
                 # Beschrijving
                 beschrijving = []
@@ -479,16 +630,34 @@ class MagisterServerClient:
                     soup = BeautifulSoup(item["Inhoud"], "html.parser")
                     beschrijving.append(soup.get_text())
 
-                e.description = "\n".join(beschrijving)
-                e.uid = f"magister-{item['Id']}@groevenbeek"
+                description = "\n".join(beschrijving)
 
-                cal.events.add(e)
+                # UID
+                uid = f"magister-{item['Id']}@groevenbeek"
 
-            # Schrijf naar bestand
-            with open(output_file, "w") as f:
-                f.writelines(cal)
+                # Build event
+                lines.append("BEGIN:VEVENT")
+                lines.append(self.fold_ical_line(f"UID:{self.ical_escape(uid)}"))
+                lines.append(self.fold_ical_line(f"DTSTAMP:{dtstamp}"))
+                lines.append(self.fold_ical_line(f"DTSTART:{dt_start.strftime('%Y%m%dT%H%M%S')}"))
+                lines.append(self.fold_ical_line(f"DTEND:{dt_end.strftime('%Y%m%dT%H%M%S')}"))
+                lines.append(self.fold_ical_line(f"SUMMARY:{self.ical_escape(summary)}"))
 
-            logger.info(f"✓ iCal bestand bijgewerkt: {output_file} ({len(cal.events)} afspraken)")
+                if description:
+                    lines.append(self.fold_ical_line(f"DESCRIPTION:{self.ical_escape(description)}"))
+
+                if location:
+                    lines.append(self.fold_ical_line(f"LOCATION:{self.ical_escape(location)}"))
+
+                lines.append("END:VEVENT")
+
+            lines.append("END:VCALENDAR")
+
+            # Write to file with CRLF line endings
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write("\r\n".join(lines) + "\r\n")
+
+            logger.info(f"✓ iCal bestand bijgewerkt: {output_file} ({len(appointments['Items'])} afspraken)")
             return True
 
         except Exception as e:
@@ -507,11 +676,20 @@ def main():
 
     # Check of sessie bestaat
     if not client.session_exists():
-        logger.error(f"✗ Geen sessie gevonden: {SESSION_FILE}")
-        logger.info("Voer de volgende stappen uit:")
-        logger.info("1. Draai magister_login.py op je laptop")
-        logger.info(f"2. Kopieer {SESSION_FILE} naar deze server")
-        logger.info("3. Start dit script opnieuw")
+        error_msg = f"Geen sessie gevonden: {SESSION_FILE}\n\n"
+        error_msg += "Voer de volgende stappen uit:\n"
+        error_msg += "1. Draai magister_login.py op je laptop\n"
+        error_msg += f"2. Kopieer {SESSION_FILE} naar deze server\n"
+        error_msg += "3. Start dit script opnieuw\n"
+
+        logger.error(f"✗ {error_msg}")
+
+        # Stuur email
+        send_error_email(
+            subject="Sessie bestand niet gevonden",
+            body=error_msg
+        )
+
         import sys
         sys.exit(1)  # Exit met code 1 = sessie probleem
 
@@ -519,11 +697,22 @@ def main():
 
     # Test sessie
     if not client.test_session():
-        logger.error("✗ Sessie is niet meer geldig!")
-        logger.info("De sessie is verlopen. Voer de volgende stappen uit:")
-        logger.info("1. Draai magister_login.py op je laptop (opnieuw inloggen)")
-        logger.info(f"2. Kopieer het nieuwe {SESSION_FILE} naar deze server")
-        logger.info("3. Start dit script opnieuw")
+        error_msg = "Sessie is niet meer geldig!\n\n"
+        error_msg += "De sessie is verlopen. Voer de volgende stappen uit:\n"
+        error_msg += "1. Draai magister_login.py op je laptop (opnieuw inloggen)\n"
+        error_msg += f"2. Kopieer het nieuwe {SESSION_FILE} naar deze server\n"
+        error_msg += "3. Start dit script opnieuw\n\n"
+        error_msg += f"Server: {os.uname().nodename}\n"
+        error_msg += f"Tijdstip: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+
+        logger.error(f"✗ {error_msg}")
+
+        # Stuur email
+        send_error_email(
+            subject="Sessie ongeldig - opnieuw inloggen vereist",
+            body=error_msg
+        )
+
         import sys
         sys.exit(1)  # Exit met code 1 = sessie probleem
 
@@ -569,10 +758,20 @@ def main():
     logger.info("\n=== Index genereren ===")
     generate_index_html()
 
+    # Stuur succes notificatie email
+    logger.info("\n=== Succes notificatie ===")
+    send_success_email(len(kinderen), kind_data)
+
+    # Schrijf initiële heartbeat
+    write_heartbeat()
+
     # Keep-alive loop
     logger.info(f"\n=== Keep-alive gestart (elke {KEEP_ALIVE_INTERVAL//60} minuten) ===")
     logger.info(f"Het script update {len(kind_data)} agenda bestand(en) automatisch")
     logger.info("Druk op Ctrl+C om te stoppen\n")
+
+    failed_updates = 0  # Teller voor mislukte updates
+    max_failed_updates = 3  # Aantal mislukte updates voordat we sessie testen
 
     try:
         while True:
@@ -582,18 +781,58 @@ def main():
             logger.info(f"\n[{timestamp}] Keep-alive: agenda's ophalen...")
 
             # Update elk kind
+            update_success = False
             for naam, info in kind_data.items():
                 logger.info(f"  → {naam}...")
                 appointments = client.fetch_afspraken(days=7, persoon_id=info['id'])
 
                 if appointments:
                     client.export_to_ical(appointments, info['file'])
+                    update_success = True
                 else:
                     logger.warning(f"  ⚠ Kon agenda voor {naam} niet ophalen")
+
+            # Check of er updates zijn gelukt
+            if not update_success:
+                failed_updates += 1
+                logger.warning(f"  ⚠ Geen agenda's konden worden opgehaald ({failed_updates}/{max_failed_updates})")
+
+                # Na 3 mislukte updates, test of sessie nog geldig is
+                if failed_updates >= max_failed_updates:
+                    logger.warning("  → Testen van sessie...")
+                    if not client.test_session():
+                        error_msg = "Sessie is ongeldig geworden tijdens runtime!\n\n"
+                        error_msg += "De sessie is verlopen tijdens het draaien van de service.\n"
+                        error_msg += "Voer de volgende stappen uit:\n"
+                        error_msg += "1. Draai magister_login.py op je laptop (opnieuw inloggen)\n"
+                        error_msg += f"2. Kopieer het nieuwe {SESSION_FILE} naar deze server\n"
+                        error_msg += "3. Herstart de magister-sync service\n\n"
+                        error_msg += f"Server: {os.uname().nodename}\n"
+                        error_msg += f"Tijdstip: {timestamp}\n"
+
+                        logger.error(f"✗ {error_msg}")
+
+                        # Stuur email
+                        send_error_email(
+                            subject="Sessie ongeldig - service gestopt",
+                            body=error_msg
+                        )
+
+                        import sys
+                        sys.exit(1)  # Stop service, NixOS zal NIET herstarten (RestartPreventExitStatus=1)
+                    else:
+                        logger.info("  ✓ Sessie is nog geldig, mogelijk tijdelijk probleem")
+                        failed_updates = 0  # Reset teller
+            else:
+                # Reset teller bij succesvolle update
+                failed_updates = 0
 
             # Update index.html na het updaten van alle calendars
             logger.info("  → index.html...")
             generate_index_html()
+
+            # Update heartbeat
+            write_heartbeat()
 
     except KeyboardInterrupt:
         logger.info("\n\n✓ Server gestopt door gebruiker")
