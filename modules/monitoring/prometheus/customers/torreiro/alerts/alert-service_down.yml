@@ -1,0 +1,42 @@
+groups:
+  - name: Service Health Alerts Torreiro
+    rules:
+      # Externe service down (SSL/HTTPS check failed)
+      - alert: External Service Down - Torreiro
+        expr: probe_success{job="blackbox-torreiro-external"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "External service {{ $labels.instance }} is down"
+          description: "The external HTTPS endpoint {{ $labels.instance }} has been unreachable for more than 2 minutes. This could indicate SSL issues, DNS problems, or the service being completely down."
+
+      # Interne service down (localhost health check failed)
+      - alert: Internal Service Down - Torreiro
+        expr: probe_success{job="blackbox-torreiro-internal"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Internal service {{ $labels.instance }} is down"
+          description: "The internal service at {{ $labels.instance }} is not responding. The backend application may have crashed or stopped."
+
+      # HTTP response time warning (externe services)
+      - alert: Slow External Response - Torreiro
+        expr: probe_http_duration_seconds{job="blackbox-torreiro-external"} > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow response from {{ $labels.instance }}"
+          description: "The service {{ $labels.instance }} is responding slowly ({{ $value }}s). This may indicate performance issues."
+
+      # HTTP response time warning (interne services)
+      - alert: Slow Internal Response - Torreiro
+        expr: probe_http_duration_seconds{job="blackbox-torreiro-internal"} > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow internal response from {{ $labels.instance }}"
+          description: "The internal service {{ $labels.instance }} is responding slowly ({{ $value }}s). This may indicate resource constraints."

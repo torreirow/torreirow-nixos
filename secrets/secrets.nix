@@ -67,4 +67,6 @@ in
   
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
+  "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;
+  "module-monitoring-telegram_chat_id.age".publicKeys = users ++ systems;
 }
