@@ -1,0 +1,35 @@
+groups:
+  - name: Test Alerts
+    rules:
+      # Test alert: triggers wanneer test_value > 100
+      - alert: TestValueHigh
+        expr: test_metric_value > 100
+        for: 1m  # Wacht 1 minuut voordat alert wordt verstuurd
+        labels:
+          severity: warning
+          component: test
+        annotations:
+          summary: "Test metric value is too high"
+          description: "Test metric value is {{ $value }}, threshold is 100"
+
+      # Test alert: triggers wanneer test_value < 10
+      - alert: TestValueLow
+        expr: test_metric_value < 10
+        for: 1m  # Wacht 1 minuut voordat alert wordt verstuurd
+        labels:
+          severity: critical
+          component: test
+        annotations:
+          summary: "Test metric value is too low"
+          description: "Test metric value is {{ $value }}, threshold is 10"
+
+      # Test alert: triggers wanneer het bestand niet bestaat (metric missing)
+      - alert: TestMetricMissing
+        expr: absent(test_metric_value)
+        for: 1m
+        labels:
+          severity: warning
+          component: test
+        annotations:
+          summary: "Test metric is missing"
+          description: "The test_metric_value metric has not been reported for more than 1 minute"
