@@ -26,11 +26,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1773772348,
-        "narHash": "sha256-ZsKKUCbN2V6VqTHuOGFqp9KuEmzfyAMIBmk0LOyKhZE=",
+        "lastModified": 1774088998,
+        "narHash": "sha256-clP7sECgtqW+OB4Ow7IgRzmoXyM+NeAohoM5QPH4zJg=",
         "owner": "wearetechnative",
         "repo": "bmc",
-        "rev": "1fa5babd1676aa773920f70a0fe442c526ee4c28",
+        "rev": "40708cd8a54f4b2c9bb9627d8ff0e8dc8694f052",
         "type": "github"
       },
       "original": {
@@ -422,6 +422,22 @@
     },
     "nixpkgs_11": {
       "locked": {
+        "lastModified": 1773821835,
+        "narHash": "sha256-TJ3lSQtW0E2JrznGVm8hOQGVpXjJyXY2guAxku2O9A4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b40629efe5d6ec48dd1efba650c797ddbd39ace0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_12": {
+      "locked": {
         "lastModified": 1773282481,
         "narHash": "sha256-b/GV2ysM8mKHhinse2wz+uP37epUrSE+sAKXy/xvBY4=",
         "owner": "NixOS",
@@ -681,8 +697,27 @@
         "nixvim": "nixvim",
         "openspec": "openspec",
         "race": "race",
+        "ssmsh": "ssmsh",
         "teejay": "teejay",
         "unstable": "unstable"
+      }
+    },
+    "ssmsh": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_11"
+      },
+      "locked": {
+        "lastModified": 1774091023,
+        "narHash": "sha256-3fhNhWm7QsO5fU0w+hrxOnHEYl4NlkCjEi52A0rAJIg=",
+        "owner": "torreirow",
+        "repo": "ssmsh",
+        "rev": "affddc627d14b153900d0b14ef402fc7c865dec9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "torreirow",
+        "repo": "ssmsh",
+        "type": "github"
       }
     },
     "systems": {
@@ -732,7 +767,7 @@
     },
     "teejay": {
       "inputs": {
-        "nixpkgs": "nixpkgs_11"
+        "nixpkgs": "nixpkgs_12"
       },
       "locked": {
         "lastModified": 1774009372,
