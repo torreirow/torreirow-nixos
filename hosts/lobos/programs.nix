@@ -21,7 +21,7 @@ programs.ssh = {
     rPackages.dplyr
     rPackages.patchwork
     claude-code
-    onlyoffice-desktopeditors
+    #onlyoffice-desktopeditors
     firefox
     appimage-run
     lsb-release
@@ -144,7 +144,7 @@ programs.ssh = {
     sqlite
     sqsh
     ssm-session-manager-plugin
-    ssmsh
+    # ssmsh wordt toegevoegd via extraPkgs in flake.nix (flake input torreirow/ssmsh)
 #    pkgs-2411.subtitleedit
     super-productivity
     tali # poker game
