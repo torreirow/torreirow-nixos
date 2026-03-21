@@ -1,12 +1,10 @@
 {config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
 
 {
-
 programs.ssh = {
   enableAskPassword = false;
   askPassword = null;
 };
-  
   environment.systemPackages = with pkgs; [
       wineWowPackages.stable
     gst_all_1.gstreamer
@@ -58,7 +56,7 @@ programs.ssh = {
     bitwarden-desktop
     caligula
     catppuccin
-    strawberry  # Replaced Clementine - better maintained, native Wayland support
+    unstable.strawberry  # Replaced Clementine - better maintained, native Wayland support
     certbot
     cheese # webcam tool
     copilot-cli
@@ -112,7 +110,7 @@ programs.ssh = {
     mosh
     mplayer
     mpv
-    neovim
+    # nixvim wordt toegevoegd via extraPkgs in flake.nix
     nerdfetch
     nmap
     openai-whisper
