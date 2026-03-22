@@ -13,7 +13,7 @@ in
     ./programs.nix
     ./fonts.nix
     ./python.nix
-    ./gnome-wayland.nix
+#    ./gnome-wayland.nix  # GNOME uitgeschakeld - alleen Hyprland actief
     ./hyprland.nix
     ./sudo-nopasswd.nix  # Comment deze regel om sudo password weer aan te zetten
 #    ../../modules/printer-thuis.nix

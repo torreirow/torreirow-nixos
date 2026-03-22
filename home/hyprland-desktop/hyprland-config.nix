@@ -23,14 +23,15 @@
         "XDG_SESSION_DESKTOP,Hyprland"
       ];
 
-      # Startup applications
+      # Startup applications (temporarily minimal for debugging)
       exec-once = [
-        "waybar"
-        "dunst"
-        "swayidle -w timeout 300 'swaylock -f' timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'"
-        "/usr/libexec/polkit-gnome-authentication-agent-1"
-        "gnome-keyring-daemon --start --components=secrets"
-        "wl-clip-persist --clipboard both"
+        # "waybar"
+        # "dunst"
+        # "swayidle -w timeout 300 'swaylock -f' timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'"
+        # "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+        # "gnome-keyring-daemon --start --components=secrets"
+        # "wl-clip-persist --clipboard both"
+        "alacritty"  # Start terminal so you can see what's happening
       ];
 
       # Input configuration

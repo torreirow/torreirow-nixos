@@ -10,19 +10,33 @@
   services.displayManager.gdm.enable = true;
   services.displayManager.gdm.wayland = true;
   services.desktopManager.gnome.enable = true;
-  services.displayManager.defaultSession = "gnome";
+  # Maak GNOME session beschikbaar in GDM session selector
+  services.displayManager.sessionPackages = [ pkgs.gnome-session.sessions ];
   services.gnome.gnome-settings-daemon.enable = true;
   services.gnome.gnome-keyring.enable = true;  # Voor VPN/WiFi secrets (NetworkManager)
   programs.xwayland.enable = true;
 
   # ===== XDG Portals =====
-  # Voor Wayland screen sharing, file dialogs, etc.
-  xdg.portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-gnome
-      xdg-desktop-portal-gtk
-    ];
+  # XDG Portal configuratie is verplaatst naar hyprland.nix
+  # (inclusief GNOME portal voor compatibiliteit)
+
+  # ===== Mutter Wayland Features =====
+  services.desktopManager.gnome.extraGSettingsOverrides = ''
+    [org/gnome/mutter]
+    experimental-features=['scale-monitor-framebuffer', 'xwayland-native-scaling']
+    center-new-windows=true
+  '';
+
+  # ===== Qt Apps Wayland Support =====
+  # Fix voor Qt apps (Clementine, MuseScore, Strawberry) die geen venster tonen
+  environment.sessionVariables = {
+    QT_QPA_PLATFORM = "wayland";
+  };
+
+  # ===== Electron Apps Wayland Support =====
+  # Fix voor Electron apps (Bitwarden, VSCode, Signal) die geen venster tonen
+  environment.variables = {
+    ELECTRON_OZONE_PLATFORM_HINT = "wayland";
   };
 
   # ===== GNOME Packages =====

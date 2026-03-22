@@ -6,7 +6,7 @@
   ./common.nix
   ./vim.nix
   ./dotfiles
-  ./gnome-desktop
+#  ./gnome-desktop  # GNOME uitgeschakeld - alleen Hyprland actief
   ./hyprland-desktop
 #  ./librewolf.nix
 #  ./sshkeys.nix

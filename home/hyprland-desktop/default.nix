@@ -9,4 +9,7 @@
     ./swaylock.nix
     ./dunst.nix
   ];
+
+  # Disable dconf (GNOME settings) for Hyprland-only setup
+  dconf.enable = false;
 }
