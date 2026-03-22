@@ -1,6 +1,6 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-03-15
+**Laatst bijgewerkt:** 2026-03-22
 
 ## Huidige Status
 
@@ -152,6 +152,97 @@ environment.variables = {
 - ✅ Deze opties werken WEL binnen jail configuraties
 - ✅ `ignoreIP`, `banaction`, `banaction-allports` werken op top-level
 
+### Sessie 2026-03-22 - Hyprland Desktop Environment
+
+**Toegevoegd:** Hyprland window manager als parallel desktop environment naast GNOME.
+
+**Wat is geïmplementeerd:**
+- Hyprland tiling window manager met LinuxBeginnings-inspired theming
+- GDM session selector voor switchen tussen GNOME en Hyprland
+- Catppuccin color scheme (dark blue/purple)
+- Complete Wayland native support voor alle apps
+
+**System-Level configuratie:**
+- `hosts/lobos/hyprland.nix` - Hyprland core (UWSM, portals, system packages)
+- `hosts/lobos/configuration.nix` - Import hyprland.nix toegevoegd
+- `hosts/lobos/programs.nix` - Hyprland packages (waybar, rofi, dunst, swaylock, etc.)
+
+**Home Manager configuratie:**
+- `home/hyprland-desktop/default.nix` - Import coordinator
+- `home/hyprland-desktop/hyprland-config.nix` - Main config (keybinds, monitors, animations)
+- `home/hyprland-desktop/waybar.nix` - Status bar met Catppuccin styling
+- `home/hyprland-desktop/rofi.nix` - Application launcher (Arc-Dark theme)
+- `home/hyprland-desktop/theme.nix` - GTK/Qt theming (Adwaita-dark, Papirus, Bibata cursor)
+- `home/hyprland-desktop/swaylock.nix` - Screen locker met auto-lock (5min idle)
+- `home/hyprland-desktop/dunst.nix` - Notification daemon
+- `home/linux-desktop.nix` - Import hyprland-desktop module toegevoegd
+
+**Features:**
+- ✅ Dual monitor support (eDP-1 1920x1200 + DVI-I-1 1920x1080)
+- ✅ Qt Wayland per-session (`QT_QPA_PLATFORM=wayland` in Hyprland config)
+- ✅ Tiling window manager met dwindle layout
+- ✅ Smooth animations met bezier curves
+- ✅ Auto-lock na 5 minuten idle, screen off na 10 minuten
+- ✅ Screenshot support (Print key → clipboard, Shift+Print → file)
+- ✅ Media keys (volume, brightness, playback)
+- ✅ GNOME blijft volledig intact en ongewijzigd
+
+**Keybindings (Hyprland):**
+- `SUPER+RETURN` - Terminal (alacritty)
+- `SUPER+D` - Rofi launcher
+- `SUPER+E` - File manager (nautilus)
+- `SUPER+B` - Browser (firefox)
+- `SUPER+Q` - Venster sluiten
+- `SUPER+F` - Fullscreen
+- `SUPER+V` - Toggle floating
+- `SUPER+L` - Lock screen
+- `SUPER+1-9` - Switch workspace
+- `SUPER+SHIFT+1-9` - Move window to workspace
+- `SUPER+Arrow keys` - Focus verplaatsen
+- `SUPER+Mouse L/R` - Venster verplaatsen/resizen
+- `Print` - Screenshot selectie → clipboard
+- `Shift+Print` - Screenshot → ~/Pictures/
+- `SUPER+SHIFT+E` - Exit Hyprland
+
+**Sessie Switchen:**
+
+Bij login kan je kiezen tussen GNOME en Hyprland:
+1. GDM login scherm
+2. Klik op gear icon (tandwiel) rechtsonder
+3. Selecteer "Hyprland" of "GNOME"
+4. Login met wachtwoord
+5. Keuze blijft bewaard voor volgende logins
+
+**Activeren/Deactiveren:**
+
+```bash
+# Hyprland is ACTIEF (huidige status)
+# Switchen gebeurt via GDM session selector bij login
+
+# DEACTIVEREN: Hyprland volledig uitzetten
+# Edit: hosts/lobos/configuration.nix
+# Comment uit: ./hyprland.nix
+
+# Edit: home/linux-desktop.nix
+# Comment uit: ./hyprland-desktop
+
+# Rebuild:
+sudo nixos-rebuild switch --flake .#lobos
+home-manager switch --flake .#wtoorren@linuxdesktop --impure
+
+# REACTIVEREN: Hyprland weer aanzetten
+# Uncomment de imports weer
+# Run rebuild commands opnieuw
+
+# ROLLBACK naar vorige generatie:
+sudo nixos-rebuild switch --rollback
+home-manager switch --flake .#wtoorren@linuxdesktop --impure --rollback
+```
+
+**Status:** ACTIEF - Beide GNOME en Hyprland beschikbaar via GDM session selector
+
+**Commit:** `6aaa684` - Add Hyprland window manager alongside GNOME
+
 ## Configuratie bestanden
 
 ### hosts/lobos/gnome-wayland.nix
@@ -176,8 +267,10 @@ Bevat alle GNOME/Mutter/Wayland settings:
 
 ### Lobos (Desktop)
 - **OS:** NixOS 25.11
-- **Desktop:** GNOME 49.2 (Wayland)
-- **Mutter:** 49.2
+- **Desktop Environments:**
+  - GNOME 49.2 (Wayland) - Mutter 49.2
+  - Hyprland (Wayland) - Tiling WM met Catppuccin theme
+  - Switch via GDM session selector
 - **Display:** Dual monitor (eDP-1 1920x1200 + DVI-I-1 1920x1080)
 - **Muziekspeler:** Strawberry
 
@@ -255,6 +348,36 @@ flatpak list --app
 flatpak uninstall org.musescore.MuseScore
 ```
 
+### Hyprland (lobos)
+```bash
+# Check welke desktop sessie actief is
+echo $XDG_CURRENT_DESKTOP  # "Hyprland" of "GNOME"
+
+# Hyprland control (alleen in Hyprland sessie)
+hyprctl monitors                    # Monitor info
+hyprctl clients                     # Open windows
+hyprctl workspaces                  # Workspace info
+hyprctl dispatch dpms off           # Screen uit
+hyprctl dispatch dpms on            # Screen aan
+hyprctl reload                      # Reload config
+
+# Waybar control (in Hyprland)
+systemctl --user status waybar      # Waybar status
+systemctl --user restart waybar     # Waybar herstarten
+killall -SIGUSR2 waybar             # Waybar reload
+
+# Screenshots (in Hyprland)
+grim -g "$(slurp)" - | wl-copy      # Selectie naar clipboard
+grim ~/Pictures/screenshot.png      # Full screen naar file
+
+# Lock screen
+swaylock                            # Handmatig locken
+# Auto-lock na 5 minuten idle (via swayidle)
+
+# Switch tussen GNOME en Hyprland
+# Logout → GDM login → gear icon → selecteer sessie
+```
+
 ### Git
 ```bash
 git status
@@ -268,7 +391,19 @@ git log --oneline -10
 - **Lobos:** `hosts/lobos/`
   - `configuration.nix` - Main config
   - `gnome-wayland.nix` - GNOME/Wayland settings
+  - `hyprland.nix` - Hyprland system config (portals, packages)
   - `programs.nix` - Packages (GEBRUIKT)
+
+- **Lobos Home Manager:** `home/`
+  - `linux-desktop.nix` - Main imports (gnome-desktop, hyprland-desktop)
+  - `gnome-desktop/` - GNOME user config
+  - `hyprland-desktop/` - Hyprland user config
+    - `hyprland-config.nix` - Main Hyprland settings
+    - `waybar.nix` - Status bar
+    - `rofi.nix` - Launcher
+    - `theme.nix` - GTK/Qt theming
+    - `swaylock.nix` - Screen locker
+    - `dunst.nix` - Notifications
 
 - **Malandro:** `hosts/malandro/`
   - `configuration.nix` - Main config
