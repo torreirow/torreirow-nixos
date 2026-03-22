@@ -14,6 +14,7 @@ in
     ./fonts.nix
     ./python.nix
     ./gnome-wayland.nix
+    ./hyprland.nix
     ./sudo-nopasswd.nix  # Comment deze regel om sudo password weer aan te zetten
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix

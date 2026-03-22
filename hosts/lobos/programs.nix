@@ -45,6 +45,14 @@ programs.ssh = {
     direnv
     agenix
     alacritty
+    # Hyprland desktop packages
+    waybar
+    rofi
+    dunst
+    swaylock-effects
+    swayidle
+    bibata-cursors
+    papirus-icon-theme
     amazon-ecs-cli
     appimage-run
     atomix # puzzle game
