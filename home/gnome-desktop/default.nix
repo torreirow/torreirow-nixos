@@ -5,6 +5,7 @@
 #    ./desktop-generic.nix
 #    ./desktop-input-sources.nix
     ./desktop-shortcuts.nix
+    ./desktop-wm.nix
 #    ./wayland-fixes.nix
 #    ./desktop-gpaste.nix
 #    ./shell-generic.nix
