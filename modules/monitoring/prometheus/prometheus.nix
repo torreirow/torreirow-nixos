@@ -5,6 +5,7 @@
     enable = true;
     port = 9090;
     retentionTime = "60d";
+    stateDir = "prometheus2";
 
     exporters.node = {
       enable = true;
@@ -53,5 +54,8 @@
   systemd.tmpfiles.rules = [
     "d /var/lib/prometheus-node-exporter-textfiles 1777 node-exporter node-exporter -"
   ];
+
+  # Override systemd service om custom storage path te gebruiken via symlink
+  systemd.services.prometheus.serviceConfig.StateDirectory = lib.mkForce "";
 }
 
