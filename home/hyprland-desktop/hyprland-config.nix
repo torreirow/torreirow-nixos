@@ -23,21 +23,21 @@
         "XDG_SESSION_DESKTOP,Hyprland"
       ];
 
-      # Startup applications (temporarily minimal for debugging)
+      # Startup applications
       exec-once = [
-        # "waybar"
-        # "dunst"
-        # "swayidle -w timeout 300 'swaylock -f' timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'"
-        # "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-        # "gnome-keyring-daemon --start --components=secrets"
-        # "wl-clip-persist --clipboard both"
-        "alacritty"  # Start terminal so you can see what's happening
+        "waybar"
+        "dunst"
+        "swayidle -w timeout 300 'swaylock -f' timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'"
+        "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+        "gnome-keyring-daemon --start --components=secrets"
+        "wl-clip-persist --clipboard both"
+        "alacritty"  # Start terminal
       ];
 
       # Input configuration
       input = {
-        kb_layout = "us";
-        kb_variant = "intl";
+        layout = "us";          # renamed from kb_layout in 0.54+
+        variant = "intl";       # renamed from kb_variant in 0.54+
         follow_mouse = 1;
 
         touchpad = {
@@ -68,9 +68,7 @@
           enabled = true;
           size = 5;
           passes = 2;
-          new_optimizations = true;
-          xray = false;
-          ignore_opacity = false;
+          # new_optimizations, xray, ignore_opacity removed in 0.54+
         };
 
         drop_shadow = true;
