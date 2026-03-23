@@ -1,0 +1,36 @@
+# Home Assistant Prometheus integratie configuratie
+# Voeg dit toe aan /var/lib/homeassistant/configuration.yaml
+
+prometheus:
+  # Namespace voor alle metrics
+  namespace: homeassistant
+
+  # Filter welke entities naar Prometheus worden geëxporteerd
+  filter:
+    include_domains:
+      - sensor
+      - binary_sensor
+    include_entity_globs:
+      # Energy/Electricity sensors
+      - sensor.electricity_meter_*
+      - sensor.gas_meter_*
+      - sensor.*_energy
+      - sensor.*_power
+      - sensor.*energy*
+
+      # Door sensors (achterdeur)
+      - binary_sensor.*deur*
+      - binary_sensor.*door*
+
+    # Optioneel: specifieke entities
+    # include_entities:
+    #   - sensor.electricity_meter_energieverbruik
+    #   - binary_sensor.achterdeur_contact
+
+  # Optioneel: exclude patterns
+  # exclude_entity_globs:
+  #   - sensor.time*
+  #   - sensor.date*
+
+# De metrics zijn beschikbaar op:
+# http://localhost:8123/api/prometheus
