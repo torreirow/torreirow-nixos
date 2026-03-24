@@ -4,6 +4,11 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    envExtra = ''
+      # Set ZSH path for oh-my-zsh
+      export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
+    '';
+
     initContent = ''
       # Custom completions
       fpath=("$HOME/.zsh/completions" $fpath)
