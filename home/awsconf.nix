@@ -61,6 +61,8 @@ let
 groups = {
   mustad_hoofcare.color = "e5a50a";
   mustad_hoofcare.shortname = "mus";
+  DocRevolution.color = "3c5e18";
+  DocRevolution.shortname = "docrev";
   technative.color = "9141ac";
   ddgc.color = "1c71d8";
   ddgc.ignore = false;
@@ -115,6 +117,7 @@ alternative_regions = {
   "189796657102" = "eu-west-1"; #docrev
   "945695383844" = "eu-west-1"; #docrev
   "975050060686" = "eu-west-1"; #docrev
+  "238020582243" = "eu-west-1"; #docrev
 };
   alternative_names = {
     #"760178553019" = "pg_wtoorren";
