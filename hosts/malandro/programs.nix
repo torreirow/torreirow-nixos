@@ -86,7 +86,6 @@
     tfswitch
     tmuxPlugins.catppuccin
     translate-shell
-    unstable.aider-chat-full
     vista-fonts
     vlc
     vscode
