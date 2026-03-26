@@ -1,13 +1,14 @@
-{ lib, config, ... }:
+{ lib, pkgs, ... }:
 
+let
+  # Home Assistant bearer token
+  # TODO: Move to agenix for better security
+  homeassistantToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3ZDk4MDk2YWNhNTQ0N2JkOTM4MDQ5OTJhY2MxMWExMiIsImlhdCI6MTc3NDQ2ODkxNCwiZXhwIjoyMDg5ODI4OTE0fQ.6bDnoBPVHLGXR2w_QK0h2aRJDaw-YDVmNmAiyhx2bi0";
+
+  # Don't include "Bearer " prefix - Prometheus adds it automatically
+  tokenFile = pkgs.writeText "homeassistant-bearer-token" homeassistantToken;
+in
 {
-  # Home Assistant Prometheus scrape configuration
-  # IMPORTANT: Create a long-lived access token in Home Assistant first!
-  # Profile → Long-Lived Access Tokens → CREATE TOKEN (name: prometheus)
-
-  # Create secret file for the token
-  # echo "Bearer YOUR_TOKEN_HERE" | sudo tee /var/lib/prometheus/homeassistant-bearer-token
-
   services.prometheus.scrapeConfigs = lib.mkAfter [
     {
       job_name = "homeassistant";
@@ -15,7 +16,7 @@
       metrics_path = "/api/prometheus";
 
       # Use bearer token authentication
-      bearer_token_file = "/var/lib/prometheus/homeassistant-bearer-token";
+      bearer_token_file = toString tokenFile;
 
       static_configs = [{
         targets = [ "localhost:8123" ];
@@ -24,10 +25,5 @@
         };
       }];
     }
-  ];
-
-  # Create directory for token file
-  systemd.tmpfiles.rules = [
-    "d /var/lib/prometheus 0755 prometheus prometheus -"
   ];
 }
