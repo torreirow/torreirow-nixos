@@ -662,7 +662,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "increase(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.atag_one_gasverbruik\"}[1h])",
+          "expr": "increase(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.atag_one_gas\"}[1h])",
           "legendFormat": "Gasverbruik",
           "refId": "B"
         }
@@ -960,7 +960,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_gas_mu0xb3{entity=\"sensor.atag_one_gasverbruik\"}",
+          "expr": "homeassistant_sensor_gas_mu0xb3{entity=\"sensor.atag_one_gas\"}",
           "legendFormat": "Gas Verbruik",
           "refId": "A"
         }
@@ -1125,7 +1125,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_duration_hours{entity=\"sensor.atag_one_cv_modeduur\"}",
+          "expr": "homeassistant_sensor_state{entity=\"sensor.atag_one_cv_modeduur\"}",
           "refId": "A"
         }
       ],
@@ -1251,7 +1251,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_state{entity=\"sensor.atag_one_buiten_temp\"}",
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_gemiddelde_buiten_temp\"}",
           "refId": "A"
         }
       ],
