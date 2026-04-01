@@ -20,7 +20,7 @@ in
     ../../modules/claude.nix
 #   ../../modules/monitoring
 #   ../../modules/jitsi.nix
-   # ../../modules/teamviewer.nix
+    ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
     ];
 
@@ -422,7 +422,7 @@ networking.wg-quick.interfaces.toorren = {
 services.fprintd.enable = true;
 systemd.services.sshd.serviceConfig = {
   ProtectSystem = "strict";
-  ProtectHome = "yes";
+  ProtectHome = "read-only";
   PrivateTmp = true;
 };
 

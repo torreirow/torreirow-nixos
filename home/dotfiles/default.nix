@@ -1,4 +1,7 @@
 {
+  imports = [
+    ./strawberry.nix
+  ];
 
   home.file = {
     ".ohmyzsh-wouter" = {

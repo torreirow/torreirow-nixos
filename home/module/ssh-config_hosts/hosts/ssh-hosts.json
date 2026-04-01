@@ -1,7 +1,27 @@
 [
   {
+    "host": "bobadela",
+    "hostname": "192.168.2.76",
+    "user": "wtoorren",
+    "identity_file": "toorren-lobos-ed25519",
+    "port": 22
+  },
+  {
+    "host": "bobadela1",
+    "hostname": "192.168.2.67",
+    "user": "wtoorren",
+    "identity_file": "toorren-lobos-ed25519",
+    "port": 22
+  },{
     "host": "malandro",
     "hostname": "192.168.2.52",
+    "user": "wtoorren",
+    "identity_file": "toorren-lobos-ed25519",
+    "port": 22
+  },
+  {
+    "host": "bobadela",
+    "hostname": "192.168.2.76",
     "user": "wtoorren",
     "identity_file": "toorren-lobos-ed25519",
     "port": 22
