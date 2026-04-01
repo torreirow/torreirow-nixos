@@ -19,8 +19,9 @@
     brigit.url = "github:wearetechnative/brigit";
     jsonify-aws-dotfiles.url = "github:wearetechnative/jsonify-aws-dotfiles";
     dirtygit.url = "github:mipmip/dirtygit";
-    openspec.url = "github:mipmip/OpenSpec";
+    openspec.url = "github:Fission-AI/OpenSpec";
     ssmsh.url = "github:torreirow/ssmsh";
+    awstui.url = "github:Caspersonn/aws-tui";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -34,7 +35,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirtygit, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, ssmsh}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirtygit, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, ssmsh, awstui}: 
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -47,6 +48,7 @@
         jsonify-aws-dotfiles.packages."${system}".jsonify-aws-dotfiles
         openspec.packages."${system}".default
         ssmsh.packages."${system}".default
+        awstui.packages."${system}".default
         teejay.packages."${system}".default
       ];
     };

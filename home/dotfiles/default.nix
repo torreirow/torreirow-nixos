@@ -1,5 +1,4 @@
 {
-  # Technative AWS Accounts JSON/NIX file
 
   home.file = {
     ".ohmyzsh-wouter" = {
