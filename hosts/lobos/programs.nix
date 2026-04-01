@@ -14,6 +14,7 @@ programs.ssh = {
     gst_all_1.gst-plugins-ugly
     gst_all_1.gst-libav
     R
+    atuin
     gnome-network-displays
     rPackages.knitr
     rPackages.rmarkdown
