@@ -61,7 +61,6 @@ programs.fzf = {
  home.username = "wtoorren";
  #home.username = "${config.username}";
  home.packages = with pkgs; [
-    atuin
   ];
 
 home.sessionVariables = {

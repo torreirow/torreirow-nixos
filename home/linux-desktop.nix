@@ -1,5 +1,6 @@
 {config,pkgs,...}: {
  imports = [
+  ./overlays.nix
   ./zsh.nix
   ./awsconf.nix
   ./tmux.nix
