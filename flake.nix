@@ -18,10 +18,11 @@
     race.url = "github:wearetechnative/race";
     brigit.url = "github:wearetechnative/brigit";
     jsonify-aws-dotfiles.url = "github:wearetechnative/jsonify-aws-dotfiles";
-    dirtygit.url = "github:mipmip/dirtygit";
+    dirty-repo-scanner.url = "github:mipmip/dirty-repo-scanner";
     openspec.url = "github:Fission-AI/OpenSpec";
     ssmsh.url = "github:torreirow/ssmsh";
-    awstui.url = "github:Caspersonn/aws-tui";
+    specgetty.url = "github:mipmip/specgetty";
+    soltty.url = "github:torreirow/soltty";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -35,20 +36,21 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirtygit, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, ssmsh, awstui}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, ssmsh, specgetty, soltty}: 
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
       environment.systemPackages = [
         bmc.packages."${system}".bmc
         nixvim.packages."${system}".default
-        dirtygit.packages."${system}".dirtygit
+        dirty-repo-scanner.packages."${system}".dirty-repo-scanner
         race.packages."${system}".race
         brigit.packages."${system}".brigit
         jsonify-aws-dotfiles.packages."${system}".jsonify-aws-dotfiles
         openspec.packages."${system}".default
         ssmsh.packages."${system}".default
-        awstui.packages."${system}".default
+        specgetty.packages."${system}".specgetty
+        soltty.packages."${system}".soltty
         teejay.packages."${system}".default
       ];
     };
