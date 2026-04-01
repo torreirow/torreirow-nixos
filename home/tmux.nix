@@ -40,6 +40,8 @@
         'set -g prefix C-b; unbind C-a; bind C-b send-prefix' \
         'set -g prefix C-a; unbind C-b; bind C-a send-prefix'
 
+      bind T popup -E -w 80% -h 80% 'tj --columns --sort-activity --no-sound --no-notify'
+
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"
       set -g mouse on
