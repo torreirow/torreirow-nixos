@@ -695,11 +695,11 @@
         "nixpkgs": "nixpkgs_10"
       },
       "locked": {
-        "lastModified": 1775806471,
-        "narHash": "sha256-SclGFIDGSYt8Xlwal2FWIKOQeXCxFFgIdKoUbFCyKWo=",
+        "lastModified": 1775826592,
+        "narHash": "sha256-qbgEfwI/7opvNtk6FZfOEysH6KGb21fUFDeQu8vFMTo=",
         "owner": "torreirow",
         "repo": "parsh",
-        "rev": "142085daefd6f9b3c181452e9d2873659d4eb8fa",
+        "rev": "8bc29fb6b3b8e9cbee453834d8ed5e274de98f42",
         "type": "github"
       },
       "original": {
