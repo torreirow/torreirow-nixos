@@ -20,7 +20,7 @@
     jsonify-aws-dotfiles.url = "github:wearetechnative/jsonify-aws-dotfiles";
     dirty-repo-scanner.url = "github:mipmip/dirty-repo-scanner";
     openspec.url = "github:Fission-AI/OpenSpec";
-    ssmsh.url = "github:torreirow/ssmsh";
+    parsh.url = "github:torreirow/parsh";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
     home-manager = {
@@ -36,7 +36,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, ssmsh, specgetty, soltty}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty}: 
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -48,7 +48,7 @@
         brigit.packages."${system}".brigit
         jsonify-aws-dotfiles.packages."${system}".jsonify-aws-dotfiles
         openspec.packages."${system}".default
-        ssmsh.packages."${system}".default
+        parsh.packages."${system}".default
         specgetty.packages."${system}".specgetty
         soltty.packages."${system}".soltty
         teejay.packages."${system}".default
