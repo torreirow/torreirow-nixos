@@ -337,6 +337,16 @@ services.samba = {
     "force user" = "wtoorren";
     "force group" = "users";
     };
+"vince" = {
+    "path" = "/tmp/vince";
+    "browseable" = "yes";
+    "read only" = "no";
+    "guest ok" = "no";
+    "create mask" = "2775";
+    "directory mask" = "0755";
+    "force user" = "wtoorren";
+    "force group" = "users";
+    };
 
     };
     };
