@@ -7,9 +7,11 @@
       Description = "tmux server";
     };
     Service = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -A -s main";
-      RemainAfterExit = "yes";
+      Type = "forking";
+      ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -s main";
+      ExecStop = "${pkgs.tmux}/bin/tmux kill-server";
+      Restart = "on-failure";
+      RestartSec = "5s";
     };
     Install = {
       WantedBy = [ "default.target" ];
