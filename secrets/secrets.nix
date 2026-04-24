@@ -42,6 +42,7 @@ in
   "gitea-admin.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "memos-psql.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "nginxendpoints.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "documenso-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
 
   "authelia-jwt-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];  
