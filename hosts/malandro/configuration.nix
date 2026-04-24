@@ -27,6 +27,7 @@ in
  ../../modules/fail2ban.nix
  ../../modules/fail2bancontrol.nix
  ../../modules/hassio
+ ../../modules/signal-cli.nix
  ../../modules/ittools.nix
  ../../modules/kpn-modem.nix
  ../../modules/magister/magister-service.nix
@@ -35,7 +36,7 @@ in
  ../../modules/mqtt.nix
  ../../modules/nfs.nix
  ../../modules/nginx-cv-jolijn.nix
- ../../nginx-wereldvanbegrip.nix
+ ../../modules/nginx-wereldvanbegrip.nix
  ../../modules/nginx.nix
  ../../modules/paperless.nix
  ../../modules/pihole.nix
@@ -44,6 +45,7 @@ in
  ../../modules/vaultwarden.nix
  ../../modules/wg.nix
  ../../modules/bento-pdf.nix
+ ../../modules/documenso.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 

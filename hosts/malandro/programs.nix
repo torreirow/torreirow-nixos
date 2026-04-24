@@ -98,6 +98,9 @@
     yt-dlp
     zip
     zoom-us
+    minica
+    acme
+    lego
    # jellyfin-ffmpeg
 #    gnome.gnome-tweaks
 (texlive.combine {
