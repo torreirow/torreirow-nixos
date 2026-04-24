@@ -13,6 +13,9 @@ This document provides an overview of all ports in use on the Malandro server.
 | 8084 | Pi-hole FTL | 0.0.0.0 | Native | DNS and ad-blocking web interface |
 | 8085 | IT-Tools | 0.0.0.0 | Docker | Developer tools collection |
 | 8086 | Zigbee2MQTT | 127.0.0.1 | Docker | Zigbee bridge web interface |
+| 8087 | Memos | 127.0.0.1 | Native | Note-taking service |
+| 8088 | Signal CLI | 127.0.0.1 | Docker | Signal messenger API for notifications |
+| 8089 | Documenso | 127.0.0.1 | Docker | Open source document signing platform |
 | 8123 | Home Assistant | 0.0.0.0 | Docker | Home automation platform |
 | 8181 | Paperless | 0.0.0.0 | Docker | Document management system |
 
