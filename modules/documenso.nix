@@ -24,6 +24,9 @@
       # NEXT_PRIVATE_SMTP_USERNAME = "your-email@example.com";
       # NEXT_PRIVATE_SMTP_PASSWORD = "your-smtp-password";
 
+      # Node.js compatibility for older CPUs (Intel Celeron J3455)
+      NODE_OPTIONS = "--max-old-space-size=2048";
+
       TZ = "Europe/Amsterdam";
     };
     volumes = [
@@ -35,6 +38,7 @@
     extraOptions = [
       "--add-host=host.docker.internal:host-gateway"  # Allow container to reach host PostgreSQL
       "--env-file=${config.age.secrets.documenso-env.path}"  # Load secrets from agenix
+      "--platform=linux/amd64/v2"  # CPU compatibility for older processors without AVX2
     ];
   };
 
