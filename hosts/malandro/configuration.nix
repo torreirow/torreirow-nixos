@@ -45,7 +45,7 @@ in
  ../../modules/vaultwarden.nix
  ../../modules/wg.nix
  ../../modules/bento-pdf.nix
- ../../modules/documenso.nix
+ ../../modules/docseal.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
