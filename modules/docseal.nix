@@ -49,7 +49,7 @@
     host  all all ::1/128      md5
   '';
 
-  # Nginx reverse proxy
+  # Nginx reverse proxy (without Authelia - public access)
   services.nginx.virtualHosts."docseal.toorren.net" = {
     useACMEHost = "toorren.net";
     forceSSL = true;
@@ -58,30 +58,10 @@
         proxyPass = "http://127.0.0.1:8090";
         proxyWebsockets = true;
         extraConfig = ''
-          auth_request /authelia;
-          error_page 401 = @authelia_portal;
-
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto $scheme;
-        '';
-      };
-
-      "@authelia_portal" = {
-        extraConfig = ''
-          return 302 https://auth.toorren.net/?rd=$scheme://$http_host$request_uri;
-        '';
-      };
-
-      "/authelia" = {
-        proxyPass = "http://127.0.0.1:9091/api/verify";
-        extraConfig = ''
-          internal;
-          proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
-          proxy_set_header X-Forwarded-For $remote_addr;
-          proxy_set_header Content-Length "";
-          proxy_pass_request_body off;
         '';
       };
     };
