@@ -10,7 +10,7 @@
 
   # DocSeal - Open source document signing platform
   virtualisation.oci-containers.containers.docseal = {
-    image = "docusealco/docuseal:latest";
+    image = "docuseal/docuseal:latest";
     environment = {
       # Public URL
       HOST = "docseal.toorren.net";
