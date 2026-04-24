@@ -43,6 +43,19 @@
     "d /data/external/documenso 0755 root root -"
   ];
 
+  # PostgreSQL: Allow Docker container access
+  services.postgresql.authentication = pkgs.lib.mkOverride 10 ''
+    # Docker containers
+    host documenso documenso 172.17.0.0/16 trust
+    host paperless paperless 172.18.0.0/16 md5
+
+    # Default rules
+    local all postgres         peer map=postgres
+    local all all              peer
+    host  all all 127.0.0.1/32 md5
+    host  all all ::1/128      md5
+  '';
+
   # Open firewall for Documenso (local only)
   networking.firewall.allowedTCPPorts = [ 8089 ];
 
