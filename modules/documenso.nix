@@ -38,7 +38,7 @@
     extraOptions = [
       "--add-host=host.docker.internal:host-gateway"  # Allow container to reach host PostgreSQL
       "--env-file=${config.age.secrets.documenso-env.path}"  # Load secrets from agenix
-      "--platform=linux/amd64/v2"  # CPU compatibility for older processors without AVX2
+      "--platform=linux/arm64"  # Use ARM64 via QEMU for CPU compatibility
     ];
   };
 
