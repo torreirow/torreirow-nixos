@@ -37,6 +37,7 @@ in
  ../../modules/nfs.nix
  ../../modules/nginx-cv-jolijn.nix
  ../../modules/nginx-wereldvanbegrip.nix
+ ../../modules/nginx-wouter.nix
  ../../modules/nginx.nix
  ../../modules/paperless.nix
  ../../modules/pihole.nix
