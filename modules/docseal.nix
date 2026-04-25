@@ -54,6 +54,10 @@
     useACMEHost = "toorren.net";
     forceSSL = true;
     locations = {
+      # Redirect root to login page
+      "= /" = {
+        return = "302 /users/sign_in";
+      };
       "/" = {
         proxyPass = "http://127.0.0.1:8090";
         proxyWebsockets = true;
