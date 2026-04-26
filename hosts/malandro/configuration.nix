@@ -47,6 +47,7 @@ in
  ../../modules/wg.nix
  ../../modules/bento-pdf.nix
  ../../modules/docseal.nix
+ ../../modules/invoiceplane-docker.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
