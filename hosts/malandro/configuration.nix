@@ -35,6 +35,7 @@ in
  ../../modules/monitoring
  ../../modules/mqtt.nix
  ../../modules/nfs.nix
+ ../../modules/nginx-boaz.nix
  ../../modules/nginx-cv-jolijn.nix
  ../../modules/nginx-wereldvanbegrip.nix
  ../../modules/nginx-wouter.nix

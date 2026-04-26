@@ -16,8 +16,8 @@ This document provides an overview of all ports in use on the Malandro server.
 | 8087 | Memos | 127.0.0.1 | Native | Note-taking service |
 | 8088 | Signal CLI | 127.0.0.1 | Docker | Signal messenger API for notifications |
 | 8089 | Documenso | 127.0.0.1 | Docker | Open source document signing platform |
-| 8090 | DocSeal | 127.0.0.1 | Docker | Open source document signing platform |
-| 8092 | InvoicePlane | 127.0.0.1 | Docker | Open source invoicing platform |
+| 8090 | DocSeal | 127.0.0.1 | Docker | Open source document signing platform (docseal.toorren.net) |
+| 8092 | InvoicePlane | 127.0.0.1 | Docker | Open source invoicing platform (invoices.wereldvanbegrip.nl) |
 | 8123 | Home Assistant | 0.0.0.0 | Docker | Home automation platform |
 | 8181 | Paperless | 0.0.0.0 | Docker | Document management system |
 
@@ -63,7 +63,7 @@ All these services are accessible via HTTPS through Nginx reverse proxy with Aut
 - `auth.toorren.net` → Authelia (9091)
 - `agenda.toorren.net` → Magister Sync
 - `docseal.toorren.net` → DocSeal (8090)
-- `invoices.toorren.net` → InvoicePlane (8092)
+- `invoices.wereldvanbegrip.nl` → InvoicePlane (8092) - **Note: Authelia protected**
 - *(Add other domains as configured in nginx modules)*
 
 ## Notes
