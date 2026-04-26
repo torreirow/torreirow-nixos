@@ -1,18 +1,10 @@
 { config, pkgs, ... }:
 {
-  security.acme = {
-    acceptTerms = true;
-    certs."wereldvanbegrip.nl" = {
-      email = "wereldvanbegrip@toorren.net";
-      extraDomainNames = [ "www.wereldvanbegrip.nl" ];
-    };
-  };
-
   services.nginx = {
     virtualHosts."wereldvanbegrip.nl" = {
       root = "/var/www/wereldvanbegrip";
       forceSSL = true;
-      enableACME = true;
+      useACMEHost = "wereldvanbegrip.nl";
       locations."/" = {
         tryFiles = "$uri $uri/ =404";
       };
