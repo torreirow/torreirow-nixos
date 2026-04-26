@@ -22,6 +22,17 @@
       extraDomainNames = [ "toorren.net" ];
       group = "nginx";
     };
+
+    certs."wereldvanbegrip.nl" = {
+      domain = "*.wereldvanbegrip.nl";
+      extraDomainNames = [ "wereldvanbegrip.nl" ];
+      group = "nginx";
+      # DNS bij OpenProvider, gebruikt CNAME delegation naar toorren.net (Route53)
+      # Vereist CNAME records bij OpenProvider:
+      # _acme-challenge.wereldvanbegrip.nl -> _acme-challenge-wvb.toorren.net
+      # _acme-challenge.www.wereldvanbegrip.nl -> _acme-challenge-wvb.toorren.net
+      dnsPropagationCheck = true;
+    };
   };
   users.users.nginx.extraGroups = [ "acme" ];
 }

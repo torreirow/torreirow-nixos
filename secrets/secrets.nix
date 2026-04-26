@@ -44,6 +44,8 @@ in
   "nginxendpoints.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "documenso-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "docseal-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "invoiceplane-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "invoiceplane-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
 
   "authelia-jwt-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];  
