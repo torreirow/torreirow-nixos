@@ -236,6 +236,15 @@
                 margin-bottom: 1rem;
                 text-shadow: 0 4px 8px rgba(0,0,0,0.2);
             }
+            .error-image {
+                max-width: 400px;
+                width: 100%;
+                height: auto;
+                margin: 2rem auto;
+                display: block;
+                border-radius: 8px;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            }
             h1 {
                 font-size: 2rem;
                 margin-bottom: 1rem;
@@ -266,6 +275,7 @@
     <body>
         <div class="container">
             <div class="error-code">403</div>
+            <img src="/errors/404.png" alt="403 Error" class="error-image" onerror="this.style.display='none'">
             <h1>Toegang Geweigerd</h1>
             <p>Je hebt geen toegang tot deze pagina.</p>
             <a href="/" class="home-link">← Terug naar home</a>
