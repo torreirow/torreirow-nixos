@@ -14,7 +14,7 @@
 - **Container:** `funktionslust/invoiceplane:latest`
 - **Database:** Bestaande MariaDB op host (localhost)
   - Database: `invoiceplane`
-  - Gebruiker: `Earthy2-Yield-Surgical`
+  - Gebruiker: via `secrets/invoiceplane-env.age`
   - Wachtwoord: via `secrets/invoiceplane-env.age`
 - **Authenticatie:** Authelia (verplicht)
 
