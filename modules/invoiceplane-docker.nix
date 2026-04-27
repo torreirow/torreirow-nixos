@@ -13,6 +13,9 @@
     image = "funktionslust/invoiceplane:latest";
     volumes = [
       "/data/external/invoiceplane:/var/www/html/uploads"
+      "/data/external/invoiceplane/templates:/var/www/html/application/views/invoice_templates"
+      "/data/external/invoiceplane/quote_templates:/var/www/html/application/views/quote_templates"
+      "/data/external/invoiceplane/css/custom-pdf.css:/var/www/html/assets/core/css/custom-pdf.css"
     ];
     ports = [
       "127.0.0.1:8092:80"  # InvoicePlane web interface
@@ -27,6 +30,9 @@
   # Create invoiceplane data directory
   systemd.tmpfiles.rules = [
     "d /data/external/invoiceplane 0755 root root -"
+    "d /data/external/invoiceplane/templates 0755 root root -"
+    "d /data/external/invoiceplane/quote_templates 0755 root root -"
+    "d /data/external/invoiceplane/css 0755 root root -"
   ];
 
   # Fix for Docker image: copy htaccess to .htaccess after container starts

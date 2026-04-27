@@ -32,7 +32,14 @@ in
     # NixOS 25.11 configuratie formaat
     settings.main = {
       # Basis configuratie
-      myhostname = "toorren.net"; # Pas aan naar jouw hostname
+      myhostname = "malandro.toorren.net";
+      mydomain = "toorren.net";
+      myorigin = "$mydomain";
+
+      # Postfix is alleen een relay, geen lokale mail ontvanger
+      mydestination = ""; # Lege string = geen lokale delivery
+      local_recipient_maps = ""; # Disable lokale recipient checks
+
       # AWS SES relay configuratie (host:port formaat met brackets voor SASL)
       relayhost = ["[${relayHost}]:587"]; # Brackets matchen SASL password map formaat
 
