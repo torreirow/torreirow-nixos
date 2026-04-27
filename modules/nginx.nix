@@ -113,7 +113,7 @@
             <img src="/default/landing.png" alt="Toorrenaer" class="landing-image" onerror="this.style.display='none'">
             <p>nothing to be found here.</p>
             <div class="footer">
-                <p>© ${toString (builtins.currentTime / 31536000 + 1970)} toorrenaer.nl</p>
+                <p>© 2026 toorrenaer.nl</p>
             </div>
         </div>
     </body>
