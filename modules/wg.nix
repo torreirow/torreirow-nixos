@@ -69,6 +69,7 @@
 
         # Redirect to Authelia portal on auth failure
         error_page 401 = @authelia_portal;
+        error_page 403 = @authelia_forbidden;
 
         # Pass authentication headers to backend
         proxy_set_header Remote-User $user;
@@ -84,8 +85,14 @@
       '';
     };
 
-    # Authelia redirect named location
+    # Authelia redirect named locations
     locations."@authelia_portal" = {
+      extraConfig = ''
+        return 302 https://auth.toorren.net/?rd=$scheme://$http_host$request_uri;
+      '';
+    };
+
+    locations."@authelia_forbidden" = {
       extraConfig = ''
         return 302 https://auth.toorren.net/?rd=$scheme://$http_host$request_uri;
       '';
