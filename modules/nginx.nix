@@ -53,13 +53,69 @@
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   environment.etc."nginx-default/index.html".text = ''
-    <!doctype html>
-    <html>
-      <head><title>toorrenaer</title></head>
-      <body>
-        <h1>toorrenaer</h1>
-        <p>nothing to be found here.</p>
-      </body>
+    <!DOCTYPE html>
+    <html lang="nl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>toorrenaer</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+            }
+            .container {
+                text-align: center;
+                padding: 2rem;
+                max-width: 800px;
+            }
+            .landing-image {
+                max-width: 600px;
+                width: 100%;
+                height: auto;
+                margin: 2rem auto;
+                display: block;
+                border-radius: 12px;
+                box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+            }
+            h1 {
+                font-size: 3.5rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+                text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+            p {
+                font-size: 1.4rem;
+                opacity: 0.9;
+                margin-bottom: 2rem;
+            }
+            .footer {
+                margin-top: 3rem;
+                font-size: 0.9rem;
+                opacity: 0.7;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>toorrenaer</h1>
+            <img src="/default/landing.png" alt="Toorrenaer" class="landing-image" onerror="this.style.display='none'">
+            <p>nothing to be found here.</p>
+            <div class="footer">
+                <p>© ${toString (builtins.currentTime / 31536000 + 1970)} toorrenaer.nl</p>
+            </div>
+        </div>
+    </body>
     </html>
   '';
 
@@ -145,6 +201,12 @@
     </html>
   '';
 
+  # Landing page image
+  environment.etc."nginx-default/landing.png" = {
+    source = ./static/landing.png;
+    mode = "0644";
+  };
+
   # 404 error page image
   environment.etc."nginx-errors/404.png" = {
     source = ./static/404.png;
@@ -154,6 +216,7 @@
   systemd.tmpfiles.rules = [
     "d /var/www/default 0755 nginx nginx -"
     "L /var/www/default/index.html - - - - /etc/nginx-default/index.html"
+    "L /var/www/default/landing.png - - - - /etc/nginx-default/landing.png"
     "d /var/www/errors 0755 nginx nginx -"
     "L /var/www/errors/404.html - - - - /etc/nginx-errors/404.html"
     "L /var/www/errors/404.png - - - - /etc/nginx-errors/404.png"
