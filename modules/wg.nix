@@ -94,7 +94,7 @@
 
     locations."@authelia_forbidden" = {
       extraConfig = ''
-        return 302 https://auth.toorren.net/?rd=$scheme://$http_host$request_uri;
+        return 403;
       '';
     };
 
