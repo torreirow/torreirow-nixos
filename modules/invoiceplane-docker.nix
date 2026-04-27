@@ -28,10 +28,11 @@
 
 
   # Create invoiceplane data directory
+  # www-data in container is UID/GID 33, needs write access
   systemd.tmpfiles.rules = [
-    "d /data/external/invoiceplane 0755 root root -"
-    "d /data/external/invoiceplane/templates 0755 root root -"
-    "d /data/external/invoiceplane/quote_templates 0755 root root -"
+    "d /data/external/invoiceplane 0775 33 33 -"
+    "d /data/external/invoiceplane/templates 0775 33 33 -"
+    "d /data/external/invoiceplane/quote_templates 0775 33 33 -"
     "d /data/external/invoiceplane/css 0755 root root -"
   ];
 
