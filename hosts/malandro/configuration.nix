@@ -435,6 +435,14 @@ services.authelia.users = [
     groups = [ "admins" "users" "monitoring" "network" ];
     disabled = false;
   }
+  {
+    username = "wouteruser";
+    displayname = "WouteruseR van der Toorren";
+    email = "wouteruser@toorren.net";
+    passwordHash = "***REMOVED***";
+    groups = [ "users" "monitoring" ];
+    disabled = false;
+  }
 ];
 
 
