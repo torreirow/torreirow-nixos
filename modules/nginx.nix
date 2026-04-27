@@ -110,7 +110,7 @@
     <body>
         <div class="container">
             <h1>toorrenaer</h1>
-            <img src="/default/landing.png" alt="Toorrenaer" class="landing-image" onerror="this.style.display='none'">
+            <img src="/landing.png" alt="Toorrenaer" class="landing-image" onerror="this.style.display='none'">
             <p>nothing to be found here.</p>
             <div class="footer">
                 <p>© 2026 toorrenaer.nl</p>
