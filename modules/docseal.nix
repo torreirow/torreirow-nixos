@@ -56,21 +56,15 @@
   services.nginx.virtualHosts."onzeovereenkomst.wereldvanbegrip.nl" = {
     useACMEHost = "wereldvanbegrip.nl";
     forceSSL = true;
-    locations = {
-      # Redirect root to login page
-      "= /" = {
-        return = "302 /sign_in";
-      };
-      "/" = {
-        proxyPass = "http://127.0.0.1:8090";
-        proxyWebsockets = true;
-        extraConfig = ''
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-        '';
-      };
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:8090";
+      proxyWebsockets = true;
+      extraConfig = ''
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      '';
     };
   };
 }
