@@ -13,7 +13,7 @@
     image = "docuseal/docuseal:latest";
     environment = {
       # Public URL
-      HOST = "docseal.toorren.net";
+      HOST = "onzeovereenkomst.wereldvanbegrip.nl";
 
       # Force SSL since we're behind HTTPS reverse proxy
       FORCE_SSL = "true";
@@ -53,8 +53,8 @@
   '';
 
   # Nginx reverse proxy (without Authelia - public access)
-  services.nginx.virtualHosts."docseal.toorren.net" = {
-    useACMEHost = "toorren.net";
+  services.nginx.virtualHosts."onzeovereenkomst.wereldvanbegrip.nl" = {
+    useACMEHost = "wereldvanbegrip.nl";
     forceSSL = true;
     locations = {
       # Redirect root to login page
