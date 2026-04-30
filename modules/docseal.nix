@@ -15,6 +15,9 @@
       # Public URL
       HOST = "docseal.toorren.net";
 
+      # Force SSL since we're behind HTTPS reverse proxy
+      FORCE_SSL = "true";
+
       # All sensitive data (DB credentials, secrets) loaded from agenix via --env-file
 
       TZ = "Europe/Amsterdam";
