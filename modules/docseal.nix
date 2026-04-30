@@ -10,7 +10,10 @@
 
   # DocSeal - Open source document signing platform
   virtualisation.oci-containers.containers.docseal = {
-    image = "docuseal/docuseal:latest";
+    # Pinned to specific version to ensure custom templates stay compatible
+    # Update manually by changing SHA256 digest after testing
+    # Current: latest as of 2026-04-30
+    image = "docuseal/docuseal@sha256:a43e629c6d0726734afcd192b133efd153dfa7cdf099b29c0cbbe463597da0bb";
     environment = {
       # Public URL
       HOST = "onzeovereenkomst.wereldvanbegrip.nl";
