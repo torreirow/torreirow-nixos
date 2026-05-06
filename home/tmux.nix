@@ -5,15 +5,24 @@
   systemd.user.services.tmux = {
     Unit = {
       Description = "tmux server";
+      After = [ "default.target" ];
     };
     Service = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -A -s main";
-      RemainAfterExit = "yes";
-    };
+      Type = "forking";
+      # Start een nieuwe sessie "main" met de user's shell
+      # -L default: gebruik vaste socket naam
+      # -d: detached (draait op achtergrond)
+      # -s main: sessie naam
+      ExecStart = "${pkgs.tmux}/bin/tmux -L default new-session -d -s main";
+      ExecStop = "${pkgs.tmux}/bin/tmux -L default kill-server";
+      Restart = "on-failure";
+      RestartSec = "5s";
+      # Verwijderd RemainAfterExit - we willen dat systemd het proces tracked
     Install = {
       WantedBy = [ "default.target" ];
     };
+    # Voorkom dat home-manager switch de tmux sessie herstart
+    restartIfChanged = false;
   };
 
   programs.tmux = {
