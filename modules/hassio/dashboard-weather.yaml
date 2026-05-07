@@ -1,0 +1,149 @@
+title: Weather
+path: weather
+icon: mdi:weather-sunny-alert
+cards:
+  # Stookwijzer - Complete card met alle sensors
+  - type: vertical-stack
+    title: Stookwijzer
+    cards:
+      # Hoofdadvies met bar card
+      - type: custom:bar-card
+        entities:
+          - entity: sensor.stookwijzer_advice
+            name: Advies
+            icon: mdi:fire-alert
+        entity_row: true
+        height: 60px
+        positions:
+          icon: inside
+          indicator: 'off'
+          name: inside
+          value: inside
+        severity:
+          - color: '#f1c40f'  # Geel
+            value: 'code_yellow'
+          - color: '#e67e22'  # Oranje
+            value: 'code_orange'
+          - color: '#e74c3c'  # Rood
+            value: 'code_red'
+        style: |
+          bar-card-currentbar, bar-card-backgroundbar {
+            border-radius: 12px;
+          }
+          ha-card {
+            font-weight: bold;
+            font-size: 1.2em;
+          }
+
+      # Weersomstandigheden (wind + luchtkwaliteit)
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            entity: sensor.stookwijzer_windspeed
+            name: Windsnelheid
+            needle: true
+            min: 0
+            max: 30
+            severity:
+              green: 0
+              yellow: 15
+              red: 25
+            unit: km/h
+
+          - type: gauge
+            entity: sensor.stookwijzer_air_quality_index
+            name: Luchtkwaliteit
+            needle: true
+            min: 0
+            max: 10
+            severity:
+              green: 0
+              yellow: 4
+              red: 7
+
+      # Forecast (6u en 12u vooruit)
+      - type: horizontal-stack
+        cards:
+          - type: custom:bar-card
+            entities:
+              - entity: sensor.stookwijzer_forecast_6h
+                name: +6 uur
+                icon: mdi:clock-plus-outline
+            entity_row: true
+            height: 45px
+            positions:
+              icon: inside
+              indicator: 'off'
+              name: inside
+              value: inside
+            severity:
+              - color: '#f1c40f'
+                value: 'code_yellow'
+              - color: '#e67e22'
+                value: 'code_orange'
+              - color: '#e74c3c'
+                value: 'code_red'
+            style: |
+              bar-card-currentbar, bar-card-backgroundbar {
+                border-radius: 8px;
+              }
+
+          - type: custom:bar-card
+            entities:
+              - entity: sensor.stookwijzer_forecast_12h
+                name: +12 uur
+                icon: mdi:clock-plus-outline
+            entity_row: true
+            height: 45px
+            positions:
+              icon: inside
+              indicator: 'off'
+              name: inside
+              value: inside
+            severity:
+              - color: '#f1c40f'
+                value: 'code_yellow'
+              - color: '#e67e22'
+                value: 'code_orange'
+              - color: '#e74c3c'
+                value: 'code_red'
+            style: |
+              bar-card-currentbar, bar-card-backgroundbar {
+                border-radius: 8px;
+              }
+
+      # Details met alle info
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - entity: sensor.stookwijzer_advice
+            name: Huidig Advies
+            icon: mdi:fire-circle
+          - entity: sensor.stookwijzer_windspeed
+            name: Windsnelheid
+            icon: mdi:weather-windy
+          - entity: sensor.stookwijzer_air_quality_index
+            name: Luchtkwaliteitsindex
+            icon: mdi:air-filter
+          - type: divider
+          - entity: sensor.stookwijzer_forecast_6h
+            name: Forecast +6u
+            icon: mdi:clock-outline
+            secondary_info: last-changed
+          - entity: sensor.stookwijzer_forecast_12h
+            name: Forecast +12u
+            icon: mdi:clock-outline
+            secondary_info: last-changed
+
+      # History graph
+      - type: history-graph
+        title: Advies Verloop (24u)
+        hours_to_show: 24
+        entities:
+          - entity: sensor.stookwijzer_advice
+            name: Advies
+
+  # Zon positie card
+  - type: custom:sun-card
+    showAzimuth: true
+    showElevation: true
