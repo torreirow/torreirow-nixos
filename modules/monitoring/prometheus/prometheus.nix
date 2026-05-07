@@ -44,6 +44,9 @@
     ruleFiles = lib.mkBefore [
       ./alerts/test-alerts.yml
       ./alerts/service-alerts.yml
+      ./alerts/internet-alerts.yml
+      ./alerts/tuya-alerts.yml
+      ./alerts/device-tracker-alerts.yml
     ];
   };
 
@@ -56,6 +59,13 @@
   ];
 
   # Override systemd service om custom storage path te gebruiken via symlink
-  systemd.services.prometheus.serviceConfig.StateDirectory = lib.mkForce "";
+  systemd.services.prometheus = {
+    serviceConfig.StateDirectory = lib.mkForce "";
+
+    # Wacht tot /data/external gemount is voordat Prometheus start
+    # Anders kan Prometheus niet naar /var/lib/prometheus2 (symlink naar /data/external/prometheus)
+    after = [ "data-external.mount" ];
+    requires = [ "data-external.mount" ];
+  };
 }
 
