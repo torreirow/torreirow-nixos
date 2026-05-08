@@ -8,21 +8,17 @@
       After = [ "default.target" ];
     };
     Service = {
-      Type = "forking";
-      # Start een nieuwe sessie "main" met de user's shell
-      # -L default: gebruik vaste socket naam
-      # -d: detached (draait op achtergrond)
-      # -s main: sessie naam
-      ExecStart = "${pkgs.tmux}/bin/tmux -L default new-session -d -s main";
-      ExecStop = "${pkgs.tmux}/bin/tmux -L default kill-server";
-      Restart = "on-failure";
-      RestartSec = "5s";
-      # Verwijderd RemainAfterExit - we willen dat systemd het proces tracked
+      # oneshot + RemainAfterExit: service blijft "active" na start
+      # Geen ExecStop: tmux server wordt nooit door systemd gedood
+      # ExecStart is idempotent: maakt alleen sessie aan als server nog niet draait
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = let tmuxBin = "${pkgs.tmux}/bin/tmux"; in
+        "${pkgs.bash}/bin/bash -c '${tmuxBin} -L default has-session 2>/dev/null || ${tmuxBin} -L default new-session -d -s main'";
+    };
     Install = {
       WantedBy = [ "default.target" ];
     };
-    # Voorkom dat home-manager switch de tmux sessie herstart
-    restartIfChanged = false;
   };
 
   programs.tmux = {
