@@ -76,6 +76,7 @@
     source = ./templates/stookwijzer.yaml;
   };
 
+
   # Copy config to the right location
   system.activationScripts.zigbee2mqttConfig = ''
     mkdir -p /var/lib/zigbee2mqtt
@@ -91,6 +92,7 @@
     chown -R root:root /var/lib/homeassistant/templates
     chmod -R 644 /var/lib/homeassistant/templates/*.yaml
   '';
+
 
   networking.firewall = {
     allowedTCPPorts = [ 8123 8086 ];

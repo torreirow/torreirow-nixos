@@ -1,6 +1,6 @@
 { config, pkgs,... }:
 
 {
-	services.onedrive.enable = true;
+	services.teamviewer.enable = true;
 
 }

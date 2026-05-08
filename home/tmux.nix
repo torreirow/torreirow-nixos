@@ -5,11 +5,16 @@
   systemd.user.services.tmux = {
     Unit = {
       Description = "tmux server";
+      After = [ "default.target" ];
     };
     Service = {
+      # oneshot + RemainAfterExit: service blijft "active" na start
+      # Geen ExecStop: tmux server wordt nooit door systemd gedood
+      # ExecStart is idempotent: maakt alleen sessie aan als server nog niet draait
       Type = "oneshot";
-      ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -A -s main";
-      RemainAfterExit = "yes";
+      RemainAfterExit = true;
+      ExecStart = let tmuxBin = "${pkgs.tmux}/bin/tmux"; in
+        "${pkgs.bash}/bin/bash -c '${tmuxBin} -L default has-session 2>/dev/null || ${tmuxBin} -L default new-session -d -s main'";
     };
     Install = {
       WantedBy = [ "default.target" ];
@@ -39,6 +44,8 @@
       if-shell '[ -n "$SSH_CONNECTION" ]' \
         'set -g prefix C-b; unbind C-a; bind C-b send-prefix' \
         'set -g prefix C-a; unbind C-b; bind C-a send-prefix'
+
+      bind T popup -E -w 80% -h 80% 'tj --columns --sort-activity --no-sound --no-notify'
 
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"
