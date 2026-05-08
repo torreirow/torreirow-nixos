@@ -71,12 +71,25 @@
     '';
   };
 
+  # Create Home Assistant template files
+  environment.etc."homeassistant/templates/stookwijzer.yaml" = {
+    source = ./templates/stookwijzer.yaml;
+  };
+
   # Copy config to the right location
   system.activationScripts.zigbee2mqttConfig = ''
     mkdir -p /var/lib/zigbee2mqtt
     if [ ! -f /var/lib/zigbee2mqtt/configuration.yaml ]; then
       cp /etc/zigbee2mqtt/configuration.yaml /var/lib/zigbee2mqtt/configuration.yaml
     fi
+  '';
+
+  # Copy Home Assistant templates
+  system.activationScripts.homeassistantTemplates = ''
+    mkdir -p /var/lib/homeassistant/templates
+    cp /etc/homeassistant/templates/stookwijzer.yaml /var/lib/homeassistant/templates/stookwijzer.yaml
+    chown -R root:root /var/lib/homeassistant/templates
+    chmod -R 644 /var/lib/homeassistant/templates/*.yaml
   '';
 
   networking.firewall = {
