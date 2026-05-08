@@ -107,7 +107,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=\"light.voordeur_lamp\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.voordeur_lamp_status\"}",
           "refId": "A"
         }
       ],
@@ -185,7 +185,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=\"light.werkkamer_lamp\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.werkkamer_lamp_status\"}",
           "refId": "A"
         }
       ],
@@ -263,7 +263,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=\"light.aanrechtlamp\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.aanrecht_lamp_status\"}",
           "refId": "A"
         }
       ],
@@ -341,7 +341,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=\"light.eetkamerlamp\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.eetkamer_lamp_status\"}",
           "refId": "A"
         }
       ],
@@ -419,7 +419,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=\"light.voorzolderlamp\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.voorzolder_lamp_status\"}",
           "refId": "A"
         }
       ],
@@ -510,7 +510,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=\"switch.afzuiging_stopcontact_1\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.afzuiging_status\"}",
           "refId": "A"
         }
       ],
@@ -588,7 +588,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=\"switch.bloembakkeukenplug\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.bloembak_keuken_status\"}",
           "refId": "A"
         }
       ],
@@ -666,7 +666,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=\"switch.outdoorplug\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.outdoor_plug_status\"}",
           "refId": "A"
         }
       ],
@@ -778,7 +778,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_switch_state{entity=~\"light.*\"}",
+          "expr": "homeassistant_binary_sensor_state{entity=~\"binary_sensor.*lamp_status\"}",
           "legendFormat": "{{friendly_name}}",
           "refId": "A"
         }
@@ -857,7 +857,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_entity_available{entity=~\"light.*|switch.afzuiging.*|switch.bloembak.*|switch.outdoor.*\"}",
+          "expr": "homeassistant_entity_available{entity=~\"binary_sensor.*_status\"}",
           "legendFormat": "{{friendly_name}}",
           "refId": "A"
         }
@@ -915,7 +915,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum(changes(homeassistant_switch_state{entity=~\"light.*\"}[24h])) by (friendly_name)",
+          "expr": "sum(changes(homeassistant_binary_sensor_state{entity=~\"binary_sensor.*lamp_status\"}[24h])) by (friendly_name)",
           "legendFormat": "{{friendly_name}}",
           "refId": "A"
         }
