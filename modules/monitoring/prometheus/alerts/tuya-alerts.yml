@@ -1,0 +1,50 @@
+groups:
+  - name: Tuya Smart Home Devices
+    rules:
+      # Alert: Tuya device offline
+      - alert: TuyaDeviceOffline
+        expr: homeassistant_entity_available{entity=~"binary_sensor.*_status"} == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: smart-home
+          service: tuya
+        annotations:
+          summary: "Tuya device offline: {{ $labels.friendly_name }}"
+          description: "Device '{{ $labels.friendly_name }}' ({{ $labels.entity }}) is niet bereikbaar sinds 30 minuten."
+
+      # Alert: Meerdere Tuya devices offline
+      - alert: MultipleTuyaDevicesOffline
+        expr: count(homeassistant_entity_available{entity=~"binary_sensor.*_status"} == 0) >= 3
+        for: 15m
+        labels:
+          severity: critical
+          component: smart-home
+          service: tuya
+        annotations:
+          summary: "Meerdere Tuya devices offline"
+          description: "{{ $value }} Tuya devices zijn momenteel offline. Mogelijk netwerk of Tuya cloud probleem."
+
+      # Alert: Lamp staat al lang aan (>12 uur)
+      - alert: LightOnTooLong
+        expr: homeassistant_binary_sensor_state{entity=~"binary_sensor.*lamp_status"} == 1 and changes(homeassistant_binary_sensor_state{entity=~"binary_sensor.*lamp_status"}[12h]) == 0
+        for: 1h
+        labels:
+          severity: info
+          component: smart-home
+          service: tuya
+        annotations:
+          summary: "Lamp staat al lang aan: {{ $labels.friendly_name }}"
+          description: "Lamp '{{ $labels.friendly_name }}' staat al meer dan 12 uur aan zonder te zijn uitgeschakeld. Mogelijk vergeten uit te zetten?"
+
+      # Alert: Tuya integratie niet actief
+      - alert: TuyaIntegrationDown
+        expr: absent(homeassistant_entity_available{entity=~"binary_sensor.*_status"})
+        for: 10m
+        labels:
+          severity: critical
+          component: smart-home
+          service: tuya
+        annotations:
+          summary: "Tuya integratie niet actief"
+          description: "Er worden geen Tuya device metrics meer ontvangen. Tuya integratie mogelijk niet actief in Home Assistant."

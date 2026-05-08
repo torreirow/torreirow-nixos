@@ -1,0 +1,108 @@
+# Stookwijzer forecast template sensors
+# Dit bestand wordt automatisch gekopieerd naar /var/lib/homeassistant/templates/
+
+template:
+  - trigger:
+      - platform: time_pattern
+        hours: "/1"  # Update elk uur
+    action:
+      - action: stookwijzer.get_forecast
+        target:
+          entity_id: sensor.stookwijzer_advice
+        response_variable: forecast_data
+    sensor:
+      # Forecast 6 uur vooruit
+      - name: Stookwijzer Forecast 6h
+        unique_id: stookwijzer_forecast_6h
+        state: >
+          {% set ns = namespace(forecast=None) %}
+          {% set target = now() + timedelta(hours=6) %}
+          {% for item in forecast_data['forecast'] %}
+            {% set forecast_time = item.datetime | as_datetime %}
+            {% if forecast_time >= target and ns.forecast is none %}
+              {% set ns.forecast = item %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.forecast %}
+            {{ ns.forecast.advice }}
+          {% else %}
+            unknown
+          {% endif %}
+        icon: mdi:clock-plus-outline
+        attributes:
+          datetime: >
+            {% set ns = namespace(forecast=None) %}
+            {% set target = now() + timedelta(hours=6) %}
+            {% for item in forecast_data['forecast'] %}
+              {% set forecast_time = item.datetime | as_datetime %}
+              {% if forecast_time >= target and ns.forecast is none %}
+                {% set ns.forecast = item %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.forecast %}
+              {{ ns.forecast.datetime }}
+            {% else %}
+              None
+            {% endif %}
+          final: >
+            {% set ns = namespace(forecast=None) %}
+            {% set target = now() + timedelta(hours=6) %}
+            {% for item in forecast_data['forecast'] %}
+              {% set forecast_time = item.datetime | as_datetime %}
+              {% if forecast_time >= target and ns.forecast is none %}
+                {% set ns.forecast = item %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.forecast %}
+              {{ ns.forecast.final }}
+            {% else %}
+              None
+            {% endif %}
+
+      # Forecast 12 uur vooruit
+      - name: Stookwijzer Forecast 12h
+        unique_id: stookwijzer_forecast_12h
+        state: >
+          {% set ns = namespace(forecast=None) %}
+          {% set target = now() + timedelta(hours=12) %}
+          {% for item in forecast_data['forecast'] %}
+            {% set forecast_time = item.datetime | as_datetime %}
+            {% if forecast_time >= target and ns.forecast is none %}
+              {% set ns.forecast = item %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.forecast %}
+            {{ ns.forecast.advice }}
+          {% else %}
+            unknown
+          {% endif %}
+        icon: mdi:clock-plus-outline
+        attributes:
+          datetime: >
+            {% set ns = namespace(forecast=None) %}
+            {% set target = now() + timedelta(hours=12) %}
+            {% for item in forecast_data['forecast'] %}
+              {% set forecast_time = item.datetime | as_datetime %}
+              {% if forecast_time >= target and ns.forecast is none %}
+                {% set ns.forecast = item %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.forecast %}
+              {{ ns.forecast.datetime }}
+            {% else %}
+              None
+            {% endif %}
+          final: >
+            {% set ns = namespace(forecast=None) %}
+            {% set target = now() + timedelta(hours=12) %}
+            {% for item in forecast_data['forecast'] %}
+              {% set forecast_time = item.datetime | as_datetime %}
+              {% if forecast_time >= target and ns.forecast is none %}
+                {% set ns.forecast = item %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.forecast %}
+              {{ ns.forecast.final }}
+            {% else %}
+              None
+            {% endif %}

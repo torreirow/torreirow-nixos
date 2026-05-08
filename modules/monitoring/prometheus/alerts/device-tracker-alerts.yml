@@ -1,0 +1,86 @@
+groups:
+  - name: Device Tracker - A059
+    rules:
+      # Alert: Device tracker heeft lang niet geüpdatet
+      - alert: DeviceTrackerStale
+        expr: (time() - homeassistant_last_updated_time_seconds{entity="device_tracker.a059"}) > 3600
+        for: 15m
+        labels:
+          severity: warning
+          component: mobile
+          service: device-tracker
+        annotations:
+          summary: "Device tracker heeft lang niet geüpdatet"
+          description: "Device tracker A059 heeft al {{ $value | humanizeDuration }} niet geüpdatet. Mogelijk is de Home Assistant app gestopt of heeft geen netwerk."
+
+      # Alert: Battery kritisch laag
+      - alert: DeviceBatteryCritical
+        expr: homeassistant_sensor_battery_percent{entity="sensor.a059_battery_level"} < 15
+        for: 10m
+        labels:
+          severity: critical
+          component: mobile
+          service: device-tracker
+        annotations:
+          summary: "Device battery kritisch laag"
+          description: "A059 battery level is {{ $value }}%, telefoon moet opgeladen worden."
+
+      # Alert: Battery laag
+      - alert: DeviceBatteryLow
+        expr: homeassistant_sensor_battery_percent{entity="sensor.a059_battery_level"} < 30
+        for: 30m
+        labels:
+          severity: warning
+          component: mobile
+          service: device-tracker
+        annotations:
+          summary: "Device battery laag"
+          description: "A059 battery level is {{ $value }}%, telefoon moet binnenkort opgeladen worden."
+
+      # Alert: Waze sensor unavailable
+      - alert: WazeSensorUnavailable
+        expr: homeassistant_entity_available{entity=~"sensor.waze_.*|sensor.wto.*"} == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: mobile
+          service: waze
+        annotations:
+          summary: "Waze sensor niet beschikbaar: {{ $labels.friendly_name }}"
+          description: "Waze sensor '{{ $labels.friendly_name }}' ({{ $labels.entity }}) is al 30 minuten niet beschikbaar."
+
+      # Alert: Device lang niet thuis (informationeel)
+      - alert: DeviceAwayLong
+        expr: homeassistant_device_tracker_state{entity="device_tracker.a059"} == 0 and (time() - homeassistant_last_updated_time_seconds{entity="device_tracker.a059",state="home"}) > 86400
+        for: 1h
+        labels:
+          severity: info
+          component: mobile
+          service: device-tracker
+        annotations:
+          summary: "Device is al lang niet thuis"
+          description: "A059 is al meer dan 24 uur niet thuis geweest."
+
+      # Alert: Network niet beschikbaar (geen WiFi en geen mobile data)
+      - alert: DeviceNetworkDown
+        expr: homeassistant_sensor_state{entity="sensor.a059_network_type"} == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: mobile
+          service: device-tracker
+        annotations:
+          summary: "Device heeft geen netwerk"
+          description: "A059 heeft al 30 minuten geen netwerk verbinding (geen WiFi en geen mobile data)."
+
+      # Alert: Last reboot was recent (mogelijk probleem)
+      - alert: DeviceRebootedRecently
+        expr: (time() - homeassistant_sensor_timestamp_seconds{entity="sensor.a059_last_reboot"}) < 600
+        for: 5m
+        labels:
+          severity: info
+          component: mobile
+          service: device-tracker
+        annotations:
+          summary: "Device is recent herstart"
+          description: "A059 is {{ $value | humanizeDuration }} geleden herstart."

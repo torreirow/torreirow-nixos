@@ -5,6 +5,7 @@
     enable = true;
     port = 9090;
     retentionTime = "60d";
+    stateDir = "prometheus2";
 
     exporters.node = {
       enable = true;
@@ -43,14 +44,28 @@
     ruleFiles = lib.mkBefore [
       ./alerts/test-alerts.yml
       ./alerts/service-alerts.yml
+      ./alerts/internet-alerts.yml
+      ./alerts/tuya-alerts.yml
+      ./alerts/device-tracker-alerts.yml
     ];
   };
 
   networking.firewall.allowedTCPPorts = [ 9090 9100 9115 9109];
 
   # Directory voor textfile collector metrics
+  # 1777 = rwxrwxrwt (sticky bit, iedereen kan schrijven maar alleen owner kan verwijderen)
   systemd.tmpfiles.rules = [
-    "d /var/lib/prometheus-node-exporter-textfiles 0755 node-exporter node-exporter -"
+    "d /var/lib/prometheus-node-exporter-textfiles 1777 node-exporter node-exporter -"
   ];
+
+  # Override systemd service om custom storage path te gebruiken via symlink
+  systemd.services.prometheus = {
+    serviceConfig.StateDirectory = lib.mkForce "";
+
+    # Wacht tot /data/external gemount is voordat Prometheus start
+    # Anders kan Prometheus niet naar /var/lib/prometheus2 (symlink naar /data/external/prometheus)
+    after = [ "data-external.mount" ];
+    requires = [ "data-external.mount" ];
+  };
 }
 
