@@ -1,0 +1,139 @@
+title: Weather
+path: weather
+icon: mdi:weather-sunny-alert
+cards:
+  # Stookwijzer met Mushroom cards
+  - type: custom:mushroom-title-card
+    title: Stookwijzer
+    subtitle: Advies voor houtverbranding
+
+  # Huidige status - grote template card
+  - type: custom:mushroom-template-card
+    primary: |-
+      {% if states('sensor.stookwijzer') == 'Ja' %}
+        ✅ Stoken: Ja
+      {% elif states('sensor.stookwijzer') == 'Nee' %}
+        ❌ Stoken: Nee
+      {% elif states('sensor.stookwijzer') == 'Beperkt' %}
+        ⚠️ Stoken: Beperkt
+      {% elif states('sensor.stookwijzer') == 'code_yellow' %}
+        🟡 Code Geel
+      {% elif states('sensor.stookwijzer') == 'code_orange' %}
+        🟠 Code Oranje
+      {% elif states('sensor.stookwijzer') == 'code_red' %}
+        🔴 Code Rood
+      {% else %}
+        {{ states('sensor.stookwijzer') }}
+      {% endif %}
+    secondary: |-
+      Laatst bijgewerkt: {{ relative_time(states.sensor.stookwijzer.last_changed) }} geleden
+    icon: |-
+      {% if states('sensor.stookwijzer') == 'Ja' %}
+        mdi:fire
+      {% elif states('sensor.stookwijzer') == 'Nee' %}
+        mdi:fire-off
+      {% elif states('sensor.stookwijzer') in ['Beperkt', 'code_yellow', 'code_orange'] %}
+        mdi:fire-alert
+      {% elif states('sensor.stookwijzer') == 'code_red' %}
+        mdi:fire-off
+      {% else %}
+        mdi:help-circle
+      {% endif %}
+    icon_color: |-
+      {% if states('sensor.stookwijzer') == 'Ja' %}
+        green
+      {% elif states('sensor.stookwijzer') == 'Nee' or states('sensor.stookwijzer') == 'code_red' %}
+        red
+      {% elif states('sensor.stookwijzer') in ['Beperkt', 'code_yellow'] %}
+        yellow
+      {% elif states('sensor.stookwijzer') == 'code_orange' %}
+        orange
+      {% else %}
+        grey
+      {% endif %}
+    layout: vertical
+    fill_container: false
+    tap_action:
+      action: more-info
+    entity: sensor.stookwijzer
+    card_mod:
+      style: |
+        ha-card {
+          background: rgba(var(--rgb-primary-color), 0.05);
+        }
+
+  # Opgeslagen waarde
+  - type: custom:mushroom-template-card
+    primary: |-
+      Opgeslagen advies: {{ states('input_text.last_stookwijzer_status') }}
+    secondary: |-
+      Opgeslagen {{ relative_time(states.input_text.last_stookwijzer_status.last_changed) }} geleden
+    icon: mdi:content-save-clock
+    icon_color: |-
+      {% if states('input_text.last_stookwijzer_status') == 'Ja' %}
+        green
+      {% elif states('input_text.last_stookwijzer_status') == 'Nee' or states('input_text.last_stookwijzer_status') == 'code_red' %}
+        red
+      {% elif states('input_text.last_stookwijzer_status') in ['Beperkt', 'code_yellow'] %}
+        yellow
+      {% elif states('input_text.last_stookwijzer_status') == 'code_orange' %}
+        orange
+      {% else %}
+        blue
+      {% endif %}
+    tap_action:
+      action: more-info
+    entity: input_text.last_stookwijzer_status
+
+  # Chips row voor extra info (als je meer sensors hebt)
+  - type: custom:mushroom-chips-card
+    chips:
+      - type: entity
+        entity: sensor.stookwijzer
+        icon: mdi:fire-circle
+        content_info: state
+        tap_action:
+          action: more-info
+      - type: weather
+        entity: weather.home
+        show_conditions: true
+        show_temperature: true
+
+  # History graph met Mushroom stijl
+  - type: custom:mini-graph-card
+    entities:
+      - entity: sensor.stookwijzer
+        name: Stookwijzer Advies
+        color: var(--primary-color)
+    hours_to_show: 39
+    points_per_hour: 2
+    line_width: 3
+    font_size: 75
+    animate: true
+    show:
+      name: true
+      icon: true
+      state: true
+      legend: false
+      fill: fade
+    card_mod:
+      style: |
+        ha-card {
+          background: rgba(var(--rgb-primary-color), 0.05);
+          border-radius: 12px;
+        }
+
+  # Spacer
+  - type: custom:mushroom-title-card
+    title: Zon & Weer
+
+  # Zon positie met Mushroom stijl
+  - type: custom:sun-card
+    showAzimuth: true
+    showElevation: true
+    card_mod:
+      style: |
+        ha-card {
+          background: rgba(var(--rgb-primary-color), 0.05);
+          border-radius: 12px;
+        }

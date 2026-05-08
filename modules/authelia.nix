@@ -5,18 +5,21 @@
   age.secrets = {
     authelia-jwt-secret = {
       file = ../secrets/authelia-jwt-secret.age;
+      path = "/run/agenix/authelia-jwt-secret";
       mode = "0440";
       owner = "authelia-main";
       group = "authelia-main";
     };
     authelia-session-secret = {
       file = ../secrets/authelia-session-secret.age;
+      path = "/run/agenix/authelia-session-secret";
       mode = "0440";
       owner = "authelia-main";
       group = "authelia-main";
     };
     authelia-storage-encryption-key = {
       file = ../secrets/authelia-storage-encryption-key.age;
+      path = "/run/agenix/authelia-storage-encryption-key";
       mode = "0440";
       owner = "authelia-main";
       group = "authelia-main";
@@ -69,7 +72,6 @@
     settings = {
       theme = "dark";
       default_2fa_method = "totp";
-      default_redirection_url = "https://auth.toorren.net";
 
       server = {
         address = "tcp://127.0.0.1:9091";
@@ -88,6 +90,17 @@
         period = 30;
         skew = 1;
       };
+
+      webauthn = {
+        disable = false;
+        display_name = "Toorren.net";
+        attestation_conveyance_preference = "indirect";
+        timeout = "60s";
+        selection_criteria = {
+          user_verification = "preferred";
+        };
+      };
+
 
       authentication_backend = {
         password_reset.disable = false;
@@ -187,11 +200,18 @@
 
       session = {
         # Let op: session.secret wordt via settingsFiles geladen
-        name = "authelia_session";
-        domain = "toorren.net";
-        same_site = "lax";
-        expiration = "1h";
-        inactivity = "5m";
+        # Nieuwe multi-domain configuratie (v4.38.0+)
+        cookies = [
+          {
+            domain = "toorren.net";
+            authelia_url = "https://auth.toorren.net";
+            default_redirection_url = "https://toorren.net";
+            name = "authelia_session";
+            same_site = "lax";
+            expiration = "1h";
+            inactivity = "5m";
+          }
+        ];
 
         redis = {
           host = "127.0.0.1";
@@ -214,31 +234,18 @@
 
       notifier = {
         disable_startup_check = false;
-        
-        # Filesystem notifier voor testing
-        filesystem = {
-          filename = "/var/lib/authelia-main/notification.txt";
+
+        # SMTP via lokale Postfix (relayed naar AWS SES)
+        smtp = {
+          address = "smtp://localhost:25";
+          timeout = "5s";
+          sender = "Authelia <authelia@toorren.net>";
+          identifier = "toorren.net";
+          subject = "[Authelia] {title}";
+          startup_check_address = "wtoorren@toorren.net";
+          disable_require_tls = true;  # Localhost heeft geen TLS nodig
+          disable_html_emails = false;
         };
-        
-        # Voor productie, vervang bovenstaande met SMTP:
-        # smtp = {
-        #   host = "smtp.example.com";
-        #   port = 587;
-        #   timeout = "5s";
-        #   username = "authelia@toorren.net";
-        #   password.file = config.age.secrets.authelia-smtp-password.path;
-        #   sender = "Authelia <authelia@toorren.net>";
-        #   identifier = "toorren.net";
-        #   subject = "[Authelia] {title}";
-        #   startup_check_address = "test@authelia.com";
-        #   disable_require_tls = false;
-        #   disable_html_emails = false;
-        #   tls = {
-        #     server_name = "smtp.example.com";
-        #     skip_verify = false;
-        #     minimum_version = "TLS1.2";
-        #   };
-        # };
       };
 
       # Optioneel: OIDC configuratie voor SSO
