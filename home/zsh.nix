@@ -19,7 +19,7 @@
       export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
 
       eval "$(atuin init zsh --disable-up-arrow)"
-      export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
+      export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools"
       mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
 
@@ -38,7 +38,7 @@
           #tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
           #tfplan="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
           aider="/run/keys/wouter/aider";
-          aws-switch=". bmc profsel";
+          aws-switch="bmc profsel";
           boostmic="pactl set-source-volume 2 190%";
           gbdel=" echo Removing branches from git repo: $(basename -s .git \"$(git config --get remote.origin.url)\"); for branch in $(git branch --format=\"%(refname:short)\" | grep -Ev '^(main|master)$'); do echo -n \"Verwijder branch '$branch'? (y/n) \";  read answer ;  [[ $answer == \"y\" ]] && git branch -D \"$branch\"; done";
           ghrmbranch="for branch in $(git branch |grep -v -i -e main -e master); do git branch -D $branch; done";
@@ -52,18 +52,26 @@
           tfunlock="terraform force-unlock -force ";
           vpnkarconnect="openvpn3 session-start --config $HOME/.config/openvpn/lobos.ovpn";
           vpnkardisconnect="openvpn3 session-manage --disconnect --config $HOME/.config/openvpn/lobos.ovpn";
-          t="tmux attach -t main";
+          t="tmux -L default attach -t main";
         };
         initExtra = ''
-  nixhost() {
-    NIXHOST=$(bmc ec2ls | awk -F'│' '/nixhost/{gsub(/ /,"",$2); print $2}')
-    if [ -z "$NIXHOST" ]; then
-      echo "nixhost not found, check AWS profile"
-    else
-      bmc ec2connect -u ''${USER} -h $NIXHOST
-    fi
-  }
-'';
+          bmc() {
+          if [[ "$1" == "profsel" ]]; then
+          eval "$(command bmc profsel "$@")"
+          else
+          command bmc "$@"
+          fi
+          }
+
+          nixhost() {
+          NIXHOST=$(bmc ec2ls | awk -F'│' '/nixhost/{gsub(/ /,"",$2); print $2}')
+          if [ -z "$NIXHOST" ]; then
+          echo "nixhost not found, check AWS profile"
+          else
+          bmc ec2connect -u ''${USER} -h $NIXHOST
+          fi
+          }
+        '';
 
 
 
