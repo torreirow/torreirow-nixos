@@ -44,6 +44,7 @@
         '';
       };
 
+
       extraConfig = ''
         index index.html;
       '';

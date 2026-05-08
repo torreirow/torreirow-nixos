@@ -14,6 +14,7 @@ programs.ssh = {
     gst_all_1.gst-plugins-ugly
     gst_all_1.gst-libav
     R
+    unstable.beans
     gnome-network-displays
     rPackages.knitr
     rPackages.rmarkdown
@@ -144,8 +145,8 @@ programs.ssh = {
     sqlite
     sqsh
     ssm-session-manager-plugin
-    ssmsh
-#    pkgs-2411.subtitleedit
+    # ssmsh wordt toegevoegd via extraPkgs in flake.nix (flake input torreirow/ssmsh)
+    pkgs-2411.subtitleedit
     super-productivity
     tali # poker game
     teams-for-linux

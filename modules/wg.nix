@@ -98,6 +98,7 @@
       '';
     };
 
+
     # Authelia authentication endpoint
     locations."/authelia" = {
       proxyPass = "http://127.0.0.1:9091/api/verify";
