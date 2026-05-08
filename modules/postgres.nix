@@ -14,6 +14,7 @@
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_16;
+    dataDir = "/data/external/postgresql/16";
 
     settings = {
       password_encryption = "scram-sha-256";

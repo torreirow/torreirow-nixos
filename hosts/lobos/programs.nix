@@ -22,7 +22,7 @@ programs.ssh = {
     rPackages.dplyr
     rPackages.patchwork
     claude-code
-    #onlyoffice-desktopeditors
+    onlyoffice-desktopeditors
     firefox
     appimage-run
     lsb-release
