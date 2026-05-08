@@ -36,7 +36,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty}: 
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {

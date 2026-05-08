@@ -27,6 +27,7 @@ in
  ../../modules/fail2ban.nix
  ../../modules/fail2bancontrol.nix
  ../../modules/hassio
+ ../../modules/signal-cli.nix
  ../../modules/ittools.nix
  ../../modules/kpn-modem.nix
  ../../modules/magister/magister-service.nix
@@ -34,7 +35,10 @@ in
  ../../modules/monitoring
  ../../modules/mqtt.nix
  ../../modules/nfs.nix
+ ../../modules/nginx-boaz.nix
  ../../modules/nginx-cv-jolijn.nix
+ ../../modules/nginx-wereldvanbegrip.nix
+ ../../modules/nginx-wouter.nix
  ../../modules/nginx.nix
  ../../modules/paperless.nix
  ../../modules/pihole.nix
@@ -43,6 +47,9 @@ in
  ../../modules/vaultwarden.nix
  ../../modules/wg.nix
  ../../modules/bento-pdf.nix
+ ../../modules/docseal.nix
+ ../../modules/invoiceplane-docker.nix
+ ../../modules/vikunja.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
@@ -427,6 +434,14 @@ services.authelia.users = [
     email = "wouter@toorren.net";
     passwordHash = "$argon2id$v=19$m=65536,t=3,p=4$i3rOqBLo2Oy8OxfSWJB+pw$tcfwS0+IT8uV5Po9vSQqVxCHIeVfIKEm5uTVrIi8fwg";
     groups = [ "admins" "users" "monitoring" "network" ];
+    disabled = false;
+  }
+  {
+    username = "wouteruser";
+    displayname = "WouteruseR van der Toorren";
+    email = "wouteruser@toorren.net";
+    passwordHash = "$argon2id$v=19$m=65536,t=3,p=4$Oxgn7AcYA8ohlWlo95B8NA$dLu0SbAUI716/63BZaUi1APyyzIk0zKMPLxavfcXcX8";
+    groups = [ "users" "monitoring" ];
     disabled = false;
   }
 ];

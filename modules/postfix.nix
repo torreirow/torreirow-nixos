@@ -32,7 +32,15 @@ in
     # NixOS 25.11 configuratie formaat
     settings.main = {
       # Basis configuratie
-      myhostname = "toorren.net"; # Pas aan naar jouw hostname
+      myhostname = "malandro.toorren.net";
+      mydomain = "toorren.net";
+      myorigin = "$mydomain";
+
+      # Postfix is alleen een relay, geen lokale mail ontvanger
+      mydestination = ""; # Lege string = geen lokale delivery
+      local_recipient_maps = ""; # Disable lokale recipient checks
+
+
       # AWS SES relay configuratie (host:port formaat met brackets voor SASL)
       relayhost = ["[${relayHost}]:587"]; # Brackets matchen SASL password map formaat
 
@@ -85,7 +93,9 @@ in
   systemd.services.postfix-sasl-setup = {
     description = "Setup Postfix SASL password database";
     before = [ "postfix.service" ];
-    after = [ "agenix.service" ];
+    # Wacht op de juiste mount units (agenix.service bestaat niet!)
+    after = [ "run-keys.mount" "run-agenix.d.mount" ];
+    requires = [ "run-keys.mount" "run-agenix.d.mount" ];
     wantedBy = [ "multi-user.target" ];
     partOf = [ "postfix.service" ];  # Herstart samen met postfix
 
@@ -96,10 +106,24 @@ in
     };
 
     script = ''
-      # Wacht tot het secret bestand beschikbaar is
+      # Wacht tot het secret bestand beschikbaar is (met timeout)
+      MAX_WAIT=30  # 30 seconden max
+      COUNTER=0
       while [ ! -f /run/agenix/postfix-sasl-password ]; do
         sleep 0.1
+        COUNTER=$((COUNTER + 1))
+        if [ $COUNTER -gt $((MAX_WAIT * 10)) ]; then
+          echo "ERROR: Timeout waiting for /run/agenix/postfix-sasl-password"
+          exit 1
+        fi
       done
+
+      # Extra check: verify symlink target is readable
+      if [ ! -r /run/agenix/postfix-sasl-password ]; then
+        echo "ERROR: /run/agenix/postfix-sasl-password exists but is not readable"
+        exit 1
+      fi
+
 
       # Kopieer het secret bestand naar /etc/postfix/
       cp /run/agenix/postfix-sasl-password /etc/postfix/sasl_passwd

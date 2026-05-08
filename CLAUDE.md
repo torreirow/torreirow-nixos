@@ -1,8 +1,61 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-04-09
+**Laatst bijgewerkt:** 2026-04-26
 
 ## Huidige Status
+
+### Sessie 2026-04-26 - InvoicePlane Docker setup - OPGELOST
+
+**Doel:** InvoicePlane (open source facturatie platform) toevoegen aan malandro via Docker.
+
+**Configuratie:**
+- **URL:** `https://invoices.toorren.net`
+- **Port:** 8092 (localhost binding)
+- **Container:** `funktionslust/invoiceplane:latest`
+- **Database:** Bestaande MariaDB op host (localhost)
+  - Database: `invoiceplane`
+  - Gebruiker: via `secrets/invoiceplane-env.age`
+  - Wachtwoord: via `secrets/invoiceplane-env.age`
+- **Authenticatie:** Authelia (verplicht)
+
+**Problemen opgelost:**
+
+1. **Port conflict (8084)**
+   - Probleem: Port 8084 was al in gebruik door Pi-hole FTL
+   - Oplossing: InvoicePlane verplaatst naar port 8092
+   - `PORTS.md` bijgewerkt met DocSeal (8090) en InvoicePlane (8092)
+
+2. **Bad Request (400) via nginx**
+   - Probleem: Apache gaf "Bad Request" bij requests via nginx
+   - Diagnose: Dubbele proxy headers (handmatig + NixOS `recommendedProxySettings`)
+   - Oplossing: Handmatige proxy headers verwijderd, NixOS voegt ze automatisch toe
+
+3. **404 Not Found voor /welcome route**
+   - Probleem: InvoicePlane routes gaven 404 (bijv. `/welcome`)
+   - Diagnose: `.htaccess` bestand ontbrak (bestaat als `htaccess` zonder punt)
+   - Root cause: `REMOVE_INDEXPHP=true` env var werkt niet in dit Docker image
+   - Oplossing: `ExecStartPost` script dat `htaccess` naar `.htaccess` kopieert bij container start
+
+3. **Module structuur**
+   - Van docker-compose naar OCI containers (zoals DocSeal)
+   - Alle configuratie via age-encrypted environment file
+   - Nginx virtualHost direct in module
+
+**Bestanden gewijzigd:**
+- `modules/invoiceplane-docker.nix` - Nieuwe module (OCI containers)
+- `hosts/malandro/configuration.nix` - Module import toegevoegd
+- `secrets/invoiceplane-env.age` - Database credentials (encrypted)
+- `PORTS.md` - DocSeal (8090) en InvoicePlane (8092) toegevoegd
+
+**Belangrijke lessen:**
+- ✅ Gebruik OCI containers in plaats van docker-compose voor nieuwe services
+- ✅ Check `PORTS.md` voor vrije poorten voordat je een service toevoegt
+- ✅ NixOS voegt automatisch proxy headers toe via `recommendedProxySettings` - stel deze niet handmatig in
+- ✅ Docker containers kunnen host MariaDB bereiken via `host.docker.internal` (met `--add-host=host.docker.internal:host-gateway`)
+- ✅ Nginx reverse proxy betekent NIET dat .htaccess niet nodig is - Apache in de container heeft nog steeds .htaccess nodig voor routing
+- ✅ Docker image bugs kunnen workarounds vereisen (zoals ExecStartPost voor .htaccess setup)
+
+**Status:** ✅ InvoicePlane live op https://invoices.toorren.net
 
 ### Sessie 2026-04-09 - Suspend/Standby probleem - OPGELOST
 
@@ -48,26 +101,6 @@ powerManagement.powertop.enable = true;
 - [x] Services actief: powertop.service, network-resume.service, wifi-resume.service
 - [ ] **Reboot vereist** voor kernel parameter activatie
 - [ ] Test suspend na reboot met `systemctl suspend`
-
-**Test commando's:**
-```bash
-# Test suspend
-systemctl suspend
-
-# Check services
-systemctl status network-resume.service
-systemctl status wifi-resume.service
-systemctl status powertop.service
-
-# Check logs bij problemen
-journalctl -u systemd-suspend.service -n 50
-journalctl -u network-resume.service -n 20
-journalctl -u wifi-resume.service -n 20
-
-# Controleer active sleep mode
-cat /sys/power/mem_sleep  # Verwacht: [s2idle]
-cat /sys/power/state      # Verwacht: freeze mem disk
-```
 
 **Technische achtergrond:**
 - **S3 (deep sleep)**: Traditionele suspend-to-RAM, heel goede Linux support
@@ -292,6 +325,7 @@ Bevat alle power management en suspend/resume settings:
 
 **Belangrijk:** Laptop ondersteunt ALLEEN S0ix/s2idle (Modern Standby), GEEN S3 deep sleep.
 
+
 ## Systeem Informatie
 
 ### Lobos (Desktop)
@@ -343,6 +377,7 @@ sudo modprobe -r ath11k_pci && sleep 1 && sudo modprobe ath11k_pci
 # NetworkManager restart (bij problemen)
 sudo systemctl restart NetworkManager.service
 ```
+
 
 ### Fail2ban (malandro)
 ```bash
@@ -437,7 +472,3 @@ git log --oneline -10
 - `modules/monitoring/` - Grafana/Prometheus
 - `modules/nginx.nix` - Nginx config
 - Zie `hosts/malandro/configuration.nix` imports voor volledige lijst
-
-### Errors
-Call to Reboot failed: Action suspend already in progress, refusing requested reboot operation.
-
