@@ -85,7 +85,7 @@ cards:
       action: more-info
     entity: input_text.last_stookwijzer_status
 
-  # Chips row voor extra info
+  # Chips row voor extra info (als je meer sensors hebt)
   - type: custom:mushroom-chips-card
     chips:
       - type: entity
@@ -94,6 +94,10 @@ cards:
         content_info: state
         tap_action:
           action: more-info
+      - type: weather
+        entity: weather.home
+        show_conditions: true
+        show_temperature: true
 
   # History graph met Mushroom stijl
   - type: custom:mini-graph-card
