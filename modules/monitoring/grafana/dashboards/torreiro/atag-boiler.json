@@ -167,16 +167,24 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "yellow",
-                "value": 1
+                "color": "orange",
+                "value": 1.2
+              },
+              {
+                "color": "green",
+                "value": 1.5
+              },
+              {
+                "color": "orange",
+                "value": 1.9
               },
               {
                 "color": "red",
-                "value": 2
+                "value": 2.2
               }
             ]
           },
@@ -960,12 +968,12 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_gas_mu0xb3{entity=\"sensor.atag_one_gas\"}",
-          "legendFormat": "Gas Verbruik",
+          "expr": "rate(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.atag_one_gas\"}[5m]) * 300",
+          "legendFormat": "Gas Verbruik per uur",
           "refId": "A"
         }
       ],
-      "title": "Gas Verbruik",
+      "title": "Gas Verbruik (m³/uur)",
       "type": "timeseries"
     },
     {
