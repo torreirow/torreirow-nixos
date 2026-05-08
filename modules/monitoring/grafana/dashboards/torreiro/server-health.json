@@ -157,7 +157,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_unit_percent{entity=\"sensor.system_monitor_memory_use\"}",
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
           "refId": "A"
         }
       ],
@@ -296,7 +296,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_data_gibytes{entity=\"sensor.system_monitor_disk_free\"}",
+          "expr": "node_filesystem_avail_bytes{mountpoint=\"/\"} / (1024^3)",
           "refId": "A"
         }
       ],
@@ -618,7 +618,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_unit_percent{entity=\"sensor.system_monitor_memory_use\"}",
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
           "legendFormat": "Memory Usage %",
           "refId": "A"
         },
@@ -627,7 +627,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_unit_percent{entity=\"sensor.system_monitor_swap_use\"}",
+          "expr": "((node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes) * 100",
           "legendFormat": "Swap Usage %",
           "refId": "B"
         }
@@ -750,7 +750,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_data_gibytes{entity=\"sensor.system_monitor_memory_free\"}",
+          "expr": "node_memory_MemAvailable_bytes / (1024^3)",
           "legendFormat": "Memory Free",
           "refId": "A"
         },
@@ -759,7 +759,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_data_gibytes{entity=\"sensor.system_monitor_disk_free\"}",
+          "expr": "node_filesystem_avail_bytes{mountpoint=\"/\"} / (1024^3)",
           "legendFormat": "Disk Free",
           "refId": "B"
         }
@@ -879,7 +879,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_data_gibytes{entity=\"sensor.system_monitor_swap_free\"}",
+          "expr": "node_memory_SwapFree_bytes / (1024^3)",
           "refId": "A"
         }
       ],
@@ -939,7 +939,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_data_gibytes{entity=\"sensor.system_monitor_memory_free\"}",
+          "expr": "node_memory_MemAvailable_bytes / (1024^3)",
           "refId": "A"
         }
       ],
