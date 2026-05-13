@@ -1,0 +1,122 @@
+groups:
+  - name: ATAG Boiler Monitoring
+    rules:
+      # Alert: CV waterdruk kritiek laag
+      - alert: ATAGWaterPressureCritical
+        expr: homeassistant_sensor_pressure_bar{entity="sensor.atag_one_cv_waterdruk"} < 1.0
+        for: 10m
+        labels:
+          severity: critical
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG CV waterdruk kritiek laag"
+          description: "CV waterdruk is {{ $value | humanize }} bar (onder 1.0 bar). Ketel moet bijgevuld worden, risico op storing."
+
+      # Alert: CV waterdruk laag
+      - alert: ATAGWaterPressureLow
+        expr: homeassistant_sensor_pressure_bar{entity="sensor.atag_one_cv_waterdruk"} < 1.2 and homeassistant_sensor_pressure_bar{entity="sensor.atag_one_cv_waterdruk"} >= 1.0
+        for: 30m
+        labels:
+          severity: warning
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG CV waterdruk laag"
+          description: "CV waterdruk is {{ $value | humanize }} bar (onder 1.2 bar). Overweeg bijvullen. Optimaal: 1.2-1.5 bar."
+
+      # Alert: CV waterdruk te hoog
+      - alert: ATAGWaterPressureHigh
+        expr: homeassistant_sensor_pressure_bar{entity="sensor.atag_one_cv_waterdruk"} > 2.5
+        for: 15m
+        labels:
+          severity: warning
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG CV waterdruk te hoog"
+          description: "CV waterdruk is {{ $value | humanize }} bar (boven 2.5 bar). Risico op veiligheidsklep openen. Optimaal: 1.2-1.5 bar."
+
+      # Alert: Brander te vaak starten (inefficiënt)
+      - alert: ATAGBurnerCyclingExcessive
+        expr: rate(homeassistant_sensor_state{entity="sensor.atag_one_lumc_brander_starts"}[1h]) > 10
+        for: 30m
+        labels:
+          severity: warning
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG brander cyclet te vaak"
+          description: "Brander start >10x per uur. Dit is inefficiënt en verhoogt slijtage. Check CV instellingen (modulatie, setpoint)."
+
+      # Alert: CV water temperatuur kritiek hoog
+      - alert: ATAGWaterTemperatureCritical
+        expr: homeassistant_sensor_temperature_celsius{entity="sensor.atag_one_cv_water_temp"} > 85
+        for: 5m
+        labels:
+          severity: critical
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG CV watertemperatuur kritiek hoog"
+          description: "CV water temperatuur is {{ $value | humanize }}°C (boven 85°C). Risico op oververhitting, check ketel."
+
+      # Alert: CV water temperatuur hoog
+      - alert: ATAGWaterTemperatureHigh
+        expr: homeassistant_sensor_temperature_celsius{entity="sensor.atag_one_cv_water_temp"} > 75
+        for: 15m
+        labels:
+          severity: warning
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG CV watertemperatuur hoog"
+          description: "CV water temperatuur is {{ $value | humanize }}°C (boven 75°C). Mogelijk te hoge setpoint."
+
+      # Alert: ATAG sensor niet beschikbaar
+      - alert: ATAGSensorUnavailable
+        expr: homeassistant_entity_available{entity=~"sensor.atag_one_.*"} == 0
+        for: 15m
+        labels:
+          severity: warning
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG sensor niet beschikbaar: {{ $labels.friendly_name }}"
+          description: "ATAG sensor '{{ $labels.friendly_name }}' ({{ $labels.entity }}) is al 15 minuten niet beschikbaar. Check ATAG integratie."
+
+      # Alert: ATAG integratie volledig down
+      - alert: ATAGIntegrationDown
+        expr: absent(homeassistant_sensor_pressure_bar{entity="sensor.atag_one_cv_waterdruk"})
+        for: 10m
+        labels:
+          severity: critical
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG integratie niet actief"
+          description: "Er worden geen ATAG metrics meer ontvangen. ATAG ONE integratie mogelijk niet actief in Home Assistant."
+
+      # Alert: Extreem hoog gasverbruik (mogelijk lek of storing)
+      - alert: ATAGGasConsumptionSpike
+        expr: homeassistant_sensor_volume_m3{entity="sensor.atag_one_gas"} > (avg_over_time(homeassistant_sensor_volume_m3{entity="sensor.atag_one_gas"}[7d]) * 2)
+        for: 2h
+        labels:
+          severity: critical
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG gasverbruik abnormaal hoog"
+          description: "Gasverbruik is {{ $value | humanize }} m³, meer dan 2x het 7-dagen gemiddelde. Mogelijk lek of storing."
+
+      # Alert: DHW (Douche/Kraan) temperatuur te laag
+      - alert: ATAGDHWTemperatureLow
+        expr: homeassistant_sensor_temperature_celsius{entity="sensor.atag_one_dhw_water_temp"} < 45 and homeassistant_sensor_volume_flow_rate_l_min{entity="sensor.atag_one_dhw_flow_rate"} > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG tapwater temperatuur te laag"
+          description: "Tapwater temperatuur is {{ $value | humanize }}°C tijdens gebruik (flow rate actief). Mogelijk onvoldoende capaciteit."
