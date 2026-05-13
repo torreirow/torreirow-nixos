@@ -15,6 +15,26 @@
   services.gnome.gnome-keyring.enable = true;  # Voor VPN/WiFi secrets (NetworkManager)
   programs.xwayland.enable = true;
 
+  # ===== Mutter/Wayland Settings =====
+  # Experimental features voor betere Wayland/XWayland compatibility
+  services.desktopManager.gnome.extraGSettingsOverrides = ''
+    [org/gnome/mutter]
+    experimental-features=['scale-monitor-framebuffer']
+    center-new-windows=true
+  '';
+
+  # ===== Wayland Environment Variables =====
+  environment.sessionVariables = {
+    # Force Qt apps to use native Wayland (fixes invisible windows op GNOME 49+)
+    # Werkt voor: Strawberry, mscore/MuseScore, etc.
+    QT_QPA_PLATFORM = "wayland";
+  };
+
+  environment.variables = {
+    # Electron apps (Bitwarden, VSCode, Signal, etc.) Wayland fix voor GNOME 49+
+    ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+  };
+
   # ===== XDG Portals =====
   # Voor Wayland screen sharing, file dialogs, etc.
   xdg.portal = {
@@ -52,10 +72,39 @@
 
     # GNOME tools
     dconf
+    gpaste        # Clipboard manager daemon (D-Bus activatie)
     wl-clipboard  # Wayland clipboard tools voor screenshot-to-file script
     networkmanagerapplet  # GUI voor VPN wachtwoord dialogen
     libsecret  # Voor secret-tool (GNOME Keyring beheer)
   ];
 
   programs.dconf.enable = true;
+
+  # Installeer gnome-shell systemd user units in /etc/systemd/user/
+  # Vereist voor GNOME 49+: org.gnome.Shell@wayland.service moet aanwezig zijn
+  systemd.packages = [ pkgs.gnome-shell ];
+
+  # Drop-in voor gnome-session@gnome.target: voeg org.gnome.Shell.target toe als Want
+  # Zonder dit start gnome-session gnome-shell direct (oud gedrag) in plaats van via systemd.
+  # Via systemd als unit: gnome-shell kan zichzelf vinden → XWayland initialiseert correct.
+  # overrideStrategy="asDropin" is vereist voor template instances (@gnome).
+  systemd.user.targets."gnome-session@gnome" = {
+    overrideStrategy = "asDropin";
+    unitConfig = {
+      Wants = "org.gnome.Shell.target";
+    };
+  };
+
+  # GPaste clipboard daemon als user service (package levert etc/systemd/user/ die niet auto-gelinkt wordt)
+  systemd.user.services."org.gnome.GPaste" = {
+    description = "GPaste daemon";
+    partOf = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    wantedBy = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "dbus";
+      BusName = "org.gnome.GPaste";
+      ExecStart = "${pkgs.gpaste}/libexec/gpaste/gpaste-daemon";
+    };
+  };
 }

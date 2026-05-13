@@ -69,7 +69,7 @@ groups = {
   improvement_it.color = "1c71d8";
   improvement_it.shortname = "iit";
   dreamlines.ignore = true;
-  default.color = "cccccc";
+
   tracklib.ignore = false; 
   pastbook.ignore = false;
   splitser.ignore = false;
@@ -172,7 +172,7 @@ alternative_regions = {
       region = if builtins.hasAttr account_id alternative_regions then alternative_regions."${account_id}" else "eu-central-1";
       color = if builtins.hasAttr groupnorm groups && builtins.hasAttr "color" groups.${groupnorm}
       then groups.${groupnorm}.color
-      else groups.default.color;
+      else builtins.substring 0 6 (builtins.hashString "sha256" groupnorm);
     };
 
   # Sync script to download AWS accounts JSON from S3
