@@ -3,7 +3,7 @@ groups:
     rules:
       # Alert: Download speed kritiek laag
       - alert: InternetDownloadSpeedCritical
-        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} < 20
+        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} < 80
         for: 5m
         labels:
           severity: critical
@@ -11,11 +11,11 @@ groups:
           service: speedtest
         annotations:
           summary: "Download snelheid kritiek laag"
-          description: "Download snelheid is {{ $value | humanize }} Mbps (onder 20 Mbps threshold). Normaal verwacht: >35 Mbps."
+          description: "Download snelheid is {{ $value | humanize }} Mbps (onder 80 Mbps threshold). Normaal verwacht: >140 Mbps (glasvezel 200)."
 
       # Alert: Download speed laag
       - alert: InternetDownloadSpeedLow
-        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} < 35 and homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} >= 20
+        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} < 140 and homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} >= 80
         for: 15m
         labels:
           severity: warning
@@ -23,11 +23,11 @@ groups:
           service: speedtest
         annotations:
           summary: "Download snelheid ondermaats"
-          description: "Download snelheid is {{ $value | humanize }} Mbps (onder 35 Mbps optimaal). Normaal verwacht: >35 Mbps."
+          description: "Download snelheid is {{ $value | humanize }} Mbps (onder 140 Mbps optimaal). Normaal verwacht: >140 Mbps (glasvezel 200)."
 
       # Alert: Upload speed kritiek laag
       - alert: InternetUploadSpeedCritical
-        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} < 4
+        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} < 8
         for: 5m
         labels:
           severity: critical
@@ -35,11 +35,11 @@ groups:
           service: speedtest
         annotations:
           summary: "Upload snelheid kritiek laag"
-          description: "Upload snelheid is {{ $value | humanize }} Mbps (onder 4 Mbps threshold). Normaal verwacht: >7 Mbps."
+          description: "Upload snelheid is {{ $value | humanize }} Mbps (onder 8 Mbps threshold). Normaal verwacht: >15 Mbps (glasvezel 200)."
 
       # Alert: Upload speed laag
       - alert: InternetUploadSpeedLow
-        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} < 7 and homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} >= 4
+        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} < 15 and homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} >= 8
         for: 15m
         labels:
           severity: warning
@@ -47,7 +47,7 @@ groups:
           service: speedtest
         annotations:
           summary: "Upload snelheid ondermaats"
-          description: "Upload snelheid is {{ $value | humanize }} Mbps (onder 7 Mbps optimaal). Normaal verwacht: >7 Mbps."
+          description: "Upload snelheid is {{ $value | humanize }} Mbps (onder 15 Mbps optimaal). Normaal verwacht: >15 Mbps (glasvezel 200)."
 
       # Alert: Hoge latency
       - alert: InternetLatencyHigh
