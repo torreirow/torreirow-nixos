@@ -34,7 +34,7 @@
           },
           "decimals": 1,
           "mappings": [],
-          "max": 50,
+          "max": 200,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -45,11 +45,11 @@
               },
               {
                 "color": "orange",
-                "value": 20
+                "value": 80
               },
               {
                 "color": "green",
-                "value": 35
+                "value": 140
               }
             ]
           },
@@ -102,7 +102,7 @@
           },
           "decimals": 1,
           "mappings": [],
-          "max": 10,
+          "max": 50,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -113,11 +113,11 @@
               },
               {
                 "color": "orange",
-                "value": 4
+                "value": 8
               },
               {
                 "color": "green",
-                "value": 7
+                "value": 15
               }
             ]
           },
