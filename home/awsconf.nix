@@ -61,13 +61,15 @@ let
 groups = {
   mustad_hoofcare.color = "e5a50a";
   mustad_hoofcare.shortname = "mus";
+  DocRevolution.color = "3c5e18";
+  DocRevolution.shortname = "docrev";
   technative.color = "9141ac";
   ddgc.color = "1c71d8";
   ddgc.ignore = false;
   improvement_it.color = "1c71d8";
   improvement_it.shortname = "iit";
   dreamlines.ignore = true;
-  default.color = "cccccc";
+
   tracklib.ignore = false; 
   pastbook.ignore = false;
   splitser.ignore = false;
@@ -115,6 +117,7 @@ alternative_regions = {
   "189796657102" = "eu-west-1"; #docrev
   "945695383844" = "eu-west-1"; #docrev
   "975050060686" = "eu-west-1"; #docrev
+  "238020582243" = "eu-west-1"; #docrev
 };
   alternative_names = {
     #"760178553019" = "pg_wtoorren";
@@ -169,7 +172,7 @@ alternative_regions = {
       region = if builtins.hasAttr account_id alternative_regions then alternative_regions."${account_id}" else "eu-central-1";
       color = if builtins.hasAttr groupnorm groups && builtins.hasAttr "color" groups.${groupnorm}
       then groups.${groupnorm}.color
-      else groups.default.color;
+      else builtins.substring 0 6 (builtins.hashString "sha256" groupnorm);
     };
 
   # Sync script to download AWS accounts JSON from S3
