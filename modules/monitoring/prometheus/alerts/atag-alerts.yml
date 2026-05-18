@@ -39,7 +39,7 @@ groups:
 
       # Alert: Brander te vaak starten (inefficiënt)
       - alert: ATAGBurnerCyclingExcessive
-        expr: rate(homeassistant_sensor_state{entity="sensor.atag_one_lumc_brander_starts"}[1h]) > 10
+        expr: increase(homeassistant_sensor_state{entity="sensor.atag_one_lumc_brander_starts"}[1h]) > 10
         for: 30m
         labels:
           severity: warning
