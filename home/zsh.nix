@@ -41,6 +41,7 @@
           aider="/run/keys/wouter/aider";
           aws-switch="bmc profsel";
           boostmic="pactl set-source-volume 2 190%";
+          micfix="wpctl set-volume @DEFAULT_SOURCE@ 1.05 && echo 'Sandberg microfoon volume hersteld naar 1.05'";
           gbdel=" echo Removing branches from git repo: $(basename -s .git \"$(git config --get remote.origin.url)\"); for branch in $(git branch --format=\"%(refname:short)\" | grep -Ev '^(main|master)$'); do echo -n \"Verwijder branch '$branch'? (y/n) \";  read answer ;  [[ $answer == \"y\" ]] && git branch -D \"$branch\"; done";
           ghrmbranch="for branch in $(git branch |grep -v -i -e main -e master); do git branch -D $branch; done";
           mcsjsonsync="systemctl --user start aws-accounts-sync.service";
