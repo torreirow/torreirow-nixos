@@ -40,6 +40,7 @@ in
       mydestination = ""; # Lege string = geen lokale delivery
       local_recipient_maps = ""; # Disable lokale recipient checks
 
+
       # AWS SES relay configuratie (host:port formaat met brackets voor SASL)
       relayhost = ["[${relayHost}]:587"]; # Brackets matchen SASL password map formaat
 
@@ -122,6 +123,7 @@ in
         echo "ERROR: /run/agenix/postfix-sasl-password exists but is not readable"
         exit 1
       fi
+
 
       # Kopieer het secret bestand naar /etc/postfix/
       cp /run/agenix/postfix-sasl-password /etc/postfix/sasl_passwd
