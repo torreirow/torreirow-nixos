@@ -20,7 +20,7 @@ in
     ../../modules/claude.nix
 #   ../../modules/monitoring
 #   ../../modules/jitsi.nix
-   # ../../modules/teamviewer.nix
+    ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
     ];
 
@@ -337,6 +337,16 @@ services.samba = {
     "force user" = "wtoorren";
     "force group" = "users";
     };
+"vince" = {
+    "path" = "/tmp/vince";
+    "browseable" = "yes";
+    "read only" = "no";
+    "guest ok" = "no";
+    "create mask" = "2775";
+    "directory mask" = "0755";
+    "force user" = "wtoorren";
+    "force group" = "users";
+    };
 
     };
     };
@@ -422,7 +432,7 @@ networking.wg-quick.interfaces.toorren = {
 services.fprintd.enable = true;
 systemd.services.sshd.serviceConfig = {
   ProtectSystem = "strict";
-  ProtectHome = "yes";
+  ProtectHome = "read-only";
   PrivateTmp = true;
 };
 
