@@ -18,7 +18,7 @@
     race.url = "github:wearetechnative/race";
     brigit.url = "github:wearetechnative/brigit";
     jsonify-aws-dotfiles.url = "github:wearetechnative/jsonify-aws-dotfiles";
-    dirtygit.url = "github:mipmip/dirtygit";
+    dirtygit.url = "github:mipmip/dirty-repo-scanner";
     openspec.url = "github:mipmip/OpenSpec";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
@@ -40,7 +40,7 @@
       environment.systemPackages = [
         bmc.packages."${system}".bmc
         nixvim.packages."${system}".default
-        dirtygit.packages."${system}".dirtygit
+        # dirtygit.packages."${system}".default  # TODO: Fix package name for dirty-repo-scanner
         race.packages."${system}".race
         brigit.packages."${system}".brigit
         jsonify-aws-dotfiles.packages."${system}".jsonify-aws-dotfiles
