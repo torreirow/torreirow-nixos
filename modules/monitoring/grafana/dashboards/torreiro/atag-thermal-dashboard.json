@@ -366,7 +366,140 @@
         }
       ],
       "title": "😊 Comfort Score (24u)",
-      "description": "Percentage tijd binnen comfort range (19.5-21°C)"
+      "description": "Percentage tijd binnen comfort range (19.5-21°C)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1.0
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 8,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "avg_over_time(abs(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} - on() homeassistant_climate_target_temperature_celsius{entity=\"climate.atag_one\"})[24h:5m])",
+          "refId": "A"
+        }
+      ],
+      "title": "🎯 Accuracy Score (24u)",
+      "description": "Gemiddelde afwijking van setpoint over 24u",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1.0
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 9,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "stddev_over_time(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"}[24h:5m])",
+          "refId": "A"
+        }
+      ],
+      "title": "📏 Stability Score (24u)",
+      "description": "Standaarddeviatie temperatuur (oscillatie/overshoot)",
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -426,7 +559,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 22
       },
       "id": 5,
       "options": {
@@ -521,7 +654,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 22
       },
       "id": 6,
       "options": {
@@ -542,7 +675,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "rate(homeassistant_sensor_state{entity=\"sensor.atag_one_lumc_brander_starts\"}[1h]) * 3600",
+          "expr": "increase(homeassistant_sensor_state{entity=\"sensor.atag_one_lumc_brander_starts"}[1h])",
           "refId": "A",
           "legendFormat": "Brander Starts"
         }
@@ -617,7 +750,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 30
       },
       "id": 7,
       "options": {
@@ -638,7 +771,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "abs(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} - homeassistant_climate_target_temperature_celsius{entity=\"climate.atag_one\"})",
+          "expr": "abs(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} - on() homeassistant_climate_target_temperature_celsius{entity=\"climate.atag_one\"})",
           "refId": "A",
           "legendFormat": "Target Delta"
         }
