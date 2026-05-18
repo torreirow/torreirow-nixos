@@ -200,6 +200,22 @@ environment.variables.EDITOR = "vim";
 
 
   services.pulseaudio.enable = false;
+
+  # Lock Sandberg 126-40 microphone volume - prevent apps (Zoom, Teams, Slack) from permanently changing it
+  services.pipewire.wireplumber.extraConfig."51-sandberg-volume-lock" = {
+    "monitor.alsa.rules" = [
+      {
+        matches = [{ "node.name" = "alsa_input.usb-MUSIC-BOOST_Sandberg_126-40_MB-306-00.mono-fallback"; }];
+        actions = {
+          "update-props" = {
+            "node.volume" = 1.05;
+            "node.mute" = false;
+          };
+        };
+      }
+    ];
+  };
+
  # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
