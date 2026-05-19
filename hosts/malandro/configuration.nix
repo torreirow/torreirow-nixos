@@ -36,6 +36,7 @@ in
  ../../modules/mqtt.nix
  ../../modules/nfs.nix
  ../../modules/nginx-boaz.nix
+ ../../modules/nginx-portal.nix
  ../../modules/nginx-cv-jolijn.nix
  ../../modules/nginx-wereldvanbegrip.nix
  ../../modules/nginx-wouter.nix
@@ -50,6 +51,7 @@ in
  ../../modules/docseal.nix
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
+ ../../modules/docker-registry-mirror.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 

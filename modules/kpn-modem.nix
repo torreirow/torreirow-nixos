@@ -27,10 +27,8 @@
       proxyPass = "http://127.0.0.1:9091/api/verify";
       extraConfig = ''
         internal;
-        proxy_set_header Host $host;
         proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
         proxy_set_header X-Forwarded-Method $request_method;
-        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $http_host;
         proxy_set_header X-Forwarded-Uri $request_uri;
         proxy_set_header X-Forwarded-For $remote_addr;

@@ -23,7 +23,6 @@
         "--cap-add=NET_RAW"
         # DSMR P1 Smart Meter (FTDI USB serial)
         "--device=/dev/ttyUSB0:/dev/ttyUSB0"
-        "--device=/dev/ttyUSB1:/dev/ttyUSB1"
       ];
     };
 
@@ -119,11 +118,6 @@
         extraConfig = ''
           auth_request /authelia;
           error_page 401 = @authelia_portal;
-
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
         '';
       };
 
