@@ -50,6 +50,7 @@ in
  ../../modules/docseal.nix
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
+ ../../modules/docker-registry-mirror.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
