@@ -38,10 +38,12 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.luks.devices."luks-27bc3389-d74c-4cca-b9ea-64d14a07393a".device = "/dev/disk/by-uuid/27bc3389-d74c-4cca-b9ea-64d14a07393a";
-#  boot.kernelParams = [ "pci=nomsi" "acpi=off" ];
+  boot.extraModprobeConfig = ''
+    options mt7921e disable_aspm=1
+  '';
 #  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
-  boot.supportedFilesystems = [ "ntfs" ];
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+boot.supportedFilesystems = [ "ntfs" ];
+boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
 
 
