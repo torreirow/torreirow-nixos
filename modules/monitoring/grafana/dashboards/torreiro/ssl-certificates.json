@@ -26,9 +26,9 @@
         "x": 0,
         "y": 0
       },
-      "id": 9,
+      "id": 1,
       "panels": [],
-      "title": "HTTP Checks",
+      "title": "Overview",
       "type": "row"
     },
     {
@@ -39,37 +39,33 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 4,
-        "w": 2,
+        "w": 6,
         "x": 0,
         "y": 1
       },
-      "id": 1,
+      "id": 2,
       "options": {
-        "colorMode": "value",
+        "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -86,7 +82,13 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "count(probe_http_status_code{job=\"blackbox-torreiro-external\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "count(probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"})",
+          "instant": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -101,8 +103,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "green",
-            "mode": "fixed"
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -114,199 +115,25 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 1
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 4,
-        "w": 2,
-        "x": 2,
-        "y": 1
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "expr": "count(probe_http_status_code{job=\"blackbox-torreiro-external\"} == 200)",
-          "refId": "B"
-        }
-      ],
-      "title": "200 OK",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "semi-dark-red",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 4,
-        "y": 1
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "expr": "count(probe_http_status_code{job=\"blackbox-torreiro-external\"} == 500)",
-          "refId": "E"
-        }
-      ],
-      "title": "500 Server Errors",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "semi-dark-red",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
+        "w": 6,
         "x": 6,
-        "y": 1
-      },
-      "id": 4,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "expr": "count(probe_http_status_code{job=\"blackbox-torreiro-external\"} == 404)",
-          "refId": "D"
-        }
-      ],
-      "title": "404 Not Found",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "noValue": "0",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 8,
         "y": 1
       },
       "id": 3,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
@@ -323,11 +150,17 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "count(probe_http_status_code{job=\"blackbox-torreiro-external\"} == 301) + count(probe_http_status_code{job=\"blackbox-torreiro-external\"} == 302)",
-          "refId": "C"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "count((probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"} - time()) / 86400 < 7) or vector(0)",
+          "instant": true,
+          "range": false,
+          "refId": "A"
         }
       ],
-      "title": "301/302 Redirects",
+      "title": "Critical (< 7 days)",
       "type": "stat"
     },
     {
@@ -337,76 +170,8 @@
       },
       "fieldConfig": {
         "defaults": {
-          "mappings": [],
-          "noValue": "0",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 10,
-        "y": 1
-      },
-      "id": 8,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "count(probe_http_status_code{job=\"blackbox-torreiro-external\"} != 200\nand probe_http_status_code{job=\"blackbox-torreiro-external\"} != 301\nand probe_http_status_code{job=\"blackbox-torreiro-external\"} != 302\nand probe_http_status_code{job=\"blackbox-torreiro-external\"} != 404\nand probe_http_status_code{job=\"blackbox-torreiro-external\"} != 500)",
-          "range": true,
-          "refId": "E"
-        }
-      ],
-      "title": "Other Errors",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
+          "color": {
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -417,47 +182,122 @@
                 "value": 0
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": 1
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 5
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
       },
-      "id": 10,
+      "id": 4,
       "options": {
-        "cellHeight": "sm",
-        "showHeader": true
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "probe_http_status_code{job=\"blackbox-torreiro-external\"} != 200",
-          "format": "table",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "count((probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"} - time()) / 86400 < 14) or vector(0)",
+          "instant": true,
+          "range": false,
           "refId": "A"
         }
       ],
-      "title": "URLs in Error",
-      "transformations": [
+      "title": "Warning (< 14 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
         {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
-                "instance"
-              ]
-            }
-          }
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "count((probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"} - time()) / 86400 >= 14)",
+          "instant": true,
+          "range": false,
+          "refId": "A"
         }
       ],
-      "type": "table"
+      "title": "OK (≥ 14 days)",
+      "type": "stat"
     },
     {
       "collapsed": false,
@@ -465,11 +305,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 5
       },
-      "id": 20,
+      "id": 6,
       "panels": [],
-      "title": "SSL Certificate Expiry",
+      "title": "Certificate Expiry",
       "type": "row"
     },
     {
@@ -482,12 +322,105 @@
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 7
+              },
+              {
+                "color": "green",
+                "value": 14
+              }
+            ]
+          },
+          "unit": " days"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 7,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "floor(sort(probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"} - time()) / 86400)",
+          "instant": true,
+          "legendFormat": "{{instance}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Days Remaining per Certificate",
+      "type": "bargauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 8,
+      "panels": [],
+      "title": "Certificate & Connection Details",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Based on grafana.com/dashboards/13230",
+      "fieldConfig": {
+        "defaults": {
           "custom": {
-            "align": "center",
+            "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
-            "filterable": true,
+            "filterable": false,
             "footer": {
               "reducers": []
             },
@@ -498,16 +431,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": 0
               },
               {
-                "color": "orange",
-                "value": 1
-              },
-              {
-                "color": "green",
-                "value": 7
+                "color": "red",
+                "value": 80
               }
             ]
           }
@@ -516,14 +445,299 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Days to expiration"
+              "options": "instance"
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
+                "id": "custom.width",
+                "value": 500
+              },
+              {
+                "id": "displayName",
+                "value": "URL"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #A"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "displayName",
+                "value": "Certificate expires in"
+              },
+              {
+                "id": "thresholds",
                 "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "semi-dark-red",
+                      "value": 0
+                    },
+                    {
+                      "color": "semi-dark-yellow",
+                      "value": 604800
+                    },
+                    {
+                      "color": "semi-dark-green",
+                      "value": 1209600
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 220
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
+              },
+              {
+                "id": "unit",
+                "value": "dtdurations"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "N/A"
+                      }
+                    },
+                    "type": "special"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #D"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "HTTP Response"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 300
+                    },
+                    {
+                      "color": "red",
+                      "value": 400
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #G"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Resolve Time"
+              },
+              {
+                "id": "max",
+                "value": 0.01
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 0.005
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.009
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Connect Time"
+              },
+              {
+                "id": "max",
+                "value": 0.5
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 0.2
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.4
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #E"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "TLS Time"
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 0.5
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.9
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #F"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Processing Time"
+              },
+              {
+                "id": "max",
+                "value": 0.5
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 0.25
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.4
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #C"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Transfer Time"
+              },
+              {
+                "id": "max",
+                "value": 0.5
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 0.125
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.3
+                    }
+                  ]
                 }
               }
             ]
@@ -531,58 +745,147 @@
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 20,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 21
       },
-      "id": 21,
+      "id": 9,
       "options": {
         "cellHeight": "sm",
+        "frameIndex": 1,
         "showHeader": true,
         "sortBy": [
           {
             "desc": false,
-            "displayName": "Status"
+            "displayName": "Certificate expires in"
           }
         ]
       },
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"} - time()) / 86400",
-          "legendFormat": "{{instance}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"}-time()",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "probe_http_duration_seconds{job=\"blackbox-torreiro-external\",phase=\"connect\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "probe_http_duration_seconds{job=\"blackbox-torreiro-external\",phase=\"transfer\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "probe_http_status_code{job=\"blackbox-torreiro-external\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "probe_http_duration_seconds{job=\"blackbox-torreiro-external\",phase=\"tls\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "probe_http_duration_seconds{job=\"blackbox-torreiro-external\",phase=\"processing\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "probe_http_duration_seconds{job=\"blackbox-torreiro-external\",phase=\"resolve\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "G"
         }
       ],
-      "title": "SSL Certificate Expiry (Days Left)",
+      "title": "Certificate & Connection Monitoring",
       "transformations": [
         {
-          "id": "reduce",
+          "id": "seriesToColumns",
           "options": {
-            "reducers": [
-              "lastNotNull"
-            ]
+            "byField": "instance"
           }
         },
         {
           "id": "organize",
           "options": {
-            "renameByName": {
-              "Field": "URL",
-              "Last *": "Days to expiration"
-            }
-          }
-        },
-        {
-          "id": "sortBy",
-          "options": {
-            "sort": [
-              {
-                "desc": false,
-                "field": "Days to expiration"
-              }
-            ]
+            "excludeByName": {
+              "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true,
+              "Time 6": true,
+              "Time 7": true,
+              "__name__": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "__name__ 3": true,
+              "__name__ 4": true,
+              "__name__ 5": true,
+              "__name__ 6": true,
+              "job": true,
+              "job 1": true,
+              "job 2": true,
+              "job 3": true,
+              "job 4": true,
+              "job 5": true,
+              "job 6": true,
+              "job 7": true,
+              "phase": true,
+              "phase 1": true,
+              "phase 2": true,
+              "phase 3": true,
+              "phase 4": true,
+              "phase 5": true
+            },
+            "indexByName": {},
+            "renameByName": {}
           }
         }
       ],
@@ -590,25 +893,22 @@
     }
   ],
   "preload": false,
-  "refresh": "30s",
+  "refresh": "1m",
   "schemaVersion": 42,
   "tags": [
-    "blackbox",
-    "http",
-    "ssl",
-    "technative",
-    "iac"
+    "monitoring",
+    "ssl"
   ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "TechNative - HTTP & SSL Monitoring",
-  "uid": "72f77aae-4dac-487f-90cc-1f4727f218ee",
-  "version": 2
+  "title": "Torreiro - SSL Certificates",
+  "uid": "ssl-toorren",
+  "version": 1
 }
