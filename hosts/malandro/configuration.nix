@@ -30,7 +30,7 @@ in
  ../../modules/signal-cli.nix
  ../../modules/ittools.nix
  ../../modules/kpn-modem.nix
- ../../modules/magister/magister-service.nix
+# ../../modules/magister/magister-service.nix
  ../../modules/memos.nix
  ../../modules/monitoring
  ../../modules/mqtt.nix
@@ -66,14 +66,14 @@ in
     message = "ERROR: Deze configuratie is voor 'malandro', maar hostname is '${config.networking.hostName}'. Gebruik --flake .#${config.networking.hostName}";
   }];
 
- services.magister-sync = {
-   enable = true;
-   nginx = {
-     enable = true;
-     domain = "agenda.toorren.net";
-     acmeHost = "toorren.net";
-   };
- };
+# services.magister-sync = {
+#   enable = true;
+#   nginx = {
+#     enable = true;
+#     domain = "agenda.toorren.net";
+#     acmeHost = "toorren.net";
+#   };
+# };
 
 
 
