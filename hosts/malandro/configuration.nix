@@ -42,7 +42,7 @@ in
  ../../modules/nginx-wouter.nix
  ../../modules/nginx.nix
  ../../modules/paperless.nix
- ../../modules/pihole.nix
+ # ../../modules/pihole.nix
  ../../modules/postgres.nix
  ../../modules/postfix.nix
  ../../modules/vaultwarden.nix
