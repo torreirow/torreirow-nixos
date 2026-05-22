@@ -188,66 +188,6 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 14
-              },
-              {
-                "color": "red",
-                "value": 7
-              }
-            ]
-          },
-          "unit": "d"
-        }
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 1
-      },
-      "id": 104,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "12.0.6",
-      "targets": [
-        {
-          "expr": "min((probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"} - time()) / 86400)",
-          "refId": "A"
-        }
-      ],
-      "title": "SSL Expires (Min)",
-      "type": "stat"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -257,7 +197,7 @@
       },
       "id": 200,
       "panels": [],
-      "title": "External Services (HTTPS/SSL)",
+      "title": "External Services",
       "type": "row"
     },
     {
@@ -323,40 +263,6 @@
               }
             ]
           },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "SSL Expires (days)"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 14
-                    },
-                    {
-                      "color": "red",
-                      "value": 7
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
-              }
-            ]
-          }
         ]
       },
       "gridPos": {
@@ -385,12 +291,6 @@
           "refId": "A"
         },
         {
-          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"} - time()) / 86400",
-          "format": "table",
-          "instant": true,
-          "refId": "B"
-        },
-        {
           "expr": "probe_http_status_code{job=\"blackbox-torreiro-external\"}",
           "format": "table",
           "instant": true,
@@ -416,8 +316,7 @@
             "renameByName": {
               "instance": "Service",
               "Value #A": "Status",
-              "Value #B": "SSL Expires (days)",
-              "Value #C": "HTTP Code"
+              "Value #B": "HTTP Code"
             }
           }
         }
@@ -605,115 +504,10 @@
         }
       ],
       "type": "table"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      },
-      "id": 400,
-      "panels": [],
-      "title": "SSL Certificate Expiration",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "line"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 14
-              },
-              {
-                "color": "red",
-                "value": 7
-              }
-            ]
-          },
-          "unit": "d"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
-      "id": 401,
-      "options": {
-        "legend": {
-          "calcs": ["lastNotNull"],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.0.6",
-      "targets": [
-        {
-          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-torreiro-external\"} - time()) / 86400",
-          "legendFormat": "{{instance}}",
-          "refId": "A"
-        }
-      ],
-      "title": "SSL Certificate Days Until Expiration",
-      "type": "timeseries"
     }
   ],
   "schemaVersion": 39,
-  "tags": ["torreiro", "monitoring", "ssl", "health"],
+  "tags": ["torreiro", "monitoring", "health"],
   "templating": {
     "list": []
   },
