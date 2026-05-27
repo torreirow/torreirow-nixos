@@ -77,8 +77,11 @@ systemd.services.postgres-set-crowdsec-password = {
 };
 
 networking.firewall.extraCommands = ''
-  iptables -A INPUT -i br+ -p tcp --dport 5432 -j ACCEPT
-  '';
+  iptables -I nixos-fw 1 -i br+ -p tcp --dport 5432 -j nixos-fw-accept
+'';
+networking.firewall.extraStopCommands = ''
+  iptables -D nixos-fw -i br+ -p tcp --dport 5432 -j nixos-fw-accept || true
+'';
 
 
 }
