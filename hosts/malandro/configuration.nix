@@ -138,6 +138,12 @@ in
   networking.firewall.allowedUDPPorts = [ 111 2049  5353 ]; # Spotify Connect
   networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
 
+  # PostgreSQL: alleen toegankelijk vanuit lokaal subnet
+  networking.firewall.extraRules = '
+    -A nixos-fw -s 192.168.2.0/24 -p tcp --dport 5432 -j nixos-fw-accept
+  ';
+
+
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.package = pkgs.bluez;
