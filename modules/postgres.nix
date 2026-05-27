@@ -41,6 +41,8 @@
          local    all   all    peer
          # Docker containers
          host paperless paperless 172.18.0.0/16 md5
+         host    opsknight    opsknight    192.168.2.0/24    scram-sha-256
+         host    opsknight    opsknight    192.168.2.0/24    md5
     '';
 
   };
@@ -77,8 +79,11 @@ systemd.services.postgres-set-crowdsec-password = {
 };
 
 networking.firewall.extraCommands = ''
-  iptables -A INPUT -i br+ -p tcp --dport 5432 -j ACCEPT
-  '';
+  iptables -I nixos-fw 1 -i br+ -p tcp --dport 5432 -j nixos-fw-accept
+'';
+networking.firewall.extraStopCommands = ''
+  iptables -D nixos-fw -i br+ -p tcp --dport 5432 -j nixos-fw-accept || true
+'';
 
 
 }

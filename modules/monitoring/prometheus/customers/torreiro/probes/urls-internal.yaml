@@ -26,12 +26,6 @@
   labels:
     service_name: "homeassistant"
 
-# Infrastructure tools
-- targets:
-  - http://127.0.0.1:9095
-  labels:
-    service_name: "cockpit"
-
 - targets:
   - http://127.0.0.1:9096
   labels:
