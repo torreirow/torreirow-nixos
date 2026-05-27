@@ -46,7 +46,27 @@ sudo systemctl status authelia-main.service
 
 ---
 
-## 4. Docker containers
+## 4. PostgreSQL + Vikunja
+
+PostgreSQL start soms trager op dan Vikunja verwacht, waardoor Vikunja zijn restart-limiet bereikt en in `failed` toestand blijft hangen.
+
+**Symptoom:** Vikunja gefailed (`Migration failed: dial tcp [::1]:5432: connect: connection refused`).
+
+```bash
+sudo systemctl status postgresql.service
+sudo systemctl status vikunja.service
+
+# PostgreSQL moet draaien voordat je Vikunja herstart
+sudo systemctl restart vikunja.service
+sudo systemctl status vikunja.service
+# Verwacht: "HTTP server listening on 127.0.0.1:8093"
+```
+
+> Vikunja slaat zijn restart-limiet op bij boot. Een handmatige restart na boot werkt altijd zodra PostgreSQL actief is.
+
+---
+
+## 5. Docker containers
 
 Controleer of alle containers draaien:
 
@@ -54,7 +74,7 @@ Controleer of alle containers draaien:
 sudo docker ps --format "table {{.Names}}\t{{.Status}}"
 ```
 
-Verwachte containers: `homeassistant`, `zigbee2mqtt`, `mosquitto`, `invoiceplane`, `erugo`, `bentopdf`, `wg-easy`
+Verwachte containers: `homeassistant`, `zigbee2mqtt`, `mosquitto`, `invoiceplane`, `erugo`, `bentopdf`, `wg-easy`, `vaultwarden`, `baikal`, `infcloud`, `signal-cli`, `docseal`, `wg-easy`, `paperless-webserver-1`, `paperless-broker-1`, `it-tools`, `bentopdf`, `registry-mirror`, `fail2bancontrol`
 
 Individuele container herstarten:
 
@@ -67,7 +87,7 @@ sudo systemctl restart docker-zigbee2mqtt.service
 
 ---
 
-## 5. Zigbee2MQTT
+## 6. Zigbee2MQTT
 
 Na een stroomstoring kan de Zigbee USB dongle in een slechte staat zitten.
 
@@ -98,7 +118,7 @@ sudo reboot
 
 ---
 
-## 6. Globale statuscheck
+## 7. Globale statuscheck
 
 ```bash
 # Gefaalde services
@@ -121,6 +141,7 @@ sudo journalctl -u nginx --no-pager -n 20 | grep error
 1. `sudo systemctl start postfix.service`
 2. `sudo systemctl restart redis-authelia.service` (verwijder dump.rdb eerst indien nodig)
 3. `sudo systemctl restart authelia-main.service`
-4. Controleer nginx: `sudo systemctl status nginx`
-5. Controleer Docker containers: `sudo docker ps`
-6. Test een service: open https://auth.toorren.net
+4. `sudo systemctl restart vikunja.service` (als PostgreSQL actief is)
+5. Controleer nginx: `sudo systemctl status nginx`
+6. Controleer Docker containers: `sudo docker ps`
+7. Test een service: open https://auth.toorren.net
