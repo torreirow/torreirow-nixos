@@ -58,6 +58,7 @@ in
   "claude.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "ssh-hosts-customer-prod.json.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "postfix-sasl-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "msmtp-password.age".publicKeys = users ++ [ wtoorren_workstation ];
 
   # WireGuard client secrets (lobos)
   "wg-toorren-private-key.age".publicKeys = users ++ [ wtoorren_workstation ];

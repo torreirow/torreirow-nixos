@@ -18,6 +18,7 @@ in
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix
     ../../modules/claude.nix
+    ./mail.nix
 #   ../../modules/monitoring
 #   ../../modules/jitsi.nix
     ../../modules/teamviewer.nix
