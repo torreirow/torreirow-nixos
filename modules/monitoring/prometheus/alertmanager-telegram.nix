@@ -19,6 +19,14 @@
     symlink = false;
   };
 
+  # Declareer alertmanager als statische system user zodat agenix secrets
+  # kan chownen voor de service start (dynamic users bestaan pas na service start)
+  users.users.alertmanager = {
+    isSystemUser = true;
+    group = "alertmanager";
+  };
+  users.groups.alertmanager = {};
+
   services.prometheus.alertmanager = {
     enable = true;
     port = 9093;
@@ -28,16 +36,22 @@
 
       route = {
         receiver = "telegram-notifications";
+        # Elke alert type krijgt een eigen groep
+        group_by = [ "alertname" ];
         # group_wait: Wacht dit lang voordat de eerste notificatie wordt verstuurd
-        # (om meerdere alerts tegelijk te groeperen)
         group_wait = "30s";
-
         # group_interval: Wacht dit lang tussen updates van een groep alerts
         group_interval = "5m";
-
         # repeat_interval: Stuur GEEN herhaalde notificaties (effectief "eenmalig")
         # 8760h = 1 jaar, dus praktisch gezien geen repeats
         repeat_interval = "8760h";
+        routes = [
+          {
+            # Stuur naar opsknight en ga daarna door naar telegram (continue = true)
+            receiver = "opsknight";
+            continue = true;
+          }
+        ];
       };
 
       receivers = [
@@ -58,6 +72,15 @@
                 {{ if .Labels.severity }}Severity: {{ .Labels.severity }}{{ end }}
                 {{ end }}
               '';
+            }
+          ];
+        }
+        {
+          name = "opsknight";
+          webhook_configs = [
+            {
+              send_resolved = true;
+              url = "https://opsknight.toorren.net/api/integrations/prometheus?integrationId=cmpo90y9t0003j9xhtigxheq7&integrationKey=ef5e61551cff167c339c5f3dc5943e77";
             }
           ];
         }
