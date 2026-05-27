@@ -41,6 +41,8 @@
          local    all   all    peer
          # Docker containers
          host paperless paperless 172.18.0.0/16 md5
+         host    opsknight    opsknight    192.168.2.0/24    scram-sha-256
+         host    opsknight    opsknight    192.168.2.0/24    md5
     '';
 
   };
