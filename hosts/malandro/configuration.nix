@@ -139,9 +139,9 @@ in
   networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
 
   # PostgreSQL: alleen toegankelijk vanuit lokaal subnet
-  networking.firewall.extraRules = '
-    -A nixos-fw -s 192.168.2.0/24 -p tcp --dport 5432 -j nixos-fw-accept
-  ';
+  networking.firewall.extraCommands = ''
+    iptables -A nixos-fw -s 192.168.2.0/24 -p tcp --dport 5432 -j nixos-fw-accept
+  '';
 
 
   # Enable bluetooth
