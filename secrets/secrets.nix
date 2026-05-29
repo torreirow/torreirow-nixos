@@ -47,6 +47,8 @@ in
   "invoiceplane-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "invoiceplane-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "vikunja-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "bookstack-appkey.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "bookstack-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
 
   "authelia-jwt-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];  
@@ -58,6 +60,7 @@ in
   "claude.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "ssh-hosts-customer-prod.json.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "postfix-sasl-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "msmtp-password.age".publicKeys = users ++ [ wtoorren_workstation ];
 
   # WireGuard client secrets (lobos)
   "wg-toorren-private-key.age".publicKeys = users ++ [ wtoorren_workstation ];
