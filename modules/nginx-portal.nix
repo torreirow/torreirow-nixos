@@ -10,6 +10,16 @@
       tryFiles = "$uri $uri/ =404";
     };
 
+    locations."/week/" = {
+      alias = "/var/www/default/week/";
+      tryFiles = "$uri $uri/ =404";
+      extraConfig = "index index.html;";
+    };
+
+    locations."= /week" = {
+      return = "301 /week/";
+    };
+
     extraConfig = ''
       index index.html;
     '';
