@@ -101,7 +101,7 @@
             }
             body {
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: #18222c;
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
@@ -159,9 +159,7 @@
     <body>
         <div class="container">
             <div class="error-code">404</div>
-            <img src="/errors/404.png" alt="404 Error" class="error-image" onerror="this.style.display='none'">
-            <h1>Pagina niet gevonden</h1>
-            <p>De pagina die je zoekt bestaat niet of is verplaatst.</p>
+            <img src="https://toorren.net/errors/404.png" alt="404 Error" class="error-image" onerror="this.style.display='none'">
             <a href="/" class="home-link">← Terug naar home</a>
         </div>
     </body>
@@ -181,71 +179,21 @@
                 padding: 0;
                 box-sizing: border-box;
             }
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #fff;
-            }
-            .container {
-                text-align: center;
-                padding: 2rem;
-                max-width: 600px;
-            }
-            .error-code {
-                font-size: 8rem;
-                font-weight: 700;
-                line-height: 1;
-                margin-bottom: 1rem;
-                text-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            }
-            .error-image {
-                max-width: 400px;
+            body, html {
                 width: 100%;
-                height: auto;
-                margin: 2rem auto;
-                display: block;
-                border-radius: 8px;
-                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+                height: 100%;
+                overflow: hidden;
             }
-            h1 {
-                font-size: 2rem;
-                margin-bottom: 1rem;
-            }
-            p {
-                font-size: 1.2rem;
-                margin-bottom: 2rem;
-                opacity: 0.9;
-            }
-            .home-link {
-                display: inline-block;
-                padding: 1rem 2rem;
-                background: rgba(255,255,255,0.2);
-                color: #fff;
-                text-decoration: none;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255,255,255,0.3);
-            }
-            .home-link:hover {
-                background: rgba(255,255,255,0.3);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            body {
+                background-image: url('https://toorren.net/landing.png');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
             }
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="error-code">403</div>
-            <img src="/errors/404.png" alt="403 Error" class="error-image" onerror="this.style.display='none'">
-            <h1>Toegang Geweigerd</h1>
-            <p>Je hebt geen toegang tot deze pagina.</p>
-            <a href="/" class="home-link">← Terug naar home</a>
-        </div>
     </body>
     </html>
   '';
@@ -270,6 +218,7 @@
     "L /var/www/errors/403.html - - - - /etc/nginx-errors/403.html"
     "L /var/www/errors/404.html - - - - /etc/nginx-errors/404.html"
     "L /var/www/errors/404.png - - - - /etc/nginx-errors/404.png"
+    "L /var/www/toorren.net/landing.png - - - - /etc/nginx-default/landing.png"
   ];
 }
 
