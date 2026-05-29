@@ -27,6 +27,12 @@
   };
   users.groups.alertmanager = {};
 
+  # Schakel DynamicUser uit zodat de statische alertmanager user gebruikt wordt
+  # (DynamicUser=yes maakt een ephemere user met andere UID, kan secrets niet lezen)
+  systemd.services.alertmanager.serviceConfig.DynamicUser = lib.mkForce false;
+  systemd.services.alertmanager.serviceConfig.User = lib.mkForce "alertmanager";
+  systemd.services.alertmanager.serviceConfig.Group = lib.mkForce "alertmanager";
+
   services.prometheus.alertmanager = {
     enable = true;
     port = 9093;
@@ -35,7 +41,7 @@
       global.resolve_timeout = "5m";
 
       route = {
-        receiver = "telegram-notifications";
+        receiver = "all-notifications";
         # Elke alert type krijgt een eigen groep
         group_by = [ "alertname" ];
         # group_wait: Wacht dit lang voordat de eerste notificatie wordt verstuurd
@@ -45,23 +51,16 @@
         # repeat_interval: Stuur GEEN herhaalde notificaties (effectief "eenmalig")
         # 8760h = 1 jaar, dus praktisch gezien geen repeats
         repeat_interval = "8760h";
-        routes = [
-          {
-            # Stuur naar opsknight en ga daarna door naar telegram (continue = true)
-            receiver = "opsknight";
-            continue = true;
-          }
-        ];
       };
 
       receivers = [
         {
-          name = "telegram-notifications";
+          name = "all-notifications";
           telegram_configs = [
             {
               send_resolved = true;
               bot_token_file = "/run/alertmanager/telegramBotToken";
-              chat_id = 1522117;  # Direct chat ID (from secret file content)
+              chat_id = 1522117;
               parse_mode = "HTML";
               message = ''
                 {{ range .Alerts }}
@@ -74,9 +73,6 @@
               '';
             }
           ];
-        }
-        {
-          name = "opsknight";
           webhook_configs = [
             {
               send_resolved = true;
