@@ -4,6 +4,7 @@
   
   environment.systemPackages = with pkgs; [
     wireguard-tools
+    unstable.beans
     #cooklang
     #flameshot
     claude-code
@@ -81,7 +82,7 @@
     sqsh
     ssm-session-manager-plugin
     ssmsh
-    terraform
+    # terraform  # Temporarily disabled due to Go compiler ICE
     terraform-docs
     tfswitch
     tmuxPlugins.catppuccin
