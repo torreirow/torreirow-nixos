@@ -41,6 +41,7 @@ in
  ../../modules/nginx-wereldvanbegrip.nix
  ../../modules/nginx-wouter.nix
  ../../modules/nginx.nix
+ ../../modules/opsknight.nix
  ../../modules/paperless.nix
  # ../../modules/pihole.nix
  ../../modules/postgres.nix
