@@ -1,6 +1,13 @@
-{ config, ... }:
+{ config, lib, ... }:
 
 {
+  # bookstack-setup.service heeft PrivateUsers=yes wat UID remapping veroorzaakt,
+  # waardoor het de agenix secrets (owned by bookstack) niet kan lezen.
+  systemd.services.bookstack-setup.serviceConfig.PrivateUsers = lib.mkForce false;
+
+  # bookstack user moet in de 'keys' group zitten om /run/keys/ te kunnen betreden
+  # (agenix secrets staan daar, directory heeft mode 750 group=keys)
+  users.users.bookstack.extraGroups = [ "keys" ];
   age.secrets.bookstack-appkey = {
     file = ../secrets/bookstack-appkey.age;
     owner = "bookstack";
@@ -35,6 +42,9 @@
       MAIL_PORT = 25;
       MAIL_FROM = "bookstack@toorren.net";
       MAIL_FROM_NAME = "BookStack";
+
+      # Sta openbare toegang toe (gasten kunnen content zien als rechten dat toestaan)
+      APP_PUBLIC = "true";
     };
   };
 }
