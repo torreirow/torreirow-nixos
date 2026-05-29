@@ -22,7 +22,7 @@ in
  ../../modules/baikal.nix
  ../../modules/chhoto-urlshortner.nix
  ../../modules/claude.nix
- ../../modules/cockpit.nix
+# ../../modules/cockpit.nix
  ../../modules/erugo.nix
  ../../modules/fail2ban.nix
  ../../modules/fail2bancontrol.nix
@@ -30,18 +30,19 @@ in
  ../../modules/signal-cli.nix
  ../../modules/ittools.nix
  ../../modules/kpn-modem.nix
- ../../modules/magister/magister-service.nix
+# ../../modules/magister/magister-service.nix
  ../../modules/memos.nix
  ../../modules/monitoring
  ../../modules/mqtt.nix
  ../../modules/nfs.nix
  ../../modules/nginx-boaz.nix
+ ../../modules/nginx-portal.nix
  ../../modules/nginx-cv-jolijn.nix
  ../../modules/nginx-wereldvanbegrip.nix
  ../../modules/nginx-wouter.nix
  ../../modules/nginx.nix
  ../../modules/paperless.nix
- ../../modules/pihole.nix
+ # ../../modules/pihole.nix
  ../../modules/postgres.nix
  ../../modules/postfix.nix
  ../../modules/vaultwarden.nix
@@ -50,6 +51,8 @@ in
  ../../modules/docseal.nix
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
+ ../../modules/bookstack.nix
+ ../../modules/docker-registry-mirror.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
@@ -64,14 +67,14 @@ in
     message = "ERROR: Deze configuratie is voor 'malandro', maar hostname is '${config.networking.hostName}'. Gebruik --flake .#${config.networking.hostName}";
   }];
 
- services.magister-sync = {
-   enable = true;
-   nginx = {
-     enable = true;
-     domain = "agenda.toorren.net";
-     acmeHost = "toorren.net";
-   };
- };
+# services.magister-sync = {
+#   enable = true;
+#   nginx = {
+#     enable = true;
+#     domain = "agenda.toorren.net";
+#     acmeHost = "toorren.net";
+#   };
+# };
 
 
 
@@ -135,6 +138,12 @@ in
   ## Spotify discovery devices
   networking.firewall.allowedUDPPorts = [ 111 2049  5353 ]; # Spotify Connect
   networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
+
+  # PostgreSQL: alleen toegankelijk vanuit lokaal subnet
+  networking.firewall.extraCommands = ''
+    iptables -A nixos-fw -s 192.168.2.0/24 -p tcp --dport 5432 -j nixos-fw-accept
+  '';
+
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
