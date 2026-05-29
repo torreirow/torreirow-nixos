@@ -11,7 +11,7 @@
     };
 
     locations."/week/" = {
-      alias = "/var/www/default/week/";
+      alias = "/var/www/toorren.net/week/";
       tryFiles = "$uri $uri/ =404";
       extraConfig = "index index.html;";
     };
