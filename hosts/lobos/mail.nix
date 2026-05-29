@@ -16,7 +16,7 @@
       auth           on
       from           lobos@toorren.net
       user           AKIAXIOEEMOOS4C73ZCT
-      passwordeval   cat /run/agenix/msmtp-password
+      passwordeval   cat /run/secrets/msmtp-password
     '';
   };
 
@@ -26,6 +26,7 @@
   # Agenix secret voor AWS SES SMTP wachtwoord (alleen het wachtwoord, geen username)
   age.secrets.msmtp-password = {
     file = ../../secrets/msmtp-password.age;
+    path = "/run/secrets/msmtp-password";
     owner = "wtoorren";
     mode = "0400";
   };
