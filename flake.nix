@@ -7,10 +7,6 @@
     nixpkgs-2511.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-luca.url = "github:Caspersonn/nixpkgs";
     nixpkgs-2505.url = "github:NixOS/nixpkgs/nixos-25.05";
-    nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
-    nixpkgs-2405.url = "github:NixOS/nixpkgs/nixos-24.05";
-    nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
-    nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";
     teejay.url = "github:mipmip/teejay";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     bmc.url = "github:wearetechnative/bmc";
@@ -38,7 +34,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -58,10 +54,6 @@
       ];
     };
 
-    pkgs-2411 = import nixpkgs-2411 {
-          system = system;
-            };
-
   in
   {
   ## wtremove inherit unstable;
@@ -78,16 +70,13 @@
           ];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2411 = import nixpkgs-2411 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
 
         };
 
 
-        
+
 
       in [
         defaults
@@ -108,9 +97,6 @@
         defaults = { pkgs, ... }: {
           nixpkgs.overlays = [(import ./overlays)];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2411 = import nixpkgs-2411 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2505 = import nixpkgs-2505 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
@@ -119,7 +105,7 @@
         };
 
 
-        
+
 
       in [
         defaults
@@ -138,7 +124,6 @@
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
         };
       in [
         defaults

@@ -1,4 +1,4 @@
-{config, unstable, lib, pkgs,  pkgs-luca, agenix, pkgs-2411, ... }:
+{config, unstable, lib, pkgs, pkgs-luca, agenix, ... }:
 
 {
 programs.ssh = {
