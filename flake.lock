@@ -439,6 +439,22 @@
     },
     "nixpkgs_12": {
       "locked": {
+        "lastModified": 1776169885,
+        "narHash": "sha256-l/iNYDZ4bGOAFQY2q8y5OAfBBtrDAaPuRQqWaFHVRXM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "4bd9165a9165d7b5e33ae57f3eecbcb28fb231c9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_13": {
+      "locked": {
         "lastModified": 1735563628,
         "narHash": "sha256-OnSAY7XDSx7CtDoqNh8jwVwh4xNL/2HaJxGjryLWzX8=",
         "owner": "NixOS",
@@ -452,7 +468,7 @@
         "type": "indirect"
       }
     },
-    "nixpkgs_13": {
+    "nixpkgs_14": {
       "locked": {
         "lastModified": 1767313136,
         "narHash": "sha256-16KkgfdYqjaeRGBaYsNrhPRRENs0qzkQVUooNHtoy2w=",
@@ -467,7 +483,7 @@
         "type": "indirect"
       }
     },
-    "nixpkgs_14": {
+    "nixpkgs_15": {
       "locked": {
         "lastModified": 1773282481,
         "narHash": "sha256-b/GV2ysM8mKHhinse2wz+uP37epUrSE+sAKXy/xvBY4=",
@@ -727,6 +743,24 @@
         "type": "github"
       }
     },
+    "rme": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_12"
+      },
+      "locked": {
+        "lastModified": 1776846451,
+        "narHash": "sha256-BKd7ViseYl/cfdBDNSL7re9bm0C3/oEDxQIRojmKujk=",
+        "owner": "mipmip",
+        "repo": "rme",
+        "rev": "0de1c70e3c415608a3ef996e696d2ceb7b57a493",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mipmip",
+        "repo": "rme",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -747,6 +781,7 @@
         "openspec": "openspec",
         "parsh": "parsh",
         "race": "race",
+        "rme": "rme",
         "soltty": "soltty",
         "specgetty": "specgetty",
         "teejay": "teejay",
@@ -755,7 +790,7 @@
     },
     "soltty": {
       "inputs": {
-        "nixpkgs": "nixpkgs_12"
+        "nixpkgs": "nixpkgs_13"
       },
       "locked": {
         "lastModified": 1775737835,
@@ -773,7 +808,7 @@
     },
     "specgetty": {
       "inputs": {
-        "nixpkgs": "nixpkgs_13"
+        "nixpkgs": "nixpkgs_14"
       },
       "locked": {
         "lastModified": 1776893126,
@@ -836,7 +871,7 @@
     },
     "teejay": {
       "inputs": {
-        "nixpkgs": "nixpkgs_14"
+        "nixpkgs": "nixpkgs_15"
       },
       "locked": {
         "lastModified": 1776892531,
