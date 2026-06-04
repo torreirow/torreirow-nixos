@@ -1,12 +1,7 @@
 {config, lib, pkgs,  agenix, ... }:
 
 
-let
-  python311 = pkgs.python311;
-
-in
-
-  {
+{
   imports =
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix

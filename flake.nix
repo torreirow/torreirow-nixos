@@ -3,7 +3,8 @@
 
   inputs = {
     agenix.url = "github:ryantm/agenix";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOs/nixpkgs/nixos-26.05";
+    nixpkgs-2511.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-luca.url = "github:Caspersonn/nixpkgs";
     nixpkgs-2505.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
@@ -25,7 +26,7 @@
     soltty.url = "github:torreirow/soltty";
     rme.url = "github:mipmip/rme";
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     homeage = {
@@ -37,7 +38,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -76,6 +77,7 @@
         
           ];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2411 = import nixpkgs-2411 { inherit system; config.allowUnfree = true; };
@@ -108,7 +110,9 @@
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2411 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2411 = import nixpkgs-2411 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2505 = import nixpkgs-2505 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
 
@@ -239,7 +243,6 @@
          #./home/default.nix
          ./home/linux-desktop.nix
          ./home/firefox.nix
-         ./home/dotfiles/toggl-secret-wtoorren.nix
          ./home/module/ssh-config_hosts
          ./home/sshkeys.nix
          ./home/module/opencode.nix

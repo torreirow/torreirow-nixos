@@ -104,11 +104,11 @@ bambu-studio = prev.appimageTools.wrapType2 {
     libglvnd
     mesa
     libxkbcommon
-    xorg.libX11
-    xorg.libXext
-    xorg.libXi
-    xorg.libXtst
-    xorg.libXrender
+    libx11
+    libxext
+    libxi
+    libxtst
+    libxrender
   ];
 };
 
