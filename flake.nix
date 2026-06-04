@@ -23,6 +23,7 @@
     parsh.url = "github:torreirow/parsh";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
+    rme.url = "github:mipmip/rme";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -36,7 +37,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty}:
+  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -51,6 +52,7 @@
         parsh.packages."${system}".default
         specgetty.packages."${system}".specgetty
         soltty.packages."${system}".soltty
+        rme.packages."${system}".rme
         teejay.packages."${system}".default
       ];
     };
