@@ -66,6 +66,12 @@
     gnomeExtensions.unite
     gnomeExtensions.dash-to-panel
     gnomeExtensions.vitals
+    gnomeExtensions.focus-changer
+    gnomeExtensions.launcher
+    gnomeExtensions.media-controls
+    gnomeExtensions.search-light
+    gnomeExtensions.useless-gaps
+    gnomeExtensions.window-on-top
     # Clipboard: clipboard-history@alexsaveau.dev is handmatig geïnstalleerd en werkt goed
 
     # GNOME tools
