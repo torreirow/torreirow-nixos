@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, unstable, pkgs-2305, ... }:
+{ config, pkgs, unstable, ... }:
 
 {
   imports =
@@ -117,7 +117,7 @@
    bitwarden
    firefox
    pkgs.atuin
-   pkgs-2305.terraform
+   pkgs.terraform
    awscli2
    tfswitch
    vscode
