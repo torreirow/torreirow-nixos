@@ -1,12 +1,7 @@
 {config, lib, pkgs,  agenix, ... }:
 
 
-let
-  python311 = pkgs.python311;
-
-in
-
-  {
+{
   imports =
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -268,6 +263,10 @@ environment.variables.EDITOR = "vim";
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # Workaround: python3.12-doc bouwt niet in nixpkgs 26.05 (sphinx-9.x vereist Python 3.13)
+  # Verwijderen zodra nixpkgs dit fixt
+  documentation.doc.enable = false;
+
     # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
    programs.mtr.enable = true;
@@ -348,6 +347,7 @@ security.pam.services.login.enableGnomeKeyring = true;
 nixpkgs.config.permittedInsecurePackages = [
     "jitsi-meet-1.0.8043"
     "qtwebkit-5.212.0-alpha"
+    "electron-39.8.10" # bitwarden-desktop, verwijderen zodra nixpkgs bitwarden upgradet naar nieuwere electron
   ];
 
 
