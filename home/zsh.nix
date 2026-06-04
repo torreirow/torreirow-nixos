@@ -1,4 +1,4 @@
-{config,pkgs, ...}: {
+{ config, pkgs, ... }: {
   programs.zsh = {
     enable = true;
     autosuggestion.enable = true;
@@ -78,10 +78,10 @@
         oh-my-zsh = {
           enable = true;
           theme = "wouter";
-          custom = "$HOME/.ohmyzsh-wouter";
+          custom = "${config.home.homeDirectory}/.ohmyzsh-wouter";
         #theme = "gnzh";
         plugins = [
-          "git z kubectl emoji encode64 aws terraform"
+          "git" "z" "kubectl" "emoji" "encode64" "aws" "terraform"
         ];
         #customPkgs = with pkgs; [                                                                                                                      
         #  nix-zsh-completions                                                                                                                          
