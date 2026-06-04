@@ -6,6 +6,7 @@
     Unit = {
       Description = "tmux server";
       After = [ "default.target" ];
+      X-RestartIfChanged = false;
     };
     Service = {
       # oneshot + RemainAfterExit: service blijft "active" na start
@@ -13,6 +14,7 @@
       # ExecStart is idempotent: maakt alleen sessie aan als server nog niet draait
       Type = "oneshot";
       RemainAfterExit = true;
+      Environment = [ "ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh" ];
       ExecStart = let tmuxBin = "${pkgs.tmux}/bin/tmux"; in
         "${pkgs.bash}/bin/bash -c '${tmuxBin} -L default has-session 2>/dev/null || ${tmuxBin} -L default new-session -d -s main'";
     };

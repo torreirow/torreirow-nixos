@@ -13,7 +13,6 @@
   openpyxl
  # opsgenie-sdk
   pandas
-  python-telegram-bot
   pytz
   pyyaml
   requests

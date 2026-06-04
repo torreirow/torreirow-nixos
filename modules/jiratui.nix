@@ -8,7 +8,7 @@ let
   };
 
   # Maak een python omgeving met de benodigde packages ingebakken
-  pythonEnv = pkgs.python311.withPackages (ps: with ps; [ requests pyyaml rich ]);
+  pythonEnv = pkgs.python312.withPackages (ps: with ps; [ requests pyyaml rich ]);
 
   jiratui = pkgs.stdenv.mkDerivation {
     pname = "jiratui";
