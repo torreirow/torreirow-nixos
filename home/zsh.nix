@@ -31,6 +31,23 @@
         bindkey -M $km '\e[1~' beginning-of-line
         bindkey -M $km '\e[4~' end-of-line
       done
+
+      bmc() {
+      if [[ "$1" == "profsel" ]]; then
+      eval "$(command bmc profsel "$@")"
+      else
+      command bmc "$@"
+      fi
+      }
+
+      nixhost() {
+      NIXHOST=$(bmc ec2ls | awk -F'│' '/nixhost/{gsub(/ /,"",$2); print $2}')
+      if [ -z "$NIXHOST" ]; then
+      echo "nixhost not found, check AWS profile"
+      else
+      bmc ec2connect -u ''${USER} -h $NIXHOST
+      fi
+      }
     '';
 
       shellAliases = {
@@ -56,25 +73,6 @@
           vpnkardisconnect="openvpn3 session-manage --disconnect --config $HOME/.config/openvpn/lobos.ovpn";
           t="tmux -L default attach -t main";
         };
-        initExtra = ''
-          bmc() {
-          if [[ "$1" == "profsel" ]]; then
-          eval "$(command bmc profsel "$@")"
-          else
-          command bmc "$@"
-          fi
-          }
-
-          nixhost() {
-          NIXHOST=$(bmc ec2ls | awk -F'│' '/nixhost/{gsub(/ /,"",$2); print $2}')
-          if [ -z "$NIXHOST" ]; then
-          echo "nixhost not found, check AWS profile"
-          else
-          bmc ec2connect -u ''${USER} -h $NIXHOST
-          fi
-          }
-        '';
-
 
 
         oh-my-zsh = {

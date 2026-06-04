@@ -5,7 +5,6 @@
       agents = { };
       commands = { };
       settings = {
-        theme = "opencode";
         autoshare = false;
         autoupdate = true;
         plugin = [ "@tarquinen/opencode-dcp@latest" ];
@@ -22,6 +21,9 @@
             };
           };
         };
+      };
+      tui = {
+        theme = "opencode";
       };
       themes = { };
     };
