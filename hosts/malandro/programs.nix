@@ -1,4 +1,4 @@
-{config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
+{config, unstable, lib, pkgs,  pkgs-luca, agenix, pkgs-2411, ... }:
 
 {
   
@@ -92,7 +92,7 @@
     vscode
     wget
     xclip
-    xorg.xbacklight
+    xbacklight
     yelp # Help view
     yj
     yq
