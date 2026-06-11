@@ -65,8 +65,44 @@
       let
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
-          nixpkgs.overlays = [(import ./overlays) (import ./overlays/cooklang.nix)
-        
+          nixpkgs.overlays = [
+            (import ./overlays)
+            (import ./overlays/cooklang.nix)
+            (final: prev:
+              let
+                pandoc-3_8_3 = prev.stdenv.mkDerivation {
+                  pname = "pandoc";
+                  version = "3.8.3";
+                  src = prev.fetchurl {
+                    url = "https://github.com/jgm/pandoc/releases/download/3.8.3/pandoc-3.8.3-linux-amd64.tar.gz";
+                    hash = "sha256-wiT6uJ+CfTYjOA7LfBB4wWPHachJoUrCfo07+7kUybQ=";
+                  };
+                  nativeBuildInputs = [ prev.autoPatchelfHook ];
+                  buildInputs = [ prev.gmp prev.libffi prev.zlib prev.stdenv.cc.cc.lib ];
+                  dontBuild = true;
+                  installPhase = ''
+                    mkdir -p $out/bin
+                    cp bin/pandoc $out/bin/
+                  '';
+                  meta.mainProgram = "pandoc";
+                };
+                quarto-base = prev.quarto.override {
+                  pandoc = pandoc-3_8_3;
+                  extraRPackages = [ prev.rPackages.reticulate ];
+                  extraPythonPackages = ps: with ps; [
+                    plotly numpy pandas matplotlib tabulate
+                  ];
+                };
+              in {
+                quarto = quarto-base.overrideAttrs (_: {
+                  version = "1.9.38";
+                  src = prev.fetchurl {
+                    url = "https://github.com/quarto-dev/quarto-cli/releases/download/v1.9.38/quarto-1.9.38-linux-amd64.tar.gz";
+                    hash = "sha256-6oyJc2h5GtnyAAEMCH6jERsuVWsSqWBIfdTiFpAqoQI=";
+                  };
+                });
+              }
+            )
           ];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };
@@ -95,7 +131,44 @@
       let
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
-          nixpkgs.overlays = [(import ./overlays)];
+          nixpkgs.overlays = [
+            (import ./overlays)
+            (final: prev:
+              let
+                pandoc-3_8_3 = prev.stdenv.mkDerivation {
+                  pname = "pandoc";
+                  version = "3.8.3";
+                  src = prev.fetchurl {
+                    url = "https://github.com/jgm/pandoc/releases/download/3.8.3/pandoc-3.8.3-linux-amd64.tar.gz";
+                    hash = "sha256-wiT6uJ+CfTYjOA7LfBB4wWPHachJoUrCfo07+7kUybQ=";
+                  };
+                  nativeBuildInputs = [ prev.autoPatchelfHook ];
+                  buildInputs = [ prev.gmp prev.libffi prev.zlib prev.stdenv.cc.cc.lib ];
+                  dontBuild = true;
+                  installPhase = ''
+                    mkdir -p $out/bin
+                    cp bin/pandoc $out/bin/
+                  '';
+                  meta.mainProgram = "pandoc";
+                };
+                quarto-base = prev.quarto.override {
+                  pandoc = pandoc-3_8_3;
+                  extraRPackages = [ prev.rPackages.reticulate ];
+                  extraPythonPackages = ps: with ps; [
+                    plotly numpy pandas matplotlib tabulate
+                  ];
+                };
+              in {
+                quarto = quarto-base.overrideAttrs (_: {
+                  version = "1.9.38";
+                  src = prev.fetchurl {
+                    url = "https://github.com/quarto-dev/quarto-cli/releases/download/v1.9.38/quarto-1.9.38-linux-amd64.tar.gz";
+                    hash = "sha256-6oyJc2h5GtnyAAEMCH6jERsuVWsSqWBIfdTiFpAqoQI=";
+                  };
+                });
+              }
+            )
+          ];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2505 = import nixpkgs-2505 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };

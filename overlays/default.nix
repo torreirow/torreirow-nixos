@@ -50,19 +50,6 @@ final: prev:
     };
   };
 
-  quarto = prev.quarto.override {
-    extraRPackages = [
-      prev.rPackages.reticulate
-    ];
-    extraPythonPackages = ps: with ps; [
-      plotly
-      numpy
-      pandas
-      matplotlib
-      tabulate
-    ];
-  };
-
     # importeer Solidtime overlay
 #    inherit (import ./solidtime.nix) solidtime-desktop;
 
