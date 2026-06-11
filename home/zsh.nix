@@ -19,6 +19,11 @@
       # Force SSH agent to use rbw
       export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
 
+      # Keep XAUTHORITY in sync with the current Wayland/XWayland session
+      if [[ -n "$WAYLAND_DISPLAY" ]]; then
+        eval $(systemctl --user show-environment | grep ^XAUTHORITY)
+      fi
+
       eval "$(atuin init zsh --disable-up-arrow)"
       export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
       mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
