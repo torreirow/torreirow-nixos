@@ -84,6 +84,7 @@ in
       bind T popup -E -w 80% -h 80% 'tj --columns --sort-activity --no-sound --no-notify'
       bind J popup -E -d '#{pane_current_path}' -w 90% -h 90% 'lazyjj'
       bind B popup -E -d '#{pane_current_path}' -w 90% -h 90% 'beans-tui-popup'
+      bind C-c popup -E -w 90% -h 90% 'tmux has-session -t cockpit 2>/dev/null || (smug start spg --detach && tmux select-window -t cockpit:spg); TMUX= tmux attach-session -t cockpit'
 
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"
