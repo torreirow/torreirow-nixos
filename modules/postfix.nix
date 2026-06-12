@@ -94,7 +94,8 @@ in
     description = "Setup Postfix SASL password database";
     before = [ "postfix.service" ];
     # Wacht op de juiste mount units (agenix.service bestaat niet!)
-    after = [ "run-keys.mount" "run-agenix.d.mount" ];
+    # postmap vereist /etc/postfix/main.cf (aangemaakt door postfix-setup.service)
+    after = [ "run-keys.mount" "run-agenix.d.mount" "postfix-setup.service" ];
     requires = [ "run-keys.mount" "run-agenix.d.mount" ];
     wantedBy = [ "multi-user.target" ];
     partOf = [ "postfix.service" ];  # Herstart samen met postfix
