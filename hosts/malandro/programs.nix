@@ -18,7 +18,6 @@
     caligula
     catppuccin
     certbot
-    copilot-cli
     coreutils
     cowsay
     csvkit

@@ -14,7 +14,7 @@
     defaults = {
       email = "admin@toorren.net";
       dnsProvider = "route53";
-      credentialsFile = "/run/secrets/route53.env";
+      environmentFile = "/run/secrets/route53.env";
     };
 
     certs."toorren.net" = {
