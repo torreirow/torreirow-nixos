@@ -49,6 +49,8 @@ in
   "vikunja-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "bookstack-appkey.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "bookstack-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "grafana-secret-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "ha-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
 
   "authelia-jwt-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];  
