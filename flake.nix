@@ -3,13 +3,10 @@
 
   inputs = {
     agenix.url = "github:ryantm/agenix";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOs/nixpkgs/nixos-26.05";
+    nixpkgs-2511.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-luca.url = "github:Caspersonn/nixpkgs";
     nixpkgs-2505.url = "github:NixOS/nixpkgs/nixos-25.05";
-    nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
-    nixpkgs-2405.url = "github:NixOS/nixpkgs/nixos-24.05";
-    nixpkgs-2311.url = "github:NixOS/nixpkgs/nixos-23.11";
-    nixpkgs-2305.url = "github:NixOS/nixpkgs/nixos-23.05";
     teejay.url = "github:mipmip/teejay";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     bmc.url = "github:wearetechnative/bmc";
@@ -25,7 +22,7 @@
     soltty.url = "github:torreirow/soltty";
     rme.url = "github:mipmip/rme";
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     homeage = {
@@ -37,7 +34,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-2305,  nixpkgs-2311, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2405, nixpkgs-2411, nixpkgs-2505, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -57,10 +54,6 @@
       ];
     };
 
-    pkgs-2411 = import nixpkgs-2411 {
-          system = system;
-            };
-
   in
   {
   ## wtremove inherit unstable;
@@ -72,20 +65,54 @@
       let
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
-          nixpkgs.overlays = [(import ./overlays) (import ./overlays/cooklang.nix)
-        
+          nixpkgs.overlays = [
+            (import ./overlays)
+            (import ./overlays/cooklang.nix)
+            (final: prev:
+              let
+                pandoc-3_8_3 = prev.stdenv.mkDerivation {
+                  pname = "pandoc";
+                  version = "3.8.3";
+                  src = prev.fetchurl {
+                    url = "https://github.com/jgm/pandoc/releases/download/3.8.3/pandoc-3.8.3-linux-amd64.tar.gz";
+                    hash = "sha256-wiT6uJ+CfTYjOA7LfBB4wWPHachJoUrCfo07+7kUybQ=";
+                  };
+                  nativeBuildInputs = [ prev.autoPatchelfHook ];
+                  buildInputs = [ prev.gmp prev.libffi prev.zlib prev.stdenv.cc.cc.lib ];
+                  dontBuild = true;
+                  installPhase = ''
+                    mkdir -p $out/bin
+                    cp bin/pandoc $out/bin/
+                  '';
+                  meta.mainProgram = "pandoc";
+                };
+                quarto-base = prev.quarto.override {
+                  pandoc = pandoc-3_8_3;
+                  extraRPackages = [ prev.rPackages.reticulate ];
+                  extraPythonPackages = ps: with ps; [
+                    plotly numpy pandas matplotlib tabulate
+                  ];
+                };
+              in {
+                quarto = quarto-base.overrideAttrs (_: {
+                  version = "1.9.38";
+                  src = prev.fetchurl {
+                    url = "https://github.com/quarto-dev/quarto-cli/releases/download/v1.9.38/quarto-1.9.38-linux-amd64.tar.gz";
+                    hash = "sha256-6oyJc2h5GtnyAAEMCH6jERsuVWsSqWBIfdTiFpAqoQI=";
+                  };
+                });
+              }
+            )
           ];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2411 = import nixpkgs-2411 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
 
         };
 
 
-        
+
 
       in [
         defaults
@@ -104,18 +131,54 @@
       let
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
-          nixpkgs.overlays = [(import ./overlays)];
+          nixpkgs.overlays = [
+            (import ./overlays)
+            (final: prev:
+              let
+                pandoc-3_8_3 = prev.stdenv.mkDerivation {
+                  pname = "pandoc";
+                  version = "3.8.3";
+                  src = prev.fetchurl {
+                    url = "https://github.com/jgm/pandoc/releases/download/3.8.3/pandoc-3.8.3-linux-amd64.tar.gz";
+                    hash = "sha256-wiT6uJ+CfTYjOA7LfBB4wWPHachJoUrCfo07+7kUybQ=";
+                  };
+                  nativeBuildInputs = [ prev.autoPatchelfHook ];
+                  buildInputs = [ prev.gmp prev.libffi prev.zlib prev.stdenv.cc.cc.lib ];
+                  dontBuild = true;
+                  installPhase = ''
+                    mkdir -p $out/bin
+                    cp bin/pandoc $out/bin/
+                  '';
+                  meta.mainProgram = "pandoc";
+                };
+                quarto-base = prev.quarto.override {
+                  pandoc = pandoc-3_8_3;
+                  extraRPackages = [ prev.rPackages.reticulate ];
+                  extraPythonPackages = ps: with ps; [
+                    plotly numpy pandas matplotlib tabulate
+                  ];
+                };
+              in {
+                quarto = quarto-base.overrideAttrs (_: {
+                  version = "1.9.38";
+                  src = prev.fetchurl {
+                    url = "https://github.com/quarto-dev/quarto-cli/releases/download/v1.9.38/quarto-1.9.38-linux-amd64.tar.gz";
+                    hash = "sha256-6oyJc2h5GtnyAAEMCH6jERsuVWsSqWBIfdTiFpAqoQI=";
+                  };
+                });
+              }
+            )
+          ];
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2311 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2411 = import nixpkgs-2311 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2505 = import nixpkgs-2505 { inherit system; config.allowUnfree = true; };
+          _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
 
         };
 
 
-        
+
 
       in [
         defaults
@@ -134,7 +197,6 @@
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
-          _module.args.pkgs-2305 = import nixpkgs-2305 { inherit system; config.allowUnfree = true; };
         };
       in [
         defaults
@@ -239,7 +301,6 @@
          #./home/default.nix
          ./home/linux-desktop.nix
          ./home/firefox.nix
-         ./home/dotfiles/toggl-secret-wtoorren.nix
          ./home/module/ssh-config_hosts
          ./home/sshkeys.nix
          ./home/module/opencode.nix

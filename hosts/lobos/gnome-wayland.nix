@@ -8,7 +8,6 @@
   services.xserver.enable = true;
   services.displayManager.sddm.enable = false;
   services.displayManager.gdm.enable = true;
-  services.displayManager.gdm.wayland = true;
   services.desktopManager.gnome.enable = true;
   services.displayManager.defaultSession = "gnome";
   services.gnome.gnome-settings-daemon.enable = true;
@@ -64,10 +63,15 @@
     gnomeExtensions.date-menu-formatter
     gnomeExtensions.gsconnect
     gnomeExtensions.night-light-slider-updated
-    gnomeExtensions.power-profile-switcher
     gnomeExtensions.unite
     gnomeExtensions.dash-to-panel
     gnomeExtensions.vitals
+    gnomeExtensions.focus-changer
+    gnomeExtensions.launcher
+    gnomeExtensions.media-controls
+    gnomeExtensions.search-light
+    gnomeExtensions.useless-gaps
+    gnomeExtensions.window-on-top
     # Clipboard: clipboard-history@alexsaveau.dev is handmatig geïnstalleerd en werkt goed
 
     # GNOME tools

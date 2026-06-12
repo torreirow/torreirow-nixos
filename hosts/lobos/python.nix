@@ -1,9 +1,9 @@
-{config, lib, pkgs,  agenix, toggl-cli, ... }:
+{config, lib, pkgs,  agenix, ... }:
 
 {
   environment.systemPackages = with pkgs; [
     zstd
-    (python311.withPackages(ps: with ps; [ 
+    (python312.withPackages(ps: with ps; [
   buienradar
   icalendar
   icloudpd
@@ -13,7 +13,6 @@
   openpyxl
  # opsgenie-sdk
   pandas
-  python-telegram-bot
   pytz
   pyyaml
   requests
@@ -21,7 +20,6 @@
   prometheus-client
 
 ]))
-#python311Packages.toggl-cli
   ];
 
 }
