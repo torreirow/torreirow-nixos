@@ -1,4 +1,4 @@
-{config,pkgs, ...}: {
+{ config, pkgs, ... }: {
   programs.zsh = {
     enable = true;
     autosuggestion.enable = true;
@@ -19,6 +19,11 @@
       # Force SSH agent to use rbw
       export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rbw/ssh-agent-socket"
 
+      # Keep XAUTHORITY in sync with the current Wayland/XWayland session
+      if [[ -n "$WAYLAND_DISPLAY" ]]; then
+        eval $(systemctl --user show-environment | grep ^XAUTHORITY)
+      fi
+
       eval "$(atuin init zsh --disable-up-arrow)"
       export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
       mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
@@ -31,6 +36,23 @@
         bindkey -M $km '\e[1~' beginning-of-line
         bindkey -M $km '\e[4~' end-of-line
       done
+
+      bmc() {
+      if [[ "$1" == "profsel" ]]; then
+      eval "$(command bmc profsel "$@")"
+      else
+      command bmc "$@"
+      fi
+      }
+
+      nixhost() {
+      NIXHOST=$(bmc ec2ls | awk -F'│' '/nixhost/{gsub(/ /,"",$2); print $2}')
+      if [ -z "$NIXHOST" ]; then
+      echo "nixhost not found, check AWS profile"
+      else
+      bmc ec2connect -u ''${USER} -h $NIXHOST
+      fi
+      }
     '';
 
       shellAliases = {
@@ -56,34 +78,15 @@
           vpnkardisconnect="openvpn3 session-manage --disconnect --config $HOME/.config/openvpn/lobos.ovpn";
           t="tmux -L default attach -t main";
         };
-        initExtra = ''
-          bmc() {
-          if [[ "$1" == "profsel" ]]; then
-          eval "$(command bmc profsel "$@")"
-          else
-          command bmc "$@"
-          fi
-          }
-
-          nixhost() {
-          NIXHOST=$(bmc ec2ls | awk -F'│' '/nixhost/{gsub(/ /,"",$2); print $2}')
-          if [ -z "$NIXHOST" ]; then
-          echo "nixhost not found, check AWS profile"
-          else
-          bmc ec2connect -u ''${USER} -h $NIXHOST
-          fi
-          }
-        '';
-
 
 
         oh-my-zsh = {
           enable = true;
           theme = "wouter";
-          custom = "$HOME/.ohmyzsh-wouter";
+          custom = "${config.home.homeDirectory}/.ohmyzsh-wouter";
         #theme = "gnzh";
         plugins = [
-          "git z kubectl emoji encode64 aws terraform"
+          "git" "z" "kubectl" "emoji" "encode64" "aws" "terraform"
         ];
         #customPkgs = with pkgs; [                                                                                                                      
         #  nix-zsh-completions                                                                                                                          

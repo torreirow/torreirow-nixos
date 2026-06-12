@@ -1,0 +1,16 @@
+session: cockpit
+root: ~
+startup_window: spg
+
+windows:
+  - name: spg
+    commands:
+      - spg
+
+  - name: btop
+    commands:
+      - btop
+
+  - name: claudemon
+    commands:
+      - claude-monitor --plan max5

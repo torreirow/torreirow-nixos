@@ -5,17 +5,49 @@ final: prev:
   inherit (import ./rbw.nix final prev) rbw;
   inherit (import ./ssmsh.nix final prev) ssmsh;
 
-  quarto = prev.quarto.override {
-    extraRPackages = [
-      prev.rPackages.reticulate
-    ];
-    extraPythonPackages = ps: with ps; [
-      plotly
-      numpy
-      pandas
-      matplotlib
-      tabulate
-    ];
+  gnomeExtensions = prev.gnomeExtensions // {
+    media-controls = prev.gnomeExtensions.media-controls.overrideAttrs (old: {
+      postInstall = (old.postInstall or "") + ''
+        metadata="$out/share/gnome-shell/extensions/mediacontrols@cliffniff.github.com/metadata.json"
+        ${prev.jq}/bin/jq '.["shell-version"] += ["50"]' "$metadata" > "$metadata.tmp"
+        mv "$metadata.tmp" "$metadata"
+      '';
+    });
+
+    search-light = prev.stdenv.mkDerivation {
+      pname = "gnome-shell-extension-search-light";
+      version = "101";
+      src = prev.fetchFromGitHub {
+        owner = "icedman";
+        repo = "search-light";
+        rev = "4e93e0e3e2fba8512dfd588177b7a6a2a71c9f1e";
+        sha256 = "02zdc3jp0xpkds61x22hxpnmirxq8m5ici971bdcy64nd9zyck4r";
+      };
+      nativeBuildInputs = [ prev.glib ];
+      buildPhase = ''
+        runHook preBuild
+        if [ -d schemas ]; then
+          glib-compile-schemas --strict schemas
+        fi
+        runHook postBuild
+      '';
+      installPhase = ''
+        runHook preInstall
+        mkdir -p $out/share/gnome-shell/extensions/
+        cp -r -T . $out/share/gnome-shell/extensions/search-light@icedman.github.com
+        runHook postInstall
+      '';
+      passthru = {
+        extensionPortalSlug = "search-light";
+        extensionUuid = "search-light@icedman.github.com";
+      };
+      meta = with prev.lib; {
+        description = "Take the apps search out of overview.";
+        homepage = "https://github.com/icedman/search-light";
+        license = licenses.gpl2Plus;
+        platforms = platforms.linux;
+      };
+    };
   };
 
     # importeer Solidtime overlay
@@ -104,11 +136,11 @@ bambu-studio = prev.appimageTools.wrapType2 {
     libglvnd
     mesa
     libxkbcommon
-    xorg.libX11
-    xorg.libXext
-    xorg.libXi
-    xorg.libXtst
-    xorg.libXrender
+    libx11
+    libxext
+    libxi
+    libxtst
+    libxrender
   ];
 };
 

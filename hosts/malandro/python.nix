@@ -1,9 +1,9 @@
-{config, lib, pkgs,  agenix, toggl-cli, ... }:
+{config, lib, pkgs,  agenix, ... }:
 
 {
   environment.systemPackages = with pkgs; [
     zstd
-    (python311.withPackages(ps: with ps; [ 
+    (python3.withPackages(ps: with ps; [
   buienradar
   icalendar
   icloudpd
@@ -18,7 +18,6 @@
   requests
 
 ]))
-#python311Packages.toggl-cli
   ];
 
 }
