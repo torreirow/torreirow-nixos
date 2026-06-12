@@ -1,6 +1,40 @@
 { config, pkgs, ... }:
 
+let
+  beans-tui-popup = pkgs.writeShellScriptBin "beans-tui-popup" ''
+    find_project() {
+      d="$PWD"
+      while [ "$d" != "/" ]; do
+        [ -f "$d/.beans.yml" ] && return 0
+        d="$(dirname "$d")"
+      done
+      return 1
+    }
+
+    if find_project; then
+      beans tui
+      rc=$?
+      if [ "$rc" -ne 0 ]; then
+        echo
+        echo "beans tui exited with code $rc"
+        echo "---- beans check ----"
+        beans check
+        echo
+        echo "Press any key to close"
+        read -rn1
+      fi
+    else
+      echo "No beans project (.beans.yml) found at or above: $PWD"
+      echo
+      echo "Press any key to close"
+      read -rn1
+    fi
+  '';
+in
+
 {
+  home.packages = [ beans-tui-popup ];
+
   # Systemd service om tmux server te starten bij login
   systemd.user.services.tmux = {
     Unit = {
@@ -48,6 +82,8 @@
         'set -g prefix C-a; unbind C-b; bind C-a send-prefix'
 
       bind T popup -E -w 80% -h 80% 'tj --columns --sort-activity --no-sound --no-notify'
+      bind J popup -E -d '#{pane_current_path}' -w 90% -h 90% 'lazyjj'
+      bind B popup -E -d '#{pane_current_path}' -w 90% -h 90% 'beans-tui-popup'
 
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"

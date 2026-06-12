@@ -6,6 +6,7 @@
   ./tmux.nix
   ./common.nix
   ./vim.nix
+  ./jj.nix
   ./dotfiles
   ./gnome-desktop
 #  ./librewolf.nix
