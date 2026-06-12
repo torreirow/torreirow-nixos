@@ -41,8 +41,19 @@ let
 
 in
 {
+  age.secrets.grafana-secret-key = {
+    file = ../../../secrets/grafana-secret-key.age;
+    path = "/run/secrets/grafana-secret-key";
+    owner = "grafana";
+    mode = "0400";
+  };
+
+  users.users.grafana.extraGroups = [ "keys" ];
+
   services.grafana = {
     enable = true;
+
+    settings.security.secret_key = "$__file{/run/secrets/grafana-secret-key}";
 
     settings.server = {
       http_port = 3000;

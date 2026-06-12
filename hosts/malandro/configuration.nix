@@ -253,16 +253,15 @@ environment.variables.EDITOR = "vim";
   # Enable the OpenSSH daemon.
   services.openssh = {
     enable = true;
-    banner =  ''
+    extraConfig = "LoginGracetime=2m";
+    settings = {
+      Banner = toString (pkgs.writeText "sshd-banner" ''
  __  __         _                    _
 |  \/  |  __ _ | |  __ _  _ __    __| | _ __  ___
 | |\/| | / _` || | / _` || '_ \  / _` || '__|/ _ \
 | |  | || (_| || || (_| || | | || (_| || |  | (_) |
 |_|  |_| \__,_||_| \__,_||_| |_| \__,_||_|   \___/
-'';
-
-    extraConfig = "LoginGracetime=2m";
-    settings = {
+'');
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
       PermitRootLogin = "no";
