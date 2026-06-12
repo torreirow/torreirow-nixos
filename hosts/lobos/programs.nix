@@ -1,4 +1,4 @@
-{config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
+{config, unstable, lib, pkgs, pkgs-luca, agenix, ... }:
 
 {
 programs.ssh = {
@@ -6,7 +6,7 @@ programs.ssh = {
   askPassword = null;
 };
   environment.systemPackages = with pkgs; [
-      wineWowPackages.stable
+      wineWow64Packages.stable
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
@@ -28,15 +28,13 @@ programs.ssh = {
     appimage-run
     lsb-release
     osv-scanner
-    claude-code
     desktop-file-utils
-    neofetch
     dstp
     bambu-studio
     android-tools   # voor adb
     perl
-    simple-mtpfs    # om telefoon te mounten
-    wineWowPackages.full winetricks
+    wineWow64Packages.full winetricks
+    karere
     #bluez
     #cooklang
     #flameshot
@@ -47,7 +45,6 @@ programs.ssh = {
     direnv
     agenix
     alacritty
-    amazon-ecs-cli
     appimage-run
     atomix # puzzle game
     attic-client
@@ -61,7 +58,6 @@ programs.ssh = {
     unstable.strawberry  # Replaced Clementine - better maintained, native Wayland support
     certbot
     cheese # webcam tool
-    copilot-cli
     coreutils
     cowsay
     csvkit
@@ -94,7 +90,6 @@ programs.ssh = {
     granted
     gum
     hitori # sudoku game
-    home-assistant-component-tests.buienradar
     home-manager
     hugo
     iagno # go game
@@ -131,7 +126,6 @@ programs.ssh = {
     redis
     remmina
     ripgrep
-    ripgrep
     ruby
     scrot
     seahorse
@@ -147,7 +141,7 @@ programs.ssh = {
     sqsh
     ssm-session-manager-plugin
     # ssmsh wordt toegevoegd via extraPkgs in flake.nix (flake input torreirow/ssmsh)
-    pkgs-2411.subtitleedit
+    subtitleedit
     super-productivity
     tali # poker game
     teams-for-linux
@@ -164,10 +158,9 @@ programs.ssh = {
     vlc
     vscode
     wget
-    wasistlos
     zapzap
     xclip
-    xorg.xbacklight
+    xbacklight
     yelp # Help view
     yj
     yq
@@ -229,16 +222,16 @@ programs.nix-ld = {
       libglvnd
       libgbm
 
-    ] ++ (with pkgs.xorg; [
-      libX11
-      libXcomposite
-      libXdamage
-      libXext
-      libXfixes
-      libXrandr
-      libXcursor
-      libXi
-      libXrender
+    ] ++ (with pkgs; [
+      libx11
+      libxcomposite
+      libxdamage
+      libxext
+      libxfixes
+      libxrandr
+      libxcursor
+      libxi
+      libxrender
       libxcb
       libxkbcommon
     ]);

@@ -1,4 +1,4 @@
-{config, unstable, lib, pkgs,  pkgs-luca, agenix, toggl-cli, pkgs-2411, ... }:
+{config, unstable, lib, pkgs, pkgs-luca, agenix, ... }:
 
 {
   
@@ -18,7 +18,6 @@
     caligula
     catppuccin
     certbot
-    copilot-cli
     coreutils
     cowsay
     csvkit
@@ -92,7 +91,7 @@
     vscode
     wget
     xclip
-    xorg.xbacklight
+    xbacklight
     yelp # Help view
     yj
     yq
