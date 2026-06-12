@@ -20,6 +20,15 @@
       return = "301 /week/";
     };
 
+    locations."/errors/" = {
+      root = "/var/www";
+      extraConfig = "internal;";
+    };
+
+    locations."~* ^/errors/.*\\.png$" = {
+      root = "/var/www";
+    };
+
     extraConfig = ''
       index index.html;
     '';
