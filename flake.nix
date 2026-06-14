@@ -25,6 +25,7 @@
     soltty.url = "github:torreirow/soltty";
     rme.url = "github:mipmip/rme";
     walker.url = "github:abenz1267/walker";
+    hyprswitch.url = "github:h3rmt/hyprswitch";
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -38,7 +39,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker, hyprswitch}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
