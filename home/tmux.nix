@@ -50,7 +50,7 @@ in
       RemainAfterExit = true;
       Environment = [ "ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh" ];
       ExecStart = let tmuxBin = "${pkgs.tmux}/bin/tmux"; in
-        "${pkgs.bash}/bin/bash -c '${tmuxBin} -L default has-session 2>/dev/null || ${tmuxBin} -L default new-session -d -s main'";
+        "${pkgs.bash}/bin/bash -c '${tmuxBin} -L default has-session -t main 2>/dev/null || ${tmuxBin} -L default new-session -d -s main'";
     };
     Install = {
       WantedBy = [ "default.target" ];
