@@ -1,7 +1,7 @@
 { pkgs, lib, config, ... }:
 
 let
-  wallpaper = "${config.home.homeDirectory}/Pictures/_background/bg-christ-splash.jpg";
+  wallpaper = "${config.home.homeDirectory}/Pictures/_backgrounds/bg-christ-splash.jpg";
 in
 
 {
