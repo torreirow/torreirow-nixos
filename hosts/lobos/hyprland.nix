@@ -12,20 +12,37 @@
     fprintAuth = false;
   };
 
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+  xdg.portal = {
+    extraPortals = [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gtk ];
+    config = {
+      common.default = [ "gtk" ];
+      hyprland.default = [ "hyprland" "gtk" ];
+    };
+  };
+
+  services.power-profiles-daemon.enable = true;
 
   environment.systemPackages = with pkgs; [
     uwsm
     hyprpaper
     hyprlock
     hypridle
+    hyprsunset
+    hyprshot
+    hyprpicker
     waybar
-    rofi
     mako
     kitty
-    catppuccin-hyprland
-    catppuccin-gtk
-    catppuccin-cursors
+    adw-gtk3
+    adwaita-icon-theme
+    papirus-icon-theme
     grimblast
+    brightnessctl
+    playerctl
+    wl-clipboard
+    wl-clip-persist
+    clipse
+    foot
+    power-profiles-daemon
   ];
 }

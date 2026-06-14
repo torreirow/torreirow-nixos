@@ -24,6 +24,7 @@
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
     rme.url = "github:mipmip/rme";
+    walker.url = "github:abenz1267/walker";
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -37,7 +38,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -313,6 +314,7 @@
 
        extraSpecialArgs = {
           unstable = import unstable { inherit system; config.allowUnfree = true; };
+          walker-input = walker;
        };
 
         # Optionally use extraSpecialArgs
