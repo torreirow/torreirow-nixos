@@ -94,6 +94,8 @@ in
         "$mod SHIFT, 9, movetoworkspace, 9"
         ", Print, exec, grimblast copy area"
         "SHIFT, Print, exec, grimblast save area"
+        "ALT, Tab, cyclenext"
+        "ALT SHIFT, Tab, cyclenext, prev"
       ];
 
       bindm = [
