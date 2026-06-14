@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, unstable, ... }:
 
 {
   programs.hyprland.enable = true;
@@ -30,7 +30,7 @@
     hyprsunset
     hyprshot
     hyprpicker
-    hyprswitch
+    unstable.hyprswitch
     waybar
     mako
     kitty
