@@ -113,6 +113,7 @@
           _module.args.pkgs-2511 = import nixpkgs-2511 { inherit system; config.allowUnfree = true; };
           _module.args.pkgs-luca = import nixpkgs-luca { inherit system; config.allowUnfree = true; };
           _module.args.agenix = inputs.agenix.packages.${system}.default;
+          _module.args.hyprswitch-pkg = hyprswitch.packages.${system}.default;
 
         };
 

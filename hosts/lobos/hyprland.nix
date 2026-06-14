@@ -1,4 +1,4 @@
-{ pkgs, unstable, inputs, ... }:
+{ pkgs, unstable, hyprswitch-pkg, ... }:
 
 {
   programs.hyprland.enable = true;
@@ -30,7 +30,7 @@
     hyprsunset
     hyprshot
     hyprpicker
-    inputs.hyprswitch.packages.${pkgs.system}.default
+    hyprswitch-pkg
     waybar
     mako
     kitty
