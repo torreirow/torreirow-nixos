@@ -6,40 +6,54 @@
 
     settings = {
       general = {
+        disable_loading_bar = true;
+        no_fade_in = false;
         hide_cursor = true;
         ignore_empty_input = true;
       };
 
       background = [{
+        monitor = "";
         path = "screenshot";
-        blur_passes = 3;
+        blur_passes = 1;
         blur_size = 8;
-        color = "rgba(30, 30, 46, 1.0)"; # Mocha base
+      }];
+
+      input-field = [{
+        monitor = "";
+        size = "600, 80";
+        position = "0, 0";
+        halign = "center";
+        valign = "center";
+
+        inner_color = "rgb(504945)";    # Gruvbox bg2
+        outer_color = "rgb(d5c4a1)";    # Gruvbox fg1
+        outline_thickness = 4;
+
+        font_family = "JetBrains Mono";
+        font_size = 24;
+        font_color = "rgb(d5c4a1)";     # Gruvbox fg1
+
+        placeholder_color = "rgb(bdae93)"; # Gruvbox fg4
+        placeholder_text = "Wachtwoord...";
+        check_color = "rgb(b8bb26)";    # Gruvbox green
+        fail_text = "Fout wachtwoord";
+
+        rounding = 4;
+        shadow_passes = 0;
+        fade_on_empty = false;
+        dots_center = true;
       }];
 
       label = [{
         monitor = "";
         text = ''cmd[update:1000] echo "$(date +"%H:%M")"'';
-        color = "rgba(205, 214, 244, 1.0)"; # Mocha text
+        color = "rgb(d5c4a1)";          # Gruvbox fg1
         font_size = 64;
         font_family = "JetBrains Mono";
-        position = "0, 80";
+        position = "0, 120";
         halign = "center";
         valign = "center";
-      }];
-
-      input-field = [{
-        size = "250, 50";
-        position = "0, -60";
-        monitor = "";
-        dots_center = true;
-        fade_on_empty = false;
-        font_color = "rgba(205, 214, 244, 1.0)"; # Mocha text
-        inner_color = "rgba(49, 50, 68, 1.0)";   # Mocha surface0
-        outer_color = "rgba(203, 166, 247, 1.0)"; # Mocha mauve
-        outline_thickness = 3;
-        placeholder_text = "Wachtwoord...";
-        shadow_passes = 2;
       }];
     };
   };

@@ -21,31 +21,33 @@
     settings = [{
       layer = "top";
       position = "top";
-      height = 32;
+      height = 34;
       spacing = 4;
 
-      modules-left = [ "hyprland/workspaces" ];
-      modules-center = [ "hyprland/window" ];
-      modules-right = [ "pulseaudio" "battery" "clock" "tray" ];
+      modules-left = [ "hyprland/workspaces" "hyprland/window" ];
+      modules-center = [ "clock" ];
+      modules-right = [ "pulseaudio" "battery" "tray" ];
 
       "hyprland/workspaces" = {
         format = "{id}";
         on-click = "activate";
+        active-only = false;
       };
 
       "hyprland/window" = {
-        max-length = 80;
+        max-length = 60;
+        separate-outputs = true;
       };
 
       "pulseaudio" = {
         format = " {volume}%";
         format-muted = " muted";
-        on-click = "pactl set-sink-mute @DEFAULT_SINK@ toggle";
+        on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
       };
 
       "battery" = {
         format = "{icon} {capacity}%";
-        format-icons = ["" "" "" "" ""];
+        format-icons = [ "" "" "" "" "" ];
         states = {
           warning = 30;
           critical = 15;
@@ -63,7 +65,6 @@
       };
     }];
 
-    # Catppuccin Mocha kleuren
     style = ''
       * {
         font-family: "JetBrains Mono", monospace;
@@ -72,48 +73,53 @@
       }
 
       window#waybar {
-        background-color: rgba(30, 30, 46, 0.95);  /* Mocha base */
-        color: #cdd6f4;                              /* Mocha text */
-        border-bottom: 2px solid #cba6f7;           /* Mocha mauve */
+        background-color: rgba(29, 32, 33, 0.95);
+        color: #d5c4a1;
+        border-bottom: 2px solid #83a598;
       }
 
       #workspaces button {
         padding: 0 8px;
-        color: #6c7086;                /* Mocha overlay0 */
+        color: #665c54;
         background: transparent;
         border-radius: 4px;
         margin: 4px 2px;
       }
 
       #workspaces button.active {
-        color: #cba6f7;                /* Mocha mauve */
-        background-color: rgba(203, 166, 247, 0.15);
+        color: #83a598;
+        background-color: rgba(131, 165, 152, 0.15);
       }
 
       #workspaces button:hover {
-        background-color: rgba(203, 166, 247, 0.1);
-        color: #cdd6f4;
+        background-color: rgba(131, 165, 152, 0.1);
+        color: #d5c4a1;
       }
 
       #window {
-        color: #cdd6f4;
+        color: #bdae93;
         padding: 0 8px;
       }
 
-      #clock,
+      #clock {
+        color: #fabd2f;
+        padding: 0 12px;
+        font-weight: bold;
+      }
+
       #battery,
       #pulseaudio,
       #tray {
         padding: 0 10px;
-        color: #cdd6f4;
+        color: #d5c4a1;
       }
 
       #battery.warning {
-        color: #fab387;                /* Mocha peach */
+        color: #fe8019;
       }
 
       #battery.critical {
-        color: #f38ba8;                /* Mocha red */
+        color: #fb4934;
       }
     '';
   };
