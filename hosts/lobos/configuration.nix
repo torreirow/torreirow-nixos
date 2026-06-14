@@ -9,6 +9,7 @@
     ./fonts.nix
     ./python.nix
     ./gnome-wayland.nix
+    ./hyprland.nix
     ./sudo-nopasswd.nix  # Comment deze regel om sudo password weer aan te zetten
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix
@@ -135,7 +136,7 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
     LC_ALL = "";
     LC_ADDRESS = "nl_NL.UTF-8";
     LC_IDENTIFICATION = "nl_NL.UTF-8";
-    LC_MEASUREMENT = "nl.UTF-8";
+    LC_MEASUREMENT = "nl_NL.UTF-8";
     LC_MONETARY = "nl_NL.UTF-8";
     LC_NAME = "nl_NL.UTF-8";
     LC_NUMERIC = "nl_NL.UTF-8";
@@ -283,7 +284,7 @@ environment.variables.EDITOR = "vim";
   services.gnome.gnome-keyring.enable = true;
 programs.seahorse.enable = true;
 security.pam.services.login.enableGnomeKeyring = true;
-#security.pam.services.sddm.enableGnomeKeyring = false;  # niet nodig, je gebruikt GDM
+security.pam.services.greetd.enableGnomeKeyring = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
