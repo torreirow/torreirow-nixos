@@ -80,12 +80,7 @@
       "CTRL SUPER, V, exec, kitty --title=clipse clipse"
       "CTRL SUPER, N, exec, kitty --title=nmtui nmtui"
 
-      "ALT, Tab, exec, hyprswitch gui --mod-key alt --key tab"
-      "ALT SHIFT, Tab, exec, hyprswitch gui --mod-key alt --key tab --reverse"
-    ];
-
-    bindrt = [
-      "ALT, Tab, exec, hyprswitch close --kill"
+      "ALT, Tab, exec, rofi -show window -show-icons"
     ];
 
     bindm = [
