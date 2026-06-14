@@ -39,6 +39,7 @@ in
 
       exec-once = [
         "uwsm finalize HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+        "systemctl --user restart hyprpaper.service"
         "hyprsunset"
         "wl-clip-persist --clipboard regular"
         "elephant"
