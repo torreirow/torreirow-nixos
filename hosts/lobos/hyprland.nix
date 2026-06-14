@@ -30,6 +30,7 @@
     hyprsunset
     hyprshot
     hyprpicker
+    hyprswitch
     waybar
     mako
     kitty

@@ -19,6 +19,7 @@
       "SUPER, P, pseudo,"
       "SUPER, V, togglefloating,"
       "SUPER, F, fullscreen,"
+      "SUPER, M, fullscreen, 1"
 
       "SUPER, left, movefocus, l"
       "SUPER, right, movefocus, r"
@@ -79,8 +80,12 @@
       "CTRL SUPER, V, exec, kitty --title=clipse clipse"
       "CTRL SUPER, N, exec, kitty --title=nmtui nmtui"
 
-      "ALT, Tab, cyclenext"
-      "ALT SHIFT, Tab, cyclenext, prev"
+      "ALT, Tab, exec, hyprswitch gui --mod-key alt --key tab"
+      "ALT SHIFT, Tab, exec, hyprswitch gui --mod-key alt --key tab --reverse"
+    ];
+
+    bindrt = [
+      "ALT, Tab, exec, hyprswitch close --kill"
     ];
 
     bindm = [
