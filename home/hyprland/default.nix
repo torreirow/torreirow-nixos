@@ -1,10 +1,7 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, config, ... }:
 
 let
-  foggyForest = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/Vexhollow/Dotfiles/main/wallpapers/Foggy_forest.jpg";
-    hash = "sha256-noQeH3DsWF/KTMjrk/zAGyFYVGxa1sTmiCk4GC1mDyU=";
-  };
+  wallpaper = "${config.home.homeDirectory}/Pictures/_background/bg-christ-splash.jpg";
 in
 
 {
@@ -46,6 +43,7 @@ in
         "wl-clip-persist --clipboard regular"
         "elephant"
         "walker --gapplication-service"
+        "hyprswitch init --show-title &"
       ];
     };
   };
@@ -80,10 +78,10 @@ in
     settings = {
       ipc = "off";
       splash = false;
-      preload = [ "${foggyForest}" ];
+      preload = [ wallpaper ];
       wallpaper = [
-        "eDP-1,${foggyForest}"
-        "DP-10,${foggyForest}"
+        "eDP-1,${wallpaper}"
+        "DP-10,${wallpaper}"
       ];
     };
   };
