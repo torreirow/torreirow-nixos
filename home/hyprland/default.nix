@@ -43,7 +43,6 @@ in
         "wl-clip-persist --clipboard regular"
         "elephant"
         "walker --gapplication-service"
-        "hyprswitch init --show-title &"
       ];
     };
   };
