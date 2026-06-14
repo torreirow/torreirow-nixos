@@ -44,6 +44,7 @@ in
         "uwsm finalize HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
         "hyprsunset"
         "wl-clip-persist --clipboard regular"
+        "elephant"
         "walker --gapplication-service"
       ];
     };
