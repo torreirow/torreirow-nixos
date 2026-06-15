@@ -39,11 +39,12 @@ in
 
       exec-once = [
         "uwsm finalize HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-        "systemctl --user restart hyprpaper.service"
+        "swww-daemon"
+        "swww img ${wallpaper} --transition-type none"
         "hyprsunset"
         "wl-clip-persist --clipboard regular"
         "elephant"
-        "walker --gapplication-service"
+        "sh -c 'until [ -S /run/user/1000/elephant/elephant.sock ]; do sleep 0.1; done; walker --gapplication-service'"
       ];
     };
   };
@@ -73,16 +74,5 @@ in
     gtk.enable = true;
   };
 
-  services.hyprpaper = {
-    enable = true;
-    settings = {
-      ipc = "off";
-      splash = false;
-      preload = [ wallpaper ];
-      wallpaper = [
-        "eDP-1,${wallpaper}"
-        "DP-10,${wallpaper}"
-      ];
-    };
-  };
+  home.packages = [ pkgs.swww ];
 }
