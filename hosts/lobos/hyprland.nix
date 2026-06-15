@@ -24,7 +24,7 @@
 
   environment.systemPackages = with pkgs; [
     uwsm
-    hyprpaper
+    swww
     hyprlock
     hypridle
     hyprsunset
