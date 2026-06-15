@@ -1,5 +1,27 @@
 { pkgs, ... }:
 
+let
+  audio-switcher = pkgs.writeShellScriptBin "audio-switcher" ''
+    sinks=$(pactl list sinks | awk '
+      /^\s+Name:/        { name = $2 }
+      /^\s+Description:/ { desc = substr($0, index($0,$2)); print name "|" desc }
+    ')
+
+    chosen=$(echo "$sinks" | awk -F'|' '{print $2}' | \
+      ${pkgs.rofi}/bin/rofi -dmenu -p "Audio Output" -i)
+    [ -z "$chosen" ] && exit 0
+
+    sink_name=$(echo "$sinks" | awk -F'|' -v d="$chosen" '$2 == d {print $1; exit}')
+    pactl set-default-sink "$sink_name"
+
+    pactl list sink-inputs short | awk '{print $1}' | while read -r id; do
+      pactl move-sink-input "$id" "$sink_name"
+    done
+
+    notify-send "Audio" "Output: $chosen" -t 2000
+  '';
+in
+
 {
   systemd.user.services.waybar = {
     Unit = {
@@ -67,8 +89,9 @@
           car = "󰄋";
           bluetooth = "󰂰";
         };
-        on-click = "pavucontrol";
-        on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+        on-click = "${audio-switcher}/bin/audio-switcher";
+        on-click-right = "pavucontrol";
+        on-click-middle = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
         scroll-step = 5;
       };
 
