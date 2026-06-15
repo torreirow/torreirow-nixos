@@ -24,9 +24,10 @@
       height = 34;
       spacing = 4;
 
-      modules-left = [ "hyprland/workspaces" "hyprland/window" ];
+      modules-left = [ "hyprland/workspaces" "hyprland/window" "mpris" ];
       modules-center = [ "clock" ];
       modules-right = [ "pulseaudio" "battery" "tray" ];
+
 
       "hyprland/workspaces" = {
         format = "{id}";
@@ -39,10 +40,36 @@
         separate-outputs = true;
       };
 
+      "mpris" = {
+        format = "{player_icon} {dynamic}";
+        format-paused = "{status_icon} {dynamic}";
+        player-icons = {
+          default = "▶";
+          strawberry = "🍓";
+          spotify = "";
+        };
+        status-icons = {
+          paused = "⏸";
+        };
+        dynamic-len = 50;
+        dynamic-importance-order = [ "title" "artist" "position" "length" ];
+      };
+
       "pulseaudio" = {
-        format = " {volume}%";
-        format-muted = " muted";
-        on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+        format = "{icon} {volume}%";
+        format-muted = "󰝟 muted";
+        format-icons = {
+          default = [ "󰕿" "󰖀" "󰕾" ];
+          headphone = "󰋋";
+          headset = "󰋎";
+          phone = "󰏲";
+          portable = "󰏲";
+          car = "󰄋";
+          bluetooth = "󰂰";
+        };
+        on-click = "pavucontrol";
+        on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+        scroll-step = 5;
       };
 
       "battery" = {
@@ -55,7 +82,7 @@
       };
 
       "clock" = {
-        format = " {:%H:%M}";
+        format = " {:%Y-%m-%d  %H:%M}";
         format-alt = " {:%d-%m-%Y}";
         tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
       };
@@ -120,6 +147,11 @@
 
       #battery.critical {
         color: #fb4934;
+      }
+
+      #mpris {
+        color: #8ec07c;
+        padding: 0 10px;
       }
     '';
   };
