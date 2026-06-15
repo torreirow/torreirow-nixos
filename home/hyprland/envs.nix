@@ -2,6 +2,7 @@
 
 {
   home.sessionVariables = {
+    BROWSER = "firefox";
     XCURSOR_SIZE = "24";
     XCURSOR_THEME = "Adwaita";
     GDK_BACKEND = "wayland";
