@@ -44,7 +44,6 @@
     extraPkgs= { pkgs, ...}: {
       environment.systemPackages = [
         bmc.packages."${system}".bmc
-        nixvim.packages."${system}".default
         dirty-repo-scanner.packages."${system}".dirty-repo-scanner
         race.packages."${system}".race
         brigit.packages."${system}".brigit
@@ -234,6 +233,7 @@
          ./home/tmux.nix
          ./home/linux-desktop.nix
          ./home/firefox.nix
+         nixvim.homeModules.default
          linux-defaults
        ];
 
@@ -309,6 +309,7 @@
          ./home/sshkeys.nix
          ./home/module/opencode.nix
          ./home/hyprland/default.nix
+         nixvim.homeModules.default
          linux-defaults
        ];
 
@@ -344,6 +345,7 @@
         modules = [
          #./home/default.nix
          ./home/linux-server.nix
+         nixvim.homeModules.default
          linux-defaults
        ];
        extraSpecialArgs = {

@@ -1,6 +1,52 @@
 { pkgs, ... }:
 
 let
+  power-profile-icon = pkgs.writeShellScript "power-profile-icon" ''
+    case $(powerprofilesctl get) in
+      performance) echo "⚡";;
+      balanced)    echo "⚖";;
+      power-saver) echo "🍃";;
+      *)           echo "?";;
+    esac
+  '';
+
+  power-profile-menu = pkgs.writeShellScript "power-profile-menu" ''
+    current=$(powerprofilesctl get)
+    chosen=$(printf "performance\nbalanced\npower-saver" | \
+      ${pkgs.rofi}/bin/rofi -dmenu -i -p "Power profile (huidig: $current)" \
+        -theme-str 'window {width: 260px;}')
+    [ -z "$chosen" ] && exit 0
+    powerprofilesctl set "$chosen"
+    notify-send "Power profile" "Ingesteld op: $chosen" -t 2000
+  '';
+
+  power-menu = pkgs.writeShellScript "power-menu" ''
+    threshold=$(cat /sys/class/power_supply/BAT0/charge_control_end_threshold 2>/dev/null || echo 100)
+    if [ "$threshold" -ge 100 ]; then
+      limit_label="🔋 Laadlimiet: 100%  →  80% instellen"
+    else
+      limit_label="🔋 Laadlimiet: 80%  →  100% instellen"
+    fi
+
+    chosen=$(printf "🔒 Vergrendelen\n💤 Slaapstand\n❄️  Hibernatie\n🔄 Herstarten\n⏻  Uitzetten\n$limit_label" | \
+      ${pkgs.rofi}/bin/rofi -dmenu -p "Stroom" -theme-str 'window {width: 320px;}')
+    [ -z "$chosen" ] && exit 0
+
+    case "$chosen" in
+      *Vergrendelen*) loginctl lock-session;;
+      *Slaapstand*)   systemctl suspend;;
+      *Hibernatie*)   systemctl hibernate;;
+      *Herstarten*)   systemctl reboot;;
+      *Uitzetten*)    systemctl poweroff;;
+      *Laadlimiet*)
+        if [ "$threshold" -ge 100 ]; then new=80; else new=100; fi
+        echo "$new" | sudo tee /sys/class/power_supply/BAT0/charge_control_end_threshold > /dev/null
+        echo "$new" > /var/lib/battery-threshold
+        notify-send "Batterij" "Laadlimiet ingesteld op ''${new}%" -t 2000
+        ;;
+    esac
+  '';
+
   audio-switcher = pkgs.writeShellScriptBin "audio-switcher" ''
     sinks=$(pactl list sinks | awk '
       /^\s+Name:/        { name = $2 }
@@ -48,7 +94,7 @@ in
 
       modules-left = [ "hyprland/workspaces" "hyprland/window" "mpris" ];
       modules-center = [ "clock" ];
-      modules-right = [ "pulseaudio" "battery" "tray" ];
+      modules-right = [ "pulseaudio" "custom/powerprofile" "battery" "custom/swaync" "tray" ];
 
 
       "hyprland/workspaces" = {
@@ -95,19 +141,42 @@ in
         scroll-step = 5;
       };
 
+      "custom/powerprofile" = {
+        exec = "${power-profile-icon}";
+        interval = 5;
+        on-click = "${power-profile-menu}";
+        on-click-right = "${power-menu}";
+        tooltip = false;
+      };
+
       "battery" = {
         format = "{icon} {capacity}%";
+        format-charging = "󰂄 {capacity}%";
+        format-plugged = "󰁹 {capacity}%";
         format-icons = [ "" "" "" "" "" ];
         states = {
           warning = 30;
           critical = 15;
         };
+        on-click = "${power-profile-menu}";
+        on-click-right = "${power-menu}";
+        tooltip-format = "{timeTo}";
       };
 
       "clock" = {
         format = " {:%Y-%m-%d  %H:%M}";
         format-alt = " {:%d-%m-%Y}";
         tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
+      };
+
+      "custom/swaync" = {
+        exec = "swaync-client -swb";
+        return-type = "json";
+        format = "󰇰 {}";
+        on-click = "swaync-client -t -sw";
+        on-click-right = "swaync-client -d -sw";
+        escape = true;
+        tooltip = false;
       };
 
       "tray" = {
@@ -164,11 +233,39 @@ in
         color: #d5c4a1;
       }
 
+      #custom-powerprofile {
+        padding: 0 0 0 10px;
+        margin-right: -5px;
+        color: #8ec07c;
+      }
+
+      #battery {
+        padding: 0 10px 0 0;
+      }
+
       #battery.warning {
         color: #fe8019;
       }
 
       #battery.critical {
+        color: #fb4934;
+      }
+
+      #custom-swaync {
+        padding: 0 10px;
+        color: #d5c4a1;
+      }
+
+      #custom-swaync.none {
+        color: #665c54;
+      }
+
+      #custom-swaync.notification {
+        color: #fabd2f;
+      }
+
+      #custom-swaync.dnd-notification,
+      #custom-swaync.dnd {
         color: #fb4934;
       }
 
