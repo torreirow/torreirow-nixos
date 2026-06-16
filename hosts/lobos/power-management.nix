@@ -45,6 +45,31 @@
     };
   };
 
+  # Laadlimiet batterij: herstel instelling bij reboot vanuit /var/lib/battery-threshold
+  systemd.services.battery-charge-threshold = {
+    description = "Restore battery charge threshold";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-modules-load.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.bash}/bin/bash -c 'cat /var/lib/battery-threshold > /sys/class/power_supply/BAT0/charge_control_end_threshold 2>/dev/null || echo 100 > /sys/class/power_supply/BAT0/charge_control_end_threshold'";
+    };
+  };
+
+  # Maak state-bestand aan met standaard 100% als het nog niet bestaat
+  systemd.tmpfiles.rules = [
+    "f /var/lib/battery-threshold 0666 root root - 100"
+  ];
+
+  # Sta gebruiker toe om laadlimiet in te stellen zonder wachtwoord
+  security.sudo.extraRules = [{
+    users = [ "wtoorren" ];
+    commands = [{
+      command = "${pkgs.coreutils}/bin/tee /sys/class/power_supply/BAT0/charge_control_end_threshold";
+      options = [ "NOPASSWD" ];
+    }];
+  }];
+
   # TLP voor betere power management (optioneel, kan conflicteren met powertop)
   # services.tlp = {
   #   enable = true;
