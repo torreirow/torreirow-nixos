@@ -24,7 +24,6 @@
 
   environment.systemPackages = with pkgs; [
     uwsm
-    swww
     hyprlock
     hypridle
     hyprsunset
@@ -45,5 +44,7 @@
     clipse
     foot
     power-profiles-daemon
+    gnome-power-manager
+    libnotify
   ];
 }
