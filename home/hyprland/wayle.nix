@@ -88,7 +88,7 @@ in
   };
 
   xdg.configFile."wayle/config.toml".text = ''
-    [notifications]
+    [modules.notifications]
     popup-monitor = "DP-11"
 
     [bar]
