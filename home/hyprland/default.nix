@@ -1,7 +1,9 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, hyprswitch-input, ... }:
 
 let
   wallpaper = "${config.home.homeDirectory}/Pictures/_backgrounds/bg-christ-splash.jpg";
+  system = pkgs.stdenv.hostPlatform.system;
+  hyprswitch-pkg = hyprswitch-input.packages.${system}.default;
 in
 
   {
@@ -44,6 +46,7 @@ in
           "clipse -listen"
           "elephant"
           "sh -c 'until [ -S /run/user/1000/elephant/elephant.sock ]; do sleep 0.1; done; walker --gapplication-service'"
+          "${hyprswitch-pkg}/bin/hyprswitch init --show-title &"
         ];
       };
     };
