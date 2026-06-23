@@ -5,6 +5,7 @@ let
 
   solidtime-timer = pkgs.writeShellScript "solidtime-timer" ''
     SOLIDTIME_BASE_URL="https://solidtime.tools.technative.cloud" \
+    SOLIDTIME_CACHE_TTL="10" \
       ${solidtime-waybar-pkg}/bin/solidtime-waybar
   '';
 
