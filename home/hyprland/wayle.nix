@@ -107,6 +107,8 @@ in
     label-max-length = 50
     icon-show = true
     label-show = true
+    player-priority = ["*strawberry*", "*spotify*"]
+    players-ignored = ["*playerctld*"]
 
     [modules.volume]
     label-show = true
