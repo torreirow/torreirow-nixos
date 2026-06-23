@@ -6,12 +6,11 @@ in
 
   {
     imports = [
-      ./waybar.nix
+      ./wayle.nix
       ./hyprlock.nix
       ./hypridle.nix
 
       ./walker.nix
-    ./swaync.nix
       ./looknfeel.nix
       ./bindings.nix
       ./windows.nix

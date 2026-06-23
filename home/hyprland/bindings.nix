@@ -1,6 +1,18 @@
 { pkgs, ... }:
 
 let
+  smart-close = pkgs.writeShellScript "smart-close" ''
+    class=$(hyprctl activewindow -j | ${pkgs.jq}/bin/jq -r '.class // ""')
+    case "$class" in
+      Spotify|spotify)
+        hyprctl dispatch movetoworkspacesilent special:spotify,class:$class
+        ;;
+      *)
+        hyprctl dispatch killactive
+        ;;
+    esac
+  '';
+
   shortcuts-popup = pkgs.writeShellScript "shortcuts-popup" ''
     shortcuts=$(cat <<'SHORTCUTS'
     ─── Applicaties ──────────────────────────────────────────
@@ -9,7 +21,8 @@ let
     SUPER + B                  Browser
     SUPER + SPACE              App launcher (rofi)
     ─── Vensters ─────────────────────────────────────────────
-    SUPER + Q / Backspace      Venster sluiten
+    SUPER + Q / Backspace      Venster sluiten (Spotify: naar achtergrond)
+    SUPER+SHIFT + Q            Spotify tonen/verbergen
     SUPER + V                  Zwevend venster aan/uit
     SUPER + F                  Volledig scherm
     SUPER + M                  Maximize
@@ -60,8 +73,9 @@ in
       "SUPER, B, exec, $browser"
 
       "SUPER, SPACE, exec, rofi -show drun -show-icons"
-      "SUPER, Q, killactive,"
-      "SUPER, Backspace, killactive,"
+      "SUPER, Q, exec, ${smart-close}"
+      "SUPER, Backspace, exec, ${smart-close}"
+      "SUPER SHIFT, Q, togglespecialworkspace, spotify"
 
       "SUPER, L, exec, hyprlock"
       "SUPER SHIFT, L, exec, hyprlock & disown && systemctl suspend"

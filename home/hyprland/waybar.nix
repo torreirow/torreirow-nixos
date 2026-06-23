@@ -85,6 +85,20 @@ let
 in
 
 {
+  systemd.user.services.spotify-tray-wayland = {
+    Unit = {
+      Description = "Spotify system tray for Wayland";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.spotify-tray-wayland}/bin/spotify-tray-wayland";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
   systemd.user.services.waybar = {
     Unit = {
       Description = "Waybar";
@@ -117,6 +131,7 @@ in
         format = "{id}";
         on-click = "activate";
         active-only = false;
+        all-outputs = true;
       };
 
       "hyprland/window" = {
