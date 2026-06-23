@@ -5,8 +5,10 @@ programs.ssh = {
   enableAskPassword = false;
   askPassword = null;
 };
-  environment.systemPackages = with pkgs; [
-      wineWow64Packages.stable
+environment.systemPackages = with pkgs; [
+    planify
+    wineWow64Packages.stable
+    masterpdfeditor
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
@@ -14,7 +16,6 @@ programs.ssh = {
     gst_all_1.gst-plugins-ugly
     gst_all_1.gst-libav
     R
-    upscayl
     unstable.beans
     gnome-network-displays
     rPackages.knitr
@@ -25,15 +26,12 @@ programs.ssh = {
     claude-code
     onlyoffice-desktopeditors
     firefox
-    appimage-run
     lsb-release
     osv-scanner
     desktop-file-utils
     dstp
-    bambu-studio
     android-tools   # voor adb
     perl
-    wineWow64Packages.full winetricks
     karere
     #bluez
     #cooklang
@@ -45,14 +43,12 @@ programs.ssh = {
     direnv
     agenix
     alacritty
-    appimage-run
-    atomix # puzzle game
     attic-client
     autorandr
     avahi
     aws-nuke
     awscli2
-    bitwarden-desktop
+    #bitwarden-desktop # tijdelijk uitgeschakeld - nixpkgs build broken (commercial-sdk-internal npm fetch error)
     caligula
     catppuccin
     unstable.strawberry  # Replaced Clementine - better maintained, native Wayland support
@@ -112,7 +108,6 @@ programs.ssh = {
     nmap
     openai-whisper
     openssl
-    p3x-onenote
     pandoc
     pavucontrol
     #pinentry-gtk2
@@ -141,22 +136,19 @@ programs.ssh = {
     sqsh
     ssm-session-manager-plugin
     # ssmsh wordt toegevoegd via extraPkgs in flake.nix (flake input torreirow/ssmsh)
-    subtitleedit
-    super-productivity
+    unstable.subtitleedit
     tali # poker game
     teams-for-linux
     telegram-desktop
     terraform
     terraform-docs
     tfswitch
-    thunderbird-140
+    thunderbird
     tmuxPlugins.catppuccin
     translate-shell
 #    unstable.aider-chat-full
-    aider-chat-full
     vista-fonts
     vlc
-    vscode
     wget
     zapzap
     xclip
@@ -167,6 +159,17 @@ programs.ssh = {
     yt-dlp
     zip
     zoom-us
+    # Nix dev & security tools
+    deadnix
+    nixfmt
+    nixpkgs-fmt
+    statix
+    shellcheck
+    tflint
+    tfsec
+    vulnix
+    sbctl
+    sbomnix
    # jellyfin-ffmpeg
 #    gnome.gnome-tweaks
 (texlive.combine {

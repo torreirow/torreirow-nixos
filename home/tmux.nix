@@ -42,15 +42,14 @@ in
       After = [ "default.target" ];
       X-RestartIfChanged = false;
     };
-    Service = {
-      # oneshot + RemainAfterExit: service blijft "active" na start
-      # Geen ExecStop: tmux server wordt nooit door systemd gedood
-      # ExecStart is idempotent: maakt alleen sessie aan als server nog niet draait
-      Type = "oneshot";
-      RemainAfterExit = true;
-      Environment = [ "ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh" ];
-      ExecStart = let tmuxBin = "${pkgs.tmux}/bin/tmux"; in
-        "${pkgs.bash}/bin/bash -c '${tmuxBin} -L default has-session -t main 2>/dev/null || ${tmuxBin} -L default new-session -d -s main'";
+    Service = let tmuxBin = "${pkgs.tmux}/bin/tmux"; in {
+      # forking: tmux daemoniseert zichzelf, systemd volgt het server-proces
+      # Restart=on-failure: herstart als de server crasht of afsluit
+      Type = "forking";
+      ExecStart = "${tmuxBin} -L default new-session -d -s main";
+      ExecStop = "${tmuxBin} -L default kill-server";
+      Restart = "on-failure";
+      RestartSec = "5";
     };
     Install = {
       WantedBy = [ "default.target" ];
@@ -74,7 +73,7 @@ in
     extraConfig = ''
       ##### Basis #####
       # Update SSH variabelen in tmux environment
-      set-option -g update-environment "SSH_CLIENT SSH_TTY SSH_CONNECTION"
+      set-option -g update-environment "SSH_CLIENT SSH_TTY SSH_CONNECTION WAYLAND_DISPLAY XDG_RUNTIME_DIR DISPLAY"
 
       # Gebruik C-b voor SSH sessies, C-a voor lokaal
       if-shell '[ -n "$SSH_CONNECTION" ]' \

@@ -42,6 +42,7 @@ in
           "uwsm finalize HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
           "hyprsunset"
           "wl-clip-persist --clipboard regular"
+          "clipse -listen"
           "elephant"
           "sh -c 'until [ -S /run/user/1000/elephant/elephant.sock ]; do sleep 0.1; done; walker --gapplication-service'"
         ];
