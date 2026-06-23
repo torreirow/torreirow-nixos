@@ -1,6 +1,13 @@
-{ pkgs, ... }:
+{ pkgs, solidtime-waybar-input, ... }:
 
 let
+  solidtime-waybar-pkg = solidtime-waybar-input.packages.${pkgs.system}.default;
+
+  solidtime-timer = pkgs.writeShellScript "solidtime-timer" ''
+    SOLIDTIME_BASE_URL="https://solidtime.tools.technative.cloud" \
+      ${solidtime-waybar-pkg}/bin/solidtime-waybar
+  '';
+
   power-profile-icon = pkgs.writeShellScript "power-profile-icon" ''
     case $(powerprofilesctl get) in
       performance) echo "⚡";;
@@ -48,22 +55,30 @@ let
   '';
 
   audio-switcher = pkgs.writeShellScriptBin "audio-switcher" ''
-    sinks=$(pactl list sinks | awk '
-      /^\s+Name:/        { name = $2 }
-      /^\s+Description:/ { desc = substr($0, index($0,$2)); print name "|" desc }
+    sinks=$(wpctl status | awk '
+      /Sinks:/{p=1; next}
+      /Sources:/{p=0}
+      p && /[0-9]+\./{
+        match($0, /[0-9]+\./)
+        id = substr($0, RSTART, RLENGTH-1)
+        rest = substr($0, RSTART+RLENGTH)
+        gsub(/^ +/, "", rest)
+        gsub(/ +\[vol:.*$/, "", rest)
+        print id "|" rest
+      }
     ')
+
+    if [ -z "$sinks" ]; then
+      notify-send "Audio" "Geen audio outputs gevonden" -t 2000
+      exit 1
+    fi
 
     chosen=$(echo "$sinks" | awk -F'|' '{print $2}' | \
       ${pkgs.rofi}/bin/rofi -dmenu -p "Audio Output" -i)
     [ -z "$chosen" ] && exit 0
 
-    sink_name=$(echo "$sinks" | awk -F'|' -v d="$chosen" '$2 == d {print $1; exit}')
-    pactl set-default-sink "$sink_name"
-
-    pactl list sink-inputs short | awk '{print $1}' | while read -r id; do
-      pactl move-sink-input "$id" "$sink_name"
-    done
-
+    sink_id=$(echo "$sinks" | awk -F'|' -v d="$chosen" '$2 == d {print $1; exit}')
+    wpctl set-default "$sink_id"
     notify-send "Audio" "Output: $chosen" -t 2000
   '';
 in
@@ -94,7 +109,7 @@ in
 
       modules-left = [ "hyprland/workspaces" "hyprland/window" "mpris" ];
       modules-center = [ "clock" ];
-      modules-right = [ "pulseaudio" "custom/powerprofile" "battery" "custom/swaync" "tray" ];
+      modules-right = [ "custom/solidtime" "pulseaudio" "custom/powerprofile" "battery" "custom/clipse" "custom/swaync" "tray" ];
 
 
       "hyprland/workspaces" = {
@@ -167,6 +182,20 @@ in
         format = " {:%Y-%m-%d  %H:%M}";
         format-alt = " {:%d-%m-%Y}";
         tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
+      };
+
+      "custom/solidtime" = {
+        exec = "${solidtime-timer}";
+        interval = 1;
+        return-type = "json";
+        on-click = "solidtime-desktop";
+        tooltip = true;
+      };
+
+      "custom/clipse" = {
+        format = "󰅌";
+        tooltip = false;
+        on-click = "kitty --title=clipse clipse";
       };
 
       "custom/swaync" = {
@@ -251,6 +280,11 @@ in
         color: #fb4934;
       }
 
+      #custom-clipse {
+        padding: 0 10px;
+        color: #d5c4a1;
+      }
+
       #custom-swaync {
         padding: 0 10px;
         color: #d5c4a1;
@@ -265,6 +299,7 @@ in
       }
 
       #custom-swaync.dnd-notification,
+      #custom-swaync.dnd-none,
       #custom-swaync.dnd {
         color: #fb4934;
       }
@@ -272,6 +307,15 @@ in
       #mpris {
         color: #8ec07c;
         padding: 0 10px;
+      }
+
+      #custom-solidtime {
+        padding: 0 10px;
+        color: #665c54;
+      }
+
+      #custom-solidtime.active {
+        color: #b8bb26;
       }
     '';
   };
