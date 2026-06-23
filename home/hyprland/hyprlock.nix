@@ -35,7 +35,7 @@
         font_color = "rgb(d5c4a1)";     # Gruvbox fg1
 
         placeholder_color = "rgb(bdae93)"; # Gruvbox fg4
-        placeholder_text = "Wachtwoord...";
+        placeholder_text = "The Secret...";
         check_color = "rgb(b8bb26)";    # Gruvbox green
         fail_text = "Fout wachtwoord";
 

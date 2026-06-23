@@ -106,7 +106,7 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.powerOnBoot = true;
-#  services.blueman.enable = true;
+  services.blueman.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";

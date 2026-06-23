@@ -5,7 +5,7 @@
 
   programs.elephant = {
     enable = true;
-    debug = false;
+    debug = true;
     installService = false;
     providers = [
       "desktopapplications"
@@ -19,7 +19,7 @@
     ];
     settings = {
       providers.desktopapplications = {
-        launch_prefix = "uwsm app --";
+        launch_prefix = "uwsm app -- ";
         min_score = 60;
       };
     };

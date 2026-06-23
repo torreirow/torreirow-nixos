@@ -1,4 +1,56 @@
-{ ... }:
+{ pkgs, ... }:
+
+let
+  shortcuts-popup = pkgs.writeShellScript "shortcuts-popup" ''
+    shortcuts=$(cat <<'SHORTCUTS'
+    ─── Applicaties ──────────────────────────────────────────
+    SUPER + Enter              Terminal
+    SUPER + E                  Bestandsbeheer (Nautilus)
+    SUPER + B                  Browser
+    SUPER + SPACE              App launcher (rofi)
+    ─── Vensters ─────────────────────────────────────────────
+    SUPER + Q / Backspace      Venster sluiten
+    SUPER + V                  Zwevend venster aan/uit
+    SUPER + F                  Volledig scherm
+    SUPER + M                  Maximize
+    SUPER + J                  Split richting wisselen
+    SUPER + P                  Pseudo tiling
+    ─── Focus ────────────────────────────────────────────────
+    SUPER + ←/→/↑/↓            Focus verplaatsen
+    SUPER+SHIFT + ←/→/↑/↓      Vensters wisselen
+    ─── Workspaces ───────────────────────────────────────────
+    SUPER + 1-0                Naar workspace 1-10
+    SUPER + , / .              Vorige / volgende workspace
+    SUPER+SHIFT + 1-0          Venster naar workspace
+    SUPER + S                  Special workspace tonen
+    SUPER+SHIFT + S            Venster naar special workspace
+    ─── Monitor ──────────────────────────────────────────────
+    SUPER+ALT + ←/→            Venster naar andere monitor
+    ─── Venstergrootte ───────────────────────────────────────
+    SUPER + - / =              100px smaller / breder
+    SUPER+SHIFT + - / =        100px lager / hoger
+    ─── Systeem ──────────────────────────────────────────────
+    SUPER + L                  Scherm vergrendelen
+    SUPER+SHIFT + L            Vergrendelen + slaapstand
+    SUPER+SHIFT + Escape       Hyprland afsluiten
+    ─── Screenshots ──────────────────────────────────────────
+    SUPER+CTRL + S             Screenshot (regio selectie)
+    SUPER+CTRL + W             Screenshot (actief venster)
+    Print                      Screenshot (regio selectie)
+    CTRL + Print               Screenshot (volledig scherm)
+    SUPER + Print              Kleurpicker
+    ─── Diversen ─────────────────────────────────────────────
+    SUPER+SHIFT + K            Sneltoetsen (dit scherm)
+    CTRL+SUPER + V             Klembord (clipse)
+    CTRL+SUPER + N             Netwerk (nmtui)
+    ALT + Tab                  Vensterlijst (rofi)
+    SHORTCUTS
+    )
+    echo "$shortcuts" | rofi -dmenu -p "⌨  Sneltoetsen" \
+      -theme-str 'window {width: 660px;} listview {lines: 32; scrollbar: false;}' \
+      -no-custom
+  '';
+in
 
 {
   wayland.windowManager.hyprland.settings = {
@@ -7,7 +59,7 @@
       "SUPER, E, exec, uwsm app -- nautilus --new-window"
       "SUPER, B, exec, $browser"
 
-      "SUPER, SPACE, exec, walker"
+      "SUPER, SPACE, exec, rofi -show drun -show-icons"
       "SUPER, Q, killactive,"
       "SUPER, Backspace, killactive,"
 
@@ -81,6 +133,8 @@
       "CTRL SUPER, N, exec, kitty --title=nmtui nmtui"
 
       "ALT, Tab, exec, rofi -show window -show-icons"
+
+      "SUPER SHIFT, K, exec, ${shortcuts-popup}"
     ];
 
     bindm = [

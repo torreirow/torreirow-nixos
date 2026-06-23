@@ -39,10 +39,10 @@
         title = {
           text = "Notificaties";
           clear-all-button = true;
-          button-text = "Alles wissen";
+          button-text = "Clear all";
         };
         dnd = {
-          text = "Niet storen";
+          text = "Do not disturb";
         };
         notifications = {
           notification-icon-size = 48;
@@ -55,7 +55,7 @@
     style = ''
       * {
         font-family: "JetBrains Mono", monospace;
-        font-size: 13px;
+        font-size: 12px;
       }
 
       .notification-row {
