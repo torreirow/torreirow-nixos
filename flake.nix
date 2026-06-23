@@ -24,6 +24,7 @@
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
     rme.url = "github:mipmip/rme";
+    solidtime-waybar.url = "github:torreirow/solidtime-waybar";
     walker.url = "github:abenz1267/walker";
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
@@ -38,7 +39,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker, solidtime-waybar}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -316,6 +317,7 @@
        extraSpecialArgs = {
           unstable = import unstable { inherit system; config.allowUnfree = true; };
           walker-input = walker;
+          solidtime-waybar-input = solidtime-waybar;
        };
 
         # Optionally use extraSpecialArgs
