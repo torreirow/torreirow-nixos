@@ -1,6 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, hyprswitch-input, ... }:
 
 let
+  system = pkgs.stdenv.hostPlatform.system;
+  hyprswitch-pkg = hyprswitch-input.packages.${system}.default;
+
   smart-close = pkgs.writeShellScript "smart-close" ''
     class=$(hyprctl activewindow -j | ${pkgs.jq}/bin/jq -r '.class // ""')
     case "$class" in
@@ -146,9 +149,14 @@ in
       "CTRL SUPER, V, exec, kitty --title=clipse clipse"
       "CTRL SUPER, N, exec, kitty --title=nmtui nmtui"
 
-      "ALT, Tab, exec, rofi -show window -show-icons"
+      "ALT, Tab, exec, ${hyprswitch-pkg}/bin/hyprswitch gui --mod-key alt --key tab"
+      "ALT SHIFT, Tab, exec, ${hyprswitch-pkg}/bin/hyprswitch gui --mod-key alt --key tab --reverse"
 
       "SUPER SHIFT, K, exec, ${shortcuts-popup}"
+    ];
+
+    bindrt = [
+      "ALT, Tab, exec, ${hyprswitch-pkg}/bin/hyprswitch close --kill"
     ];
 
     bindm = [
