@@ -88,6 +88,9 @@ in
   };
 
   xdg.configFile."wayle/config.toml".text = ''
+    [notifications]
+    popup-monitor = "DP-11"
+
     [bar]
     location = "top"
     spacing = 0.5
@@ -105,10 +108,8 @@ in
     [modules.media]
     format = "{{ title }} - {{ artist }}"
     label-max-length = 50
-    icon-show = true
+    icon-show = false
     label-show = true
-    player-priority = ["*strawberry*", "*spotify*"]
-    players-ignored = ["*playerctld*"]
 
     [modules.volume]
     label-show = true
