@@ -18,3 +18,4 @@ dist/
 build/
 .cache/
 *.log
+http_cache.sqlite
