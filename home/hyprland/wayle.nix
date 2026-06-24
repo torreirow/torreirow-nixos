@@ -87,20 +87,42 @@ in
     Install.WantedBy = [ "graphical-session.target" ];
   };
 
+  xdg.configFile."wayle/styles/index.scss".text = ''
+    window.bar menubutton.bar-button label {
+      font-size: 12px;
+    }
+  '';
+
   xdg.configFile."wayle/config.toml".text = ''
-    [modules.notifications]
-    popup-monitor = "DP-11"
+    [styling]
+    rounding = "sm"
 
     [bar]
     location = "top"
-    spacing = 0.5
-    margin = 0.25
+    inset-edge = 0.35
+    inset-ends = 0.5
+    module-gap = 0.5
+    padding = 0.35
+    rounding = "sm"
 
     [[bar.layout]]
     monitor = "*"
-    left = ["hyprland-workspaces", "window-title", "media"]
+    left = ["dashboard", "hyprland-workspaces", "window-title"]
     center = ["clock"]
-    right = ["custom-solidtime", "custom-powerprofile", "volume", "battery", "custom-clipse", "notifications", "systray"]
+    right = ["custom-solidtime", "media", "custom-powerprofile", "volume", "battery", "notifications", "custom-clipse", "systray"]
+
+    [modules.dashboard]
+    dropdown-lock-command = "loginctl lock-session"
+    dropdown-reboot-command = "systemctl reboot"
+    dropdown-poweroff-command = "systemctl poweroff"
+
+    [modules.weather]
+    location = "52.2983,5.6222"
+    units = "metric"
+    time-format = "24h"
+
+    [modules.window-title]
+    label-show = false
 
     [modules.clock]
     format = " %Y-%m-%d  %H:%M"
@@ -108,8 +130,10 @@ in
     [modules.media]
     format = "{{ title }} - {{ artist }}"
     label-max-length = 50
-    icon-show = false
+    icon-show = true
     label-show = true
+    player-priority = ["*strawberry*", "*spotify*"]
+    players-ignored = ["*playerctld*"]
 
     [modules.volume]
     label-show = true
@@ -118,12 +142,18 @@ in
     format = "{{ percent }}%"
     label-show = true
 
+    [modules.notifications]
+    popup-monitor = "primary"
+    popup-duration = 5000
+    popup-position = "top-right"
+
     [modules.systray]
     icon-scale = 1.0
 
     [modules.hyprland-workspaces]
     monitor-specific = true
     numbering = "absolute"
+    show-special = false
 
     [[modules.custom]]
     id = "solidtime"
