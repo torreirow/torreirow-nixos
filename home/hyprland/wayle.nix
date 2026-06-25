@@ -4,9 +4,10 @@ let
   solidtime-waybar-pkg = solidtime-waybar-input.packages.${pkgs.system}.default;
 
   solidtime-timer = pkgs.writeShellScript "solidtime-timer" ''
-    SOLIDTIME_BASE_URL="https://solidtime.tools.technative.cloud" \
-    SOLIDTIME_CACHE_TTL="10" \
-      ${solidtime-waybar-pkg}/bin/solidtime-waybar
+    output=$(SOLIDTIME_BASE_URL="https://solidtime.tools.technative.cloud" \
+      SOLIDTIME_CACHE_TTL="10" \
+      ${solidtime-waybar-pkg}/bin/solidtime-waybar)
+    printf '%s' "$output" | ${pkgs.jq}/bin/jq -c 'if .text == "" then .text = "⏱ stopped" else . end'
   '';
 
   power-profile-icon = pkgs.writeShellScript "power-profile-icon" ''
@@ -129,7 +130,8 @@ in
 
     [modules.media]
     format = "{{ title }} - {{ artist }}"
-    label-max-length = 50
+    tooltip-format = "{{ title }} - {{ artist }}"
+    label-max-length = 25
     icon-show = true
     label-show = true
     player-priority = ["*strawberry*", "*spotify*"]

@@ -224,6 +224,23 @@
         "type": "github"
       }
     },
+    "hyprquickframe": {
+      "inputs": {
+        "nixpkgs": [
+          "unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782390138,
+        "narHash": "sha256-nbFXsmDx9q/XZdGWlV7heskvuA25Fs3oXr65hHNASFg=",
+        "path": "/home/wtoorren/data/git/torreirow/HyprQuickFrame",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/wtoorren/data/git/torreirow/HyprQuickFrame",
+        "type": "path"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1763762820,
@@ -522,11 +539,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1780336545,
-        "narHash": "sha256-vhVhuXzFrIOfcssC/9hDHx7MHzDKjF3keHuREOQqQiQ=",
+        "lastModified": 1781607440,
+        "narHash": "sha256-rxO+uc/KFbSJp+pgyXRuAX6QlG9hJdnt0BXpEQRXY+U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "4df1b885d76a54e1aa1a318f8d16fd6005b6401f",
+        "rev": "3e41b24abd260e8f71dbe2f5737d24122f972158",
         "type": "github"
       },
       "original": {
@@ -578,8 +595,8 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1781593364,
-        "narHash": "sha256-TAj3v5yXaNxLMI7tVtsYaSHNHGptk5ruPWcHAr4/4J0=",
+        "lastModified": 1782385955,
+        "narHash": "sha256-7OmKnnGnJqLc6nTG2y7RdlXaZeFJDAzc2admghG+5JA=",
         "path": "/home/wtoorren/data/git/torreirow/nixvim",
         "type": "path"
       },
@@ -595,11 +612,11 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1781378402,
-        "narHash": "sha256-XNsehAegckUuzqwx+Gr39/qpPGCvaD39GBwd3U174JA=",
+        "lastModified": 1782254890,
+        "narHash": "sha256-kjsEECqhpPnJWqhooXp6tWh2qGQftCPAo2G1GvZtKdw=",
         "owner": "nix-community",
         "repo": "nixvim",
-        "rev": "56f95d165580d4c814955798fa408c66d6843069",
+        "rev": "dbf9550dba8448b03e11d58e5695d6c44a464554",
         "type": "github"
       },
       "original": {
@@ -688,6 +705,7 @@
         "dirty-repo-scanner": "dirty-repo-scanner",
         "home-manager": "home-manager_2",
         "homeage": "homeage",
+        "hyprquickframe": "hyprquickframe",
         "jsonify-aws-dotfiles": "jsonify-aws-dotfiles",
         "nixpkgs": "nixpkgs_6",
         "nixpkgs-2505": "nixpkgs-2505",
