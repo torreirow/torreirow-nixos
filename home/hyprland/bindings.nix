@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, hyprquickframe-input, ... }:
 
 let
   smart-close = pkgs.writeShellScript "smart-close" ''
@@ -12,6 +12,8 @@ let
         ;;
     esac
   '';
+
+  hqf = hyprquickframe-input.packages.${pkgs.system}.default;
 
   shortcuts-popup = pkgs.writeShellScript "shortcuts-popup" ''
     shortcuts=$(cat <<'SHORTCUTS'
@@ -36,7 +38,7 @@ let
     SUPER + , / .              Vorige / volgende workspace
     SUPER+SHIFT + 1-0          Venster naar workspace
     SUPER + S                  Special workspace tonen
-    SUPER+SHIFT + S            Venster naar special workspace
+    SUPER+CTRL + S             Venster naar special workspace
     ─── Monitor ──────────────────────────────────────────────
     SUPER+ALT + ←/→            Venster naar andere monitor
     ─── Venstergrootte ───────────────────────────────────────
@@ -47,10 +49,9 @@ let
     SUPER+SHIFT + L            Vergrendelen + slaapstand
     SUPER+SHIFT + Escape       Hyprland afsluiten
     ─── Screenshots ──────────────────────────────────────────
-    SUPER+CTRL + S             Screenshot (regio selectie)
-    SUPER+CTRL + W             Screenshot (actief venster)
-    Print                      Screenshot (regio selectie)
-    CTRL + Print               Screenshot (volledig scherm)
+    SUPER+SHIFT + S            Screenshot (kies edit/save/copy)
+    SUPER+SHIFT + W            Screenshot venster
+    SUPER+SHIFT + C            Screenshot → klembord
     SUPER + Print              Kleurpicker
     ─── Diversen ─────────────────────────────────────────────
     SUPER+SHIFT + K            Sneltoetsen (dit scherm)
@@ -134,12 +135,11 @@ in
       "SUPER, mouse_up, workspace, e-1"
 
       "SUPER, S, togglespecialworkspace, magic"
-      "SUPER SHIFT, S, movetoworkspace, special:magic"
+      "SUPER CTRL, S, movetoworkspace, special:magic"
 
-      "SUPER CTRL, S, exec, hyprshot -m region"
-      "SUPER CTRL, W, exec, hyprshot -m window -m active"
-      ", Print, exec, hyprshot -m region"
-      "CTRL, PRINT, exec, hyprshot -m output"
+      "SUPER SHIFT, S, exec, ${hqf}/bin/hyprquickframe"
+      "SUPER SHIFT, W, exec, env HQF_MODE=window ${hqf}/bin/hyprquickframe"
+      "SUPER SHIFT, C, exec, env HQF_ACTION=temp ${hqf}/bin/hyprquickframe"
 
       "SUPER, PRINT, exec, hyprpicker -a"
 
