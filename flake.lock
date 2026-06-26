@@ -595,8 +595,8 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1782385955,
-        "narHash": "sha256-7OmKnnGnJqLc6nTG2y7RdlXaZeFJDAzc2admghG+5JA=",
+        "lastModified": 1782467638,
+        "narHash": "sha256-YggQKJHkXho1KwFwXbkAUtj52ih5UhwwxJc9p7rgl1g=",
         "path": "/home/wtoorren/data/git/torreirow/nixvim",
         "type": "path"
       },
@@ -747,11 +747,11 @@
         "nixpkgs": "nixpkgs_13"
       },
       "locked": {
-        "lastModified": 1775737835,
-        "narHash": "sha256-Yf7vjnVWhUsOyJCBKTWIbf2kQ2fKelqSBtII1/5DFHQ=",
+        "lastModified": 1782420155,
+        "narHash": "sha256-Gspz57gkgh9eqDkN/HAPz8TNvi3Us+6qjxaacYsoMHQ=",
         "owner": "torreirow",
         "repo": "soltty",
-        "rev": "ed66eeadf5c00605a3666b40a35c37c45d17ae48",
+        "rev": "0913d793c310ffd9ed1909dd3093c3d28efed4cc",
         "type": "github"
       },
       "original": {

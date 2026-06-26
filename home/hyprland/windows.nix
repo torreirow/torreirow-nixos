@@ -10,7 +10,7 @@
       "float on, match:class ^(org.pulseaudio.pavucontrol|blueman|nwg-displays)$"
       "float on, match:class ^(steam)$"
 
-      "opacity 0.97 0.9, match:class .*"
+      "opacity 1.0 1.0, match:class .*"
       "opacity 1 1, match:class ^(chromium|google-chrome)$, match:title .*Youtube.*"
       "opacity 1 0.97, match:class ^(chromium|google-chrome)$"
       "opacity 1 1, match:class ^(zoom|vlc|com.obsproject.Studio)$"
