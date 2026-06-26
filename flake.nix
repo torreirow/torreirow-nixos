@@ -290,7 +290,7 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [(import ./overlays) (import ./overlays/cooklang.nix)];
+        overlays = [(import ./overlays) (import ./overlays/cooklang.nix) (import ./overlays/wayle.nix)];
       };
 
       linux-defaults = {pkgs,config,homeage,...}: {

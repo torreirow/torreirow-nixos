@@ -152,6 +152,7 @@ environment.systemPackages = with pkgs; [
     wget
     zapzap
     xclip
+    autocutsel
     xbacklight
     yelp # Help view
     yj
