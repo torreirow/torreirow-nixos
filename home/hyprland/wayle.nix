@@ -1,4 +1,36 @@
-{ pkgs, ... }:
+{ pkgs, solidtime-waybar-input, ... }:
+
+let
+  solidtime-waybar-pkg = solidtime-waybar-input.packages.${pkgs.system}.default;
+
+  solidtime-timer = pkgs.writeShellScript "solidtime-timer" ''
+    output=$(SOLIDTIME_BASE_URL="https://solidtime.tools.technative.cloud" \
+      SOLIDTIME_CACHE_TTL="10" \
+      ${solidtime-waybar-pkg}/bin/solidtime-waybar)
+    printf '%s' "$output" | ${pkgs.jq}/bin/jq -c 'if .text == "" then .text = "⏱ stopped" else . end'
+  '';
+
+  monitor-router = pkgs.writeShellScript "wayle-monitor-router" ''
+    set_monitor() {
+      local monitor
+      monitor=$(${pkgs.hyprland}/bin/hyprctl monitors -j 2>/dev/null \
+        | ${pkgs.jq}/bin/jq -r '[.[] | select(.name != "eDP-1")] | first | .name // "primary"')
+      ${pkgs.wayle}/bin/wayle config set modules.notifications.popup-monitor "$monitor"
+      ${pkgs.wayle}/bin/wayle config set osd.monitor "$monitor"
+    }
+
+    set_monitor
+
+    SOCKET="/run/user/$UID/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+    ${pkgs.socat}/bin/socat -u "UNIX-CONNECT:$SOCKET" - | while IFS= read -r event; do
+      case "$event" in
+        monitoraddedv2*|monitorremoved*)
+          set_monitor
+          ;;
+      esac
+    done
+  '';
+in
 
 {
   home.packages = [ pkgs.wayle ];
@@ -17,14 +49,42 @@
     Install.WantedBy = [ "graphical-session.target" ];
   };
 
+  systemd.user.services.wayle-monitor-router = {
+    Unit = {
+      Description = "Route wayle notificatie-popups naar actief extern scherm";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" "wayle.service" ];
+    };
+    Service = {
+      ExecStart = "${monitor-router}";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
   xdg.configFile."wayle/config.toml".text = ''
     [bar]
     location = "top"
+    scale = 0.8
+    bg = "transparent"
+
+    [styling.palette]
+    bg = "#16161e"
+    surface = "#1a1b26"
+    elevated = "#292e42"
+    fg = "#c0caf5"
+    fg-muted = "#a9b1d6"
+    primary = "#7aa2f7"
+    red = "#f7768e"
+    yellow = "#e0af68"
+    green = "#9ece6a"
+    blue = "#7dcfff"
 
     [[bar.layout]]
     monitor = "*"
     left = ["dashboard", "hyprland-workspaces", "window-title"]
-    center = ["clock"]
+    center = ["custom-solidtime", "clock", "weather"]
     right = ["media", "volume", "battery", "notifications", "systray"]
 
     [modules.dashboard]
@@ -35,7 +95,13 @@
     [modules.clock]
     format = " %Y-%m-%d  %H:%M"
 
+    [modules.weather]
+    location = "52.2983,5.6222"
+    location-name = "Ermelo"
+    units = "metric"
+
     [modules.media]
+    icon-type = "default"
     label-max-length = 30
 
     [modules.volume]
@@ -53,5 +119,19 @@
 
     [modules.systray]
     icon-scale = 1.0
+
+    [osd]
+    monitor = "focussed"
+
+    [[modules.custom]]
+    id = "solidtime"
+    command = "${solidtime-timer}"
+    interval-ms = 1000
+    mode = "poll"
+    format = "{{ text }}"
+    tooltip-format = "{{ tooltip }}"
+    label-show = true
+    icon-show = false
+    left-click = "solidtime-desktop"
   '';
 }
