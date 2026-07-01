@@ -30,6 +30,9 @@ let
     SUPER + M                  Maximize
     SUPER + J                  Split richting wisselen
     SUPER + P                  Pseudo tiling
+    SUPER + G                  Groep aan/uit
+    SUPER + Tab                Volgend venster in groep
+    SUPER+SHIFT + Tab          Vorig venster in groep
     ─── Focus ────────────────────────────────────────────────
     SUPER + ←/→/↑/↓            Focus verplaatsen
     SUPER+SHIFT + ←/→/↑/↓      Vensters wisselen
@@ -85,6 +88,9 @@ in
       "SUPER, J, layoutmsg, togglesplit"
       "SUPER, P, pseudo,"
       "SUPER, V, togglefloating,"
+      "SUPER, G, togglegroup,"
+      "SUPER, Tab, changegroupactive, f"
+      "SUPER SHIFT, Tab, changegroupactive, b"
       "SUPER, F, fullscreen,"
       "SUPER, M, fullscreen, 1"
 

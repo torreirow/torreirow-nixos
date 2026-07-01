@@ -57,5 +57,13 @@
     };
 
     master.new_status = "master";
+
+    group = {
+      groupbar = {
+        enabled = true;
+        font_size = 12;
+        height = 20;
+      };
+    };
   };
 }
