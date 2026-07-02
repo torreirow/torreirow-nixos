@@ -149,8 +149,8 @@ in
 
       "SUPER, PRINT, exec, hyprpicker -a"
 
-      "CTRL SUPER, V, exec, kitty --title=clipse clipse"
-      "CTRL SUPER, N, exec, kitty --title=nmtui nmtui"
+      "CTRL SUPER, V, exec, alacritty --title clipse -e clipse"
+      "CTRL SUPER, N, exec, alacritty --title nmtui -e nmtui"
 
       "ALT, Tab, exec, rofi -show window -show-icons"
 
