@@ -30,6 +30,37 @@ let
       esac
     done
   '';
+
+  workspace-binder = pkgs.writeShellScript "hyprland-workspace-binder" ''
+    bind_workspaces() {
+      local extern
+      extern=$(${pkgs.hyprland}/bin/hyprctl monitors -j 2>/dev/null \
+        | ${pkgs.jq}/bin/jq -r '[.[] | select(.name != "eDP-1")] | first | .name // empty')
+
+      if [ -n "$extern" ]; then
+        for ws in 1 4 6 8 10; do
+          ${pkgs.hyprland}/bin/hyprctl dispatch wsbind "$ws" "$extern" >/dev/null
+          ${pkgs.hyprland}/bin/hyprctl dispatch moveworkspacetomonitor "$ws" "$extern" >/dev/null
+        done
+        for ws in 3 5 7 9; do
+          ${pkgs.hyprland}/bin/hyprctl dispatch wsbind "$ws" "eDP-1" >/dev/null
+          ${pkgs.hyprland}/bin/hyprctl dispatch moveworkspacetomonitor "$ws" "eDP-1" >/dev/null
+        done
+      fi
+    }
+
+    bind_workspaces
+
+    SOCKET="/run/user/$UID/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+    ${pkgs.socat}/bin/socat -u "UNIX-CONNECT:$SOCKET" - | while IFS= read -r event; do
+      case "$event" in
+        monitoraddedv2*|monitorremoved*)
+          sleep 1
+          bind_workspaces
+          ;;
+      esac
+    done
+  '';
 in
 
 {
@@ -57,6 +88,20 @@ in
     };
     Service = {
       ExecStart = "${monitor-router}";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  systemd.user.services.hyprland-workspace-binder = {
+    Unit = {
+      Description = "Bind Hyprland workspaces dynamisch aan extern scherm";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${workspace-binder}";
       Restart = "on-failure";
       RestartSec = 3;
     };

@@ -23,12 +23,25 @@ in
       configType = "hyprlang";
 
       settings = {
-        "$terminal" = "uwsm app -- kitty";
+        "$terminal" = "uwsm app -- alacritty";
         "$browser" = "uwsm app -- firefox";
 
         monitor = [
           "eDP-1,preferred,auto,1"
-          "DP-10,preferred,auto,1"
+          "HDMI-A-1,preferred,auto,1"
+        ];
+
+        workspace = [
+          "1, default:true, persistent:true"
+          "2, monitor:eDP-1, default:true, persistent:true"
+          "3, monitor:eDP-1, persistent:true"
+          "4, persistent:true"
+          "5, monitor:eDP-1, persistent:true"
+          "6, persistent:true"
+          "7, monitor:eDP-1, persistent:true"
+          "8, persistent:true"
+          "9, persistent:true"
+          "10, persistent:true"
         ];
 
         misc = {

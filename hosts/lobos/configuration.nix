@@ -327,6 +327,10 @@ security.pam.services.greetd.enableGnomeKeyring = true;
     enable = true;
   };
 
+  programs.evolution = {
+    enable = true;
+    plugins = [ pkgs.evolution-ews ];
+  };
 
   age.secrets.secret1.file = ../../secrets/secret1.age;
   age.secretsDir = "/run/keys/wouter";
