@@ -118,7 +118,7 @@ in
       set -g window-status-separator ""
 
       set -g status-left "#[fg=#282828,bg=#8ec07c] #S #[bg=#282828] "
-      set -g status-right "#[fg=#a89984,bg=#282828] %Y-%m-%d  %H:%M #[fg=#3c3836,bg=#282828]#[fg=#ebdbb2,bg=#3c3836] #(if rbw unlocked; then echo '🔓 unlocked'; else echo '🔒 locked'; fi) #[fg=#504945,bg=#3c3836]#[fg=#ebdbb2,bg=#504945] #h #[fg=#fe8019,bg=#504945]#[fg=#282828,bg=#fe8019] ⌨ #{prefix} "
+      set -g status-right "#[fg=#a89984,bg=#282828] %Y-%m-%d  %H:%M #[fg=#3c3836,bg=#282828]#[fg=#ebdbb2,bg=#3c3836] #(if $RBW_PROFILE == "technative"; then rbwtxt="TN"; else rbwtxt="WT";fi; if rbw unlocked; then echo '🔓 unlocked $rbwtxt'; else echo '🔒 locked $rbwtxt'; fi) #[fg=#504945,bg=#3c3836]#[fg=#ebdbb2,bg=#504945] #h #[fg=#fe8019,bg=#504945]#[fg=#282828,bg=#fe8019] ⌨ #{prefix} "
 
       ##### Resurrect & Continuum #####
       # Herstel vim/nvim sessies

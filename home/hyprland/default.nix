@@ -27,7 +27,7 @@ in
         "$browser" = "uwsm app -- firefox";
 
         monitor = [
-          "eDP-1,preferred,auto,1"
+          "eDP-1,preferred,auto,1.25"
           "HDMI-A-1,preferred,auto,1"
         ];
 
