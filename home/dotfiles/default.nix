@@ -1,6 +1,7 @@
 {
   imports = [
     ./strawberry.nix
+    ./subtitleedit.nix
   ];
 
   home.file = {
