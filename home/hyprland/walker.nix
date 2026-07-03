@@ -16,6 +16,7 @@
       "websearch"
       "menus"
       "providerlist"
+      "windows"
     ];
     settings = {
       providers.desktopapplications = {

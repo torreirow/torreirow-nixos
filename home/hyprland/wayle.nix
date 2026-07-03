@@ -141,9 +141,19 @@ in
     format = " %Y-%m-%d  %H:%M"
 
     [modules.weather]
-    location = "52.2983,5.6222"
-    location-name = "Ermelo"
     units = "metric"
+
+    [[modules.weather.locations]]
+    location = "52.2983,5.6222"
+    name = "Ermelo"
+
+    [[modules.weather.locations]]
+    location = "52.1561,5.3878"
+    name = "Amersfoort"
+
+    [[modules.weather.locations]]
+    location = "-14.4833,31.3167"
+    name = "Petauke"
 
     [modules.media]
     icon-type = "default"

@@ -60,7 +60,7 @@ let
     SUPER+SHIFT + K            Sneltoetsen (dit scherm)
     CTRL+SUPER + V             Klembord (clipse)
     CTRL+SUPER + N             Netwerk (nmtui)
-    ALT + Tab                  Vensterlijst (rofi)
+    ALT + Tab                  Vensterlijst (walker)
     SHORTCUTS
     )
     echo "$shortcuts" | rofi -dmenu -p "⌨  Sneltoetsen" \
@@ -152,7 +152,7 @@ in
       "CTRL SUPER, V, exec, alacritty --title clipse -e clipse"
       "CTRL SUPER, N, exec, alacritty --title nmtui -e nmtui"
 
-      "ALT, Tab, exec, rofi -show window -show-icons"
+      "ALT, Tab, exec, uwsm app -- walker -m windows"
 
       "SUPER SHIFT, K, exec, ${shortcuts-popup}"
     ];
