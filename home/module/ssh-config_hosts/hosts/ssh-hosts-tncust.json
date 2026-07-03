@@ -12,6 +12,14 @@
     "user": "technative",
     "identity_file": "Technative-Devops.pem",
     "port": 1023
+  },
+  {
+    "host": "hrdz004",
+    "hostname": "95.211.76.147",
+    "user": "technative",
+    "identity_file": "~/.ssh/Technative-Devops-rsa.pem",
+    "port": 1012,
+    "HostKeyAlgorithms": "+ssh-rsa",
+    "PubkeyAcceptedKeyTypes": "+ssh-rsa"
   }
 ]
-
