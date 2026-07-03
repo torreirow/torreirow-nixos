@@ -40,17 +40,22 @@ let
         then lib.removeSuffix ".pub" host.identity_file
         else host.identity_file;
 
-      # Build the identity file path
-      identity_path = "${ssh_keys_dir}/${identity_name}";
+      # Build the identity file path (absolute/home paths are used as-is)
+      identity_path =
+        if lib.hasPrefix "/" identity_name || lib.hasPrefix "~" identity_name
+        then identity_name
+        else "${ssh_keys_dir}/${identity_name}";
 
       # Optional fields
       hostnameField = lib.optionalString (host ? hostname) "  HostName ${host.hostname}\n";
       userField = lib.optionalString (host ? user) "  User ${host.user}\n";
       portField = lib.optionalString (host ? port && host.port != 22) "  Port ${toString host.port}\n";
+      hostKeyAlgorithmsField = lib.optionalString (host ? HostKeyAlgorithms) "  HostKeyAlgorithms ${host.HostKeyAlgorithms}\n";
+      pubkeyAcceptedKeyTypesField = lib.optionalString (host ? PubkeyAcceptedKeyTypes) "  PubkeyAcceptedKeyTypes ${host.PubkeyAcceptedKeyTypes}\n";
     in
     ''
       Host ${host.host}
-      ${hostnameField}${userField}${portField}  IdentityFile ${identity_path}
+      ${hostnameField}${userField}${portField}${hostKeyAlgorithmsField}${pubkeyAcceptedKeyTypesField}  IdentityFile ${identity_path}
         IdentitiesOnly yes
     '';
 
@@ -147,7 +152,7 @@ let
         echo ""
 
         # Parse JSON and generate entries using jq to format each host directly
-        ${pkgs.jq}/bin/jq -r '.[] | "Host \(.host)\n" + (if .hostname then "  HostName \(.hostname)\n" else "" end) + (if .user then "  User \(.user)\n" else "" end) + (if .port and .port != 22 then "  Port \(.port)\n" else "" end) + "  IdentityFile '"$SSH_KEYS_DIR"'/\(.identity_file | sub("\\.pub$"; ""))\n    IdentitiesOnly yes\n"' "$path"
+        ${pkgs.jq}/bin/jq -r '.[] | "Host \(.host)\n" + (if .hostname then "  HostName \(.hostname)\n" else "" end) + (if .user then "  User \(.user)\n" else "" end) + (if .port and .port != 22 then "  Port \(.port)\n" else "" end) + (if .HostKeyAlgorithms then "  HostKeyAlgorithms \(.HostKeyAlgorithms)\n" else "" end) + (if .PubkeyAcceptedKeyTypes then "  PubkeyAcceptedKeyTypes \(.PubkeyAcceptedKeyTypes)\n" else "" end) + ((.identity_file | sub("\\.pub$"; "")) as $idf | "  IdentityFile " + (if ($idf | startswith("/") or startswith("~")) then $idf else ("'"$SSH_KEYS_DIR"'/" + $idf) end) + "\n    IdentitiesOnly yes\n")' "$path"
       } > "$output_file"
 
       chmod 600 "$output_file"
