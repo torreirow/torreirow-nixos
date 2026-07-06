@@ -16,6 +16,8 @@
 
   systemd.user.sessionVariables = config.home.sessionVariables;
 
+  xresources.properties."Xft.dpi" = 120;
+
   wayland.windowManager.hyprland.settings = {
     env = [
       "XCURSOR_SIZE,24"

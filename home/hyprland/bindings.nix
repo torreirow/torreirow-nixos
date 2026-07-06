@@ -15,13 +15,33 @@ let
 
   hqf = hyprquickframe-input.packages.${pkgs.system}.default;
 
+  font-scale = pkgs.writeShellScript "font-scale" ''
+    current=$(${pkgs.glib}/bin/gsettings get org.gnome.desktop.interface text-scaling-factor)
+    case "$1" in
+      up)
+        new=$(${pkgs.gawk}/bin/awk "BEGIN{x=$current+0.1; if(x>2.0) x=2.0; printf \"%.1f\", x}")
+        ;;
+      down)
+        new=$(${pkgs.gawk}/bin/awk "BEGIN{x=$current-0.1; if(x<0.8) x=0.8; printf \"%.1f\", x}")
+        ;;
+      reset)
+        new="1.0"
+        ;;
+      *)
+        exit 1
+        ;;
+    esac
+    ${pkgs.glib}/bin/gsettings set org.gnome.desktop.interface text-scaling-factor "$new"
+    ${pkgs.libnotify}/bin/notify-send -t 1500 -h string:x-canonical-private-synchronous:font-scale "Tekstgrootte" "''${new}×"
+  '';
+
   shortcuts-popup = pkgs.writeShellScript "shortcuts-popup" ''
     shortcuts=$(cat <<'SHORTCUTS'
     ─── Applicaties ──────────────────────────────────────────
     SUPER + Enter              Terminal
     SUPER + E                  Bestandsbeheer (Nautilus)
     SUPER + B                  Browser
-    SUPER + SPACE              App launcher (rofi)
+    SUPER + SPACE              App launcher (walker)
     ─── Vensters ─────────────────────────────────────────────
     SUPER + Q / Backspace      Venster sluiten (Spotify: naar achtergrond)
     SUPER+SHIFT + Q            Spotify tonen/verbergen
@@ -56,6 +76,10 @@ let
     SUPER+SHIFT + W            Screenshot venster
     SUPER+SHIFT + C            Screenshot → klembord
     SUPER + Print              Kleurpicker
+    ─── Tekstgrootte ─────────────────────────────────────────
+    SUPER+CTRL+SHIFT + =       Tekst groter (+0.1)
+    SUPER+CTRL+SHIFT + -       Tekst kleiner (-0.1)
+    SUPER+CTRL+SHIFT + 0       Tekst reset (1.0×)
     ─── Diversen ─────────────────────────────────────────────
     SUPER+SHIFT + K            Sneltoetsen (dit scherm)
     CTRL+SUPER + V             Klembord (clipse)
@@ -76,7 +100,7 @@ in
       "SUPER, E, exec, uwsm app -- nautilus --new-window"
       "SUPER, B, exec, $browser"
 
-      "SUPER, SPACE, exec, rofi -show drun -show-icons"
+      "SUPER, SPACE, exec, uwsm app -- walker"
       "SUPER, Q, exec, ${smart-close}"
       "SUPER, Backspace, exec, ${smart-close}"
       "SUPER SHIFT, Q, togglespecialworkspace, spotify"
@@ -155,6 +179,10 @@ in
       "ALT, Tab, exec, uwsm app -- walker -m windows"
 
       "SUPER SHIFT, K, exec, ${shortcuts-popup}"
+
+      "SUPER CTRL SHIFT, equal, exec, ${font-scale} up"
+      "SUPER CTRL SHIFT, minus, exec, ${font-scale} down"
+      "SUPER CTRL SHIFT, 0,     exec, ${font-scale} reset"
     ];
 
     bindm = [
