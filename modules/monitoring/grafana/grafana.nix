@@ -61,6 +61,22 @@ in
       root_url = "http://192.168.2.52:3000";
     };
 
+    settings."auth.proxy" = {
+      enabled = true;
+      header_name = "X-WEBAUTH-USER";
+      header_property = "username";
+      auto_sign_up = true;
+      whitelist = "127.0.0.1";
+    };
+
+    settings.users = {
+      auto_assign_org_role = "Admin";
+    };
+
+    settings.auth = {
+      disable_login_form = true;
+    };
+
     provision = {
       enable = true;
 
