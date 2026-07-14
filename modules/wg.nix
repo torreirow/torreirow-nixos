@@ -11,15 +11,8 @@
 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
-  # Laad benodigde kernel modules voor iptables/WireGuard
-  boot.kernelModules = [
-    "wireguard"
-    "iptable_nat"
-    "iptable_filter"
-    "ip_tables"
-    "nf_nat"
-    "nf_conntrack"
-  ];
+  # Laad WireGuard kernel module (iptables via nftables compat, geen legacy modules nodig)
+  boot.kernelModules = [ "wireguard" ];
 
   # NAT voor Docker bridge
   networking.nat = {
@@ -42,7 +35,10 @@
         WG_HOST = "wg.toorren.net";
         PASSWORD_HASH = "$2a$12$2kO66Q7Xg4JI/n2QzXW9ROTZ0O2yJA/NJCuYMDl.YU9g8PS.ZYJsi";
         WG_DEFAULT_DNS = "1.1.1.1";
-        WG_ALLOWED_IPS = "0.0.0.0/0";  # Belangrijk voor Android full tunnel
+        WG_ALLOWED_IPS = "0.0.0.0/0";
+        # Gebruik iptables-nft i.p.v. iptables-legacy (kernel 6.x heeft geen iptable_nat module)
+        WG_POST_UP = "iptables-nft -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE; iptables-nft -A INPUT -p udp -m udp --dport 51820 -j ACCEPT; iptables-nft -A FORWARD -i wg0 -j ACCEPT; iptables-nft -A FORWARD -o wg0 -j ACCEPT;";
+        WG_POST_DOWN = "iptables-nft -t nat -D POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE; iptables-nft -D INPUT -p udp -m udp --dport 51820 -j ACCEPT; iptables-nft -D FORWARD -i wg0 -j ACCEPT; iptables-nft -D FORWARD -o wg0 -j ACCEPT;";
       };
       capabilities = {
         NET_ADMIN = true;
