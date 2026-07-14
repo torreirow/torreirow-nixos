@@ -17,7 +17,7 @@
  ../../modules/baikal.nix
  ../../modules/chhoto-urlshortner.nix
  ../../modules/claude.nix
-# ../../modules/cockpit.nix
+ ../../modules/cockpit.nix
  ../../modules/erugo.nix
  ../../modules/fail2ban.nix
  ../../modules/fail2bancontrol.nix
