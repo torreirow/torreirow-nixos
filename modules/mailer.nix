@@ -20,13 +20,13 @@ let
 
       // Origin whitelist: alleen geconfigureerde domeinen
       $recipients = json_decode('${builtins.toJSON cfg.recipients}', true);
-      $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+      $origin = $_SERVER['HTTP_ORIGIN'] ?? "";
       if (empty($origin)) {
-          $referer = $_SERVER['HTTP_REFERER'] ?? '';
+          $referer = $_SERVER['HTTP_REFERER'] ?? "";
           $parsed  = parse_url($referer);
-          $origin  = ($parsed['scheme'] ?? '') . '://' . ($parsed['host'] ?? '');
+          $origin  = ($parsed['scheme'] ?? "") . "://" . ($parsed['host'] ?? "");
       }
-      $domain = parse_url($origin, PHP_URL_HOST) ?: '';
+      $domain = parse_url($origin, PHP_URL_HOST) ?: "";
       if (!array_key_exists($domain, $recipients)) {
           http_response_code(403);
           exit;
@@ -34,30 +34,30 @@ let
       $toEmail = $recipients[$domain];
 
       // Cloudflare Turnstile server-side validatie
-      $token = $_POST['cf-turnstile-response'] ?? '';
+      $token = $_POST['cf-turnstile-response'] ?? "";
       if (empty($token)) {
           http_response_code(403);
           exit;
       }
       $secretKey = trim(file_get_contents('${cfg.turnstileSecretFile}'));
-      $ctx = stream_context_create(['http' => [
-          'method'  => 'POST',
-          'header'  => 'Content-Type: application/x-www-form-urlencoded',
-          'content' => http_build_query(['secret' => $secretKey, 'response' => $token]),
-      ]]);
-      $result = json_decode(
-          file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false, $ctx),
-          true
-      );
+      $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+      curl_setopt_array($ch, [
+          CURLOPT_POST           => true,
+          CURLOPT_POSTFIELDS     => http_build_query(['secret' => $secretKey, 'response' => $token]),
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_TIMEOUT        => 10,
+      ]);
+      $result = json_decode(curl_exec($ch), true);
+      curl_close($ch);
       if (!($result['success'] ?? false)) {
           http_response_code(403);
           exit;
       }
 
       // Valideer verplichte velden
-      $naam    = strip_tags(trim($_POST['naam'] ?? ''));
-      $email   = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
-      $bericht = strip_tags(trim($_POST['bericht'] ?? ''));
+      $naam    = strip_tags(trim($_POST['naam'] ?? ""));
+      $email   = filter_var(trim($_POST['email'] ?? ""), FILTER_VALIDATE_EMAIL);
+      $bericht = strip_tags(trim($_POST['bericht'] ?? ""));
       if (empty($naam) || !$email || empty($bericht)) {
           http_response_code(400);
           exit;
@@ -145,6 +145,8 @@ in
         };
       };
     };
+
+    users.users.nginx.extraGroups = [ "keys" ];
 
     systemd.tmpfiles.rules = [
       "d /var/www/mailer 0755 nginx nginx -"
