@@ -39,6 +39,13 @@
         group = "nogroup";
         mode = "0400";
       };
+      turnstile-secret = {
+        file = ../../secrets/turnstile-secret.age;
+        path = "/run/secrets/turnstile-secret";
+        owner = "nginx";
+        group = "nginx";
+        mode = "0400";
+      };
 };
   };
 

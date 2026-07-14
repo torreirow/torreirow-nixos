@@ -1,0 +1,13 @@
+# Airco template sensors
+# Dit bestand wordt automatisch gekopieerd naar /var/lib/homeassistant/templates/
+
+template:
+  - sensor:
+      - name: "Airco Werkkamer Advies Temperatuur"
+        unique_id: airco_werkkamer_advies_temperatuur
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state: >
+          {% set buiten = states('sensor.buitentempsensor_temperature') | float(20) %}
+          {{ [22, [25, buiten - 4] | min] | max }}
+        icon: mdi:thermometer-auto
