@@ -33,6 +33,7 @@
  ../../modules/nginx-boaz.nix
  ../../modules/nginx-portal.nix
  ../../modules/nginx-cv-jolijn.nix
+ ../../modules/mailer.nix
  ../../modules/nginx-wereldvanbegrip.nix
  ../../modules/nginx-wouter.nix
  ../../modules/nginx.nix
@@ -74,6 +75,14 @@
 
 
 
+  services.contactMailer = {
+    enable = true;
+    recipients = {
+      "wereldvanbegrip.nl" = "wereldvanbegrip@toorren.net";
+    };
+    turnstileSecretFile = config.age.secrets.turnstile-secret.path;
+  };
+
   nix.extraOptions = ''
     experimental-features = nix-command flakes
     '';
@@ -85,6 +94,7 @@
     device = "/dev/disk/by-uuid/0d63b3e4-41ea-4a66-b020-c1f162b8a944";
     crypttabExtraOpts = [ "tpm2-device=auto" ];
   };
+  boot.kernelParams = [ "fsck.repair=yes" ];
 #  boot.kernelParams = [ "pci=nomsi" "acpi=off" ];
 #  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
   boot.supportedFilesystems = [ "ntfs" ];
