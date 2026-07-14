@@ -31,6 +31,36 @@
   services.nginx.virtualHosts."ittools.toorren.net" = {
     forceSSL = true;
     useACMEHost = "toorren.net";
+
+    # JS-bestanden: vervang de externe CDN-URL voor figlet-fonts met een lokaal pad
+    locations."~* ^/assets/.*\\.js$" = {
+      proxyPass = "http://127.0.0.1:8085";
+      extraConfig = ''
+        auth_request /authelia;
+        error_page 401 = @authelia_portal;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Accept-Encoding "";
+
+        sub_filter '//unpkg.com/figlet@1.6.0/fonts/' '/figlet-fonts/';
+        sub_filter_once off;
+        sub_filter_types application/javascript;
+      '';
+    };
+
+    # Proxy figlet-fonts via onze nginx, browser hoeft niet naar unpkg.com
+    locations."/figlet-fonts/" = {
+      proxyPass = "https://unpkg.com/figlet@1.6.0/fonts/";
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_set_header Host unpkg.com;
+        proxy_set_header Accept-Encoding "";
+        proxy_cache_valid 200 365d;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+      '';
+    };
+
     locations."/" = {
       proxyPass = "http://127.0.0.1:8085";
       proxyWebsockets = false;
@@ -46,6 +76,7 @@
         proxy_set_header X-Forwarded-Proto $scheme;
       '';
     };
+
   # Authelia redirect named location
   locations."@authelia_portal" = {
     extraConfig = ''

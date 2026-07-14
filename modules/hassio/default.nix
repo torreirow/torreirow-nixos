@@ -85,9 +85,14 @@
   '';
 
   # Copy Home Assistant templates
+  environment.etc."homeassistant/templates/airco.yaml" = {
+    source = ./templates/airco.yaml;
+  };
+
   system.activationScripts.homeassistantTemplates = ''
     mkdir -p /var/lib/homeassistant/templates
     cp /etc/homeassistant/templates/stookwijzer.yaml /var/lib/homeassistant/templates/stookwijzer.yaml
+    cp /etc/homeassistant/templates/airco.yaml /var/lib/homeassistant/templates/airco.yaml
     chown -R root:root /var/lib/homeassistant/templates
     chmod -R 644 /var/lib/homeassistant/templates/*.yaml
   '';
