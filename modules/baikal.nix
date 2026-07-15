@@ -46,31 +46,28 @@
 
         # Authelia forward authentication
         extraConfig = ''
-          # Forward authentication to Authelia
           auth_request /authelia;
           auth_request_set $user $upstream_http_remote_user;
           auth_request_set $groups $upstream_http_remote_groups;
           auth_request_set $name $upstream_http_remote_name;
           auth_request_set $email $upstream_http_remote_email;
 
-          # Redirect to Authelia portal on auth failure
           error_page 401 = @authelia_portal;
 
-          # Pass authentication headers to backend
           proxy_set_header Remote-User $user;
           proxy_set_header Remote-Groups $groups;
           proxy_set_header Remote-Name $name;
           proxy_set_header Remote-Email $email;
-
-          # Standard proxy headers
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
         '';
       };
 
       # Authelia redirect named location
+      # Proxeer CalDAV/CardDAV endpoints naar Baikal
+      locations."~ ^/(cal|card|dav)\\.php" = {
+        proxyPass = "http://127.0.0.1:8081";
+        proxyWebsockets = false;
+      };
+
       locations."@authelia_portal" = {
         extraConfig = ''
           return 302 https://auth.toorren.net/?rd=$scheme://$http_host$request_uri;
