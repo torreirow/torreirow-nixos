@@ -19,7 +19,6 @@
 #   ../../modules/jitsi.nix
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
-    ../../modules/mmdl.nix
     ];
 
   # Safety check: prevent building wrong config on wrong host
