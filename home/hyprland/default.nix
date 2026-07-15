@@ -11,6 +11,7 @@ in
       ./hypridle.nix
 
       ./walker.nix
+      ./fuzzel.nix
       ./looknfeel.nix
       ./bindings.nix
       ./windows.nix
@@ -57,6 +58,7 @@ in
           "autocutsel -fork"
           "autocutsel -selection PRIMARY -fork"
           "clipse -listen"
+          "wl-paste --watch cliphist store"
           "elephant"
           "sh -c 'until [ -S /run/user/1000/elephant/elephant.sock ]; do sleep 0.1; done; walker --gapplication-service'"
         ];

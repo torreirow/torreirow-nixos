@@ -11,6 +11,11 @@
 
 
     initContent = ''
+      # Zet RBW_PROFILE vanuit active-profile als het nog niet gezet is
+      if [[ -z "$RBW_PROFILE" && -f "$HOME/.config/rbw/active-profile" ]]; then
+        export RBW_PROFILE="$(cat "$HOME/.config/rbw/active-profile")"
+      fi
+
       # Custom completions
       fpath=("$HOME/.zsh/completions" $fpath)
       autoload -Uz compinit
@@ -53,6 +58,46 @@
       bmc ec2connect -u ''${USER} -h $NIXHOST
       fi
       }
+
+      # Wayland display vars bijwerken in tmux (tmux-server start voor Wayland)
+      if [[ -n "$TMUX" && -n "$WAYLAND_DISPLAY" ]]; then
+        tmux setenv WAYLAND_DISPLAY "$WAYLAND_DISPLAY"
+        tmux setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR"
+      fi
+
+      rbwsel() {
+        local config_dir="$HOME/.config"
+        local active_file="$config_dir/rbw/active-profile"
+        local -a profiles=()
+
+        # Default profiel (lege RBW_PROFILE)
+        [[ -d "$config_dir/rbw" ]] && profiles+=("(default)")
+
+        # Benoemde profielen: rbw-<naam> directories
+        for dir in "$config_dir"/rbw-*/; do
+          [[ -d "$dir" ]] || continue
+          local name="''${dir%/}"
+          name="''${name##*/rbw-}"
+          profiles+=("$name")
+        done
+
+        if [[ ''${#profiles[@]} -eq 0 ]]; then
+          echo "Geen rbw profielen gevonden in $config_dir" >&2
+          return 1
+        fi
+
+        local selected
+        selected=$(printf '%s\n' "''${profiles[@]}" | gum choose --header "Kies RBW profiel")
+        [[ -z "$selected" ]] && return 0
+
+        local profile=""
+        [[ "$selected" != "(default)" ]] && profile="$selected"
+
+        echo "$profile" > "$active_file"
+        export RBW_PROFILE="$profile"
+        tmux setenv RBW_PROFILE "$profile" 2>/dev/null || true
+        echo "RBW profiel: ''${profile:-(default)}"
+      }
     '';
 
       shellAliases = {
@@ -61,6 +106,7 @@
           #tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
           #tfplan="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
           aider="/run/keys/wouter/aider";
+          walker-reset="pkill -9 elephant; sleep 0.5; uwsm app -- elephant &";
           aws-switch="bmc profsel";
           boostmic="pactl set-source-volume 2 190%";
           micfix="wpctl set-volume @DEFAULT_SOURCE@ 1.05 && echo 'Sandberg microfoon volume hersteld naar 1.05'";
