@@ -4,7 +4,7 @@ self: super: {
     cargoDeps = super.rustPlatform.fetchCargoVendor {
       inherit (old) pname version;
       src = /home/wtoorren/data/git/torreirow/wayle;
-      hash = "sha256-ZvwScjQ+MgVFmIYCSbOjmjh128FomUaIq3cl4hV2s54=";
+      hash = "sha256-NlziU9xphdl5c0tYGvoMTB7bM4YpOCjrTYlTGciCpr0=";
     };
   });
 }

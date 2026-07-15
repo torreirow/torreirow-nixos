@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Wayle clipboard dropdown**: Clipboard history icoon in de wayle-bar rechtsboven, naast planify. Klikken opent een native GTK4 dropdown met alle entries van `cliphist`. Klik op een entry → gekopieerd naar clipboard en dropdown sluit. Vervangt niet de `Ctrl+Super+C` fuzzel picker — beide bestaan naast elkaar.
+  - Nieuw Rust/Relm4 component in de wayle fork (`crates/wayle-shell/src/shell/bar/dropdowns/clipboard/`)
+  - Entries worden geladen via `cliphist list` op popover open-event (geen polling)
+  - Selectie via `cliphist decode | wl-copy` zonder shell-escaping problemen
+  - `edit-copy-symbolic` icoon in de bar layout
 - **Hyprland font scaling**: X11/XWayland apps tonen nu dezelfde tekstgrootte als Wayland apps via `Xft.dpi = 120` (96 × monitor scale 1.25). Daarnaast zijn er drie keybindings voor runtime tekstgrootte-aanpassing via `gsettings text-scaling-factor` met visuele feedback:
   - `Super+Ctrl+Shift+=` — tekst groter (+0.1, max 2.0)
   - `Super+Ctrl+Shift+-` — tekst kleiner (-0.1, min 0.8)

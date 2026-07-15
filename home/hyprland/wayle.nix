@@ -3,6 +3,15 @@
 let
   solidtime-waybar-pkg = solidtime-waybar-input.packages.${pkgs.system}.default;
 
+  planify-badge = pkgs.writeShellScript "planify-badge" ''
+    db="$HOME/.local/share/io.github.alainm23.planify/database.db"
+    count=$(${pkgs.sqlite}/bin/sqlite3 "$db" \
+      "SELECT COUNT(*) FROM Items JOIN Projects ON Items.project_id = Projects.id \
+       WHERE Items.checked=0 AND Items.is_deleted=0 \
+       AND Projects.name='TN-ToDO' AND Projects.is_deleted=0;" 2>/dev/null)
+    printf '{"text":"%s"}' "''${count:-0}"
+  '';
+
   solidtime-timer = pkgs.writeShellScript "solidtime-timer" ''
     output=$(SOLIDTIME_BASE_URL="https://solidtime.tools.technative.cloud" \
       SOLIDTIME_CACHE_TTL="10" \
@@ -130,7 +139,7 @@ in
     monitor = "*"
     left = ["dashboard", "hyprland-workspaces", "window-title"]
     center = ["custom-solidtime", "clock", "weather"]
-    right = ["media", "volume", "battery", "notifications", "systray"]
+    right = ["custom-clipboard", "custom-planify", "media", "volume", "battery", "notifications", "systray"]
 
     [modules.dashboard]
     dropdown-lock-command = "loginctl lock-session"
@@ -178,10 +187,35 @@ in
     [osd]
     monitor = "focussed"
 
+    [modules.planify]
+    project = "TN-ToDO"
+
+    [[modules.custom]]
+    id = "clipboard"
+    interval-ms = 0
+    mode = "poll"
+    format = ""
+    label-show = false
+    icon-show = true
+    icon-name = "edit-copy-symbolic"
+    left-click = "dropdown:clipboard"
+
+    [[modules.custom]]
+    id = "planify"
+    interval-ms = 60000
+    mode = "poll"
+    command = "${planify-badge}"
+    format = "{{ text }}"
+    label-show = true
+    icon-show = true
+    icon-name = "checkbox-checked-symbolic"
+    left-click = "dropdown:planify"
+    right-click = "uwsm app -- io.github.alainm23.planify"
+
     [[modules.custom]]
     id = "solidtime"
     command = "${solidtime-timer}"
-    interval-ms = 1000
+    interval-ms = 10000
     mode = "poll"
     format = "{{ text }}"
     tooltip-format = "{{ tooltip }}"

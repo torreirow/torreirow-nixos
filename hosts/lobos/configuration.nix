@@ -90,6 +90,8 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   networking.firewall.allowedUDPPorts = [ 111 2049 5353 ]; # Spotify Connect
   networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
 
+
+
   ## Security
   security.auditd.enable = true;
   security.apparmor.enable = false;
@@ -333,6 +335,12 @@ security.pam.services.greetd.enableGnomeKeyring = true;
   };
 
   age.secrets.secret1.file = ../../secrets/secret1.age;
+  age.secrets.ssh-hosts-customer-prod = {
+    file = ../../secrets/ssh-hosts-customer-prod.json.age;
+    path = "/run/secrets/ssh-hosts-customer-prod";
+    owner = "wtoorren";
+    mode = "0400";
+  };
   age.secretsDir = "/run/keys/wouter";
   users.users.user1 = {
     isNormalUser = true;

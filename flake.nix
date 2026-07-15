@@ -232,12 +232,7 @@
         # Specify your home configuration modules here, for example,
         # the path to your home.nix.
         modules = [
-         #./home/default.nix
-         ./home/zsh.nix
-         ./home/vim.nix
-         ./home/tmux.nix
-         ./home/linux-desktop.nix
-         ./home/firefox.nix
+         ./home/linux-root.nix
          nixvim.homeModules.default
          linux-defaults
        ];

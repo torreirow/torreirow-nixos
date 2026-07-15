@@ -39,7 +39,7 @@ let
     shortcuts=$(cat <<'SHORTCUTS'
     ─── Applicaties ──────────────────────────────────────────
     SUPER + Enter              Terminal
-    SUPER + E                  Bestandsbeheer (Nautilus)
+    SUPER + E                  Bestandsbeheer (Cosmic Files)
     SUPER + B                  Browser
     SUPER + SPACE              App launcher (walker)
     ─── Vensters ─────────────────────────────────────────────
@@ -82,7 +82,8 @@ let
     SUPER+CTRL+SHIFT + 0       Tekst reset (1.0×)
     ─── Diversen ─────────────────────────────────────────────
     SUPER+SHIFT + K            Sneltoetsen (dit scherm)
-    CTRL+SUPER + V             Klembord (clipse)
+    CTRL+SUPER + C             Klembord history (fuzzel picker)
+    CTRL+SUPER + V             Klembord TUI (clipse)
     CTRL+SUPER + N             Netwerk (nmtui)
     ALT + Tab                  Vensterlijst (walker)
     SHORTCUTS
@@ -97,7 +98,7 @@ in
   wayland.windowManager.hyprland.settings = {
     bind = [
       "SUPER, Return, exec, $terminal"
-      "SUPER, E, exec, uwsm app -- nautilus --new-window"
+      "SUPER, E, exec, uwsm app -- cosmic-files"
       "SUPER, B, exec, $browser"
 
       "SUPER, SPACE, exec, uwsm app -- walker"
@@ -173,6 +174,7 @@ in
 
       "SUPER, PRINT, exec, hyprpicker -a"
 
+      "CTRL SUPER, C, exec, cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"
       "CTRL SUPER, V, exec, alacritty --title clipse -e clipse"
       "CTRL SUPER, N, exec, alacritty --title nmtui -e nmtui"
 
