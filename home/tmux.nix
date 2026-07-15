@@ -1,6 +1,29 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
+  # rbw profiel → label mapping; voeg hier extra profielen toe
+  rbwProfiles = {
+    "technative" = "TN";
+  };
+  rbwDefaultLabel = "WT";
+
+  rbwCaseBody = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (profile: label: "    ${profile}) label=\"${label}\" ;;") rbwProfiles
+  );
+
+  rbwStatus = pkgs.writeShellScript "rbw-status" ''
+    profile="''${RBW_PROFILE:-$(cat "$HOME/.config/rbw/active-profile" 2>/dev/null)}"
+    case "$profile" in
+    ${rbwCaseBody}
+      *) label="${rbwDefaultLabel}" ;;
+    esac
+    if RBW_PROFILE="$profile" rbw unlocked 2>/dev/null; then
+      echo "🔓$label"
+    else
+      echo "🔒$label"
+    fi
+  '';
+
   beans-tui-popup = pkgs.writeShellScriptBin "beans-tui-popup" ''
     find_project() {
       d="$PWD"
@@ -73,7 +96,7 @@ in
     extraConfig = ''
       ##### Basis #####
       # Update SSH variabelen in tmux environment
-      set-option -g update-environment "SSH_CLIENT SSH_TTY SSH_CONNECTION WAYLAND_DISPLAY XDG_RUNTIME_DIR DISPLAY"
+      set-option -g update-environment "SSH_CLIENT SSH_TTY SSH_CONNECTION WAYLAND_DISPLAY XDG_RUNTIME_DIR DISPLAY RBW_PROFILE"
 
       # Gebruik C-b voor SSH sessies, C-a voor lokaal
       if-shell '[ -n "$SSH_CONNECTION" ]' \
@@ -118,7 +141,7 @@ in
       set -g window-status-separator ""
 
       set -g status-left "#[fg=#282828,bg=#8ec07c] #S #[bg=#282828] "
-      set -g status-right "#[fg=#a89984,bg=#282828] %Y-%m-%d  %H:%M #[fg=#3c3836,bg=#282828]#[fg=#ebdbb2,bg=#3c3836] #(if $RBW_PROFILE == "technative"; then rbwtxt="TN"; else rbwtxt="WT";fi; if rbw unlocked; then echo '🔓 unlocked $rbwtxt'; else echo '🔒 locked $rbwtxt'; fi) #[fg=#504945,bg=#3c3836]#[fg=#ebdbb2,bg=#504945] #h #[fg=#fe8019,bg=#504945]#[fg=#282828,bg=#fe8019] ⌨ #{prefix} "
+      set -g status-right "#[fg=#a89984,bg=#282828] %Y-%m-%d  %H:%M #[fg=#3c3836,bg=#282828]#[fg=#ebdbb2,bg=#3c3836] #(${rbwStatus}) #[fg=#504945,bg=#3c3836]#[fg=#ebdbb2,bg=#504945] #h #[fg=#fe8019,bg=#504945]#[fg=#282828,bg=#fe8019] ⌨ #{prefix} "
 
       ##### Resurrect & Continuum #####
       # Herstel vim/nvim sessies
