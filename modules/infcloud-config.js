@@ -332,7 +332,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 // port, ... (client installed into Davical "htdocs" subdirectory;
 // works "out of the box", no additional setup required):
 var globalNetworkCheckSettings={
-	href: 'https://contacts.toorren.net/dav.php/',
+	href: 'https://contacts.toorren.net/dav.php/principals/',
 	timeOut: 90000,
 	lockTimeOut: 10000,
 	checkContentType: true,
