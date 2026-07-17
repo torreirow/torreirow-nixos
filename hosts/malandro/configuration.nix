@@ -48,6 +48,7 @@
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
  ../../modules/bookstack.nix
+ ../../modules/jitsi.nix
  ../../modules/docker-registry-mirror.nix
  ../../modules/formrelay.nix
  ./malandro-secrets.nix
@@ -340,6 +341,7 @@ environment.variables.EDITOR = "vim";
 
 nixpkgs.config.permittedInsecurePackages = [
     "qtwebkit-5.212.0-alpha"
+    "jitsi-meet-1.0.8792"
   ];
 
 
