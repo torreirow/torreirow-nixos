@@ -8,6 +8,11 @@
     ports = [
       "127.0.0.1:8082:80"
     ];
+
+    # Override config.js: hardcode Baikal dav.php URL instead of auto-detected caldav.php
+    volumes = [
+      "${./infcloud-config.js}:/usr/share/nginx/infcloud/config.js:ro"
+    ];
   };
 
   virtualisation.oci-containers.containers.baikal = {
