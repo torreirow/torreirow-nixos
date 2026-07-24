@@ -49,8 +49,10 @@
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
  ../../modules/bookstack.nix
+ ../../modules/jitsi.nix
  ../../modules/mmdl.nix
  ../../modules/docker-registry-mirror.nix
+ ../../modules/formrelay.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
@@ -350,6 +352,7 @@ environment.variables.EDITOR = "vim";
 
 nixpkgs.config.permittedInsecurePackages = [
     "qtwebkit-5.212.0-alpha"
+    "jitsi-meet-1.0.8792"
   ];
 
 
@@ -441,6 +444,33 @@ services.xscreensaver = {
 #    ];
 #    privateKey = "cCvDSo/JY5M76qalXJ/KIk9A13Z4wSv8+b1rxv+OEXc=";
 #  };
+
+services.formrelay = {
+  enable = true;
+  forms = {
+    # Genereer nieuwe tokens met: openssl rand -hex 16
+    "VERVANG_MET_TOKEN_WERELDVANBEGRIP" = {
+      name = "Wereldvanbegrip";
+      to = "info@wereldvanbegrip.nl";
+      allowedOrigins = [ "https://wereldvanbegrip.nl" ];
+    };
+    "VERVANG_MET_TOKEN_BOAZ" = {
+      name = "Boaz Toorren";
+      to = "boaz@toorren.net";
+      allowedOrigins = [ "https://boaz.toorren.net" ];
+    };
+    "VERVANG_MET_TOKEN_NORALY" = {
+      name = "Noraly Toorren";
+      to = "noraly@toorren.net";
+      allowedOrigins = [ "https://noraly.toorren.net" ];
+    };
+    "VERVANG_MET_TOKEN_JOLIJN" = {
+      name = "CV Jolijn";
+      to = "jolijn@toorren.net";
+      allowedOrigins = [ "https://cv-jolijn.toorren.net" ];
+    };
+  };
+};
 
 services.authelia.users = [
   {

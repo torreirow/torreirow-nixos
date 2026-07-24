@@ -2,6 +2,8 @@ final: prev:
 
 
 {
+  spotify-tray-wayland = prev.callPackage ../pkgs/spotify-tray-wayland { };
+
   inherit (import ./rbw.nix final prev) rbw;
   inherit (import ./ssmsh.nix final prev) ssmsh;
 
@@ -119,31 +121,6 @@ cooklang = prev.appimageTools.wrapType2 {
 #    patches = [];
 #  }
 #);
-
-bambu-studio = prev.appimageTools.wrapType2 {
-  pname = "bambu-studio";
-  version = "v02.04.00.70";
-
-  src = prev.fetchurl {
-    url = "https://github.com/bambulab/BambuStudio/releases/download/v02.04.00.70/Bambu_Studio_ubuntu-22.04_PR-8834.AppImage";
-    sha256 = "sha256-/xcVD3YPuAr8mNmEGxNMC62kiX1qrzaAi1F6S+0sEbA=";
-  };
-
-  extraPkgs = pkgs: with pkgs; [
-    zlib
-    glib
-    gtk3
-    libglvnd
-    mesa
-    libxkbcommon
-    libx11
-    libxext
-    libxi
-    libxtst
-    libxrender
-  ];
-};
-
 
 }
 
