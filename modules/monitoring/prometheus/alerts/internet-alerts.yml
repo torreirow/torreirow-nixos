@@ -1,101 +1,42 @@
 groups:
   - name: Internet Connectivity
     rules:
-      # Alert: Download speed kritiek laag
-      - alert: InternetDownloadSpeedCritical
-        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} < 80
+      # Alert: Internet onbruikbaar — huisgenoten gaan klagen
+      # Vereist 2 opeenvolgende slechte metingen (~60 min) om ruis te filteren
+      - alert: InternetKapot
+        expr: min_over_time(homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"}[65m]) < 25
         for: 5m
         labels:
           severity: critical
           component: internet
           service: speedtest
         annotations:
-          summary: "Download snelheid kritiek laag"
-          description: "Download snelheid is {{ $value | humanize }} Mbps (onder 80 Mbps threshold). Normaal verwacht: >140 Mbps (glasvezel 200)."
+          summary: "Internet onbruikbaar (< 25 Mbit/s download)"
+          description: "Download snelheid is al ~60 min onder 25 Mbit/s (nu {{ $value | humanize }} Mbit/s). Glasvezel 200 contract."
 
-      # Alert: Download speed laag
-      - alert: InternetDownloadSpeedLow
-        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} < 140 and homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} >= 80
-        for: 15m
+      # Alert: Internet significant onder contract — bewijs voor ISP-klacht
+      - alert: InternetMatig
+        expr: min_over_time(homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"}[65m]) < 80
+        for: 5m
         labels:
           severity: warning
           component: internet
           service: speedtest
         annotations:
-          summary: "Download snelheid ondermaats"
-          description: "Download snelheid is {{ $value | humanize }} Mbps (onder 140 Mbps optimaal). Normaal verwacht: >140 Mbps (glasvezel 200)."
+          summary: "Internet significant onder contract (< 80 Mbit/s download)"
+          description: "Download snelheid is al ~60 min onder 80 Mbit/s (nu {{ $value | humanize }} Mbit/s, < 40% van 200 Mbit/s contract)."
 
-      # Alert: Upload speed kritiek laag
-      - alert: InternetUploadSpeedCritical
-        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} < 8
+      # Alert: Upload onbruikbaar — videobellen/Teams onmogelijk
+      - alert: UploadKapot
+        expr: min_over_time(homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"}[65m]) < 10
         for: 5m
         labels:
           severity: critical
           component: internet
           service: speedtest
         annotations:
-          summary: "Upload snelheid kritiek laag"
-          description: "Upload snelheid is {{ $value | humanize }} Mbps (onder 8 Mbps threshold). Normaal verwacht: >15 Mbps (glasvezel 200)."
-
-      # Alert: Upload speed laag
-      - alert: InternetUploadSpeedLow
-        expr: homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} < 15 and homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} >= 8
-        for: 15m
-        labels:
-          severity: warning
-          component: internet
-          service: speedtest
-        annotations:
-          summary: "Upload snelheid ondermaats"
-          description: "Upload snelheid is {{ $value | humanize }} Mbps (onder 15 Mbps optimaal). Normaal verwacht: >15 Mbps (glasvezel 200)."
-
-      # Alert: Hoge latency
-      - alert: InternetLatencyHigh
-        expr: homeassistant_sensor_duration_ms{entity="sensor.speedtest_ping"} > 50
-        for: 10m
-        labels:
-          severity: warning
-          component: internet
-          service: speedtest
-        annotations:
-          summary: "Hoge internet latency"
-          description: "Ping latency is {{ $value | humanize }} ms (boven 50ms threshold). Optimaal: <15ms."
-
-      # Alert: Zeer hoge latency
-      - alert: InternetLatencyCritical
-        expr: homeassistant_sensor_duration_ms{entity="sensor.speedtest_ping"} > 100
-        for: 5m
-        labels:
-          severity: critical
-          component: internet
-          service: speedtest
-        annotations:
-          summary: "Zeer hoge internet latency"
-          description: "Ping latency is {{ $value | humanize }} ms (boven 100ms critical threshold)."
-
-      # Alert: Speed degradation - download
-      - alert: InternetDownloadDegradation
-        expr: (homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"} / avg_over_time(homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"}[7d])) * 100 < 70
-        for: 30m
-        labels:
-          severity: warning
-          component: internet
-          service: speedtest
-        annotations:
-          summary: "Download snelheid gedegradeerd t.o.v. gemiddelde"
-          description: "Download snelheid is {{ $value | humanize }}% van 7-dagen gemiddelde (onder 70% threshold). Mogelijk netwerk probleem."
-
-      # Alert: Speed degradation - upload
-      - alert: InternetUploadDegradation
-        expr: (homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"} / avg_over_time(homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"}[7d])) * 100 < 70
-        for: 30m
-        labels:
-          severity: warning
-          component: internet
-          service: speedtest
-        annotations:
-          summary: "Upload snelheid gedegradeerd t.o.v. gemiddelde"
-          description: "Upload snelheid is {{ $value | humanize }}% van 7-dagen gemiddelde (onder 70% threshold). Mogelijk netwerk probleem."
+          summary: "Upload onbruikbaar (< 10 Mbit/s)"
+          description: "Upload snelheid is al ~60 min onder 10 Mbit/s (nu {{ $value | humanize }} Mbit/s). Videobellen niet mogelijk."
 
       # Alert: Speedtest niet recent uitgevoerd
       - alert: SpeedtestStale

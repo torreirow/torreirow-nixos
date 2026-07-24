@@ -6,10 +6,16 @@
 {
   # ===== GNOME Desktop Environment =====
   services.xserver.enable = true;
-  services.displayManager.sddm.enable = false;
-  services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
-  services.displayManager.defaultSession = "gnome";
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --sessions /run/current-system/sw/share/wayland-sessions --xsessions /run/current-system/sw/share/xsessions";
+        user = "greeter";
+      };
+    };
+  };
   services.gnome.gnome-settings-daemon.enable = true;
   services.gnome.gnome-keyring.enable = true;  # Voor VPN/WiFi secrets (NetworkManager)
   programs.xwayland.enable = true;

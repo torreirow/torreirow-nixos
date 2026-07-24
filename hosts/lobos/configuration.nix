@@ -9,6 +9,7 @@
     ./fonts.nix
     ./python.nix
     ./gnome-wayland.nix
+    ./hyprland.nix
     ./sudo-nopasswd.nix  # Comment deze regel om sudo password weer aan te zetten
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix
@@ -89,6 +90,8 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   networking.firewall.allowedUDPPorts = [ 111 2049 5353 ]; # Spotify Connect
   networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
 
+
+
   ## Security
   security.auditd.enable = true;
   security.apparmor.enable = false;
@@ -105,7 +108,7 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.powerOnBoot = true;
-#  services.blueman.enable = true;
+  services.blueman.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
@@ -135,7 +138,7 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
     LC_ALL = "";
     LC_ADDRESS = "nl_NL.UTF-8";
     LC_IDENTIFICATION = "nl_NL.UTF-8";
-    LC_MEASUREMENT = "nl.UTF-8";
+    LC_MEASUREMENT = "nl_NL.UTF-8";
     LC_MONETARY = "nl_NL.UTF-8";
     LC_NAME = "nl_NL.UTF-8";
     LC_NUMERIC = "nl_NL.UTF-8";
@@ -283,7 +286,7 @@ environment.variables.EDITOR = "vim";
   services.gnome.gnome-keyring.enable = true;
 programs.seahorse.enable = true;
 security.pam.services.login.enableGnomeKeyring = true;
-#security.pam.services.sddm.enableGnomeKeyring = false;  # niet nodig, je gebruikt GDM
+security.pam.services.greetd.enableGnomeKeyring = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -326,8 +329,18 @@ security.pam.services.login.enableGnomeKeyring = true;
     enable = true;
   };
 
+  programs.evolution = {
+    enable = true;
+    plugins = [ pkgs.evolution-ews ];
+  };
 
   age.secrets.secret1.file = ../../secrets/secret1.age;
+  age.secrets.ssh-hosts-customer-prod = {
+    file = ../../secrets/ssh-hosts-customer-prod.json.age;
+    path = "/run/secrets/ssh-hosts-customer-prod";
+    owner = "wtoorren";
+    mode = "0400";
+  };
   age.secretsDir = "/run/keys/wouter";
   users.users.user1 = {
     isNormalUser = true;

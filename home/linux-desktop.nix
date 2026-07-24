@@ -25,4 +25,19 @@
 #
 #};
 
+systemd.user.services.evolution-alarm-notify = {
+  Unit = {
+    Description = "Event and Task Reminders";
+    PartOf = [ "graphical-session.target" ];
+    After = [ "graphical-session.target" ];
+  };
+  Service = {
+    Type = "dbus";
+    BusName = "org.gnome.Evolution-alarm-notify";
+    ExecStart = "${pkgs.evolution-data-server}/libexec/evolution-data-server/evolution-alarm-notify";
+    Restart = "on-failure";
+  };
+  Install.WantedBy = [ "graphical-session.target" ];
+};
+
 }

@@ -22,11 +22,25 @@ let
 
   # Combine all SQL statements
   sqlStatements = ''
-    -- Create or update Radio Streams playlist
-    INSERT OR IGNORE INTO playlists (name, ui_order, is_favorite) VALUES ('Radio Streams', 0, 1);
+    -- Remove duplicate Radio Streams playlists, keep only the lowest ROWID
+    DELETE FROM playlist_items WHERE playlist IN (
+      SELECT ROWID FROM playlists WHERE name = 'Radio Streams'
+        AND ROWID != (SELECT MIN(ROWID) FROM playlists WHERE name = 'Radio Streams')
+    );
+    DELETE FROM playlists WHERE name = 'Radio Streams'
+      AND ROWID != (SELECT MIN(ROWID) FROM playlists WHERE name = 'Radio Streams');
 
-    -- Clear existing items from Radio Streams playlist
-    DELETE FROM playlist_items WHERE playlist = (SELECT ROWID FROM playlists WHERE name = 'Radio Streams' LIMIT 1);
+    -- Create playlist if it doesn't exist yet
+    INSERT INTO playlists (name, ui_order, is_favorite)
+      SELECT 'Radio Streams', 0, 1 WHERE NOT EXISTS (
+        SELECT 1 FROM playlists WHERE name = 'Radio Streams'
+      );
+
+    -- Ensure it is marked as favorite
+    UPDATE playlists SET is_favorite=1, ui_order=0 WHERE name = 'Radio Streams';
+
+    -- Clear existing items and re-insert
+    DELETE FROM playlist_items WHERE playlist = (SELECT MIN(ROWID) FROM playlists WHERE name = 'Radio Streams');
 
     -- Insert radio streams
   '' + lib.concatImapStrings generatePlaylistItemSQL radioStreams;

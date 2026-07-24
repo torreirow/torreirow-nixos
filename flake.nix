@@ -10,7 +10,10 @@
     teejay.url = "github:mipmip/teejay";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     bmc.url = "github:wearetechnative/bmc";
-    nixvim.url = "github:caspersonn/nixvim";
+    nixvim = {
+      url = "path:/home/wtoorren/data/git/torreirow/nixvim";
+      inputs.nixpkgs.follows = "unstable";
+    };
     #bmc.url = "github:wearetechnative/bmc?rev=3cfa158a5a622df59686537c68b256ecb4bff74c";
     race.url = "github:wearetechnative/race";
     brigit.url = "github:wearetechnative/brigit";
@@ -21,6 +24,12 @@
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
     rme.url = "github:mipmip/rme";
+    solidtime-waybar.url = "github:torreirow/solidtime-waybar";
+    hyprquickframe = {
+      url = "path:/home/wtoorren/data/git/torreirow/HyprQuickFrame";
+      inputs.nixpkgs.follows = "unstable";
+    };
+    walker.url = "github:abenz1267/walker";
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -34,13 +43,12 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker, solidtime-waybar, hyprquickframe}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
       environment.systemPackages = [
         bmc.packages."${system}".bmc
-        nixvim.packages."${system}".default
         dirty-repo-scanner.packages."${system}".dirty-repo-scanner
         race.packages."${system}".race
         brigit.packages."${system}".brigit
@@ -224,12 +232,8 @@
         # Specify your home configuration modules here, for example,
         # the path to your home.nix.
         modules = [
-         #./home/default.nix
-         ./home/zsh.nix
-         ./home/vim.nix
-         ./home/tmux.nix
-         ./home/linux-desktop.nix
-         ./home/firefox.nix
+         ./home/linux-root.nix
+         nixvim.homeModules.default
          linux-defaults
        ];
 
@@ -281,7 +285,7 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [(import ./overlays) (import ./overlays/cooklang.nix)];
+        overlays = [(import ./overlays) (import ./overlays/cooklang.nix) (import ./overlays/wayle.nix)];
       };
 
       linux-defaults = {pkgs,config,homeage,...}: {
@@ -304,11 +308,16 @@
          ./home/module/ssh-config_hosts
          ./home/sshkeys.nix
          ./home/module/opencode.nix
+         ./home/hyprland/default.nix
+         nixvim.homeModules.default
          linux-defaults
        ];
 
        extraSpecialArgs = {
           unstable = import unstable { inherit system; config.allowUnfree = true; };
+          walker-input = walker;
+          solidtime-waybar-input = solidtime-waybar;
+          hyprquickframe-input = hyprquickframe;
        };
 
         # Optionally use extraSpecialArgs
@@ -338,6 +347,7 @@
         modules = [
          #./home/default.nix
          ./home/linux-server.nix
+         nixvim.homeModules.default
          linux-defaults
        ];
        extraSpecialArgs = {
