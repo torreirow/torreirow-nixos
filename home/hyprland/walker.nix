@@ -5,8 +5,8 @@
 
   programs.elephant = {
     enable = true;
-    debug = true;
-    installService = false;
+    debug = false;
+    installService = true;
     providers = [
       "desktopapplications"
       "calc"
