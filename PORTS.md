@@ -17,6 +17,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | 8088 | Signal CLI | 127.0.0.1 | Docker | Signal messenger API for notifications |
 | 8089 | Documenso | 127.0.0.1 | Docker | Open source document signing platform |
 | 8090 | DocSeal | 127.0.0.1 | Docker | Open source document signing platform (docseal.toorren.net) |
+| 8091 | MMDL | 127.0.0.1 | Docker | Manage My Damn Life (mmdl.toorren.net) |
 | 8092 | InvoicePlane | 127.0.0.1 | Docker | Open source invoicing platform (invoices.wereldvanbegrip.nl) |
 | 8094 | formrelay | 127.0.0.1 | Native | Form-to-email relay met hCaptcha (forms.toorren.net) |
 | 8093 | Vikunja | 127.0.0.1 | Native | Todo/task management app (tasks.toorren.net) |

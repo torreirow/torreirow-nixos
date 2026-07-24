@@ -18,6 +18,9 @@
         auth_request /authelia;
         error_page 401 = @authelia_portal;
 
+        auth_request_set $user $upstream_http_remote_user;
+        proxy_set_header X-WEBAUTH-USER $user;
+
         proxy_http_version 1.1;
         proxy_set_header Connection "";
 
