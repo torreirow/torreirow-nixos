@@ -30,6 +30,8 @@
       image = "koenkk/zigbee2mqtt:latest";
       environment = {
         TZ = "Europe/Amsterdam";
+        # Voorkom OOM crash: beperk Node.js heap tot 512 MB
+        NODE_OPTIONS = "--max-old-space-size=512";
       };
       volumes = [
         "/var/lib/zigbee2mqtt:/app/data"
@@ -75,6 +77,24 @@
     source = ./templates/stookwijzer.yaml;
   };
 
+
+  # Reset Zigbee USB coordinator voor Z2M start — voorkomt SRSP-SYS ping timeout na crash
+  systemd.services.zigbee-usb-reset = {
+    description = "Reset Zigbee USB coordinator";
+    before = [ "docker-zigbee2mqtt.service" ];
+    wantedBy = [ "docker-zigbee2mqtt.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "zigbee-usb-reset" ''
+        USB_PATH=$(find /sys/bus/usb/devices -name idVendor -exec grep -l "10c4" {} \; | head -1 | xargs dirname | xargs basename 2>/dev/null || echo "")
+        if [ -n "$USB_PATH" ]; then
+          echo "$USB_PATH" > /sys/bus/usb/drivers/usb/unbind || true
+          sleep 2
+          echo "$USB_PATH" > /sys/bus/usb/drivers/usb/bind || true
+        fi
+      '';
+    };
+  };
 
   # Copy config to the right location
   system.activationScripts.zigbee2mqttConfig = ''
