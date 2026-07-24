@@ -1,9 +1,10 @@
 { config, pkgs, ... }:
 
 {
-  # Create stable /dev/zigbee symlink for Sonoff Zigbee USB dongle
+  # Create stable symlinks for USB serial adapters
   services.udev.extraRules = ''
     SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", SYMLINK+="zigbee"
+    SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="AQ78GLG6", SYMLINK+="dsmr"
   '';
 
   virtualisation.oci-containers = {
@@ -21,8 +22,8 @@
         # Bluetooth permissions for full hardware access
         "--cap-add=NET_ADMIN"
         "--cap-add=NET_RAW"
-        # DSMR P1 Smart Meter (FTDI USB serial)
-        "--device=/dev/ttyUSB0:/dev/ttyUSB0"
+        # DSMR P1 Smart Meter (FTDI USB serial, stable symlink)
+        "--device=/dev/dsmr:/dev/dsmr"
       ];
     };
 
@@ -105,9 +106,14 @@
   '';
 
   # Copy Home Assistant templates
+  environment.etc."homeassistant/templates/airco.yaml" = {
+    source = ./templates/airco.yaml;
+  };
+
   system.activationScripts.homeassistantTemplates = ''
     mkdir -p /var/lib/homeassistant/templates
     cp /etc/homeassistant/templates/stookwijzer.yaml /var/lib/homeassistant/templates/stookwijzer.yaml
+    cp /etc/homeassistant/templates/airco.yaml /var/lib/homeassistant/templates/airco.yaml
     chown -R root:root /var/lib/homeassistant/templates
     chmod -R 644 /var/lib/homeassistant/templates/*.yaml
   '';
