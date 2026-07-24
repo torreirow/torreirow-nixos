@@ -66,6 +66,7 @@ in {
       serviceConfig = {
         Type = "simple";
         DynamicUser = true;
+        SupplementaryGroups = [ "keys" ];
         ExecStart = "${formrelayPkg}/bin/formrelay --config=${configFile} --hcaptcha-secret-file=/run/secrets/hcaptcha-secret";
         Restart = "on-failure";
         RestartSec = "5s";
