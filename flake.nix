@@ -23,6 +23,7 @@
     parsh.url = "github:torreirow/parsh";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
+    rbw.url = "github:torreirow/rbw";
     rme.url = "github:mipmip/rme";
     solidtime-waybar.url = "github:torreirow/solidtime-waybar";
     hyprquickframe = {
@@ -43,7 +44,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker, solidtime-waybar, hyprquickframe}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker, solidtime-waybar, hyprquickframe, rbw}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -74,6 +75,7 @@
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
           nixpkgs.overlays = [
+            (final: prev: { rbw = inputs.rbw.packages.${system}.rbw; })
             (import ./overlays)
             (import ./overlays/cooklang.nix)
             (final: prev:
@@ -140,6 +142,7 @@
         system = "x86_64-linux";
         defaults = { pkgs, ... }: {
           nixpkgs.overlays = [
+            (final: prev: { rbw = inputs.rbw.packages.${system}.rbw; })
             (import ./overlays)
             (final: prev:
               let
@@ -285,7 +288,7 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [(import ./overlays) (import ./overlays/cooklang.nix) (import ./overlays/wayle.nix)];
+        overlays = [(final: prev: { rbw = inputs.rbw.packages.${system}.rbw; }) (import ./overlays) (import ./overlays/cooklang.nix) (import ./overlays/wayle.nix)];
       };
 
       linux-defaults = {pkgs,config,homeage,...}: {
