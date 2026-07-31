@@ -1,8 +1,6 @@
-{ pkgs, solidtime-waybar-input, ... }:
+{ pkgs, ... }:
 
 let
-  solidtime-waybar-pkg = solidtime-waybar-input.packages.${pkgs.system}.default;
-
   planify-badge = pkgs.writeShellScript "planify-badge" ''
     db="$HOME/.local/share/io.github.alainm23.planify/database.db"
     count=$(${pkgs.sqlite}/bin/sqlite3 "$db" \
@@ -10,13 +8,6 @@ let
        WHERE Items.checked=0 AND Items.is_deleted=0 \
        AND Projects.name='TN-ToDO' AND Projects.is_deleted=0;" 2>/dev/null)
     printf '{"text":"%s"}' "''${count:-0}"
-  '';
-
-  solidtime-timer = pkgs.writeShellScript "solidtime-timer" ''
-    output=$(SOLIDTIME_BASE_URL="https://solidtime.tools.technative.cloud" \
-      SOLIDTIME_CACHE_TTL="10" \
-      ${solidtime-waybar-pkg}/bin/solidtime-waybar)
-    printf '%s' "$output" | ${pkgs.jq}/bin/jq -c 'if .text == "" then .text = "⏱ stopped" else . end'
   '';
 
   monitor-router = pkgs.writeShellScript "wayle-monitor-router" ''
@@ -74,6 +65,9 @@ in
 
 {
   home.packages = [ pkgs.wayle ];
+
+  xdg.dataFile."icons/hicolor/scalable/apps/solidtime-symbolic.svg".source =
+    ../../home/icons/solidtime-symbolic.svg;
 
   systemd.user.services.wayle = {
     Unit = {
@@ -138,7 +132,7 @@ in
     [[bar.layout]]
     monitor = "*"
     left = ["dashboard", "hyprland-workspaces", "window-title"]
-    center = ["custom-solidtime", "clock", "weather"]
+    center = ["solidtime", "clock", "weather"]
     right = ["custom-clipboard", "custom-planify", "media", "volume", "battery", "notifications", "systray"]
 
     [modules.dashboard]
@@ -187,6 +181,9 @@ in
     [osd]
     monitor = "focussed"
 
+    [modules.solidtime]
+    icon-name = "solidtime-symbolic"
+
     [modules.planify]
     project = "TN-ToDO"
 
@@ -212,15 +209,5 @@ in
     left-click = "dropdown:planify"
     right-click = "uwsm app -- io.github.alainm23.planify"
 
-    [[modules.custom]]
-    id = "solidtime"
-    command = "${solidtime-timer}"
-    interval-ms = 10000
-    mode = "poll"
-    format = "{{ text }}"
-    tooltip-format = "{{ tooltip }}"
-    label-show = true
-    icon-show = false
-    left-click = "solidtime-desktop"
   '';
 }
