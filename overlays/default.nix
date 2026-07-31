@@ -4,7 +4,6 @@ final: prev:
 {
   spotify-tray-wayland = prev.callPackage ../pkgs/spotify-tray-wayland { };
 
-  inherit (import ./rbw.nix final prev) rbw;
   inherit (import ./ssmsh.nix final prev) ssmsh;
 
   gnomeExtensions = prev.gnomeExtensions // {

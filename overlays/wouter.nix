@@ -1,6 +1,4 @@
 final: prev: {
-  inherit (import ./rbw.nix final prev) rbw;
-
   quarto = prev.quarto.override {
     extraRPackages = [ prev.rPackages.reticulate ];
     extraPythonPackages = ps: with ps; [
