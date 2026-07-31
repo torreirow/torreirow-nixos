@@ -7,11 +7,28 @@
   # ===== GNOME Desktop Environment =====
   services.xserver.enable = true;
   services.desktopManager.gnome.enable = true;
+  # Stabiele session file voor Hyprland+UWSM: gebruikt /run/current-system/sw/bin/uwsm
+  # (altijd symlink naar huidige versie) i.p.v. een nix store hash die na updates stale wordt.
+  # tuigreet --remember-session slaat het Exec= commando op; met een stabiel pad werkt dit
+  # ook na nixpkgs updates zonder handmatige tussenkomst.
+  environment.etc."wayland-sessions/hyprland-uwsm-stable.desktop" = {
+    mode = "0644";
+    text = ''
+      [Desktop Entry]
+      Name=Hyprland (UWSM)
+      Comment=An intelligent dynamic tiling Wayland compositor
+      Exec=/run/current-system/sw/bin/uwsm start -e -D Hyprland hyprland.desktop
+      TryExec=/run/current-system/sw/bin/uwsm
+      DesktopNames=Hyprland
+      Type=Application
+    '';
+  };
+
   services.greetd = {
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --sessions /run/current-system/sw/share/wayland-sessions --xsessions /run/current-system/sw/share/xsessions";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --sessions /etc/wayland-sessions:/run/current-system/sw/share/wayland-sessions --xsessions /run/current-system/sw/share/xsessions";
         user = "greeter";
       };
     };
