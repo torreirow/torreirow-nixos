@@ -51,7 +51,7 @@ in
   "bookstack-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "grafana-secret-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "ha-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-
+  "soltty.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   "authelia-jwt-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];  
   "authelia-session-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
