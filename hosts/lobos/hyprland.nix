@@ -3,6 +3,7 @@
 {
   programs.hyprland.enable = true;
   programs.hyprland.xwayland.enable = true;
+  programs.hyprland.withUWSM = true;
 
   # UWSM beheert de Hyprland sessie via systemd; units moeten beschikbaar zijn in /etc/systemd/user/
   systemd.packages = [ pkgs.uwsm ];
