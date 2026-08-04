@@ -26,11 +26,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1782210507,
-        "narHash": "sha256-uEwdI68UeVm4qKbsAqVXLG91Q/7it4UKKh4Z+tKXI4U=",
+        "lastModified": 1785832655,
+        "narHash": "sha256-NlpdWOBdu53Ue5w58aFshah930Q9+DfYsJWQ+ZnRbrI=",
         "owner": "wearetechnative",
         "repo": "bmc",
-        "rev": "749ceb390559d4bb32131729b33ad4ed6d550e84",
+        "rev": "e10309e3e7cfe7070f569a6d6db669b168668860",
         "type": "github"
       },
       "original": {
@@ -663,7 +663,7 @@
       },
       "locked": {
         "lastModified": 1775829658,
-        "narHash": "sha256-p2cog9uxjJ8kvJQekzzODWfUrOPqO75gbyAv2qVF6b0=",
+        "narHash": "sha256-+YAUBBbCf+rW2nsk6YwjdGFR77B1F79YH7XsybBEeDU=",
         "owner": "torreirow",
         "repo": "parsh",
         "rev": "7bc0f2a50e9db3825670c72b41d38c69b3cb623c",
