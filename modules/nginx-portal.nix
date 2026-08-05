@@ -1,6 +1,21 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 
 {
+  services.phpfpm.pools.portal = {
+    user = "nginx";
+    group = "nginx";
+
+    phpPackage = pkgs.php83;
+
+    settings = {
+      "listen.owner" = "nginx";
+      "listen.group" = "nginx";
+      "pm" = "ondemand";
+      "pm.max_children" = 5;
+      "pm.process_idle_timeout" = "10s";
+    };
+  };
+
   services.nginx.virtualHosts."toorren.net" = {
     forceSSL = true;
     useACMEHost = "toorren.net";
@@ -8,6 +23,14 @@
 
     locations."/" = {
       tryFiles = "$uri $uri/ =404";
+    };
+
+    locations."~ \\.php$" = {
+      extraConfig = ''
+        fastcgi_pass unix:${config.services.phpfpm.pools.portal.socket};
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include ${pkgs.nginx}/conf/fastcgi_params;
+      '';
     };
 
     locations."/errors/" = {
@@ -20,7 +43,7 @@
     };
 
     extraConfig = ''
-      index index.html;
+      index index.php index.html;
     '';
   };
 
