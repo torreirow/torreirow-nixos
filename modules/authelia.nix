@@ -24,20 +24,18 @@
       owner = "authelia-main";
       group = "authelia-main";
     };
-    # OIDC secrets - alleen nodig als je OIDC identity provider gebruikt
-    # Uitgecommentarieerd omdat OIDC niet actief is
-    # authelia-oidc-hmac-secret = {
-    #   file = ../secrets/authelia-oidc-hmac-secret.age;
-    #   mode = "0440";
-    #   owner = "authelia-main";
-    #   group = "authelia-main";
-    # };
-    # authelia-oidc-issuer-private-key = {
-    #   file = ../secrets/authelia-oidc-issuer-private-key.age;
-    #   mode = "0440";
-    #   owner = "authelia-main";
-    #   group = "authelia-main";
-    # };
+    authelia-oidc-hmac-secret = {
+      file = ../secrets/authelia-oidc-hmac-secret.age;
+      mode = "0440";
+      owner = "authelia-main";
+      group = "authelia-main";
+    };
+    authelia-oidc-issuer-private-key = {
+      file = ../secrets/authelia-oidc-issuer-private-key.age;
+      mode = "0440";
+      owner = "authelia-main";
+      group = "authelia-main";
+    };
   };
 
   # Zorg dat de authelia-main groep en user bestaan voordat secrets worden aangemaakt
@@ -62,9 +60,8 @@
     secrets = {
       jwtSecretFile = config.age.secrets.authelia-jwt-secret.path;
       storageEncryptionKeyFile = config.age.secrets.authelia-storage-encryption-key.path;
-      # OIDC secrets - alleen nodig als je OIDC identity provider configureert
-      # oidcHmacSecretFile = config.age.secrets.authelia-oidc-hmac-secret.path;
-      # oidcIssuerPrivateKeyFile = config.age.secrets.authelia-oidc-issuer-private-key.path;
+      oidcHmacSecretFile = config.age.secrets.authelia-oidc-hmac-secret.path;
+      oidcIssuerPrivateKeyFile = config.age.secrets.authelia-oidc-issuer-private-key.path;
       # Session secret moet ook als plain text file
       sessionSecretFile = config.age.secrets.authelia-session-secret.path;
     };
@@ -248,30 +245,31 @@
         };
       };
 
-      # Optioneel: OIDC configuratie voor SSO
-      # identity_providers = {
-      #   oidc = {
-      #     cors = {
-      #       endpoints = ["authorization" "token" "revocation" "introspection"];
-      #       allowed_origins_from_client_redirect_uris = true;
-      #     };
-      #     clients = [
-      #       {
-      #         id = "example-app";
-      #         description = "Example Application";
-      #         secret = "$argon2id$v=19$m=65536,t=3,p=4$..."; # Genereer met: authelia crypto hash generate argon2
-      #         public = false;
-      #         authorization_policy = "two_factor";
-      #         redirect_uris = [ "https://app.toorren.net/callback" ];
-      #         scopes = [ "openid" "profile" "email" "groups" ];
-      #         grant_types = [ "refresh_token" "authorization_code" ];
-      #         response_types = [ "code" ];
-      #         response_modes = [ "form_post" "query" "fragment" ];
-      #         userinfo_signing_algorithm = "none";
-      #       }
-      #     ];
-      #   };
-      # };
+      identity_providers = {
+        oidc = {
+          cors = {
+            endpoints = [ "authorization" "token" "revocation" "introspection" ];
+            allowed_origins_from_client_redirect_uris = true;
+          };
+          clients = [
+            {
+              client_id = "wallos";
+              client_name = "Wallos";
+              # Genereer hash met: authelia crypto hash generate argon2 --password '<jouw-secret>'
+              # Vervang onderstaande placeholder na het genereren
+              client_secret = "$argon2id$v=19$m=65536,t=3,p=4$NGtfEGJ3Ji6O8XBgPIonJQ$DuiJZdWGDta2YnoutWl00NV6Yt2wScOlXdzJ4Np8Kf4";
+              public = false;
+              authorization_policy = "two_factor";
+              redirect_uris = [ "https://subscriptions.toorren.net/index.php" ];
+              scopes = [ "openid" "profile" "email" ];
+              grant_types = [ "refresh_token" "authorization_code" ];
+              response_types = [ "code" ];
+              response_modes = [ "form_post" "query" "fragment" ];
+              userinfo_signed_response_alg = "none";
+            }
+          ];
+        };
+      };
     };
   };
 
