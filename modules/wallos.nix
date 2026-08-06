@@ -26,10 +26,12 @@
       OIDC_USER_IDENTIFIER = "sub";
       OIDC_DISABLE_PASSWORD_LOGIN = "true";
       OIDC_AUTO_CREATE_USER = "true";
+      SSRF_ALLOWLIST = "host.docker.internal";
     };
     volumes = [
       "/data/external/wallos/db:/var/www/html/db"
       "/data/external/wallos/logos:/var/www/html/images/uploads/logos"
+      "/data/external/wallos/nginx-default.conf:/etc/nginx/http.d/default.conf:ro"
     ];
     ports = [
       "127.0.0.1:8095:80"
