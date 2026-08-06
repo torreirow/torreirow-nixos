@@ -262,10 +262,14 @@
               authorization_policy = "two_factor";
               redirect_uris = [ "https://subscriptions.toorren.net/index.php" ];
               scopes = [ "openid" "profile" "email" ];
-              grant_types = [ "refresh_token" "authorization_code" ];
+              grant_types = [ "authorization_code" ];
               response_types = [ "code" ];
               response_modes = [ "form_post" "query" "fragment" ];
+              token_endpoint_auth_method = "client_secret_post";
               userinfo_signed_response_alg = "none";
+              # Onthoud toestemming één maand (M = maand, m = minuut) i.p.v. bij elke login vragen
+              consent_mode = "pre-configured";
+              pre_configured_consent_duration = "1M";
             }
           ];
         };

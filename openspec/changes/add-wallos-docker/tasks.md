@@ -2,9 +2,9 @@
 
 - [x] 1.1 Genereer Authelia OIDC HMAC secret: `openssl rand -hex 32` → sla op in `secrets/authelia-oidc-hmac-secret.age` via `agenix edit`
 - [x] 1.2 Genereer Authelia OIDC issuer private key: `openssl genrsa 4096` → sla op in `secrets/authelia-oidc-issuer-private-key.age` via `agenix edit`
-- [ ] 1.3 Kies een Wallos OIDC client secret (willekeurige string) en genereer de argon2id hash: `authelia crypto hash generate argon2 --password '<secret>'` — noteer beide
-- [ ] 1.4 Maak `secrets/wallos-env.age` aan via `agenix edit` met: `DB_DRIVER=mysql`, `DB_HOST=host.docker.internal`, `DB_PORT=3306`, `DB_NAME=wallos`, `DB_USER=wallos`, `DB_PASSWORD=<kies>`, `OIDC_CLIENT_SECRET=<plain-secret uit 1.3>`, `TZ=Europe/Amsterdam`
-- [ ] 1.5 Voeg alle drie nieuwe secrets toe aan `secrets/secrets.nix` (of equivalent) zodat ze encryptbaar zijn voor de juiste SSH keys
+- [x] 1.3 Kies een Wallos OIDC client secret (willekeurige string) en genereer de argon2id hash: `authelia crypto hash generate argon2 --password '<secret>'` — noteer beide
+- [x] 1.4 Maak `secrets/wallos-env.age` aan via `agenix edit` met: `DB_DRIVER=mysql`, `DB_HOST=host.docker.internal`, `DB_PORT=3306`, `DB_NAME=wallos`, `DB_USER=wallos`, `DB_PASSWORD=<kies>`, `OIDC_CLIENT_SECRET=<plain-secret uit 1.3>`, `TZ=Europe/Amsterdam`
+- [x] 1.5 Voeg alle drie nieuwe secrets toe aan `secrets/secrets.nix` (of equivalent) zodat ze encryptbaar zijn voor de juiste SSH keys
 
 ## 2. MariaDB uitbreiden (modules/mariadb.nix of wallos.nix)
 
@@ -16,7 +16,7 @@
 - [x] 3.1 Uncommenteer de `authelia-oidc-hmac-secret` en `authelia-oidc-issuer-private-key` secrets in `age.secrets`
 - [x] 3.2 Uncommenteer en activeer de `oidcHmacSecretFile` en `oidcIssuerPrivateKeyFile` in `services.authelia.instances.main.secrets`
 - [x] 3.3 Uncommenteer en configureer de `identity_providers.oidc` sectie met `cors` settings
-- [ ] 3.4 Voeg de Wallos OIDC client toe: `id = "wallos"`, `secret = "<argon2id-hash uit 1.3>"`, `redirect_uris = ["https://subscriptions.toorren.net/index.php"]`, `scopes = ["openid" "email" "profile"]`, `authorization_policy = "two_factor"`
+- [x] 3.4 Voeg de Wallos OIDC client toe: `id = "wallos"`, `secret = "<argon2id-hash uit 1.3>"`, `redirect_uris = ["https://subscriptions.toorren.net/index.php"]`, `scopes = ["openid" "email" "profile"]`, `authorization_policy = "two_factor"`
 
 ## 4. Wallos module aanmaken (modules/wallos.nix)
 
@@ -34,9 +34,15 @@
 
 ## 6. Deployen en testen
 
-- [ ] 6.1 Voer `sudo nixos-rebuild switch --flake .#malandro` uit
-- [ ] 6.2 Controleer of de wallos container draait: `sudo docker ps | grep wallos`
-- [ ] 6.3 Controleer MariaDB bereikbaar van Docker: `sudo docker exec wallos mysql -h host.docker.internal -u wallos -p wallos -e "SELECT 1;"`
-- [ ] 6.4 Controleer Authelia OIDC endpoint: `curl https://auth.toorren.net/.well-known/openid-configuration`
-- [ ] 6.5 Test login flow: open https://subscriptions.toorren.net → verwacht redirect naar Authelia → na login terugkeer naar Wallos
-- [ ] 6.6 Voltooi de Wallos setup wizard (currency instellen, eerste abonnement toevoegen)
+- [x] 6.1 Voer `sudo nixos-rebuild switch --flake .#malandro` uit
+- [x] 6.2 Controleer of de wallos container draait: `sudo docker ps | grep wallos`
+- [x] 6.3 Controleer MariaDB bereikbaar van Docker: `sudo docker exec wallos mysql -h host.docker.internal -u wallos -p wallos -e "SELECT 1;"`
+- [x] 6.4 Controleer Authelia OIDC endpoint: `curl https://auth.toorren.net/.well-known/openid-configuration`
+- [x] 6.5 Test login flow: open https://subscriptions.toorren.net → verwacht redirect naar Authelia → na login terugkeer naar Wallos
+- [x] 6.6 Voltooi de Wallos setup wizard (currency instellen, eerste abonnement toevoegen)
+
+## 7. Consent-scherm periodiek onthouden (modules/authelia.nix)
+
+- [x] 7.1 Voeg `consent_mode = "pre-configured";` en `pre_configured_consent_duration = "1M";` toe aan de `wallos` OIDC client (let op: `M` = maand, `m` = minuut)
+- [x] 7.2 Voer `sudo nixos-rebuild switch --flake .#malandro` uit
+- [x] 7.3 Test: eerste login toont toestemmingsscherm, tweede login binnen de maand niet meer

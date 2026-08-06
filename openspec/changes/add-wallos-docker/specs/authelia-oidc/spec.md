@@ -26,6 +26,21 @@ Authelia SHALL een OIDC client bevatten met id `wallos`, met de Wallos redirect 
 - **WHEN** Wallos inlogt met scopes `openid email profile`
 - **THEN** geeft Authelia een token terug met de aangevraagde claims
 
+### Requirement: Wallos consent wordt periodiek onthouden
+De Wallos OIDC client SHALL `consent_mode = "pre-configured"` gebruiken met `pre_configured_consent_duration = "1M"`, zodat het Authelia toestemmingsscherm niet bij elke login verschijnt maar de gegeven toestemming één maand wordt onthouden.
+
+#### Scenario: Eerste login binnen de periode
+- **WHEN** de gebruiker voor het eerst (of na afloop van de periode) inlogt bij Wallos
+- **THEN** toont Authelia het toestemmingsscherm en slaat de toestemming op voor één maand
+
+#### Scenario: Vervolglogins binnen de periode
+- **WHEN** de gebruiker binnen een maand na de eerste toestemming opnieuw inlogt
+- **THEN** wordt de toestemming automatisch verleend en verschijnt het toestemmingsscherm niet
+
+#### Scenario: Toestemming verloopt
+- **WHEN** meer dan een maand is verstreken sinds de laatste toestemming
+- **THEN** toont Authelia het toestemmingsscherm opnieuw en vernieuwt de opgeslagen toestemming
+
 ### Requirement: OIDC client secret veilig opgeslagen
 De plain-text client secret voor Wallos SHALL opgeslagen worden in `secrets/wallos-env.age`. De bijbehorende argon2id hash SHALL inline staan in de Authelia Nix configuratie (hash is niet geheim).
 
