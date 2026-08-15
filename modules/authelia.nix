@@ -130,7 +130,7 @@
 
           # KPN Modem - bypass voor lokale netwerken, 2FA voor externe toegang
           {
-            domain = "edge.toorren.net";
+            domain = "kpn.toorren.net";
             policy = "bypass";
             networks = [
               "192.168.0.0/16"
@@ -140,7 +140,7 @@
             ];
           }
           {
-            domain = "edge.toorren.net";
+            domain = "kpn.toorren.net";
             policy = "two_factor";
             subject = [ "group:users" ];
           }
