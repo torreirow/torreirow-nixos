@@ -134,6 +134,12 @@
 
   };
 
+  # IPv6 uitgeschakeld: malandro heeft geen werkende IPv6 (geen route/adres,
+  # accept_ra=0) maar het systeem loste wel AAAA-records op en probeerde IPv6,
+  # waardoor cloud-integraties (Tuya MQTT-push mqe.tuyaeu.com, SmartThings) op
+  # dode IPv6-verbindingen bleven hangen. Alles forceren op IPv4.
+  networking.enableIPv6 = false;
+
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
