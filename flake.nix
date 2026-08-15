@@ -11,7 +11,7 @@
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     bmc.url = "github:wearetechnative/bmc";
     nixvim = {
-      url = "path:/home/wtoorren/data/git/torreirow/nixvim";
+      url = "git+ssh://git@github.com/torreirow/nixvim";
       inputs.nixpkgs.follows = "unstable";
     };
     #bmc.url = "github:wearetechnative/bmc?rev=3cfa158a5a622df59686537c68b256ecb4bff74c";
