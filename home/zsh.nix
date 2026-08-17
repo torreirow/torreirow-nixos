@@ -106,6 +106,7 @@
           #tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
           #tfplan="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
           aider="/run/keys/wouter/aider";
+          view="vi -R";
           walker-reset="pkill -9 elephant; sleep 0.5; uwsm app -- elephant &";
           aws-switch="bmc profsel";
           boostmic="pactl set-source-volume 2 190%";
