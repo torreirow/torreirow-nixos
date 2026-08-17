@@ -1,0 +1,26 @@
+groups:
+  - name: Wifi SSID Monitoring
+    rules:
+      # Generiek: waaiert automatisch uit per ssid-label. Een SSID toevoegen aan
+      # services.wifi-ssid-monitor.watchSSIDs vereist geen wijziging aan deze regel.
+      - alert: WifiSSIDWeg
+        expr: wifi_ssid_visible == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: wifi
+        annotations:
+          summary: "SSID {{ $labels.ssid }} al 5 minuten niet zichtbaar"
+          description: "De gevolgde SSID {{ $labels.ssid }} is al ~5 min niet meer gezien bij de wifi-scan op {{ $labels.instance }}. Accesspoint mogelijk uit of buiten bereik."
+
+      # Detecteert een kapotte scanner (nmcli hangt, wifi-kaart weg): dan wordt
+      # de timestamp niet meer bijgewerkt en leest Prometheus stilzwijgend oude data.
+      - alert: WifiScanStale
+        expr: (time() - wifi_scan_last_success_timestamp_seconds) > 300
+        for: 5m
+        labels:
+          severity: critical
+          component: wifi
+        annotations:
+          summary: "Wifi-scan draait niet meer op {{ $labels.instance }}"
+          description: "De wifi-scan heeft al {{ $value | humanizeDuration }} geen geslaagde update geschreven. Controleer de wifi-ssid-scan service."
