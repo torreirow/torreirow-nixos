@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!--
+    Solidtime "S" symbolic icon — traced from solidtime.io branding.
+    Single-color, uses currentColor so GTK can tint it as a symbolic icon.
+  -->
+  <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+    d="
+      M 11 4.5
+      C 11 3.1 9.7 2 8 2
+      C 6.3 2 5 3.1 5 4.5
+      C 5 6.5 7 7.2 8 7.5
+      C 9 7.8 11 8.8 11 11
+      C 11 12.7 9.7 14 8 14
+      C 6.3 14 5 12.7 5 11
+    "/>
+</svg>
