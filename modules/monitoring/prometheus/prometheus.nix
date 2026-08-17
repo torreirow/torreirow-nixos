@@ -48,6 +48,7 @@
       ./alerts/tuya-alerts.yml
       ./alerts/device-tracker-alerts.yml
       ./alerts/atag-alerts.yml
+      ./alerts/wifi-alerts.yml
     ];
   };
 
