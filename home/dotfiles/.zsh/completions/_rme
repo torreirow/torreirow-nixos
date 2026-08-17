@@ -1,0 +1,7 @@
+#compdef rme
+# rme zsh completion
+_rme() {
+    compadd $(rme --completions)
+}
+compdef _rme rme
+
