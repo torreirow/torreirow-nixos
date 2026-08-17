@@ -40,6 +40,9 @@ in
       mydestination = ""; # Lege string = geen lokale delivery
       local_recipient_maps = ""; # Disable lokale recipient checks
 
+      # Vertrouw lokale Docker container subnets voor relay
+      mynetworks = [ "127.0.0.0/8" "[::1]/128" "172.17.0.0/16" "172.18.0.0/16" "172.19.0.0/16" ];
+
 
       # AWS SES relay configuratie (host:port formaat met brackets voor SASL)
       relayhost = ["[${relayHost}]:587"]; # Brackets matchen SASL password map formaat

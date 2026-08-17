@@ -1,6 +1,10 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-05-29
+**Laatst bijgewerkt:** 2026-08-06
+
+## Contextbestanden (lees on-demand)
+
+- **Vragen over USB dongle, Zigbee dongle, DSMR adapter, `/dev/zigbee`, `/dev/dsmr` of ttyUSB-poorten die verwisselen** → lees `docs/usb-dongles.md`
 
 ## Huidige Status
 

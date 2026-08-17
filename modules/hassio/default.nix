@@ -33,6 +33,8 @@
         TZ = "Europe/Amsterdam";
         # Voorkom OOM crash: beperk Node.js heap tot 512 MB
         NODE_OPTIONS = "--max-old-space-size=512";
+        # Schakel fout-pagina op poort 8080 uit (Vaultwarden zit op 8080)
+        Z2M_ONBOARD_NO_FAILURE_PAGE = "1";
       };
       volumes = [
         "/var/lib/zigbee2mqtt:/app/data"
@@ -67,6 +69,7 @@
         port: 8086
       advanced:
         log_level: info
+        channel: 25
         network_key: GENERATE
         pan_id: GENERATE
         ext_pan_id: GENERATE
@@ -79,19 +82,29 @@
   };
 
 
-  # Reset Zigbee USB coordinator voor Z2M start — voorkomt SRSP-SYS ping timeout na crash
+  # Reset Zigbee USB coordinator bij BOOT — voorkomt SRSP-SYS ping timeout na crash
+  # Draait eenmalig bij opstarten (niet bij elke Z2M herstart), want herhaaldelijk
+  # resetten veroorzaakt juist commissioning timeouts door timing problemen.
   systemd.services.zigbee-usb-reset = {
     description = "Reset Zigbee USB coordinator";
     before = [ "docker-zigbee2mqtt.service" ];
-    wantedBy = [ "docker-zigbee2mqtt.service" ];
+    wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
+      RemainAfterExit = true;
       ExecStart = pkgs.writeShellScript "zigbee-usb-reset" ''
-        USB_PATH=$(find /sys/bus/usb/devices -name idVendor -exec grep -l "10c4" {} \; | head -1 | xargs dirname | xargs basename 2>/dev/null || echo "")
+        USB_PATH=""
+        for f in /sys/bus/usb/devices/*/idVendor; do
+          if grep -q "10c4" "$f" 2>/dev/null; then
+            USB_PATH=$(basename "$(dirname "$f")")
+            break
+          fi
+        done
         if [ -n "$USB_PATH" ]; then
           echo "$USB_PATH" > /sys/bus/usb/drivers/usb/unbind || true
           sleep 2
           echo "$USB_PATH" > /sys/bus/usb/drivers/usb/bind || true
+          sleep 3
         fi
       '';
     };
