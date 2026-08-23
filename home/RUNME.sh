@@ -67,7 +67,8 @@ up_home(){
     echo "Unrise first (hmrice unrice), then run again"
   else
     check_untracked
-    home-manager switch -b $(date --iso-8601=minutes) --impure --flake .\#$USER@$(hostname)
+    if [[ $HOSTNAME == "lobos" ]]; then hmhost="linuxdesktop"; else hmhost="linuxserver"; fi
+    home-manager switch --flake .#wtoorren@$hmhost --extra-experimental-features nix-command -b backup-$(date +%s) --impure
   fi
 
   # Only sync if home-manager succeeded
