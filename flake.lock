@@ -537,11 +537,11 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1784707089,
-        "narHash": "sha256-2V/6imsUgB7mPZlHY54oeVBRDoZbPKnvzwkAHUSSufk=",
+        "lastModified": 1786943417,
+        "narHash": "sha256-b4qgjdFtlz5TAZ1Hi7DFJeqX3sjaDUnrwr9OO+O1rM0=",
         "owner": "NixOs",
         "repo": "nixpkgs",
-        "rev": "b3fe9581c9061c749abef42b6d4ee7b7c05c33fa",
+        "rev": "0dd31db7e6dbf9ce05697c4545f6fe01accec994",
         "type": "github"
       },
       "original": {
@@ -609,8 +609,8 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1784033200,
-        "narHash": "sha256-3F+lg6UY9/ECZ+oV95TFcWIc2Ll2czsY8dYx8vgJN64=",
+        "lastModified": 1787496999,
+        "narHash": "sha256-QVEphCoOfUoHHhuNRJjqL5gYrJWj3Rm28CjcNKoHnSk=",
         "path": "/home/wtoorren/data/git/torreirow/nixvim",
         "type": "path"
       },
@@ -663,7 +663,7 @@
       },
       "locked": {
         "lastModified": 1775829658,
-        "narHash": "sha256-+YAUBBbCf+rW2nsk6YwjdGFR77B1F79YH7XsybBEeDU=",
+        "narHash": "sha256-p2cog9uxjJ8kvJQekzzODWfUrOPqO75gbyAv2qVF6b0=",
         "owner": "torreirow",
         "repo": "parsh",
         "rev": "7bc0f2a50e9db3825670c72b41d38c69b3cb623c",
