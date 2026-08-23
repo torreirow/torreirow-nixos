@@ -8,7 +8,7 @@ programs.ssh = {
 environment.systemPackages = with pkgs; [
     planify
     wineWow64Packages.stable
-    masterpdfeditor
+    #    masterpdfeditor
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
@@ -30,7 +30,7 @@ environment.systemPackages = with pkgs; [
     osv-scanner
     desktop-file-utils
     dstp
-    android-tools   # voor adb
+    android-tools   # adb (uaccess-regels via systemd 258, geen programs.adb meer nodig)
     perl
     karere
     #bluez

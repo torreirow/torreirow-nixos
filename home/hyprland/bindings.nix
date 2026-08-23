@@ -39,7 +39,7 @@ let
     shortcuts=$(cat <<'SHORTCUTS'
     ─── Applicaties ──────────────────────────────────────────
     SUPER + Enter              Terminal
-    SUPER + E                  Bestandsbeheer (Cosmic Files)
+    SUPER + E                  Bestandsbeheer (Nautilus)
     SUPER + B                  Browser
     SUPER + SPACE              App launcher (walker)
     ─── Vensters ─────────────────────────────────────────────
@@ -98,7 +98,7 @@ in
   wayland.windowManager.hyprland.settings = {
     bind = [
       "SUPER, Return, exec, $terminal"
-      "SUPER, E, exec, uwsm app -- cosmic-files"
+      "SUPER, E, exec, uwsm app -- nautilus"
       "SUPER, B, exec, $browser"
 
       "SUPER, SPACE, exec, uwsm app -- walker"
