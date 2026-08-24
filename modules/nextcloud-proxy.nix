@@ -23,14 +23,6 @@
         # Nodig voor Nextcloud notificaties en Talk
         proxyWebsockets = true;
         extraConfig = ''
-          # X-Forwarded-Proto is NIET optioneel: zonder dit genereert Nextcloud
-          # http://-links en breekt de boel achter de TLS-terminatie.
-          proxy_set_header Host              $host;
-          proxy_set_header X-Real-IP         $remote_addr;
-          proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Host  $host;
-          proxy_set_header X-Forwarded-Proto https;
-
           # Lange timeouts zodat grote uploads niet sneuvelen
           proxy_read_timeout    3600s;
           proxy_send_timeout    3600s;
