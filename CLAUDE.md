@@ -1,12 +1,41 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-08-23
+**Laatst bijgewerkt:** 2026-08-24
 
 ## Contextbestanden (lees on-demand)
 
 - **Vragen over USB dongle, Zigbee dongle, DSMR adapter, `/dev/zigbee`, `/dev/dsmr` of ttyUSB-poorten die verwisselen** → lees `docs/usb-dongles.md`
 
 ## Huidige Status
+
+### Sessie 2026-08-24 - Geurhal (WC) ir_detector-automation + timer restore - OPGELOST
+
+**Vraag:** Bestaat er een automation die de geurhal aanzet als de "ir_detector" afgaat?
+
+**Antwoord: ja, de keten bestaat al.** De "ir_detector" is het **WCsensor** PIR-bewegingssensor
+(model "Motion sensor"; de `sensor.pir_voltage` / `sensor.pir_linkquality` entities horen bij dat
+device). Geen entity heet letterlijk `ir_detector`.
+
+**HA-opzet geurhal (WC):**
+- PIR/trigger: **WCsensor** → `binary_sensor.wcsensor_occupancy` (type `occupied`)
+- Plug: **Tuya Smart Plug** `switch.kerstoom3hoek_stopcontact_1` (naam "Geurhalwc", device `bfbc2e57cddcfdd03dvncw`, area hal)
+- Timer: `timer.geurhaltimer` (UI-helper in `.storage/timer`, duur 1u)
+- Automations in `/var/lib/homeassistant/automations.yaml`:
+  - `1732536224233` "WC geur aan" → occupancy on → plug aan + `timer.geurhaltimer` start
+  - `1732536276607` "WC geur uit" → `timer.finished` → plug uit
+
+**Wijziging doorgevoerd:** `timer.geurhaltimer` → `restore: false` → **`restore: true`** in
+`.storage/timer` (zelfde les als bij `timer.afzuiging`: met `false` sprong de timer bij HA-herstart
+stil naar idle zonder de geurhal uit te zetten). HA (container `docker-homeassistant.service`)
+herstart → waarde ingelezen en na herstart geverifieerd bewaard gebleven.
+Backup: `.storage/timer.bak-claude-20260824-163206`.
+
+**Let op:** de plug is een Tuya-apparaat. Per sessie 2026-08-23 was de Tuya-integratie kapot sinds
+17 aug; user gaf aan dat Tuya het weer zou doen. Als de geurhal niet reageert terwijl de automation
+wél vuurt → check eerst de Tuya-koppeling (zelfde oorzaak als bij de afzuiging).
+
+**Status:** ✅ `restore: true` live; automation-keten compleet mits Tuya werkt.
+
 
 ### Sessie 2026-08-23 - Afzuiging gaat wel aan maar niet uit - DEELS OPGELOST
 
