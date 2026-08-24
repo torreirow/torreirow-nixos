@@ -28,6 +28,13 @@
     "port": 22
   },
   {
+    "host": "github.com",
+    "hostname": "github.com",
+    "user": "git",
+    "identity_file": "~/.ssh/technative_rsa",
+    "port": 22
+  },
+  {
     "host": "192.168.1.*",
     "user": "admin",
     "identity_file": "technative_rsa",
