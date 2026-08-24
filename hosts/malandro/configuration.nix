@@ -10,7 +10,6 @@
     ./python.nix
     ../../modules/mariadb.nix
    #./gnome.nix
- #../../modules/onlyoffice.nix
  ../../modules/acme.nix
  ../../modules/authelia-users.nix
  ../../modules/authelia.nix

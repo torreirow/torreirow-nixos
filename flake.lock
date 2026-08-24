@@ -666,7 +666,7 @@
       },
       "locked": {
         "lastModified": 1775829658,
-        "narHash": "sha256-+YAUBBbCf+rW2nsk6YwjdGFR77B1F79YH7XsybBEeDU=",
+        "narHash": "sha256-p2cog9uxjJ8kvJQekzzODWfUrOPqO75gbyAv2qVF6b0=",
         "owner": "torreirow",
         "repo": "parsh",
         "rev": "7bc0f2a50e9db3825670c72b41d38c69b3cb623c",
