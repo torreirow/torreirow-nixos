@@ -70,6 +70,7 @@ All these services are accessible via HTTPS through Nginx reverse proxy with Aut
 - `docseal.toorren.net` → DocSeal (8090)
 - `invoices.wereldvanbegrip.nl` → InvoicePlane (8092) - **Note: Authelia protected**
 - `tasks.toorren.net` → Vikunja (8093) - **Note: Authelia protected**
+- `nxc.toorren.net` → Nextcloud (externe host `192.168.2.67:11000`, TLS termineert op malandro; WebSocket + 10G upload)
 - *(Add other domains as configured in nginx modules)*
 
 ## Notes
