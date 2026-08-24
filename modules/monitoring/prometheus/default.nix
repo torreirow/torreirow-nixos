@@ -9,6 +9,7 @@
     # ./alertmanager-slack.nix  # Uncomment om Slack notificaties in te schakelen
     ./exporters/blackbox.nix
     ./exporters/vulnix.nix
+    ./exporters/wifi-ssid.nix
   ];
 }
 
