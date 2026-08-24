@@ -8,6 +8,10 @@
     services.vulnix-exporter.port = 9109;
     services.vulnix-exporter.interval = "monthly";  # of "1M"
 
+    services.wifi-ssid-monitor.enable = true;
+    services.wifi-ssid-monitor.watchSSIDs = [ "Peperbus" ];
+    services.wifi-ssid-monitor.interval = "30s";
+
   services.nginx.virtualHosts."grafana.toorren.net" = {
     forceSSL = true;
     useACMEHost = "toorren.net";
