@@ -36,6 +36,7 @@
  ../../modules/nginx-wereldvanbegrip.nix
  ../../modules/nginx-wouter.nix
  ../../modules/nginx.nix
+ ../../modules/nextcloud-proxy.nix
  ../../modules/opsknight.nix
  ../../modules/paperless.nix
  # ../../modules/pihole.nix
