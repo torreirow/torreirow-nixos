@@ -1,12 +1,40 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-08-06
+**Laatst bijgewerkt:** 2026-08-23
 
 ## Contextbestanden (lees on-demand)
 
 - **Vragen over USB dongle, Zigbee dongle, DSMR adapter, `/dev/zigbee`, `/dev/dsmr` of ttyUSB-poorten die verwisselen** → lees `docs/usb-dongles.md`
 
 ## Huidige Status
+
+### Sessie 2026-08-23 - Afzuiging gaat wel aan maar niet uit - DEELS OPGELOST
+
+**Probleem:** Centrale afzuiging (keuken) ging wel aan maar niet meer automatisch uit. Knop (RODRET) deed het slecht.
+
+**HA-opzet afzuiging:**
+- Stekker: **Tuya Smart Plug** `switch.afzuiging_socket_1` (device `bf4193cbb9e7c8307efsqq`)
+- Knop: **IKEA RODRET** `afzuigingknop` via zigbee2mqtt (`0x5cc7c1fffe405825`)
+- Timer: `timer.afzuiging` (UI-helper in `.storage/timer`, duur 1u)
+- Automations in `/var/lib/homeassistant/automations.yaml`:
+  - `1771177871263` "Centrale afzuiging aan" → knop-on/switch-on → stekker aan + timer start
+  - `2024112501` "Centrale afzuiging uit" → `timer.finished` → stekker uit
+- Let op: entity-slugs misleidend — `automation.centrale_afzuiging_uit_2/_3/_4` zijn NIET allemaal afzuiging (uit_2 = de "aan"; uit_3/_4 = Geurzolder/Geurwerkkamer, oude slugs).
+
+**Hoofdoorzaak (nog handmatig op te lossen):**
+**Tuya-integratie kapot sinds 17 aug** — log toont `tuya_sharing ApiRequestException: sign invalid` en `API_QPS_LIMIT_OR_DEGRADE`. HA kan de Tuya-stekker niet meer betrouwbaar uitzetten of uitlezen (`binary_sensor.afzuiging_status` stond vast op `off` sinds 17 aug). Automations vuren correct, maar de `switch.turn_off` naar de Tuya-cloud mislukt → afzuiging blijft aan.
+
+**Handmatig te doen (kan niet vanuit CLI):**
+1. HA-UI → Instellingen → Apparaten & Diensten → **Tuya** → herconfigureren / opnieuw inloggen (tokens verlopen).
+2. **Dubbele Tuya-entry** opruimen (`tuya` + `tuya@toorren.net` — hou die met apparaten).
+3. RODRET-batterij vervangen (CR2032; stond op 10% / 1100 mV).
+
+**Config-verbeteringen (doorgevoerd + getest via HA-restart):**
+- Nieuwe automation `1771177871264` "Centrale afzuiging uit (knop)": OFF-knop → stekker uit + `timer.cancel`. (OFF-trigger weggehaald uit de "aan"-automation, die zette de afzuiging juist aan.)
+- `timer.afzuiging` → `restore: true` in `.storage/timer` (voorheen `false`: bij HA-herstart sprong de timer stil naar idle zonder de afzuiging uit te zetten).
+- Backups: `automations.yaml.bak-claude-20260823-212801`, `.storage/timer.bak-claude-20260823-212801`.
+
+**Status:** ⏳ Config-verbeteringen live; hele keten werkt pas weer als Tuya opnieuw is gekoppeld.
 
 ### Sessie 2026-05-29 - msmtp agenix secret pad - OPGELOST
 
