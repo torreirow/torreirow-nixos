@@ -1,6 +1,10 @@
 {config,pkgs,services,lib, ...}: 
 
 {
+  imports = [
+  ./module/claude.nix
+ ];
+
 
 programs.direnv = {
   enable = true;
