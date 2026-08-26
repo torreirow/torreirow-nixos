@@ -35,11 +35,8 @@
     locations."~ ^/(api|identity|two-factor|connectors)" = {
       proxyPass = "http://127.0.0.1:8080";
       extraConfig = ''
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
+        # Host/X-Real-IP/X-Forwarded-* worden al gezet door recommendedProxySettings.
+        # Ze hier opnieuw zetten stapelt op (RFC 7230) → dubbele Host-header → 400.
         proxy_buffering off;
         proxy_request_buffering off;
 
@@ -56,10 +53,7 @@
       extraConfig = ''
         limit_req zone=vwlogin burst=10 nodelay;
 
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        # Host/X-Real-IP/X-Forwarded-* al gezet door recommendedProxySettings.
 
         # Basic security headers only
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
@@ -75,10 +69,7 @@
         auth_request /authelia;
         error_page 401 = @authelia_portal;
 
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        # Host/X-Real-IP/X-Forwarded-* al gezet door recommendedProxySettings.
       '';
     };
 
@@ -107,11 +98,7 @@
       proxyWebsockets = true;
 
       extraConfig = ''
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
+        # Host/X-Real-IP/X-Forwarded-* al gezet door recommendedProxySettings.
         proxy_buffering off;
         proxy_request_buffering off;
 
