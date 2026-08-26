@@ -49,7 +49,7 @@
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
  ../../modules/bookstack.nix
- ../../modules/jitsi.nix
+ # ../../modules/jitsi.nix  # uitgeschakeld 2026-08-26: JVB claimde poort 8080 en verdrong vaultwarden
  ../../modules/mmdl.nix
  ../../modules/docker-registry-mirror.nix
  ../../modules/formrelay.nix
