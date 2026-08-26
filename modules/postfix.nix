@@ -41,7 +41,7 @@ in
       local_recipient_maps = ""; # Disable lokale recipient checks
 
       # Vertrouw lokale Docker container subnets voor relay
-      mynetworks = [ "127.0.0.0/8" "[::1]/128" "172.17.0.0/16" "172.18.0.0/16" "172.19.0.0/16" ];
+      mynetworks = [ "127.0.0.0/8" "[::1]/128" "172.17.0.0/16" "172.18.0.0/16" "172.19.0.0/16" "192.168.2.67/32" ];
 
 
       # AWS SES relay configuratie (host:port formaat met brackets voor SASL)
@@ -156,4 +156,12 @@ in
       "+${pkgs.bash}/bin/bash -c 'cp /run/agenix/postfix-sasl-password /etc/postfix/sasl_passwd && chown root:root /etc/postfix/sasl_passwd && chmod 0600 /etc/postfix/sasl_passwd && ${pkgs.postfix}/bin/postmap /etc/postfix/sasl_passwd && chown root:root /etc/postfix/sasl_passwd.db && chmod 0600 /etc/postfix/sasl_passwd.db'"
     ];
   };
+
+  # Sta SMTP-relay toe vanaf bobadela1 (Nextcloud AIO) - alleen die ene host
+  networking.firewall.extraCommands = ''
+    iptables -I nixos-fw 1 -p tcp -s 192.168.2.67 --dport 25 -j nixos-fw-accept
+  '';
+  networking.firewall.extraStopCommands = ''
+    iptables -D nixos-fw -p tcp -s 192.168.2.67 --dport 25 -j nixos-fw-accept || true
+  '';
 }
