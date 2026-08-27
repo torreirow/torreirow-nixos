@@ -1,6 +1,10 @@
 {config,pkgs,services,lib, ...}: 
 
 {
+  imports = [
+    ./module/codevibing/claude.nix
+  ];
+
 
 programs.direnv = {
   enable = true;
