@@ -1,12 +1,66 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-08-24
+**Laatst bijgewerkt:** 2026-08-26
 
 ## Contextbestanden (lees on-demand)
 
 - **Vragen over USB dongle, Zigbee dongle, DSMR adapter, `/dev/zigbee`, `/dev/dsmr` of ttyUSB-poorten die verwisselen** → lees `docs/usb-dongles.md`
 
 ## Huidige Status
+
+### Sessie 2026-08-26 - Aircraft-monitor tijdelijk uitzetten via /aircraft Telegram-commando - OPGELOST
+
+**Wens:** De Aircraft-Monitor-melding tijdelijk kunnen uitzetten. `/aircraft 120` → zet een timer op
+120 min en een helper aan; `/aircraft` zonder waarde → start de timer met zijn default-duur; als de
+timer afloopt gaat de helper weer uit. De Signal-melding wordt onderdrukt zolang de helper aan staat.
+
+**Opgezet (puur HA-runtime-config, leeft in `/var/lib/homeassistant`, niet in deze nixos-repo):**
+- **Helper** `input_boolean.disable_aircraft_monitor` (naam "Aircraft monitor uit") — UI-helper in `.storage/input_boolean`.
+- **Timer** `timer.aircraft_monitor` (naam "AircraftMonitorTimer", icon `mdi:airplane-off`, default
+  duur **2:00:00**, **`restore: true`**) — UI-helper in `.storage/timer`. `restore: true` is hier
+  cruciaal: met `false` springt de timer bij HA-herstart stil naar idle → `timer.finished` vuurt
+  nooit → helper blijft eeuwig aan → monitor blijft eeuwig uit (zelfde les als afzuiging/geurhal).
+- **Telegram Commando Handler** (`automations.yaml`, id `202411192011005`): drie nieuwe `choose`-branches
+  (alle `command == '/aircraft'`, **volgorde-afhankelijk** — `choose` pakt de eerste match):
+  - **`/aircraft status`** (args[0] == 'status', staat als eerste branch) → `notify.wouter` met een
+    Jinja-template (`>-` folded scalar). Begint met de **meldingsstatus op basis van de helper**
+    (`input_boolean.disable_aircraft_monitor` aan → "Meldingen: ONDERDRUKT", uit → "ACTIEF") — dat is
+    de daadwerkelijke suppress-schakelaar — gevolgd door de timerstand: active → eindtijd + resterend,
+    paused → resterend, idle → "Geen timer loopt" + default-duur. Moet vóór de min-branch staan,
+    anders crasht `'status' | int`.
+  - args aanwezig → `timer.start` met `duration: '{{ trigger.event.data.args[0] | int * 60 }}'` (min→sec),
+    helper aan, bevestiging via `notify.wouter`.
+  - args leeg → `timer.start` zonder `duration` (gebruikt HA-native de default-duur van de helper =
+    "de huidige waarde"), helper aan, bevestiging met `state_attr('timer.aircraft_monitor','duration')`.
+  - `/aircraft [min|status]` ook toegevoegd aan de `/start`-hulptekst (toont ACTIEF/UIT).
+- **Nieuwe automation** `1756072000002` "Aircraft monitor weer aan": trigger `timer.finished` op
+  `timer.aircraft_monitor` → `input_boolean.turn_off`.
+- **Bestaande** automation `1756072000001` "Vliegtuig nadert - Signal melding": extra conditie
+  `state input_boolean.disable_aircraft_monitor == 'off'` (integratie blijft pollen, alleen de melding stopt).
+
+**Belangrijke les — entity_id vs helper-`id`/`name`:**
+UI-helpers in `.storage` krijgen hun **entity_id afgeleid van de `name`** (niet van het `id`-veld)
+zodra HA ze de eerste keer registreert. Mijn `id: aircraft_monitor` + `name: AircraftMonitorTimer`
+leverde dus eerst `timer.aircraftmonitortimer` op (en `input_boolean.aircraft_monitor_uit`), terwijl
+de automations `timer.aircraft_monitor` / `input_boolean.disable_aircraft_monitor` verwachtten.
+Fix: in `.storage/core.entity_registry` het `entity_id`-veld van beide registry-entries (gematcht op
+`platform` + `unique_id`, waarbij `unique_id` = het helper-`id`) hernoemd naar de nette id's — precies
+wat een UI-rename doet. Friendly names bleven behouden. Achtergebleven `restore_state`-sleutels van de
+oude entity_id's zijn onschadelijke orphans; HA ruimt die vanzelf op.
+
+**Werkwijze `.storage` veilig bewerken:** HA **stoppen** (`sudo systemctl stop docker-homeassistant.service`),
+`.storage`-JSON bewerken, HA **starten** — anders overschrijft HA je edits bij afsluiten met zijn
+geheugenkopie. `automations.yaml` mag altijd bewerkt worden (reload/herstart pikt het op).
+
+**Backups:** `automations.yaml.bak-claude-20260826-135319`,
+`.storage/timer.bak-claude-20260826-135319`, `.storage/input_boolean.bak-claude-20260826-135319`,
+`.storage/core.entity_registry.bak-claude-20260826-144629`.
+
+**Geverifieerd na herstart:** `timer.aircraft_monitor` = idle/2:00:00/restore, `input_boolean.disable_aircraft_monitor`
+= off, alle drie automations `on`, geen configfouten (`hass --script check_config` schoon op de wijzigingen).
+
+**Status:** ✅ Live. Let op: de Signal-melding gaat naar `notify.signal_maria`; de commando-bevestiging
+naar `notify.wouter` (Telegram).
 
 ### Sessie 2026-08-24 - Geurhal (WC) ir_detector-automation + timer restore - OPGELOST
 
