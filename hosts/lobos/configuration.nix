@@ -17,7 +17,6 @@
     ./mail.nix
     ./midi.nix
 #   ../../modules/monitoring
-#   ../../modules/jitsi.nix
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
     ];
@@ -358,7 +357,6 @@ security.pam.services.greetd.enableGnomeKeyring = true;
 ];
 
 nixpkgs.config.permittedInsecurePackages = [
-    "jitsi-meet-1.0.8043"
     "qtwebkit-5.212.0-alpha"
     "electron-39.8.10" # bitwarden-desktop, verwijderen zodra nixpkgs bitwarden upgradet naar nieuwere electron
   ];

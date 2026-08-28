@@ -73,12 +73,6 @@ in
   "wg-toorren-preshared-key.age".publicKeys = users ++ [ wtoorren_workstation ];
   "wg-tn_arkana-private-key.age".publicKeys = users ++ [ wtoorren_workstation ];
 
-  # Jitsi Meet passwords
-  "jitsi-focus-password.age".publicKeys = users ++ systems;
-  "jitsi-jvb-password.age".publicKeys = users ++ systems;
-  "jitsi-jibri-password.age".publicKeys = users ++ systems;
-  "jitsi-recorder-password.age".publicKeys = users ++ systems;
-  
   # Rustic backup
   "rustic-s3-env.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
   "rustic-repo-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
