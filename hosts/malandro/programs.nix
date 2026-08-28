@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs; [
     wireguard-tools
     unstable.beans
+    rtk
     #cooklang
     #flameshot
     claude-code

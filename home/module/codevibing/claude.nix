@@ -80,22 +80,24 @@
 
       alwaysThinkingEnabled = true;
       promptSuggestionEnabled = false;
+      spinnerTipsEnabled = false;
       awaySummaryEnabled = false;
       editorMode = "normal";
       skipAutoPermissionPrompt = true;
 
-      permissions.allow = import ./_cc-permissions.nix;
+      permissions.allow = (import ./_cc-permissions.nix) ++ [ "Bash(*)" ];
 
-      # Het script zelf blijft buiten nix: rtk installeert en upgradet
-      # ~/.claude/hooks/rtk-rewrite.sh zelf en bewaakt het met
-      # .rtk-hook.sha256. Een read-only store-symlink zou dat blokkeren.
+      # Moderne rtk (>=0.41) heeft de hook ingebouwd: `rtk hook claude` leest
+      # de PreToolUse-JSON van stdin en schrijft de rewrite terug. Het oude
+      # gegenereerde ~/.claude/hooks/rtk-rewrite.sh bestaat niet meer (rtk init
+      # maakt het niet langer aan), dus verwijzen we direct naar de binary.
       hooks.PreToolUse = [
         {
           matcher = "Bash";
           hooks = [
             {
               type = "command";
-              command = "/home/wtoorren/.claude/hooks/rtk-rewrite.sh";
+              command = "rtk hook claude";
             }
           ];
         }
