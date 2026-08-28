@@ -37,6 +37,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | 9095 | Cockpit | 0.0.0.0 | Docker | Cockpit Server admin interface |
 | 9096 | Fail2ban Control | 0.0.0.0 | Docker | Fail2Ban Web Console / Control 
 | 9097 | OpsKnight | 0.0.0.0 | Docker Standalone | Incident Response |
+| 9099 | Status Dashboard | 127.0.0.1 | Native | Soll×ist service-overzicht (status.toorren.net, Authelia) |
 
 ## Network Services
 
@@ -71,6 +72,7 @@ All these services are accessible via HTTPS through Nginx reverse proxy with Aut
 - `invoices.wereldvanbegrip.nl` → InvoicePlane (8092) - **Note: Authelia protected**
 - `tasks.toorren.net` → Vikunja (8093) - **Note: Authelia protected**
 - `nxc.toorren.net` → Nextcloud (externe host `192.168.2.67:11000`, TLS termineert op malandro; WebSocket + 10G upload)
+- `status.toorren.net` → Status Dashboard (9099) - **Note: Authelia protected**
 - *(Add other domains as configured in nginx modules)*
 
 ## Notes
