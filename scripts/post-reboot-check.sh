@@ -27,4 +27,36 @@ systemctl --failed --no-pager
 echo
 echo "### 7. Kern-auth-stack"
 for s in redis-authelia authelia-main postfix nginx postgresql vikunja; do printf "%-18s %s\n" "$s" "$(systemctl is-active $s)"; done
+echo
+
+echo "### 8. USB dongles Zigbee/DSMR (symlinks op serienummer, zie docs/usb-dongles.md)"
+ls -la /dev/zigbee /dev/dsmr 2>&1 || echo "!! symlink(s) ONTBREKEN -> check /dev/serial/by-id/ en udev-regels in modules/hassio/default.nix"
+echo "-- fysieke apparaten (by-id) --"
+ls -la /dev/serial/by-id/ 2>&1 || echo "!! geen serial by-id -> dongle fysiek niet gezien"
+echo
+
+echo "### 9. Verwachte Docker-containers draaien? (State + Health)"
+EXPECTED="homeassistant zigbee2mqtt mosquitto paperless-webserver-1 paperless-broker-1 vaultwarden baikal signal-cli wg-easy"
+for c in $EXPECTED; do
+  st=$(docker inspect -f '{{.State.Status}}{{if .State.Health}} ({{.State.Health.Status}}){{end}}' "$c" 2>/dev/null)
+  [ -z "$st" ] && st="!! ONTBREEKT / niet gevonden"
+  printf "%-24s %s\n" "$c" "$st"
+done
+echo
+
+echo "### 10. Zigbee2MQTT verbonden met coordinator? (niet alleen 'running')"
+systemctl is-active docker-zigbee2mqtt zigbee-usb-reset 2>&1
+docker logs --tail 25 zigbee2mqtt 2>&1 | grep -iE "coordinator|connect|Currently .* devices|MQTT|error|timeout|failed" | tail -12
+echo "(verwacht: 'Currently N devices are joined' / MQTT publishes; GEEN ping/SRSP-timeout)"
+echo
+
+echo "### 11. Home Assistant DSMR-device zichtbaar in container?"
+systemctl is-active docker-homeassistant 2>&1
+docker exec homeassistant sh -c 'ls -la /dev/dsmr' 2>&1 || echo "!! /dev/dsmr niet in HA-container -> --device mapping / symlink check"
+echo
+
+echo "### 12. Linger + tmux user-service (na linger-fix 2026-08-28)"
+loginctl show-user wtoorren -p Linger 2>&1
+runuser -u wtoorren -- env XDG_RUNTIME_DIR=/run/user/$(id -u wtoorren) systemctl --user is-active tmux.service 2>&1
+runuser -u wtoorren -- tmux -L default ls 2>&1 | grep -q '^main:' && echo "tmux 'main'-sessie AANWEZIG" || echo "!! tmux 'main'-sessie ontbreekt"
 echo "==================== EINDE ===================="
