@@ -26,8 +26,10 @@ Beans-epic `nixos-sd4i`.
 - **`rustic-backup.service`** (oneshot, Wants+After de 3 dumps) → `rustic backup` van het manifest +
   `rustic forget --filter-host malandro --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --prune`.
 - **`rustic-backup.timer`** — dagelijks 03:00, `Persistent=true`.
-- **Faal-notificatie**: template-unit `rustic-notify@` → Telegram (hergebruikt monitoring bot-token/chat-id
-  secrets), op `OnFailure=` van alle vier services.
+- **Faal-notificatie**: template-unit `rustic-notify@` → **Signal** via de lokale signal-cli REST API
+  (`http://127.0.0.1:8088/v2/send`, jq bouwt de JSON). Afzender `+31612652352`, ontvanger `+31636201589`
+  (zelfde als HA `signal_maria`). Op `OnFailure=` van alle vier services. Best-effort (`|| true`); geen
+  agenix-secret nodig (nummers zijn niet geheim, staan plain in de module — net als in de HA-config).
 - **Manifest (twee roots!):** `/var/lib/{homeassistant,vaultwarden,zigbee2mqtt,signal-cli,wg-easy,baikal,
   mmdl,mosquitto}` + `/data/external/{docseal,erugo,wallos,invoiceplane-docker,pihole,castopod,
   dockerlibs/volumes,tmp/paperless}` + `/var/backup/db`. Excludes via `!`-globs: live VW-sqlite

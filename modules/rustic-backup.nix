@@ -71,18 +71,22 @@ let
   globArgs = lib.concatMapStringsSep " "
     (g: "--glob ${lib.escapeShellArg g}") excludeGlobs;
 
-  # Telegram-notificatie bij falen (hergebruikt monitoring bot-token/chat-id).
+  # Faal-notificatie via de lokale signal-cli REST API (zelfde afzender/ontvanger
+  # als Home Assistant's signal_maria). Best-effort: faalt de Signal-API, dan
+  # blokkeert dat de OnFailure-handler niet (|| true).
+  signalApi = "http://127.0.0.1:8088/v2/send";
+  signalSender = "+31612652352";      # geregistreerd account op de server
+  signalRecipient = "+31636201589";   # zelfde ontvanger als HA signal_maria
   notifyScript = pkgs.writeShellScript "rustic-notify-failure" ''
     set -u
     unit="''${1:-onbekend}"
-    token="$(cat /run/agenix/rustic-telegram-token)"
-    chat="$(cat /run/agenix/rustic-telegram-chat)"
     host="$(${pkgs.nettools}/bin/hostname)"
-    ${pkgs.curl}/bin/curl -s --max-time 20 \
-      "https://api.telegram.org/bot''${token}/sendMessage" \
-      --data-urlencode "chat_id=''${chat}" \
-      --data-urlencode "text=⚠️ Backup-fout op ''${host}: unit ''${unit} gefaald. Zie: journalctl -u ''${unit}" \
-      >/dev/null || true
+    msg="⚠️ Backup-fout op ''${host}: unit ''${unit} gefaald. Zie: journalctl -u ''${unit}"
+    ${pkgs.jq}/bin/jq -nc \
+      --arg m "$msg" --arg n "${signalSender}" --arg r "${signalRecipient}" \
+      '{message: $m, number: $n, recipients: [$r]}' \
+      | ${pkgs.curl}/bin/curl -s --max-time 30 -X POST "${signalApi}" \
+          -H 'Content-Type: application/json' --data @- >/dev/null || true
   '';
 
   pgDumpScript = pkgs.writeShellScript "pg-dump" ''
@@ -151,18 +155,6 @@ in
     path = "/run/agenix/rustic-repo-password";
     mode = "0400";
   };
-  # Hergebruik de bestaande monitoring-secrets voor de faal-notificatie.
-  age.secrets.rustic-telegram-token = {
-    file = ../secrets/module-monitoring-telegram_bot_token.age;
-    path = "/run/agenix/rustic-telegram-token";
-    mode = "0400";
-  };
-  age.secrets.rustic-telegram-chat = {
-    file = ../secrets/module-monitoring-telegram_chat_id.age;
-    path = "/run/agenix/rustic-telegram-chat";
-    mode = "0400";
-  };
-
   ###### Staging-dir + profiel ######
   systemd.tmpfiles.rules = [
     "d /var/backup 0700 root root -"
