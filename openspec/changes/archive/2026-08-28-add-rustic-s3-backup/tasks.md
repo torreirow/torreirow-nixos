@@ -4,7 +4,7 @@
 - [x] 1.1 `secrets/secrets.nix`: entries voor `rustic-s3-env.age` + `rustic-repo-password.age` (reeds toegevoegd)
 - [x] 1.2 `.age`-files aangemaakt door gebruiker (reeds gedaan)
 - [x] 1.3 `age.secrets.*` declaraties in module met `path = /run/agenix/...`, mode 0400
-- [x] 1.4 Extra agenix-paths voor Telegram token/chat (hergebruik monitoring-secrets)
+- [x] 1.4 (vervallen) Signal-notificatie gebruikt de lokale signal-cli REST API — geen agenix-secret nodig
 
 ## 2. Dump-services
 - [x] 2.1 `pg-dump.service` — `pg_dumpall` via `runuser -u postgres`, zstd → `/var/backup/db/pg-all.sql.zst` (bean nixos-zqtb)
@@ -29,7 +29,7 @@
 - [x] 5.1 `rustic-backup.timer` — `OnCalendar=*-*-* 03:00:00`, `Persistent=true`
 
 ## 6. Notificatie (bean nixos-ure2)
-- [x] 6.1 Template-unit `rustic-notify@` → Telegram sendMessage
+- [x] 6.1 Template-unit `rustic-notify@` → Signal (signal-cli REST API `v2/send`)
 - [x] 6.2 `OnFailure=` gekoppeld aan alle vier services
 
 ## 7. Verificatie & docs (bean nixos-97nl)

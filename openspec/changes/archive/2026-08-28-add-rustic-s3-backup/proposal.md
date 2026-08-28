@@ -11,7 +11,7 @@ Malandro draait tientallen zelf-gehoste services, maar er is geen geautomatiseer
   - `vaultwarden-dump.service` — `sqlite3 .backup` (consistent WAL-snapshot, geen downtime)
 - `rustic-backup.service` — file-level backup van het manifest (twee roots: `/var/lib/*` + gecureerd `/data/external/*`) plus de DB-dumps, gevolgd door `rustic forget --prune`
 - `rustic-backup.timer` — dagelijks 03:00, `Persistent=true`
-- Faal-notificatie via Telegram (template-unit `rustic-notify@`, hergebruikt de bestaande monitoring bot-token/chat-id secrets) op `OnFailure=` van elke service
+- Faal-notificatie via Signal (template-unit `rustic-notify@`, lokale signal-cli REST API `v2/send`) op `OnFailure=` van elke service
 - rustic praat **direct** met S3 via de opendal-s3 backend (geen mountpoint-s3/FUSE)
 - Repo-config als `/etc/rustic/malandro.toml`; AWS-creds via agenix env-file + `${VAR}`-substitutie, repo-encryptie-wachtwoord via agenix password-file
 - Twee nieuwe agenix secrets: `rustic-s3-env.age`, `rustic-repo-password.age` (reeds door gebruiker aangemaakt)
@@ -20,7 +20,7 @@ Malandro draait tientallen zelf-gehoste services, maar er is geen geautomatiseer
 
 ### New Capabilities
 
-- `rustic-backup`: dagelijkse, versleutelde, incrementele off-site backup naar AWS S3 (`wto-s3-bucket`, region `eu-central-1`, prefix `/rustic-backup/malandro`) van alle persistente container-state en logische database-dumps, met retentie keep-daily 7 / keep-weekly 4 / keep-monthly 3 en faal-notificatie via Telegram
+- `rustic-backup`: dagelijkse, versleutelde, incrementele off-site backup naar AWS S3 (`wto-s3-bucket`, region `eu-central-1`, prefix `/rustic-backup/malandro`) van alle persistente container-state en logische database-dumps, met retentie keep-daily 7 / keep-weekly 4 / keep-monthly 3 en faal-notificatie via Signal
 
 ## Impact
 
