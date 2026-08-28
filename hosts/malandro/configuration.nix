@@ -250,6 +250,10 @@ environment.variables.EDITOR = "vim";
   users.users.wtoorren = {
     isNormalUser = true;
     description = "Wouter van der Toorren";
+    # linger: houd de systemd user-manager persistent draaiend, ook zonder
+    # actieve login-sessie. Nodig op deze headless server zodat user-services
+    # (o.a. tmux.service met de 'main'-sessie) na logout blijven draaien.
+    linger = true;
     extraGroups = [ "wheel" "keys"];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFH+KiVBYLoBByXonUb7Hq7JfZpJJYag1eK5/EQEQKvp wtoorren@lobos"
