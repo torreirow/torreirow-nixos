@@ -55,6 +55,7 @@
  ../../modules/formrelay.nix
  ../../modules/wallos.nix
  ../../modules/status-page.nix
+ ../../modules/rustic-backup.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
