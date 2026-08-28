@@ -160,6 +160,7 @@ environment.systemPackages = with pkgs; [
     yt-dlp
     zip
     zoom-us
+    jitsi-meet-electron   # desktop-app (client), niet de server-module
     # Nix dev & security tools
     deadnix
     nixfmt
