@@ -69,10 +69,10 @@ Het systeem SHALL na elke backup `rustic forget --keep-daily 7 --keep-weekly 4 -
 - **WHEN** er meer dan 7 dagelijkse snapshots bestaan
 - **THEN** verwijdert `forget --prune` de snapshots buiten het retentiebeleid en geeft de S3-opslag vrij
 
-### Requirement: Faal-notificatie via Telegram
-Het systeem SHALL bij het falen van een dump- of backup-service een Telegram-melding sturen via `OnFailure=`, met hergebruik van de bestaande monitoring bot-token/chat-id secrets.
+### Requirement: Faal-notificatie via Signal
+Het systeem SHALL bij het falen van een dump- of backup-service een Signal-melding sturen via `OnFailure=` via de lokale signal-cli REST API (afzender +31612652352, ontvanger +31636201589).
 
 #### Scenario: Melding bij fout
 - **WHEN** een van de vier services faalt
-- **THEN** stuurt `rustic-notify@<unit>.service` een Telegram-bericht met de hostnaam en de gefaalde unit
+- **THEN** stuurt `rustic-notify@<unit>.service` een Signal-bericht met de hostnaam en de gefaalde unit
 
