@@ -79,6 +79,10 @@ in
   "jitsi-jibri-password.age".publicKeys = users ++ systems;
   "jitsi-recorder-password.age".publicKeys = users ++ systems;
   
+  # Rustic backup
+  "rustic-s3-env.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
+  "rustic-repo-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;
