@@ -265,7 +265,7 @@
 
   Commit as:
 
-    Luca Kasper
+    Wouter van der Toorren
 
   Do not add self-promotional text, attribution or generated-by
   messages to commits.
