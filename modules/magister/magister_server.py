@@ -6,6 +6,7 @@ Dit script draait zonder GUI en gebruikt alleen magister_session.json
 
 import time
 import os
+import glob
 import json
 import subprocess
 import logging
@@ -787,6 +788,19 @@ def main():
     if not kind_data:
         logger.info("\n✗ Kon geen agenda's ophalen voor kinderen")
         return
+
+    # Ruim verweesde agenda's op: verwijder magister_*.ics van kinderen die niet
+    # meer in het account zitten (bv. school verlaten). Zonder dit blijft een oude,
+    # verouderde feed voor altijd gepubliceerd staan. Baseer op de kinderen-roster
+    # (niet kind_data), zodat een transient mislukte fetch geen bestand wist.
+    huidige_bestanden = {f"magister_{k['Roepnaam'].lower()}.ics" for k in kinderen}
+    for oud in glob.glob("magister_*.ics"):
+        if os.path.basename(oud) not in huidige_bestanden:
+            try:
+                os.remove(oud)
+                logger.info(f"🗑  Verweesde agenda verwijderd: {oud}")
+            except OSError as e:
+                logger.warning(f"⚠ Kon verweesde agenda {oud} niet verwijderen: {e}")
 
     # Genereer index.html met lijst van calendars
     logger.info("\n=== Index genereren ===")
