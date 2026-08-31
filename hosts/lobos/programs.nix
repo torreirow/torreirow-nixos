@@ -8,7 +8,9 @@ programs.ssh = {
 environment.systemPackages = with pkgs; [
     planify
     wineWow64Packages.stable
-    masterpdfeditor
+    # masterpdfeditor  # 2026-08-28: upstream tarball 5.9.98 returns 404 (vendor removed it);
+    #                  # temporarily disabled to unblock rebuild. Restore via a nixpkgs pin
+    #                  # that has a live version, or re-enable once nixpkgs bumps it.
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
