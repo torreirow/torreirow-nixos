@@ -618,11 +618,16 @@ class MagisterServerClient:
                 # Check status en voeg prefix toe
                 status = item.get("Status", 1)
                 status_prefix = ""
+                transparent = False  # TRANSP:TRANSPARENT = tijd geldt als vrij/beschikbaar
 
-                if status == 3:
+                if status == 5:
+                    # [VERPLAATST]: leeg "spook" op het OUDE lesuur. De echte les draait
+                    # als gewone afspraak (Status 1) op zijn nieuwe uur, dus dit item
+                    # helemaal overslaan voorkomt een fantoom-duplicaat in de agenda.
+                    continue
+                elif status == 3:
                     status_prefix = "[UITGEVALLEN] "
-                elif status == 5:
-                    status_prefix = "[VERPLAATST] "
+                    transparent = True  # les gaat niet door -> blok als beschikbaar tonen
                 elif status == 2:
                     status_prefix = "[GEWIJZIGD] "
 
@@ -683,6 +688,11 @@ class MagisterServerClient:
 
                 if location:
                     lines.append(self.fold_ical_line(f"LOCATION:{self.ical_escape(location)}"))
+
+                # Uitgevallen les: markeer als vrij/beschikbaar (event blijft zichtbaar
+                # met [UITGEVALLEN]-label, maar bezet je tijd niet in free/busy).
+                if transparent:
+                    lines.append("TRANSP:TRANSPARENT")
 
                 lines.append("END:VEVENT")
 
