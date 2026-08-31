@@ -75,26 +75,28 @@ let
   };
 
   # Bouw de ExecStart-commandline voor één sync.
+  #
+  # LET OP: bewust GEEN `--confdir`. In nextcloud-client 4.0.8 zorgt `--confdir`
+  # ervoor dat nextcloudcmd enkel de usage-tekst print en stopt (exit 0, geen
+  # sync) — een parser-bug in die vlag. Zonder `--confdir` gebruikt nextcloudcmd
+  # zijn default config-dir en synct het correct.
   mkExecStart = name: sync:
     let
       localPath = normalizePath sync.localPath;
-      stateDir = "${configDir}/state/${name}";
       args =
         [ "${cfg.package}/bin/nextcloudcmd" "--non-interactive" "--silent" ]
         ++ optional sync.trust "--trust"
         ++ optionals (sync.remotePath != "/") [ "--path" sync.remotePath ]
         ++ optionals (sync.excludeFile != null) [ "--exclude" (normalizePath sync.excludeFile) ]
-        ++ [ "--confdir" stateDir ]
         ++ sync.extraArgs
         ++ [ localPath sync.serverUrl ];
     in
     escapeShellArgs args;
 
-  # ExecStartPre: valideer credentials + maak de lokale map en state-dir aan.
+  # ExecStartPre: valideer credentials + maak de lokale map aan.
   mkPreStart = name: sync:
     let
       localPath = normalizePath sync.localPath;
-      stateDir = "${configDir}/state/${name}";
     in
     pkgs.writeShellScript "nextcloud-sync-${name}-pre" ''
       set -eu
@@ -108,7 +110,7 @@ let
         echo "nextcloud-sync (${name}): NC_USER en/of NC_PASSWORD is leeg in '${cfg.credentialsFile}'." >&2
         exit 1
       fi
-      mkdir -p "${localPath}" "${stateDir}"
+      mkdir -p "${localPath}"
     '';
 
 in
