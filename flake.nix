@@ -312,6 +312,7 @@
          ./home/linux-desktop.nix
          ./home/firefox.nix
          ./home/module/ssh-config_hosts
+         ./home/module/nextcloud-sync
          ./home/sshkeys.nix
          ./home/module/opencode.nix
          ./home/hyprland/default.nix
