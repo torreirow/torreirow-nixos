@@ -6,11 +6,12 @@ Dit script draait zonder GUI en gebruikt alleen magister_session.json
 
 import time
 import os
+import glob
 import json
 import subprocess
 import logging
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from playwright.sync_api import sync_playwright
 from dateutil import parser
 from bs4 import BeautifulSoup
@@ -366,18 +367,43 @@ class MagisterServerClient:
                     browser.close()
                     return False
 
-                browser.close()
-
                 if error_responses:
                     logger.error(f"✗ Sessie is niet geldig ({len(error_responses)} auth errors)")
+                    browser.close()
                     return False
                 elif afspraken_response:
                     logger.info("✓ Sessie is nog geldig")
+                    browser.close()
                     return True
                 else:
-                    # Probeer API call om te valideren
+                    # Geen /afspraken?-call op de homepage (#/vandaag) -> valideer via een
+                    # directe API-call op de HUIDIGE page. NIET self.test_session_api()
+                    # aanroepen: dat opent een tweede sync_playwright() binnen dit nog
+                    # openstaande with-blok -> "Sync API inside the asyncio loop" (exit 1,
+                    # false-positive "sessie verlopen").
                     logger.info("  Geen afspraken response, probeer directe API test...")
-                    return self.test_session_api()
+                    try:
+                        result = page.evaluate("""
+                            async () => {
+                                try {
+                                    const response = await fetch('/api/account');
+                                    return { status: response.status, ok: response.ok };
+                                } catch (e) {
+                                    return { error: e.message };
+                                }
+                            }
+                        """)
+                    except Exception as api_e:
+                        logger.error(f"✗ API test error: {api_e}", exc_info=True)
+                        browser.close()
+                        return False
+                    browser.close()
+                    if result.get('ok'):
+                        logger.info("✓ Sessie is geldig (via API)")
+                        return True
+                    else:
+                        logger.error(f"✗ API test mislukt: status {result.get('status')}")
+                        return False
 
         except Exception as e:
             logger.error(f"⚠ Fout bij testen sessie: {e}", exc_info=True)
@@ -424,7 +450,7 @@ class MagisterServerClient:
             logger.error(f"✗ API test error: {e}", exc_info=True)
             return False
 
-    def fetch_afspraken(self, days=7, persoon_id=None):
+    def fetch_afspraken(self, days=21, persoon_id=None):
         """Haal afspraken op met Playwright voor een bepaald aantal dagen en specifiek persoon"""
         if not self.session_exists():
             logger.error("✗ Geen sessie gevonden")
@@ -609,9 +635,18 @@ class MagisterServerClient:
                 # Voeg status prefix toe
                 summary = f"{status_prefix}{titel}"
 
-                # Parse dates
+                # Parse dates. Magister levert UTC ("...Z"). Normaliseer robuust
+                # naar UTC zodat we hieronder met een expliciete "Z" wegschrijven.
+                # Zonder Z/TZID is een DATE-TIME "floating" en interpreteert Google
+                # Calendar hem als LOKALE tijd -> events staan dan 1-2u verkeerd (DST).
                 dt_start = parser.isoparse(item["Start"])
                 dt_end = parser.isoparse(item["Einde"])
+                if dt_start.tzinfo is None:
+                    dt_start = dt_start.replace(tzinfo=timezone.utc)
+                if dt_end.tzinfo is None:
+                    dt_end = dt_end.replace(tzinfo=timezone.utc)
+                dt_start = dt_start.astimezone(timezone.utc)
+                dt_end = dt_end.astimezone(timezone.utc)
 
                 # DTSTAMP in UTC (now)
                 dtstamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
@@ -639,8 +674,8 @@ class MagisterServerClient:
                 lines.append("BEGIN:VEVENT")
                 lines.append(self.fold_ical_line(f"UID:{self.ical_escape(uid)}"))
                 lines.append(self.fold_ical_line(f"DTSTAMP:{dtstamp}"))
-                lines.append(self.fold_ical_line(f"DTSTART:{dt_start.strftime('%Y%m%dT%H%M%S')}"))
-                lines.append(self.fold_ical_line(f"DTEND:{dt_end.strftime('%Y%m%dT%H%M%S')}"))
+                lines.append(self.fold_ical_line(f"DTSTART:{dt_start.strftime('%Y%m%dT%H%M%S')}Z"))
+                lines.append(self.fold_ical_line(f"DTEND:{dt_end.strftime('%Y%m%dT%H%M%S')}Z"))
                 lines.append(self.fold_ical_line(f"SUMMARY:{self.ical_escape(summary)}"))
 
                 if description:
@@ -723,7 +758,7 @@ def main():
     if not kinderen:
         logger.warning("⚠ Geen kinderen gevonden, gebruik standaard methode")
         # Fallback naar oude methode
-        appointments = client.fetch_afspraken(days=7)
+        appointments = client.fetch_afspraken(days=21)
         if appointments:
             client.export_to_ical(appointments)
         return
@@ -737,7 +772,7 @@ def main():
         persoon_id = kind['Id']
 
         logger.info(f"\n→ {naam} (ID: {persoon_id})...")
-        appointments = client.fetch_afspraken(days=7, persoon_id=persoon_id)
+        appointments = client.fetch_afspraken(days=21, persoon_id=persoon_id)
 
         if appointments:
             # Maak bestandsnaam: magister_<naam>.ics
@@ -753,6 +788,19 @@ def main():
     if not kind_data:
         logger.info("\n✗ Kon geen agenda's ophalen voor kinderen")
         return
+
+    # Ruim verweesde agenda's op: verwijder magister_*.ics van kinderen die niet
+    # meer in het account zitten (bv. school verlaten). Zonder dit blijft een oude,
+    # verouderde feed voor altijd gepubliceerd staan. Baseer op de kinderen-roster
+    # (niet kind_data), zodat een transient mislukte fetch geen bestand wist.
+    huidige_bestanden = {f"magister_{k['Roepnaam'].lower()}.ics" for k in kinderen}
+    for oud in glob.glob("magister_*.ics"):
+        if os.path.basename(oud) not in huidige_bestanden:
+            try:
+                os.remove(oud)
+                logger.info(f"🗑  Verweesde agenda verwijderd: {oud}")
+            except OSError as e:
+                logger.warning(f"⚠ Kon verweesde agenda {oud} niet verwijderen: {e}")
 
     # Genereer index.html met lijst van calendars
     logger.info("\n=== Index genereren ===")
@@ -784,7 +832,7 @@ def main():
             update_success = False
             for naam, info in kind_data.items():
                 logger.info(f"  → {naam}...")
-                appointments = client.fetch_afspraken(days=7, persoon_id=info['id'])
+                appointments = client.fetch_afspraken(days=21, persoon_id=info['id'])
 
                 if appointments:
                     client.export_to_ical(appointments, info['file'])
