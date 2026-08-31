@@ -23,7 +23,7 @@
     parsh.url = "github:torreirow/parsh";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
-    ragenx.url = "path:/home/wtoorren/data/git/torreirow/ragenx";
+    ragenx.url = "github:torreirow/ragenx/v0.1.0";
     ragenx.inputs.nixpkgs.follows = "nixpkgs";
     rbw.url = "github:torreirow/rbw";
     rme.url = "github:mipmip/rme";
