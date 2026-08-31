@@ -366,18 +366,43 @@ class MagisterServerClient:
                     browser.close()
                     return False
 
-                browser.close()
-
                 if error_responses:
                     logger.error(f"✗ Sessie is niet geldig ({len(error_responses)} auth errors)")
+                    browser.close()
                     return False
                 elif afspraken_response:
                     logger.info("✓ Sessie is nog geldig")
+                    browser.close()
                     return True
                 else:
-                    # Probeer API call om te valideren
+                    # Geen /afspraken?-call op de homepage (#/vandaag) -> valideer via een
+                    # directe API-call op de HUIDIGE page. NIET self.test_session_api()
+                    # aanroepen: dat opent een tweede sync_playwright() binnen dit nog
+                    # openstaande with-blok -> "Sync API inside the asyncio loop" (exit 1,
+                    # false-positive "sessie verlopen").
                     logger.info("  Geen afspraken response, probeer directe API test...")
-                    return self.test_session_api()
+                    try:
+                        result = page.evaluate("""
+                            async () => {
+                                try {
+                                    const response = await fetch('/api/account');
+                                    return { status: response.status, ok: response.ok };
+                                } catch (e) {
+                                    return { error: e.message };
+                                }
+                            }
+                        """)
+                    except Exception as api_e:
+                        logger.error(f"✗ API test error: {api_e}", exc_info=True)
+                        browser.close()
+                        return False
+                    browser.close()
+                    if result.get('ok'):
+                        logger.info("✓ Sessie is geldig (via API)")
+                        return True
+                    else:
+                        logger.error(f"✗ API test mislukt: status {result.get('status')}")
+                        return False
 
         except Exception as e:
             logger.error(f"⚠ Fout bij testen sessie: {e}", exc_info=True)
