@@ -19,3 +19,4 @@ build/
 .cache/
 *.log
 http_cache.sqlite
+__pycache__/
