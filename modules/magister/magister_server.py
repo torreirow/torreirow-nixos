@@ -450,7 +450,7 @@ class MagisterServerClient:
             logger.error(f"✗ API test error: {e}", exc_info=True)
             return False
 
-    def fetch_afspraken(self, days=7, persoon_id=None):
+    def fetch_afspraken(self, days=21, persoon_id=None):
         """Haal afspraken op met Playwright voor een bepaald aantal dagen en specifiek persoon"""
         if not self.session_exists():
             logger.error("✗ Geen sessie gevonden")
@@ -758,7 +758,7 @@ def main():
     if not kinderen:
         logger.warning("⚠ Geen kinderen gevonden, gebruik standaard methode")
         # Fallback naar oude methode
-        appointments = client.fetch_afspraken(days=7)
+        appointments = client.fetch_afspraken(days=21)
         if appointments:
             client.export_to_ical(appointments)
         return
@@ -772,7 +772,7 @@ def main():
         persoon_id = kind['Id']
 
         logger.info(f"\n→ {naam} (ID: {persoon_id})...")
-        appointments = client.fetch_afspraken(days=7, persoon_id=persoon_id)
+        appointments = client.fetch_afspraken(days=21, persoon_id=persoon_id)
 
         if appointments:
             # Maak bestandsnaam: magister_<naam>.ics
@@ -832,7 +832,7 @@ def main():
             update_success = False
             for naam, info in kind_data.items():
                 logger.info(f"  → {naam}...")
-                appointments = client.fetch_afspraken(days=7, persoon_id=info['id'])
+                appointments = client.fetch_afspraken(days=21, persoon_id=info['id'])
 
                 if appointments:
                     client.export_to_ical(appointments, info['file'])
