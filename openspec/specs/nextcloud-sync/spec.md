@@ -43,15 +43,16 @@ zodat een trage sync niet overlapt met de volgende run.
 
 ### Requirement: Correcte nextcloudcmd-invocatie
 Het systeem SHALL `nextcloudcmd` aanroepen als `[opties] <lokale_map> <server_url>`,
-waarbij een leidende `~/` in paden geëxpandeerd wordt naar de home-dir, een
-niet-root `remotePath` als `--path` wordt meegegeven, en per sync een eigen
-`--confdir` state-dir wordt gebruikt.
+waarbij een leidende `~/` in paden geëxpandeerd wordt naar de home-dir en een
+niet-root `remotePath` als `--path` wordt meegegeven. Het systeem SHALL GEEN
+`--confdir` meegeven: in nextcloud-client 4.0.8 zorgt die vlag ervoor dat
+nextcloudcmd enkel de usage-tekst print en stopt (exit 0, geen sync).
 
 #### Scenario: Remote submap en pad-expansie
 - **WHEN** een sync `localPath = "~/Nextcloud"` en `remotePath = "/Photos"` heeft
-- **THEN** bevat de `ExecStart` `--path /Photos` en het geëxpandeerde absolute lokale pad, gevolgd door de `serverUrl`
+- **THEN** bevat de `ExecStart` `--path /Photos` en het geëxpandeerde absolute lokale pad, gevolgd door de `serverUrl`, en GEEN `--confdir`
 
-#### Scenario: Lokale map en state-dir worden aangemaakt
+#### Scenario: Lokale map wordt aangemaakt
 - **WHEN** de service draait terwijl de lokale map nog niet bestaat
-- **THEN** maakt `ExecStartPre` de lokale map en de per-sync `--confdir` state-dir aan
+- **THEN** maakt `ExecStartPre` de lokale map aan
 
