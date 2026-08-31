@@ -23,6 +23,8 @@
     parsh.url = "github:torreirow/parsh";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
+    ragenx.url = "path:/home/wtoorren/data/git/torreirow/ragenx";
+    ragenx.inputs.nixpkgs.follows = "nixpkgs";
     rbw.url = "github:torreirow/rbw";
     rme.url = "github:mipmip/rme";
     solidtime-waybar.url = "github:torreirow/solidtime-waybar";
@@ -44,7 +46,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, rme, walker, solidtime-waybar, hyprquickframe, rbw}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -58,6 +60,7 @@
         parsh.packages."${system}".default
         specgetty.packages."${system}".specgetty
         soltty.packages."${system}".soltty
+        ragenx.packages."${system}".default
         rme.packages."${system}".rme
         teejay.packages."${system}".default
       ];
