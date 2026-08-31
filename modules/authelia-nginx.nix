@@ -75,17 +75,20 @@
   '';
 
   # De /authelia verify endpoint configuratie
+  #
+  # LET OP: zet hier GEEN `proxy_set_header Host` of `X-Forwarded-Host`.
+  # NixOS voegt via `recommendedProxySettings` (default aan bij proxyPass) al een
+  # include toe die o.a. `Host $host` en `X-Forwarded-Host $host` zet. Zetten we die
+  # hier ook handmatig, dan gaan er TWEE Host-headers naar Authelia → Authelia weigert
+  # met "too many Host headers" (HTTP 400) → nginx auth_request maakt daar 500 van.
+  # Alleen de Authelia-specifieke headers die de include NIET levert horen hier.
   autheliaVerifyLocation = {
     proxyPass = "http://127.0.0.1:9091/api/verify";
     extraConfig = ''
       internal;
-      proxy_set_header Host $host;
       proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
       proxy_set_header X-Forwarded-Method $request_method;
-      proxy_set_header X-Forwarded-Proto $scheme;
-      proxy_set_header X-Forwarded-Host $http_host;
       proxy_set_header X-Forwarded-Uri $request_uri;
-      proxy_set_header X-Forwarded-For $remote_addr;
       proxy_pass_request_body off;
       proxy_set_header Content-Length "";
     '';
