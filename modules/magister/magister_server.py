@@ -10,7 +10,7 @@ import json
 import subprocess
 import logging
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from playwright.sync_api import sync_playwright
 from dateutil import parser
 from bs4 import BeautifulSoup
@@ -634,9 +634,18 @@ class MagisterServerClient:
                 # Voeg status prefix toe
                 summary = f"{status_prefix}{titel}"
 
-                # Parse dates
+                # Parse dates. Magister levert UTC ("...Z"). Normaliseer robuust
+                # naar UTC zodat we hieronder met een expliciete "Z" wegschrijven.
+                # Zonder Z/TZID is een DATE-TIME "floating" en interpreteert Google
+                # Calendar hem als LOKALE tijd -> events staan dan 1-2u verkeerd (DST).
                 dt_start = parser.isoparse(item["Start"])
                 dt_end = parser.isoparse(item["Einde"])
+                if dt_start.tzinfo is None:
+                    dt_start = dt_start.replace(tzinfo=timezone.utc)
+                if dt_end.tzinfo is None:
+                    dt_end = dt_end.replace(tzinfo=timezone.utc)
+                dt_start = dt_start.astimezone(timezone.utc)
+                dt_end = dt_end.astimezone(timezone.utc)
 
                 # DTSTAMP in UTC (now)
                 dtstamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
@@ -664,8 +673,8 @@ class MagisterServerClient:
                 lines.append("BEGIN:VEVENT")
                 lines.append(self.fold_ical_line(f"UID:{self.ical_escape(uid)}"))
                 lines.append(self.fold_ical_line(f"DTSTAMP:{dtstamp}"))
-                lines.append(self.fold_ical_line(f"DTSTART:{dt_start.strftime('%Y%m%dT%H%M%S')}"))
-                lines.append(self.fold_ical_line(f"DTEND:{dt_end.strftime('%Y%m%dT%H%M%S')}"))
+                lines.append(self.fold_ical_line(f"DTSTART:{dt_start.strftime('%Y%m%dT%H%M%S')}Z"))
+                lines.append(self.fold_ical_line(f"DTEND:{dt_end.strftime('%Y%m%dT%H%M%S')}Z"))
                 lines.append(self.fold_ical_line(f"SUMMARY:{self.ical_escape(summary)}"))
 
                 if description:
