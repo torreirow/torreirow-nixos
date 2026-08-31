@@ -7,6 +7,7 @@ Dit script draait zonder GUI en gebruikt alleen magister_session.json
 import time
 import os
 import glob
+import re
 import json
 import subprocess
 import logging
@@ -631,14 +632,28 @@ class MagisterServerClient:
                 elif status == 2:
                     status_prefix = "[GEWIJZIGD] "
 
+                # InfoType = soort inhoud in Magister (het "icoontje" bij een les).
+                # We spiegelen dit: 📚 huiswerk, 📝 toetsen/overhoringen, ℹ️ info.
+                info_type = item.get("InfoType", 0)
+                info_emoji, info_label = {
+                    1: ("📚", "Huiswerk"),
+                    2: ("📝", "Proefwerk"),
+                    3: ("📝", "Tentamen"),
+                    4: ("📝", "SO"),
+                    5: ("📝", "Mondeling"),
+                    6: ("ℹ️", "Informatie"),
+                }.get(info_type, ("", ""))
+
                 # Titel: vakken + omschrijving
                 vakken = ", ".join(v["Naam"] for v in item.get("Vakken", []))
                 titel = item.get("Omschrijving", "Geen titel")
                 if vakken:
                     titel = f"{vakken} – {titel}"
 
-                # Voeg status prefix toe
+                # Voeg status prefix + info-emoji (huiswerk/toets) toe
                 summary = f"{status_prefix}{titel}"
+                if info_emoji:
+                    summary = f"{summary} {info_emoji}"
 
                 # Parse dates. Magister levert UTC ("...Z"). Normaliseer robuust
                 # naar UTC zodat we hieronder met een expliciete "Z" wegschrijven.
@@ -667,8 +682,21 @@ class MagisterServerClient:
                     beschrijving.append(f"Docent(en): {docenten}")
 
                 if item.get("Inhoud"):
-                    soup = BeautifulSoup(item["Inhoud"], "html.parser")
-                    beschrijving.append(soup.get_text())
+                    # Zet paragraaf-/regeleindes om naar newlines vóór het strippen,
+                    # anders plakken <p>-blokken aan elkaar ("...1205" + "3e uur..." ->
+                    # "12053e uur"). Inline tekst blijft wel intact.
+                    html = re.sub(r"</p>|<br\s*/?>", "\n", item["Inhoud"], flags=re.I)
+                    soup = BeautifulSoup(html, "html.parser")
+                    inhoud_txt = re.sub(r"\n{3,}", "\n\n", soup.get_text()).strip()
+                    if inhoud_txt:
+                        # Label de inhoud met het soort (Huiswerk/Proefwerk/...) als
+                        # InfoType dat aangeeft; anders gewoon de tekst.
+                        if info_label:
+                            block = f"{info_emoji} {info_label}:\n{inhoud_txt}"
+                        else:
+                            block = inhoud_txt
+                        # Blanco regel tussen docenten en de inhoud
+                        beschrijving.append(("\n" + block) if beschrijving else block)
 
                 description = "\n".join(beschrijving)
 
