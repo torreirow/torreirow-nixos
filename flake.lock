@@ -773,14 +773,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1787927570,
-        "narHash": "sha256-15TTWyBtHeLJo6UFqEG3vdABtBPfgchTVQJ5qwxdX4I=",
-        "path": "/home/wtoorren/data/git/torreirow/ragenx",
-        "type": "path"
+        "lastModified": 1788195047,
+        "narHash": "sha256-pNbA7DkHK9ehHrmyKF2AFwoa6T7kPMSNLq1yKk2FhPo=",
+        "owner": "torreirow",
+        "repo": "ragenx",
+        "rev": "8d32f7ea7d56e1bff48471ed15a5b65c84669d9e",
+        "type": "github"
       },
       "original": {
-        "path": "/home/wtoorren/data/git/torreirow/ragenx",
-        "type": "path"
+        "owner": "torreirow",
+        "ref": "v0.1.0",
+        "repo": "ragenx",
+        "type": "github"
       }
     },
     "rbw": {
