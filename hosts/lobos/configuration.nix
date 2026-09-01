@@ -256,11 +256,16 @@ environment.variables.EDITOR = "vim";
   users.users.wtoorren = {
     isNormalUser = true;
     description = "Wouter van der Toorren";
-    extraGroups = [ "networkmanager" "wheel" "keys"];
+    extraGroups = [ "networkmanager" "wheel" "keys" ];
     # packages = with pkgs; [
     #  thunderbird
     # ];
   };
+
+  # Android dev: op nixpkgs 26.05 (systemd 258) worden de adb uaccess/udev-regels
+  # voor een fysiek toestel (Nothing Phone) automatisch afgehandeld — programs.adb
+  # en de adbusers-group zijn niet meer nodig. adb komt via pkgs.android-tools
+  # (zie hosts/lobos/programs.nix).
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

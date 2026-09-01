@@ -32,7 +32,6 @@
     hyprpicker
     rofi
     waybar
-    mako
     kitty
     adw-gtk3
     adwaita-icon-theme
