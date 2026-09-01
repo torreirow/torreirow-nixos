@@ -1,7 +1,7 @@
 let
   wtoorren = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFH+KiVBYLoBByXonUb7Hq7JfZpJJYag1eK5/EQEQKvp";
   workload = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIizBgeyIEwUwpuOt0Q2Q9FcIZrJ3lgQg6MBw5AZK3cS";
-  users = [ wtoorren workload ];
+  users = [ wtoorren ];
 
   wtoorren_workstation = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGt4v9ns8+HmnoyTMGvH7bNpgN4MkTgYst2YgSYzPTfO";
   malandro_workstation = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFwxP+MM4rwc6T5g4NZrjSYxQ3yRwlFCK6pnXZt/JWCX";
