@@ -773,16 +773,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1788195047,
-        "narHash": "sha256-pNbA7DkHK9ehHrmyKF2AFwoa6T7kPMSNLq1yKk2FhPo=",
+        "lastModified": 1788254488,
+        "narHash": "sha256-bYCvGMQZKpaY5qItY+HESBE6LMOknNE5GVmwpB2Etuo=",
         "owner": "torreirow",
         "repo": "ragenx",
-        "rev": "8d32f7ea7d56e1bff48471ed15a5b65c84669d9e",
+        "rev": "d64f782bb2544cea9a294e6e831c249875226299",
         "type": "github"
       },
       "original": {
         "owner": "torreirow",
-        "ref": "v0.1.0",
+        "ref": "v0.2.0",
         "repo": "ragenx",
         "type": "github"
       }
