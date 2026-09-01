@@ -5,6 +5,7 @@
 ## Contextbestanden (lees on-demand)
 
 - **Vragen over USB dongle, Zigbee dongle, DSMR adapter, `/dev/zigbee`, `/dev/dsmr` of ttyUSB-poorten die verwisselen** → lees `docs/usb-dongles.md`
+- **Vragen over Magister, de agenda-sync, het token/refresh-token, `magister-sync.service`, `token.json`, iCal-feeds op `agenda.toorren.net` of opnieuw inloggen** → lees `docs/magister.md`
 
 ## Huidige Status
 
