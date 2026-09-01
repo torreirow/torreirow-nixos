@@ -50,10 +50,8 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
   services.xserver.displayManager.sessionCommands = ''
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
-    ${lib.getBin pkgs.autorandr}/bin/xrandr --setprovideroutputsource 2 0
-    ${lib.getBin pkgs.autorandr}/bin/xrandr --auto
+    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
     '';
 
 
