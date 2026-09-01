@@ -13,7 +13,9 @@ import subprocess
 import logging
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from playwright.sync_api import sync_playwright
+import urllib.request
+import urllib.parse
+import urllib.error
 from dateutil import parser
 from bs4 import BeautifulSoup
 from email.message import EmailMessage
@@ -21,9 +23,19 @@ from email.message import EmailMessage
 
 # Configuratie
 MAGISTER_URL = "https://groevenbeek.magister.net"
-SESSION_FILE = "magister_session.json"
+SESSION_FILE = "magister_session.json"  # legacy (cookie-scrape), niet meer gebruikt
+TOKEN_FILE = "token.json"               # refresh/access-token state (mode 0600)
 ICAL_FILE = "magister.ics"
 KEEP_ALIVE_INTERVAL = 10 * 60  # 10 minuten in seconden
+
+# OAuth via de mobiele-app-client (M6LOAPP): stille refresh, geen ~10u SSO-cliff meer.
+AUTHORITY = "https://accounts.magister.net"
+TOKEN_URL = f"{AUTHORITY}/connect/token"
+OAUTH_CLIENT_ID = "M6LOAPP"
+
+
+class SessionInvalid(Exception):
+    """Refresh-token definitief ongeldig (invalid_grant): opnieuw inloggen vereist."""
 LOG_FILE = "/var/log/magister/magister.log"
 ERROR_EMAIL = "wvdtoorren@gmail.com"
 HEARTBEAT_FILE = "/var/lib/prometheus-node-exporter-textfiles/magister_heartbeat.prom"
@@ -154,26 +166,6 @@ def send_success_email(kinderen_count, calendars):
         return False
 
 
-def find_chromium_executable():
-    """Vind Chromium executable op NixOS of standaard systeem"""
-    # Probeer NixOS locaties
-    nix_paths = [
-        "/run/current-system/sw/bin/chromium",
-        "/etc/profiles/per-user/*/bin/chromium",
-        subprocess.run(["which", "chromium"], capture_output=True, text=True).stdout.strip(),
-        subprocess.run(["which", "chromium-browser"], capture_output=True, text=True).stdout.strip(),
-    ]
-
-    for path in nix_paths:
-        if path and Path(path).exists():
-            logger.info(f"✓ Chromium gevonden: {path}")
-            return path
-
-    # Fallback naar None (gebruik Playwright default)
-    logger.warning("⚠ Geen NixOS Chromium gevonden, gebruik Playwright default")
-    return None
-
-
 def generate_index_html(domain="agenda.toorren.net"):
     """Genereer index.html met lijst van beschikbare calendars"""
     try:
@@ -257,304 +249,187 @@ def generate_index_html(domain="agenda.toorren.net"):
 
 class MagisterServerClient:
     def __init__(self):
-        self.session_file = Path(SESSION_FILE)
+        self.token_file = Path(TOKEN_FILE)
         self.afspraken_data = None
         self.kinderen = []
-        self.chromium_path = find_chromium_executable()
-
-    def get_browser_launch_options(self):
-        """Geef browser launch opties terug, NixOS-compatible"""
-        options = {"headless": True}
-        if self.chromium_path:
-            options["executable_path"] = self.chromium_path
-        return options
+        self.account_person_id = None
+        self._tokens = None
 
     def session_exists(self):
-        """Check of er een opgeslagen sessie bestaat"""
-        return self.session_file.exists()
+        """Check of er een token-bestand (refresh-token) bestaat"""
+        return self.token_file.exists()
 
-    def fetch_kinderen(self):
-        """Haal lijst van kinderen op van het ouderaccount"""
-        if not self.session_exists():
-            logger.error("✗ Geen sessie gevonden")
-            return None
+    # ── Token-beheer (refresh-token flow; het refresh-token ROTEERT) ─────────
+    def _load_tokens(self):
+        if self._tokens is None:
+            with open(self.token_file, encoding="utf-8") as f:
+                self._tokens = json.load(f)
+        return self._tokens
+
+    def _save_tokens(self, tok):
+        self._tokens = tok
+        tmp = str(self.token_file) + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(tok, f, indent=2)
+        os.chmod(tmp, 0o600)
+        os.replace(tmp, self.token_file)  # atomair
+
+    def _refresh_access_token(self):
+        tok = self._load_tokens()
+        refresh = tok.get("refresh_token")
+        if not refresh:
+            raise SessionInvalid("geen refresh_token in token.json")
+
+        data = urllib.parse.urlencode({
+            "grant_type": "refresh_token",
+            "refresh_token": refresh,
+            "client_id": OAUTH_CLIENT_ID,
+        }).encode("ascii")
+        req = urllib.request.Request(
+            TOKEN_URL, data=data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                new = json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", "replace")
+            if e.code in (400, 401) and "invalid_grant" in body:
+                raise SessionInvalid(f"refresh geweigerd (invalid_grant): {body}")
+            raise  # 5xx/tijdelijk (bv. Magister-onderhoud): caller behandelt als transient
+
+        merged = dict(tok)
+        # ROTATIE: bewaar het NIEUWE refresh-token; het oude vervalt hierna.
+        merged["refresh_token"] = new.get("refresh_token", refresh)
+        merged["access_token"] = new["access_token"]
+        merged["access_expires"] = time.time() + int(new.get("expires_in", 3600)) - 60
+        self._save_tokens(merged)
+        logger.info("✓ Access-token vernieuwd (refresh-token geroteerd)")
+        return merged["access_token"]
+
+    def get_access_token(self):
+        """Geef een geldige access-token; ververs via refresh indien (bijna) verlopen."""
+        tok = self._load_tokens()
+        access = tok.get("access_token")
+        if access and time.time() < tok.get("access_expires", 0):
+            return access
+        return self._refresh_access_token()
+
+    def api_get(self, path):
+        """GET op de tenant-API met Bearer-token; 1x retry na geforceerde refresh bij 401."""
+        access = self.get_access_token()
+
+        def _do(token):
+            req = urllib.request.Request(
+                MAGISTER_URL + path,
+                headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return json.loads(r.read().decode("utf-8"))
 
         try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(**self.get_browser_launch_options())
-                context = browser.new_context(storage_state=str(self.session_file))
-                page = context.new_page()
+            return _do(access)
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                logger.warning(f"  API {path} gaf 401; forceer refresh en retry")
+                return _do(self._refresh_access_token())
+            raise
 
-                kinderen_response = None
-                account_id = None
+    def fetch_kinderen(self):
+        """Haal lijst van kinderen op van het ouderaccount (Bearer-API)"""
+        try:
+            acc = self.api_get("/api/account")
+        except SessionInvalid:
+            raise
+        except Exception as e:
+            logger.error(f"✗ Kon /api/account niet ophalen: {e}", exc_info=True)
+            return None
 
-                def handle_response(response):
-                    nonlocal kinderen_response, account_id
-                    # Zoek eerst het account ID
-                    if "/api/account?" in response.url and not account_id:
-                        try:
-                            data = response.json()
-                            account_id = data.get('Id')
-                        except:
-                            pass
-                    # Zoek kinderen endpoint
-                    if "/kinderen" in response.url:
-                        try:
-                            kinderen_response = response.json()
-                        except:
-                            pass
+        person_id = acc.get("Id") or (acc.get("Persoon") or {}).get("Id")
+        if not person_id:
+            logger.error("✗ Geen person-id in /api/account response")
+            return None
+        self.account_person_id = person_id
 
-                page.on("response", handle_response)
-
-                # Navigeer naar hoofdpagina om account info op te halen
-                page.goto(MAGISTER_URL, wait_until="networkidle")
-                page.wait_for_timeout(3000)
-
-                browser.close()
-
-                if kinderen_response and 'Items' in kinderen_response:
-                    self.kinderen = kinderen_response['Items']
-                    logger.info(f"✓ Gevonden: {len(self.kinderen)} kind(eren)")
-                    for kind in self.kinderen:
-                        logger.info(f"  - {kind['Roepnaam']} (ID: {kind['Id']}, Stamnr: {kind['Stamnummer']})")
-                    return self.kinderen
-                else:
-                    logger.warning("⚠ Geen kinderen gevonden, gebruik standaard account")
-                    return None
-
+        try:
+            data = self.api_get(f"/api/personen/{person_id}/kinderen")
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                # Geen kinderen-endpoint -> account is zelf de leerling.
+                logger.info("Geen kinderen-endpoint (404): account is zelf de leerling")
+                roep = (acc.get("Persoon") or {}).get("Roepnaam") or "agenda"
+                self.kinderen = [{"Id": person_id, "Roepnaam": roep, "Stamnummer": None}]
+                return self.kinderen
+            logger.error(f"✗ Kon kinderen niet ophalen: HTTP {e.code}", exc_info=True)
+            return None
         except Exception as e:
             logger.error(f"✗ Fout bij ophalen kinderen: {e}", exc_info=True)
             return None
 
+        self.kinderen = data.get("Items", [])
+        if self.kinderen:
+            logger.info(f"✓ Gevonden: {len(self.kinderen)} kind(eren)")
+            for kind in self.kinderen:
+                logger.info(f"  - {kind.get('Roepnaam')} (ID: {kind.get('Id')}, Stamnr: {kind.get('Stamnummer')})")
+            return self.kinderen
+        logger.warning("⚠ Geen kinderen gevonden")
+        return None
+
     def test_session(self):
-        """Test of de opgeslagen sessie nog geldig is"""
+        """Sessie geldig = kunnen we (indien nodig) verversen?
+
+        Bepaalt of we FATAAL stoppen. Een 5xx/netwerkfout (bv. Magister-onderhoud)
+        is NIET fataal; alleen een invalid_grant (refresh-token dood) wel.
+        """
         if not self.session_exists():
             return False
-
         try:
-            logger.info("Testen van sessie...")
-            with sync_playwright() as p:
-                browser = p.chromium.launch(**self.get_browser_launch_options())
-                context = browser.new_context(storage_state=str(self.session_file))
-                page = context.new_page()
-
-                # Vang alle responses en errors
-                afspraken_response = []
-                error_responses = []
-
-                def handle_response(response):
-                    if "/afspraken?" in response.url:
-                        afspraken_response.append(response)
-                    # Check voor 401/403 errors (unauthorized)
-                    if response.status in [401, 403]:
-                        error_responses.append({
-                            'url': response.url,
-                            'status': response.status
-                        })
-                        print(f"  ⚠ HTTP {response.status} op {response.url}")
-
-                page.on("response", handle_response)
-
-                # Probeer naar hoofdpagina te gaan
-                response = page.goto(MAGISTER_URL, wait_until="networkidle", timeout=30000)
-
-                page.wait_for_timeout(2000)
-
-                # Check of we doorgestuurd worden naar login pagina
-                current_url = page.url
-
-                if "login" in current_url.lower() or "oidc" in current_url.lower():
-                    logger.error(f"  ✗ Doorgestuurd naar login pagina - sessie ongeldig (URL: {current_url})")
-                    browser.close()
-                    return False
-
-                if error_responses:
-                    logger.error(f"✗ Sessie is niet geldig ({len(error_responses)} auth errors)")
-                    browser.close()
-                    return False
-                elif afspraken_response:
-                    logger.info("✓ Sessie is nog geldig")
-                    browser.close()
-                    return True
-                else:
-                    # Geen /afspraken?-call op de homepage (#/vandaag) -> valideer via een
-                    # directe API-call op de HUIDIGE page. NIET self.test_session_api()
-                    # aanroepen: dat opent een tweede sync_playwright() binnen dit nog
-                    # openstaande with-blok -> "Sync API inside the asyncio loop" (exit 1,
-                    # false-positive "sessie verlopen").
-                    logger.info("  Geen afspraken response, probeer directe API test...")
-                    try:
-                        result = page.evaluate("""
-                            async () => {
-                                try {
-                                    const response = await fetch('/api/account');
-                                    return { status: response.status, ok: response.ok };
-                                } catch (e) {
-                                    return { error: e.message };
-                                }
-                            }
-                        """)
-                    except Exception as api_e:
-                        logger.error(f"✗ API test error: {api_e}", exc_info=True)
-                        browser.close()
-                        return False
-                    browser.close()
-                    if result.get('ok'):
-                        logger.info("✓ Sessie is geldig (via API)")
-                        return True
-                    else:
-                        logger.error(f"✗ API test mislukt: status {result.get('status')}")
-                        return False
-
-        except Exception as e:
-            logger.error(f"⚠ Fout bij testen sessie: {e}", exc_info=True)
+            logger.info("Testen van sessie (refresh-token)...")
+            self.get_access_token()  # ververst indien nodig; SessionInvalid als refresh dood is
+            logger.info("✓ Sessie is geldig (refresh werkt)")
+            return True
+        except SessionInvalid as e:
+            logger.error(f"  ✗ Refresh-token ongeldig: {e}")
             return False
-
-    def test_session_api(self):
-        """Test sessie via directe API call"""
-        try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(**self.get_browser_launch_options())
-                context = browser.new_context(storage_state=str(self.session_file))
-                page = context.new_page()
-
-                # Laad eerst hoofdpagina
-                page.goto(f"{MAGISTER_URL}/magister/", wait_until="networkidle")
-                page.wait_for_timeout(1000)
-
-                # Probeer account API aan te roepen
-                api_url = f"{MAGISTER_URL}/api/account"
-                result = page.evaluate(f"""
-                    async () => {{
-                        try {{
-                            const response = await fetch('{api_url}');
-                            return {{
-                                status: response.status,
-                                ok: response.ok
-                            }};
-                        }} catch (e) {{
-                            return {{ error: e.message }};
-                        }}
-                    }}
-                """)
-
-                browser.close()
-
-                if result.get('ok'):
-                    logger.info("✓ Sessie is geldig (via API)")
-                    return True
-                else:
-                    logger.error(f"✗ API test mislukt: status {result.get('status')}")
-                    return False
-
         except Exception as e:
-            logger.error(f"✗ API test error: {e}", exc_info=True)
-            return False
+            logger.warning(f"  ⚠ Tijdelijke fout bij sessietest ({e}); sessie als geldig beschouwd")
+            return True
 
     def fetch_afspraken(self, days=21, persoon_id=None):
-        """Haal afspraken op met Playwright voor een bepaald aantal dagen en specifiek persoon"""
-        if not self.session_exists():
-            logger.error("✗ Geen sessie gevonden")
+        """Haal afspraken op via de Bearer-API voor een kind (of het account zelf)."""
+        if persoon_id is None:
+            persoon_id = self.account_person_id
+        if not persoon_id:
+            logger.error("✗ Geen persoon_id voor afspraken")
             return None
 
+        # Bereken start (maandag) en eind van de periode
+        today = datetime.now()
+        start_of_week = today - timedelta(days=today.weekday())  # Maandag
+        end_of_week = start_of_week + timedelta(days=days - 1)
+        van_datum = start_of_week.strftime('%Y-%m-%d')
+        tot_datum = end_of_week.strftime('%Y-%m-%d')
+
+        # Haal ALLE statussen op (1=gepland, 2=gewijzigd, 3=vervallen, 5=verplaatst, etc)
+        path = f"/api/personen/{persoon_id}/afspraken?tot={tot_datum}&van={van_datum}"
         try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(**self.get_browser_launch_options())
-                context = browser.new_context(storage_state=str(self.session_file))
-                page = context.new_page()
-
-                # Bereken start en eind datum voor de week
-                today = datetime.now()
-                start_of_week = today - timedelta(days=today.weekday())  # Maandag
-                end_of_week = start_of_week + timedelta(days=days - 1)
-
-                van_datum = start_of_week.strftime('%Y-%m-%d')
-                tot_datum = end_of_week.strftime('%Y-%m-%d')
-
-                # Nieuwe aanpak: DIRECT de API aanroepen via page.evaluate
-                if persoon_id:
-                    print(f"  Direct API call naar /api/personen/{persoon_id}/afspraken")
-
-                    # Eerst een pagina laden om cookies/sessie te initialiseren
-                    page.goto(f"{MAGISTER_URL}/magister/", wait_until="networkidle")
-                    page.wait_for_timeout(1000)
-
-                    # Nu direct API call doen via fetch in de browser context
-                    # Haal ALLE statussen op (1=gepland, 2=gewijzigd, 3=vervallen, 5=verplaatst, etc)
-                    api_url = f"{MAGISTER_URL}/api/personen/{persoon_id}/afspraken?tot={tot_datum}&van={van_datum}"
-                    logger.debug(f"  API URL: {api_url}")
-
-                    try:
-                        result = page.evaluate(f"""
-                            async () => {{
-                                const response = await fetch('{api_url}');
-                                if (!response.ok) {{
-                                    throw new Error('API call failed: ' + response.status);
-                                }}
-                                return await response.json();
-                            }}
-                        """)
-
-                        browser.close()
-
-                        # schrijf debug output
-                        with open("/tmp/debug.json", "w", encoding="utf-8") as f:
-                            json.dump(result, f, indent=2, ensure_ascii=False)
-
-                        if result and 'Items' in result:
-                            logger.info(f"✓ Afspraken opgehaald via API: {len(result.get('Items', []))} items ({van_datum} t/m {tot_datum})")
-                            return result
-                        else:
-                            logger.error("✗ Geen items in API response")
-                            return None
-
-                    except Exception as api_error:
-                        logger.error(f"✗ API call mislukt: {api_error}", exc_info=True)
-                        browser.close()
-                        return None
-
-                else:
-                    # Fallback naar oude methode voor default account
-                    afspraken_response = []
-
-                    def handle_response(response):
-                        if "/afspraken?" in response.url:
-                            afspraken_response.append(response)
-
-                    page.on("response", handle_response)
-
-                    agenda_url = f"{MAGISTER_URL}/magister/#/agenda?van={van_datum}&tot={tot_datum}"
-                    page.goto(agenda_url, wait_until="networkidle")
-                    page.wait_for_timeout(5000)
-
-                    if not afspraken_response:
-                        page.goto(f"{MAGISTER_URL}/magister/#/agenda", wait_until="networkidle")
-                        page.wait_for_timeout(5000)
-
-                    if not afspraken_response:
-                        logger.error("✗ Geen /afspraken response gevonden")
-                        browser.close()
-                        return None
-
-                    # Verzamel alle afspraken
-                    all_items = []
-                    for response in afspraken_response:
-                        try:
-                            data = response.json()
-                            if 'Items' in data:
-                                all_items.extend(data['Items'])
-                        except:
-                            pass
-
-                    combined_data = {'Items': all_items}
-                    browser.close()
-
-                    logger.info(f"✓ Afspraken opgehaald: {len(combined_data.get('Items', []))} items ({van_datum} t/m {tot_datum})")
-                    return combined_data
-
+            result = self.api_get(path)
         except Exception as e:
-            logger.error(f"✗ Fout bij ophalen afspraken: {e}", exc_info=True)
+            logger.error(f"✗ API call mislukt voor persoon {persoon_id}: {e}", exc_info=True)
             return None
+
+        # Debug-output (zelfde pad als voorheen)
+        try:
+            with open("/tmp/debug.json", "w", encoding="utf-8") as f:
+                json.dump(result, f, indent=2, ensure_ascii=False)
+        except OSError:
+            pass
+
+        if result and 'Items' in result:
+            logger.info(f"✓ Afspraken opgehaald via API: {len(result.get('Items', []))} items ({van_datum} t/m {tot_datum})")
+            return result
+        logger.error("✗ Geen items in API response")
+        return None
 
     def ical_escape(self, text):
         """
@@ -747,47 +622,45 @@ def main():
 
     client = MagisterServerClient()
 
-    # Check of sessie bestaat
+    # Check of token-bestand bestaat
     if not client.session_exists():
-        error_msg = f"Geen sessie gevonden: {SESSION_FILE}\n\n"
+        error_msg = f"Geen token gevonden: {TOKEN_FILE}\n\n"
         error_msg += "Voer de volgende stappen uit:\n"
-        error_msg += "1. Draai magister_login.py op je laptop\n"
-        error_msg += f"2. Kopieer {SESSION_FILE} naar deze server\n"
+        error_msg += "1. Draai verify_pkce.py op je laptop (login met passkey)\n"
+        error_msg += f"2. Zet het refresh_token in {client.token_file} op deze server (mode 0600)\n"
         error_msg += "3. Start dit script opnieuw\n"
 
         logger.error(f"✗ {error_msg}")
 
-        # Stuur email
         send_error_email(
-            subject="Sessie bestand niet gevonden",
+            subject="Token bestand niet gevonden",
             body=error_msg
         )
 
         import sys
-        sys.exit(1)  # Exit met code 1 = sessie probleem
+        sys.exit(1)  # Exit met code 1 = token probleem
 
-    logger.info(f"✓ Sessie bestand gevonden: {SESSION_FILE}")
+    logger.info(f"✓ Token-bestand gevonden: {TOKEN_FILE}")
 
-    # Test sessie
+    # Test sessie (kunnen we verversen?)
     if not client.test_session():
-        error_msg = "Sessie is niet meer geldig!\n\n"
-        error_msg += "De sessie is verlopen. Voer de volgende stappen uit:\n"
-        error_msg += "1. Draai magister_login.py op je laptop (opnieuw inloggen)\n"
-        error_msg += f"2. Kopieer het nieuwe {SESSION_FILE} naar deze server\n"
+        error_msg = "Refresh-token is ongeldig geworden!\n\n"
+        error_msg += "Opnieuw inloggen vereist. Voer de volgende stappen uit:\n"
+        error_msg += "1. Draai verify_pkce.py op je laptop (login met passkey)\n"
+        error_msg += f"2. Zet het nieuwe refresh_token in {client.token_file} (mode 0600)\n"
         error_msg += "3. Start dit script opnieuw\n\n"
         error_msg += f"Server: {os.uname().nodename}\n"
         error_msg += f"Tijdstip: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
 
         logger.error(f"✗ {error_msg}")
 
-        # Stuur email
         send_error_email(
-            subject="Sessie ongeldig - opnieuw inloggen vereist",
+            subject="Refresh-token ongeldig - opnieuw inloggen vereist",
             body=error_msg
         )
 
         import sys
-        sys.exit(1)  # Exit met code 1 = sessie probleem
+        sys.exit(1)  # Exit met code 1 = token probleem
 
     # Haal lijst van kinderen op
     logger.info("=== Kinderen detecteren ===")
@@ -887,11 +760,11 @@ def main():
                 if failed_updates >= max_failed_updates:
                     logger.warning("  → Testen van sessie...")
                     if not client.test_session():
-                        error_msg = "Sessie is ongeldig geworden tijdens runtime!\n\n"
+                        error_msg = "Refresh-token is ongeldig geworden tijdens runtime!\n\n"
                         error_msg += "De sessie is verlopen tijdens het draaien van de service.\n"
                         error_msg += "Voer de volgende stappen uit:\n"
-                        error_msg += "1. Draai magister_login.py op je laptop (opnieuw inloggen)\n"
-                        error_msg += f"2. Kopieer het nieuwe {SESSION_FILE} naar deze server\n"
+                        error_msg += "1. Draai verify_pkce.py op je laptop (login met passkey)\n"
+                        error_msg += f"2. Zet het nieuwe refresh_token in {TOKEN_FILE} op deze server\n"
                         error_msg += "3. Herstart de magister-sync service\n\n"
                         error_msg += f"Server: {os.uname().nodename}\n"
                         error_msg += f"Tijdstip: {timestamp}\n"
