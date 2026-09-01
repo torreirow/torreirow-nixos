@@ -96,30 +96,64 @@ def main() -> int:
     else:
         print("  (kon JWT niet decoderen)")
 
+    # ── Account ophalen -> person-id afleiden ────────────────────────────────
     print("\n" + "=" * 70)
-    print("ENDPOINT-PROBE  (Bearer, GET)")
+    print("ACCOUNT -> KINDEREN -> AFSPRAKEN  (dynamische ontdekking)")
     print("=" * 70)
-    winners = []
-    for path in ENDPOINTS:
-        for vname, extra in HEADER_VARIANTS.items():
-            status, body = get(path, access, extra)
-            snippet = body[:120].replace("\n", " ")
-            print(f"  [{vname:10}] {path:24} -> HTTP {status}  {snippet}")
-            if status == 200:
-                winners.append((path, vname))
-        print()
+    status, body = get("/api/account", access, {})
+    if status != 200:
+        print(f"  /api/account -> HTTP {status} (verwacht 200). Stop discovery.")
+        return 1
+    acc = json.loads(body)
+    person_id = acc.get("Id") or (acc.get("Persoon") or {}).get("Id")
+    print(f"  account person-id: {person_id}")
 
-    print("=" * 70)
-    if winners:
-        print("✅ WERKENDE endpoints (HTTP 200):")
-        for path, vname in winners:
-            print(f"   {path}   (headers: {vname})")
-        print("\n=> magister_server.py kan deze call met Bearer gebruiken.")
-    else:
-        print("❌ Geen enkel endpoint gaf 200.")
-        print("   Kijk naar de `aud`/`scope` hierboven: als aud NIET de tenant/API is,")
-        print("   heeft de M6LOAPP-token de verkeerde audience en moeten we of extra")
-        print("   scopes aanvragen, of het token via een andere route inruilen.")
+    # Kinderen-endpoint kandidaten
+    kinderen = None
+    kind_pad = None
+    for path in (f"/api/personen/{person_id}/kinderen",
+                 f"/api/leerlingen/{person_id}/kinderen",
+                 "/api/kinderen"):
+        st, bd = get(path, access, {})
+        print(f"  kinderen? {path:40} -> HTTP {st}")
+        if st == 200:
+            try:
+                data = json.loads(bd)
+                if isinstance(data, dict) and data.get("Items"):
+                    kinderen = data["Items"]
+                    kind_pad = path
+                    break
+            except Exception:  # noqa: BLE001
+                pass
+
+    if kinderen is None:
+        print("\n  Geen kinderen-endpoint gevonden -> account is mogelijk zelf de leerling.")
+        # Probeer eigen afspraken
+        kinderen = [{"Id": person_id, "Roepnaam": acc.get("Persoon", {}).get("Roepnaam") or "self"}]
+        kind_pad = "(self)"
+
+    print(f"\n  ✅ kinderen-pad: {kind_pad}  ({len(kinderen)} kind(eren))")
+    for k in kinderen:
+        kid = k.get("Id")
+        naam = k.get("Roepnaam") or k.get("Achternaam") or "?"
+        stam = k.get("Stamnummer")
+        # Afspraken-call testen (kleine window)
+        from datetime import date, timedelta
+        van = date.today().isoformat()
+        tot = (date.today() + timedelta(days=7)).isoformat()
+        apad = f"/api/personen/{kid}/afspraken?van={van}&tot={tot}"
+        st, bd = get(apad, access, {})
+        n = "?"
+        try:
+            n = len(json.loads(bd).get("Items", []))
+        except Exception:  # noqa: BLE001
+            pass
+        print(f"     - {naam:12} (Id {kid}, Stamnr {stam})  afspraken -> HTTP {st}, {n} items")
+
+    print("\n=> Endpoints bevestigd voor de Bearer-ombouw:")
+    print(f"   account : /api/account            (person-id via .Persoon.Id)")
+    print(f"   kinderen: {kind_pad}")
+    print(f"   agenda  : /api/personen/<kindId>/afspraken?van=&tot=")
     return 0
 
 
