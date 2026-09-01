@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Nextcloud sync (home-manager)**: Nieuwe module `services.nextcloud-sync` (`home/module/nextcloud-sync/`) om per user een headless Nextcloud-sync in te regelen met `nextcloudcmd`. Elk sync-paar onder `syncs.<naam>` levert een oneshot `systemd.user.service` + `.timer`. Geïmporteerd in `wtoorren@linuxdesktop`; standaard uit (`enable = false`).
+  - Auth via `nextcloudcmd --non-interactive` dat `$NC_USER`/`$NC_PASSWORD` uit een handmatig EnvironmentFile (`~/.config/nextcloud-sync/credentials`, 0600) leest — nooit in de nix-store of git
+  - Timer-cadans via `OnUnitActiveSec` (default 10 min, geen overlap) + eerste run 2 min na login
+  - Opties per sync: `serverUrl`, `localPath` (`~/` wordt geëxpandeerd), `remotePath` (`--path`), `interval`, `excludeFile`, `trust`, `extraArgs`
+  - Activeren vereist eenmalig een handmatig credentials-bestand met een Nextcloud **app-password**
 - **Wayle clipboard dropdown**: Clipboard history icoon in de wayle-bar rechtsboven, naast planify. Klikken opent een native GTK4 dropdown met alle entries van `cliphist`. Klik op een entry → gekopieerd naar clipboard en dropdown sluit. Vervangt niet de `Ctrl+Super+C` fuzzel picker — beide bestaan naast elkaar.
   - Nieuw Rust/Relm4 component in de wayle fork (`crates/wayle-shell/src/shell/bar/dropdowns/clipboard/`)
   - Entries worden geladen via `cliphist list` op popover open-event (geen polling)

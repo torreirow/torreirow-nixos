@@ -2,8 +2,8 @@
 
 {
   imports = [
-  ./module/claude.nix
- ];
+    ./module/codevibing/claude.nix
+  ];
 
 
 programs.direnv = {
