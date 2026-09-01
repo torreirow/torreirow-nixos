@@ -1,12 +1,237 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-08-06
+**Laatst bijgewerkt:** 2026-08-26
 
 ## Contextbestanden (lees on-demand)
 
 - **Vragen over USB dongle, Zigbee dongle, DSMR adapter, `/dev/zigbee`, `/dev/dsmr` of ttyUSB-poorten die verwisselen** → lees `docs/usb-dongles.md`
+- **Vragen over Magister, de agenda-sync, het token/refresh-token, `magister-sync.service`, `token.json`, iCal-feeds op `agenda.toorren.net` of opnieuw inloggen** → lees `docs/magister.md`
 
 ## Huidige Status
+
+### Sessie 2026-08-31 - Agenda-wandpaneel (HA read-only kiosk-dashboard) - GROTENDEELS OPGELOST
+
+**Doel:** Een vast Android-wandpaneel dat kaal/fullscreen de agenda's uit Home Assistant toont,
+met een aparte read-only inlog die automatisch op het juiste dashboard landt. OpenSpec change
+`add-agenda-wandpaneel`.
+
+**Belangrijke les — ik zit op lobos, HA draait op malandro:** `/var/lib/homeassistant` op **lobos**
+is een **backup-snapshot van 24-02-2026**, GEEN live data. De live HA staat op **malandro**
+(`ssh malandro`, container `homeassistant`, config óók `/var/lib/homeassistant` → `/config`,
+passwordless sudo). `ssh malandro` faalt zolang de **rbw-agent gelockt** is (`rbw unlock` nodig;
+de malandro-key wordt door rbw geserveerd, `IdentitiesOnly yes`). Al het echte werk hieronder is
+op malandro gedaan.
+
+**Live-correctie t.o.v. het plan:** er zijn **8 kalenders**, niet 4 (wouter, family, egh, vollebal,
+maaike, noraly, boas_grvb, afvalbeheer_omrin). En `calendar.volleybal` (correcte spelling) bestaat
+live NIET meer — alléén `calendar.vollebal` (typo) bestaat en is de énige volleybal-agenda. De
+oorspronkelijk geplande "opschoning" van `calendar.vollebal` is dus **geschrapt** (zou de agenda wissen).
+
+**Doorgevoerd op malandro (strategie A = 1× inloggen + sessie vasthouden, geen trusted_networks):**
+- **kiosk-mode** (NemesisRE v14.1.0) handmatig als `www/kiosk-mode.js` → geserveerd op
+  `/local/kiosk-mode.js`, geregistreerd in `.storage/lovelace_resources` (HACS-UI headless niet
+  mogelijk; updates lopen dus niet via HACS). `?kiosk` in de URL verbergt header + zijbalk.
+- **Read-only user `paneel`** (groep `system-read-only`) via directe edits van `.storage/auth`
+  (user + credential) en `.storage/auth_provider.homeassistant` (username + bcrypt-hash, hash
+  gegenereerd via de HA-container zodat het klopt). **Wachtwoord: `Xf3qlItbIgeqVw`** (staat ook in
+  Vaultwarden/handmatig te bewaren). Login-flow getest → auth-code afgegeven, werkt.
+- **Dashboard** `.storage/lovelace.dashboard_agenda` (panel-view, **native `calendar`-kaart met
+  `initial_view: listWeek`**, 8 kalenders), geregistreerd in `.storage/lovelace_dashboards` als
+  `url_path: dashboard-agenda`, `require_admin: false`. URL: `homeassistant.toorren.net/dashboard-agenda?kiosk`.
+  (Eerst calendar-card-pro; na visuele vergelijking omgezet naar de native listWeek-lijst — die
+  bevalt beter én biedt in-kaart kalender-toggles. calendar-card-pro blijft geïnstalleerd, ongebruikt.)
+
+**Werkwijze `.storage` (zoals altijd):** HA gestopt (`systemctl stop docker-homeassistant.service` —
+let op: stop-job kan "canceled" tonen / HA doet er even over; poll tot `inactive/failed`), backups
+`*.bak-claude-20260831-165547` van auth/auth_provider.homeassistant/lovelace_dashboards/lovelace_resources,
+edits via `python3` (idempotent), HA gestart. **Geverifieerd:** HA komt schoon op (http 200, 0 errors),
+paneel-login werkt, kiosk-mode.js geserveerd, resources geregistreerd.
+
+**Toggles + legenda → `/calendar`-pagina i.p.v. kaart:** de kalender-aan/uit-checkboxes en legenda
+zitten op HA's ingebouwde `/calendar`-pagina, NIET op de `calendar`-kaart (een kaart rendert alleen
+de lijst). Daarom toont het paneel `/calendar` (lijst-weergave). Kaal gemaakt via kiosk-mode's
+**cache**: `dashboard-agenda` kreeg `kiosk_mode: {non_admin_settings: {kiosk: true}}`; de tablet laadt
+dat dashboard 1× als `paneel` (primet de localStorage-cache), waarna header+zijbalk app-breed
+verborgen blijven — óók op `/calendar`. Header-hiding op `/calendar` is niet officieel ondersteund
+(versie-afhankelijk) → visueel checken; evt. `hide_header`/`hide_sidebar` fijnregelen.
+
+**Nog te doen (fysiek, buiten CLI):** Fully Kiosk Browser op de tablet: eerst 1× `dashboard-agenda`
+laden als `paneel` (cache primen), dan start-URL = `https://homeassistant.toorren.net/calendar`
+(lijst-weergave kiezen; onthouden per browser), screen-always-on/dim/auto-reload, en 1× inloggen als
+`paneel` (sessie blijft hangen). Daarna visueel bevestigen: kaal + toggles + legenda + 8 kalenders.
+
+**Status:** ✅ HA-kant live en getest. ⏳ Tablet-configuratie is handwerk.
+
+### Sessie 2026-08-28 - Rustic S3 backup (Vaultwarden + DBs + /data) - OPGELOST
+
+**Doel:** Dagelijkse, versleutelde, incrementele off-site backup naar AWS S3 met
+[rustic](https://github.com/rustic-rs/rustic), plus disaster-recovery dumps van PostgreSQL,
+MariaDB en de Vaultwarden-SQLite. Zie OpenSpec change `add-rustic-s3-backup` (gearchiveerd) en
+Beans-epic `nixos-sd4i`.
+
+**Opzet — module `modules/rustic-backup.nix` (import in `hosts/malandro/configuration.nix`):**
+- **rustic praat DIRECT met S3** via de opendal-s3 backend — **GEEN mountpoint-s3/FUSE**. FUSE kan
+  geen rename/lock/atomic-replace en zou de rustic-repo corrumperen. `/data/s3` is dus géén mount
+  geworden maar een repo-URL. Repo: `s3://wto-s3-bucket/rustic-backup/malandro` (region `eu-central-1`).
+- **3 los-draaibare dump-services** (oneshot, als root) schrijven naar `/var/backup/db/`:
+  - `pg-dump.service` → `runuser -u postgres -- pg_dumpall --clean --if-exists` | zstd → `pg-all.sql.zst`
+  - `mariadb-dump.service` → `mysqldump --all-databases --single-transaction` (root/unix-socket) | zstd
+  - `vaultwarden-dump.service` → `sqlite3 db.sqlite3 ".backup ..."` (online-backup, geen downtime)
+- **`rustic-backup.service`** (oneshot, Wants+After de 3 dumps) → `rustic backup` van het manifest +
+  `rustic forget --filter-host malandro --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --prune`.
+- **`rustic-backup.timer`** — dagelijks 03:00, `Persistent=true`.
+- **Faal-notificatie**: template-unit `rustic-notify@` → **Signal** via de lokale signal-cli REST API
+  (`http://127.0.0.1:8088/v2/send`, jq bouwt de JSON). Afzender `+31612652352`, ontvanger `+31636201589`
+  (zelfde als HA `signal_maria`). Op `OnFailure=` van alle vier services. Best-effort (`|| true`); geen
+  agenix-secret nodig (nummers zijn niet geheim, staan plain in de module — net als in de HA-config).
+- **Manifest (twee roots!):** `/var/lib/{homeassistant,vaultwarden,zigbee2mqtt,signal-cli,wg-easy,baikal,
+  mmdl,mosquitto}` + `/data/external/{docseal,erugo,wallos,invoiceplane-docker,pihole,castopod,
+  dockerlibs/volumes,tmp/paperless}` + `/var/backup/db`. Excludes via `!`-globs: live VW-sqlite
+  (`db.sqlite3{,-wal,-shm}`), caches, paperless consume/export. Overige /data/external-dirs
+  (postgresql/prometheus/crowdsec/nextcloud/registry-mirror/dockerlib) staan simpelweg niet in de sources.
+
+**Secrets (agenix, pad `/run/agenix/…` — malandro-conventie):**
+- `rustic-s3-env.age` → env-file met `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` (IAM-user `hasio`),
+  geladen via `EnvironmentFile=`.
+- `rustic-repo-password.age` → repo-encryptie-wachtwoord (password-file in het profiel).
+- ⚠️ **Repo-wachtwoord OOK buiten de backup bewaren** (password-manager + offline). Niet uitsluitend in
+  Vaultwarden — dat wordt door rustic geback-upt (circulair). Bij verlies is de repo onherstelbaar.
+
+**Belangrijke lessen (lokaal getest met rustic 0.11.2):**
+- **Env-substitutie = `${VAR}`**, NIET `{{VAR}}` (die bleef letterlijk staan). Vlag `--profile-substitute-env`.
+  Zo blijven de echte keys uit de nix-store/unit/`ps`: het profiel `/etc/rustic/malandro.toml` bevat
+  alleen `${AWS_*}`-placeholders.
+- **`rustic --glob`: `!pattern` = EXCLUDE**, plain pattern = restrictieve INCLUDE. Gebruik alléén `!`-excludes.
+- **Profiel-discovery**: `-P malandro` vindt `malandro.toml` in de working directory → `WorkingDirectory=/etc/rustic`.
+- **`rustic forget` accepteert géén `--host`** (backup wel); gebruik `--filter-host`.
+- IAM-policy `hasio` heeft `s3:DeleteObject` nodig voor prune (toegevoegd).
+
+**Geverifieerd:** switch schoon; 3 dumps produceren valide output (pg cluster-dump, MariaDB-dump,
+sqlite `integrity_check: ok`); volledige backup → S3 (snapshot 6820 files, 2.5 G), 2e run incrementeel
+(dedup), forget/prune correct; **restore-round-trip** van de VW-dump uit S3 → `integrity_check: ok`.
+
+**Handmatige commando's:**
+```bash
+sudo systemctl start pg-dump.service            # losse dump testen
+sudo systemctl start rustic-backup.service      # volledige backup + prune
+# rustic direct (met creds + profiel):
+sudo bash -c 'cd /etc/rustic && set -a && . /run/agenix/rustic-s3-env && set +a && \
+  '"$(nix build --no-link --print-out-paths nixpkgs#rustic)"'/bin/rustic -P malandro --profile-substitute-env snapshots'
+# restore: ... rustic -P malandro --profile-substitute-env restore latest:/PATH /doel
+```
+
+**Status:** ✅ Live. Timer draait dagelijks 03:00; eerste backups + restore-test geslaagd.
+
+### Sessie 2026-08-26 - Aircraft-monitor tijdelijk uitzetten via /aircraft Telegram-commando - OPGELOST
+
+**Wens:** De Aircraft-Monitor-melding tijdelijk kunnen uitzetten. `/aircraft 120` → zet een timer op
+120 min en een helper aan; `/aircraft` zonder waarde → start de timer met zijn default-duur; als de
+timer afloopt gaat de helper weer uit. De Signal-melding wordt onderdrukt zolang de helper aan staat.
+
+**Opgezet (puur HA-runtime-config, leeft in `/var/lib/homeassistant`, niet in deze nixos-repo):**
+- **Helper** `input_boolean.disable_aircraft_monitor` (naam "Aircraft monitor uit") — UI-helper in `.storage/input_boolean`.
+- **Timer** `timer.aircraft_monitor` (naam "AircraftMonitorTimer", icon `mdi:airplane-off`, default
+  duur **2:00:00**, **`restore: true`**) — UI-helper in `.storage/timer`. `restore: true` is hier
+  cruciaal: met `false` springt de timer bij HA-herstart stil naar idle → `timer.finished` vuurt
+  nooit → helper blijft eeuwig aan → monitor blijft eeuwig uit (zelfde les als afzuiging/geurhal).
+- **Telegram Commando Handler** (`automations.yaml`, id `202411192011005`): drie nieuwe `choose`-branches
+  (alle `command == '/aircraft'`, **volgorde-afhankelijk** — `choose` pakt de eerste match):
+  - **`/aircraft status`** (args[0] == 'status', staat als eerste branch) → `notify.wouter` met een
+    Jinja-template (`>-` folded scalar). Begint met de **meldingsstatus op basis van de helper**
+    (`input_boolean.disable_aircraft_monitor` aan → "Meldingen: ONDERDRUKT", uit → "ACTIEF") — dat is
+    de daadwerkelijke suppress-schakelaar — gevolgd door de timerstand: active → eindtijd + resterend,
+    paused → resterend, idle → "Geen timer loopt" + default-duur. Moet vóór de min-branch staan,
+    anders crasht `'status' | int`.
+  - args aanwezig → `timer.start` met `duration: '{{ trigger.event.data.args[0] | int * 60 }}'` (min→sec),
+    helper aan, bevestiging via `notify.wouter`.
+  - args leeg → `timer.start` zonder `duration` (gebruikt HA-native de default-duur van de helper =
+    "de huidige waarde"), helper aan, bevestiging met `state_attr('timer.aircraft_monitor','duration')`.
+  - `/aircraft [min|status]` ook toegevoegd aan de `/start`-hulptekst (toont ACTIEF/UIT).
+- **Nieuwe automation** `1756072000002` "Aircraft monitor weer aan": trigger `timer.finished` op
+  `timer.aircraft_monitor` → `input_boolean.turn_off`.
+- **Bestaande** automation `1756072000001` "Vliegtuig nadert - Signal melding": extra conditie
+  `state input_boolean.disable_aircraft_monitor == 'off'` (integratie blijft pollen, alleen de melding stopt).
+
+**Belangrijke les — entity_id vs helper-`id`/`name`:**
+UI-helpers in `.storage` krijgen hun **entity_id afgeleid van de `name`** (niet van het `id`-veld)
+zodra HA ze de eerste keer registreert. Mijn `id: aircraft_monitor` + `name: AircraftMonitorTimer`
+leverde dus eerst `timer.aircraftmonitortimer` op (en `input_boolean.aircraft_monitor_uit`), terwijl
+de automations `timer.aircraft_monitor` / `input_boolean.disable_aircraft_monitor` verwachtten.
+Fix: in `.storage/core.entity_registry` het `entity_id`-veld van beide registry-entries (gematcht op
+`platform` + `unique_id`, waarbij `unique_id` = het helper-`id`) hernoemd naar de nette id's — precies
+wat een UI-rename doet. Friendly names bleven behouden. Achtergebleven `restore_state`-sleutels van de
+oude entity_id's zijn onschadelijke orphans; HA ruimt die vanzelf op.
+
+**Werkwijze `.storage` veilig bewerken:** HA **stoppen** (`sudo systemctl stop docker-homeassistant.service`),
+`.storage`-JSON bewerken, HA **starten** — anders overschrijft HA je edits bij afsluiten met zijn
+geheugenkopie. `automations.yaml` mag altijd bewerkt worden (reload/herstart pikt het op).
+
+**Backups:** `automations.yaml.bak-claude-20260826-135319`,
+`.storage/timer.bak-claude-20260826-135319`, `.storage/input_boolean.bak-claude-20260826-135319`,
+`.storage/core.entity_registry.bak-claude-20260826-144629`.
+
+**Geverifieerd na herstart:** `timer.aircraft_monitor` = idle/2:00:00/restore, `input_boolean.disable_aircraft_monitor`
+= off, alle drie automations `on`, geen configfouten (`hass --script check_config` schoon op de wijzigingen).
+
+**Status:** ✅ Live. Let op: de Signal-melding gaat naar `notify.signal_maria`; de commando-bevestiging
+naar `notify.wouter` (Telegram).
+
+### Sessie 2026-08-24 - Geurhal (WC) ir_detector-automation + timer restore - OPGELOST
+
+**Vraag:** Bestaat er een automation die de geurhal aanzet als de "ir_detector" afgaat?
+
+**Antwoord: ja, de keten bestaat al.** De "ir_detector" is het **WCsensor** PIR-bewegingssensor
+(model "Motion sensor"; de `sensor.pir_voltage` / `sensor.pir_linkquality` entities horen bij dat
+device). Geen entity heet letterlijk `ir_detector`.
+
+**HA-opzet geurhal (WC):**
+- PIR/trigger: **WCsensor** → `binary_sensor.wcsensor_occupancy` (type `occupied`)
+- Plug: **Tuya Smart Plug** `switch.kerstoom3hoek_stopcontact_1` (naam "Geurhalwc", device `bfbc2e57cddcfdd03dvncw`, area hal)
+- Timer: `timer.geurhaltimer` (UI-helper in `.storage/timer`, duur 1u)
+- Automations in `/var/lib/homeassistant/automations.yaml`:
+  - `1732536224233` "WC geur aan" → occupancy on → plug aan + `timer.geurhaltimer` start
+  - `1732536276607` "WC geur uit" → `timer.finished` → plug uit
+
+**Wijziging doorgevoerd:** `timer.geurhaltimer` → `restore: false` → **`restore: true`** in
+`.storage/timer` (zelfde les als bij `timer.afzuiging`: met `false` sprong de timer bij HA-herstart
+stil naar idle zonder de geurhal uit te zetten). HA (container `docker-homeassistant.service`)
+herstart → waarde ingelezen en na herstart geverifieerd bewaard gebleven.
+Backup: `.storage/timer.bak-claude-20260824-163206`.
+
+**Let op:** de plug is een Tuya-apparaat. Per sessie 2026-08-23 was de Tuya-integratie kapot sinds
+17 aug; user gaf aan dat Tuya het weer zou doen. Als de geurhal niet reageert terwijl de automation
+wél vuurt → check eerst de Tuya-koppeling (zelfde oorzaak als bij de afzuiging).
+
+**Status:** ✅ `restore: true` live; automation-keten compleet mits Tuya werkt.
+
+
+### Sessie 2026-08-23 - Afzuiging gaat wel aan maar niet uit - DEELS OPGELOST
+
+**Probleem:** Centrale afzuiging (keuken) ging wel aan maar niet meer automatisch uit. Knop (RODRET) deed het slecht.
+
+**HA-opzet afzuiging:**
+- Stekker: **Tuya Smart Plug** `switch.afzuiging_socket_1` (device `bf4193cbb9e7c8307efsqq`)
+- Knop: **IKEA RODRET** `afzuigingknop` via zigbee2mqtt (`0x5cc7c1fffe405825`)
+- Timer: `timer.afzuiging` (UI-helper in `.storage/timer`, duur 1u)
+- Automations in `/var/lib/homeassistant/automations.yaml`:
+  - `1771177871263` "Centrale afzuiging aan" → knop-on/switch-on → stekker aan + timer start
+  - `2024112501` "Centrale afzuiging uit" → `timer.finished` → stekker uit
+- Let op: entity-slugs misleidend — `automation.centrale_afzuiging_uit_2/_3/_4` zijn NIET allemaal afzuiging (uit_2 = de "aan"; uit_3/_4 = Geurzolder/Geurwerkkamer, oude slugs).
+
+**Hoofdoorzaak (nog handmatig op te lossen):**
+**Tuya-integratie kapot sinds 17 aug** — log toont `tuya_sharing ApiRequestException: sign invalid` en `API_QPS_LIMIT_OR_DEGRADE`. HA kan de Tuya-stekker niet meer betrouwbaar uitzetten of uitlezen (`binary_sensor.afzuiging_status` stond vast op `off` sinds 17 aug). Automations vuren correct, maar de `switch.turn_off` naar de Tuya-cloud mislukt → afzuiging blijft aan.
+
+**Handmatig te doen (kan niet vanuit CLI):**
+1. HA-UI → Instellingen → Apparaten & Diensten → **Tuya** → herconfigureren / opnieuw inloggen (tokens verlopen).
+2. **Dubbele Tuya-entry** opruimen (`tuya` + `tuya@toorren.net` — hou die met apparaten).
+3. RODRET-batterij vervangen (CR2032; stond op 10% / 1100 mV).
+
+**Config-verbeteringen (doorgevoerd + getest via HA-restart):**
+- Nieuwe automation `1771177871264` "Centrale afzuiging uit (knop)": OFF-knop → stekker uit + `timer.cancel`. (OFF-trigger weggehaald uit de "aan"-automation, die zette de afzuiging juist aan.)
+- `timer.afzuiging` → `restore: true` in `.storage/timer` (voorheen `false`: bij HA-herstart sprong de timer stil naar idle zonder de afzuiging uit te zetten).
+- Backups: `automations.yaml.bak-claude-20260823-212801`, `.storage/timer.bak-claude-20260823-212801`.
+
+**Status:** ⏳ Config-verbeteringen live; hele keten werkt pas weer als Tuya opnieuw is gekoppeld.
 
 ### Sessie 2026-05-29 - msmtp agenix secret pad - OPGELOST
 

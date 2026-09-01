@@ -17,7 +17,6 @@
     ./mail.nix
     ./midi.nix
 #   ../../modules/monitoring
-#   ../../modules/jitsi.nix
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
     ];
@@ -210,7 +209,7 @@ environment.variables.EDITOR = "vim";
         matches = [{ "node.name" = "alsa_input.usb-MUSIC-BOOST_Sandberg_126-40_MB-306-00.mono-fallback"; }];
         actions = {
           "update-props" = {
-            "node.volume" = 1.0;
+            "node.volume" = 0.77;
             "node.mute" = false;
           };
         };
@@ -220,7 +219,7 @@ environment.variables.EDITOR = "vim";
 
   # Systemd user services to enforce Sandberg mic volume after login and resume
   systemd.user.services.sandberg-mic-volume = {
-    description = "Lock Sandberg 126-40 microphone volume at 100%";
+    description = "Lock Sandberg 126-40 microphone volume at 77%";
     after = [ "wireplumber.service" ];
     wantedBy = [ "graphical-session.target" ];
     serviceConfig = {
@@ -230,7 +229,7 @@ environment.variables.EDITOR = "vim";
         sleep 2
         NODE_ID=$(${pkgs.wireplumber}/bin/wpctl status 2>/dev/null \
           | grep "Sandberg 126-40 Mono" | grep -o "[0-9]*\." | head -1 | tr -d '.')
-        [ -n "$NODE_ID" ] && ${pkgs.wireplumber}/bin/wpctl set-volume "$NODE_ID" 1.0 || true
+        [ -n "$NODE_ID" ] && ${pkgs.wireplumber}/bin/wpctl set-volume "$NODE_ID" 0.77 || true
       '';
     };
   };
@@ -245,7 +244,7 @@ environment.variables.EDITOR = "vim";
         sleep 3
         NODE_ID=$(${pkgs.wireplumber}/bin/wpctl status 2>/dev/null \
           | grep "Sandberg 126-40 Mono" | grep -o "[0-9]*\." | head -1 | tr -d '.')
-        [ -n "$NODE_ID" ] && ${pkgs.wireplumber}/bin/wpctl set-volume "$NODE_ID" 1.0 || true
+        [ -n "$NODE_ID" ] && ${pkgs.wireplumber}/bin/wpctl set-volume "$NODE_ID" 0.77 || true
       '';
     };
   };
@@ -363,7 +362,6 @@ security.pam.services.greetd.enableGnomeKeyring = true;
 ];
 
 nixpkgs.config.permittedInsecurePackages = [
-    "jitsi-meet-1.0.8043"
     "qtwebkit-5.212.0-alpha"
     "electron-39.8.10" # bitwarden-desktop, verwijderen zodra nixpkgs bitwarden upgradet naar nieuwere electron
   ];
