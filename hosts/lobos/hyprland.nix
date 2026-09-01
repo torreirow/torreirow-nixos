@@ -47,6 +47,6 @@
     power-profiles-daemon
     gnome-power-manager
     libnotify
-    cosmic-files
+    nautilus
   ];
 }
