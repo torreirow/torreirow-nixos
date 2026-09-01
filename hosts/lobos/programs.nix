@@ -44,7 +44,6 @@ environment.systemPackages = with pkgs; [
     agenix
     alacritty
     attic-client
-    autorandr
     avahi
     aws-nuke
     awscli2
