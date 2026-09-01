@@ -5,6 +5,7 @@ Dit script draait zonder GUI en gebruikt alleen magister_session.json
 """
 
 import time
+import random
 import os
 import glob
 import re
@@ -26,12 +27,19 @@ MAGISTER_URL = "https://groevenbeek.magister.net"
 SESSION_FILE = "magister_session.json"  # legacy (cookie-scrape), niet meer gebruikt
 TOKEN_FILE = "token.json"               # refresh/access-token state (mode 0600)
 ICAL_FILE = "magister.ics"
-KEEP_ALIVE_INTERVAL = 10 * 60  # 10 minuten in seconden
+KEEP_ALIVE_INTERVAL = 30 * 60   # basis-interval keep-alive (30 min)
+KEEP_ALIVE_JITTER = 5 * 60      # ± jitter (max 5 min): niet exact op de klok
+WINDOW_START_HOUR = 7           # alleen ophalen vanaf 07:00 ...
+WINDOW_END_HOUR = 22            # ... tot 22:00 (laatste run rond 21:59); 's nachts stil
 
 # OAuth via de mobiele-app-client (M6LOAPP): stille refresh, geen ~10u SSO-cliff meer.
 AUTHORITY = "https://accounts.magister.net"
 TOKEN_URL = f"{AUTHORITY}/connect/token"
 OAUTH_CLIENT_ID = "M6LOAPP"
+
+# Realistische app-User-Agent zodat de calls niet als 'Python-urllib/x.y' opvallen
+# in Magisters logs, maar op app-verkeer lijken.
+MAGISTER_UA = "Magister/main.ioAppStore (iPhone; iOS)"
 
 
 class SessionInvalid(Exception):
@@ -228,7 +236,7 @@ def generate_index_html(domain="agenda.toorren.net"):
 
         # Sluit HTML af met footer
         html += f"""  <div class="footer">
-    <p><strong>Updates:</strong> Elke 10 minuten</p>
+    <p><strong>Updates:</strong> elke ~{KEEP_ALIVE_INTERVAL//60} min ({WINDOW_START_HOUR:02d}:00-{WINDOW_END_HOUR:02d}:00u)</p>
     <p><strong>Laatste update:</strong> {update_timestamp}</p>
   </div>
 </body>
@@ -287,7 +295,10 @@ class MagisterServerClient:
         }).encode("ascii")
         req = urllib.request.Request(
             TOKEN_URL, data=data,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "User-Agent": MAGISTER_UA,
+            },
         )
         try:
             with urllib.request.urlopen(req, timeout=30) as r:
@@ -322,7 +333,11 @@ class MagisterServerClient:
         def _do(token):
             req = urllib.request.Request(
                 MAGISTER_URL + path,
-                headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Accept": "application/json",
+                    "User-Agent": MAGISTER_UA,
+                },
             )
             with urllib.request.urlopen(req, timeout=30) as r:
                 return json.loads(r.read().decode("utf-8"))
@@ -725,16 +740,33 @@ def main():
     write_heartbeat()
 
     # Keep-alive loop
-    logger.info(f"\n=== Keep-alive gestart (elke {KEEP_ALIVE_INTERVAL//60} minuten) ===")
+    logger.info(f"\n=== Keep-alive gestart (~{KEEP_ALIVE_INTERVAL//60} min ±{KEEP_ALIVE_JITTER//60}, venster {WINDOW_START_HOUR:02d}:00-{WINDOW_END_HOUR:02d}:00u) ===")
     logger.info(f"Het script update {len(kind_data)} agenda bestand(en) automatisch")
     logger.info("Druk op Ctrl+C om te stoppen\n")
 
     failed_updates = 0  # Teller voor mislukte updates
     max_failed_updates = 3  # Aantal mislukte updates voordat we sessie testen
 
+    def _in_window(dt):
+        return WINDOW_START_HOUR <= dt.hour < WINDOW_END_HOUR
+
     try:
         while True:
-            time.sleep(KEEP_ALIVE_INTERVAL)
+            now = datetime.now()
+            if _in_window(now):
+                # Binnen het venster: jittered interval slapen, dan ophalen.
+                sleep_s = max(60, KEEP_ALIVE_INTERVAL + random.uniform(-KEEP_ALIVE_JITTER, KEEP_ALIVE_JITTER))
+                time.sleep(sleep_s)
+                if not _in_window(datetime.now()):
+                    continue  # tijdens de slaap het venster uitgelopen -> herbereken bovenaan
+            else:
+                # Buiten het venster: slaap tot de volgende 06:00 en haal dan meteen op.
+                target = now.replace(hour=WINDOW_START_HOUR, minute=0, second=0, microsecond=0)
+                if now.hour >= WINDOW_START_HOUR:
+                    target += timedelta(days=1)
+                wait_s = (target - now).total_seconds()
+                logger.info(f"[{now:%H:%M}] Buiten venster {WINDOW_START_HOUR:02d}:00-{WINDOW_END_HOUR:02d}:00u; slaap {wait_s/3600:.1f}u")
+                time.sleep(wait_s)
 
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             logger.info(f"\n[{timestamp}] Keep-alive: agenda's ophalen...")
