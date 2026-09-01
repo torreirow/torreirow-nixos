@@ -2,11 +2,16 @@
 
 # Magister Sync Service Module
 #
+# Auth: OAuth refresh-token flow (mobiele-app-client M6LOAPP) via token.json.
+# Het access-token wordt stil ververst; het refresh-token roteert en wordt
+# teruggeschreven naar token.json. Geen browser/cookie-sessie meer.
+#
 # Error Handling & Email Notificaties:
-# - Bij sessie problemen (bestand niet gevonden of ongeldig):
-#   * Python script verstuurt email naar: wvdtoorren@gmail.com (hardcoded in magister_server.py:26)
+# - Bij token problemen (token.json ontbreekt of refresh-token invalid_grant):
+#   * Python script verstuurt email naar: wvdtoorren@gmail.com (hardcoded in magister_server.py)
 #   * Service stopt met exit code 1 en wordt NIET automatisch herstart
-#   * Handmatige interventie vereist: nieuwe sessie aanmaken met magister_login.py
+#   * Handmatige interventie vereist: verify_pkce.py op de laptop (passkey), nieuw
+#     refresh_token in token.json zetten
 #
 # - Bij andere fouten (netwerk, tijdelijke problemen):
 #   * Service herstart automatisch na 60 seconden (max 5 pogingen binnen 10 minuten)
@@ -21,12 +26,11 @@ let
   nginxCfg = config.services.magister-sync.nginx;
   autheliaHelpers = import ../authelia-nginx.nix { inherit lib; };
 
-  # Python omgeving met alle dependencies
+  # Python omgeving. Sinds de refresh-token-ombouw geen browser meer nodig:
+  # HTTP via stdlib urllib, alleen bs4 (inhoud-HTML) + dateutil (datums) resten.
   pythonEnv = pkgs.python3.withPackages (ps: with ps; [
-    playwright
     beautifulsoup4
     python-dateutil
-    ics
   ]);
 
   # Magister server script uit de module directory
@@ -38,12 +42,8 @@ let
 
     cd ${cfg.workingDirectory}
 
-    # Voer het script uit - Python script handelt alle checks en emails af
-    export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
-    export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-
-    # Start het script - als de sessie ongeldig is, stopt het script met exit code != 0
-    # en verstuurt het een email
+    # Start het script - bij een ongeldig refresh-token stopt het met exit code 1
+    # en verstuurt het een email (RestartPreventExitStatus=1 -> geen retry)
     ${pythonEnv}/bin/python ${cfg.workingDirectory}/magister_server.py
   '';
 
@@ -55,8 +55,9 @@ in {
       type = types.path;
       default = "/var/lib/magister";
       description = ''
-        Directory waar magister_server.py en magister_session.json staan.
-        Zorg dat magister_session.json in deze directory staat voordat je de service start.
+        Directory waar magister_server.py en token.json staan.
+        Zorg dat token.json (met een geldig refresh_token) in deze directory staat
+        voordat je de service start. Seed via verify_pkce.py op de laptop.
       '';
     };
 
@@ -146,8 +147,8 @@ in {
       wants = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
 
-      # Maak chromium, which en sendmail beschikbaar in PATH
-      path = with pkgs; [ chromium which postfix ];
+      # Sendmail (postfix) beschikbaar in PATH voor e-mailnotificaties
+      path = with pkgs; [ postfix ];
 
       # Service configuratie
       serviceConfig = {
@@ -185,9 +186,10 @@ in {
 
       # Pre-start checks (alleen warning, laat Python script de email verzorgen)
       preStart = ''
-        # Check of sessie bestand bestaat (maar fail niet, laat Python script errors afhandelen)
-        if [ ! -f "${cfg.workingDirectory}/magister_session.json" ]; then
-          echo "WARNING: magister_session.json niet gevonden in ${cfg.workingDirectory}!"
+        # Check of token-bestand bestaat (maar fail niet, laat Python script errors afhandelen)
+        if [ ! -f "${cfg.workingDirectory}/token.json" ]; then
+          echo "WARNING: token.json niet gevonden in ${cfg.workingDirectory}!"
+          echo "Seed het met een refresh_token (verify_pkce.py op de laptop)."
           echo "Het Python script zal een error email verzenden en stoppen."
         else
           echo "Pre-flight checks geslaagd"
@@ -202,8 +204,7 @@ in {
     };
 
     # Installeer benodigde system packages
-    environment.systemPackages = with pkgs; [
-      chromium
+    environment.systemPackages = [
       pythonEnv
     ];
 

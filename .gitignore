@@ -13,9 +13,12 @@ home/managed_service_accounts.json
 nvim.log
 magister_session.json
 modules/magister/magister_session.json
+magister_pkce_result.json
+modules/magister/magister_pkce_result.json
 node_modules/
 dist/
 build/
 .cache/
 *.log
 http_cache.sqlite
+__pycache__/
