@@ -8,7 +8,7 @@ programs.ssh = {
 environment.systemPackages = with pkgs; [
     planify
     wineWow64Packages.stable
-    masterpdfeditor
+    # masterpdfeditor  # TEMP disabled: upstream 5.9.98 tarball 404s in pinned nixpkgs (re-enable after nixpkgs bump)
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
