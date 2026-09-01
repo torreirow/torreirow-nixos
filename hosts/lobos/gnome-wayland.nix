@@ -128,10 +128,17 @@
     partOf = [ "graphical-session.target" ];
     after = [ "graphical-session.target" ];
     wantedBy = [ "graphical-session.target" ];
+    # gpaste-daemon is een X11-GTK app; onder Hyprland/Wayland erft hij de sessie-brede
+    # GDK_BACKEND=wayland en crasht ("cannot open display :0"). Forceer daarom de X11-backend
+    # + DISPLAY, en retry omdat Hyprland's Xwayland lazy (socket-activated) opstart.
+    startLimitIntervalSec = 0;
     serviceConfig = {
       Type = "dbus";
       BusName = "org.gnome.GPaste";
+      Environment = [ "GDK_BACKEND=x11" "DISPLAY=:0" ];
       ExecStart = "${pkgs.gpaste}/libexec/gpaste/gpaste-daemon";
+      Restart = "on-failure";
+      RestartSec = 2;
     };
   };
 }
