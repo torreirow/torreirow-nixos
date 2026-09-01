@@ -15,7 +15,9 @@
       port           587
       auth           on
       from           lobos@toorren.net
-      user           AKIAXIOEEMOOS4C73ZCT
+      # SES SMTP username (AWS access key id) — na key-rotatie hier de NIEUWE key id invullen.
+      # Oude waarde is uit git verwijderd wegens lek (GitGuardian) en moet in AWS gerevoked zijn.
+      user           AKIA_SES_USERNAME_INVULLEN
       passwordeval   cat /run/secrets/msmtp-password
     '';
   };

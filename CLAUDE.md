@@ -33,8 +33,8 @@ oorspronkelijk geplande "opschoning" van `calendar.vollebal` is dus **geschrapt*
   mogelijk; updates lopen dus niet via HACS). `?kiosk` in de URL verbergt header + zijbalk.
 - **Read-only user `paneel`** (groep `system-read-only`) via directe edits van `.storage/auth`
   (user + credential) en `.storage/auth_provider.homeassistant` (username + bcrypt-hash, hash
-  gegenereerd via de HA-container zodat het klopt). **Wachtwoord: `Xf3qlItbIgeqVw`** (staat ook in
-  Vaultwarden/handmatig te bewaren). Login-flow getest → auth-code afgegeven, werkt.
+  gegenereerd via de HA-container zodat het klopt). **Wachtwoord: staat in Vaultwarden** (niet in
+  git bewaren). Login-flow getest → auth-code afgegeven, werkt.
 - **Dashboard** `.storage/lovelace.dashboard_agenda` (panel-view, **native `calendar`-kaart met
   `initial_view: listWeek`**, 8 kalenders), geregistreerd in `.storage/lovelace_dashboards` als
   `url_path: dashboard-agenda`, `require_admin: false`. URL: `homeassistant.toorren.net/dashboard-agenda?kiosk`.

@@ -31,7 +31,7 @@
 
 - [ ] 5.1 Prime de kiosk-cache (open 1× `dashboard-agenda` als paneel), zet dan Fully Kiosk start-URL = `https://homeassistant.toorren.net/calendar`
 - [ ] 5.2 Zet screen-always-on, dim-schema en dagelijkse auto-reload
-- [ ] 5.3 Log 1× handmatig in als `paneel` (wachtwoord `Xf3qlItbIgeqVw`) en bevestig dat de sessie behouden blijft
+- [ ] 5.3 Log 1× handmatig in als `paneel` (wachtwoord: zie Vaultwarden) en bevestig dat de sessie behouden blijft
 - [ ] 5.4 Herstart de tablet en bevestig dat het paneel automatisch ingelogd op de kale /calendar-lijst landt
 
 ## 6. Documentatie
