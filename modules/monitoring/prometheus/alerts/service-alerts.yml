@@ -1,17 +1,28 @@
 groups:
   - name: Service Monitoring
     rules:
-      # Alert: Magister sync service niet actief
+      # Alert: Magister sync service niet actief (heartbeat te oud tijdens actief venster)
+      #
+      # De keep-alive draait ~elke 30 min (±5 jitter) en ALLEEN tussen 07:00-22:00
+      # lokale tijd; 's nachts is de heartbeat legitiem ~9u stil. Daarom:
+      #  - drempel 3600s (1u ≈ 2 gemiste cycli + marge) i.p.v. de oude 600s
+      #  - alleen alerten tijdens een UTC-venster dat in ZOWEL zomer- als wintertijd
+      #    strikt binnen 07:00-22:00 lokaal valt:
+      #      hour() 6..18 UTC = zomer (UTC+2) 08:00-20:59 / winter (UTC+1) 07:00-19:59
+      #    -> nooit vals alarm in het nachtvenster, DST-proof (kost wel dekking in het
+      #       vroegste/laatste uur van het venster; bewuste keuze: 0 valse alarmen).
       - alert: MagisterSyncDown
-        expr: (time() - magister_sync_heartbeat_timestamp) > 600
-        for: 1m
+        expr: |
+          (time() - magister_sync_heartbeat_timestamp) > 3600
+            and on() (hour() >= 6 and hour() < 19)
+        for: 15m
         labels:
           severity: critical
           component: magister-sync
           service: magister
         annotations:
           summary: "Magister sync service is niet actief"
-          description: "De magister-sync service heeft geen heartbeat gestuurd in de laatste {{ $value | humanizeDuration }}. Laatste heartbeat: {{ $value }} seconden geleden."
+          description: "De magister-sync service heeft tijdens het actieve venster (07:00-22:00) geen heartbeat gestuurd in de laatste {{ $value | humanizeDuration }}. Laatste heartbeat: {{ $value }} seconden geleden."
 
       # Alert: Magister heartbeat metric ontbreekt
       - alert: MagisterSyncHeartbeatMissing
