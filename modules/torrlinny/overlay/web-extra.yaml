@@ -1,5 +1,0 @@
-# Override bovenop hugo-web.yaml (torrlinny-repo blijft ongemoeid).
-# enableGitInfo -> .Lastmod = echte laatste-commit-datum (voor de "Updated"-regel
-# op de notitiepagina). De menu-links naar de overzichten zitten in de overridde
-# partial layouts/partials/menu.html (geekdoc gebruikt geen Hugo menu.main).
-enableGitInfo: true

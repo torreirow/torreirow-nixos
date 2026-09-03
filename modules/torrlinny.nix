@@ -6,14 +6,16 @@
 # statische site op https://linny.toorren.net (achter Authelia), die automatisch
 # herbouwt zodra er naar `main` gepusht is.
 #
-# Aanpak (epic nixos-anvf):
+# Aanpak (epic nixos-anvf + nixos-al4j):
 #  - RENDER = de EIGEN web-config van de repo: `hugo --config hugo-web.yaml
-#    --configDir doesnotexist` met het geekdoc-thema (submodule) — exact zoals
-#    `start-web.sh` lokaal. GeekDoc levert de zijbalk/file-tree, ingebouwde zoek en
-#    de taxonomie-menu's (customer/project/type/tags). Geen eigen overlay/Pagefind.
-#  - Runtime-build (systemd oneshot), GEEN nix-derivation: sync (git + submodules)
-#    -> hugo -> ATOMIC SWAP van een symlink -> nginx serveert altijd de vorige goede
-#    build bij een fout (keep-last-good).
+#    --configDir doesnotexist`. De repo importeert de gedeelde **linny-web-theme**
+#    Hugo-module (github.com/torreirow/linny-web-theme) die geekdoc bundelt + de
+#    Linny-layouts (taxonomie-zijbalk, Created/Updated, overzichtspagina's) levert.
+#    De build haalt de module met `hugo mod get` (Go in de PATH). Geen eigen
+#    overlay meer op malandro — dat zit nu allemaal in de theme.
+#  - Runtime-build (systemd oneshot), GEEN nix-derivation: sync (git) -> hugo mod
+#    get -> hugo -> ATOMIC SWAP van een symlink -> nginx serveert altijd de vorige
+#    goede build bij een fout (keep-last-good).
 #  - Trigger = systemd-timer met change-detectie (git fetch + HEAD-compare).
 #    (GitHub-webhook is een aparte, latere bean.)
 
@@ -26,15 +28,6 @@ let
   repoUrl = "git@github.com:torreirow/torrlinny.git";
   keyPath = config.age.secrets.torrlinny-deploy-key.path;
 
-  # Overlay bovenop de geekdoc-web-build (torrlinny-repo blijft ongemoeid): wordt bij
-  # de build in de checkout gelegd en overschrijft/aanvult het thema.
-  #  - layouts/partials/page-metadata.html : Created (crdate) + Updated (git .Lastmod)
-  #  - layouts/partials/menu.html          : "Overzichten"-blok in de zijbalk
-  #  - layouts/_default/noteslist.html     : paginated overzicht (op titel/datum)
-  #  - content/notes-by-{title,date}/      : de twee overzichtspagina's
-  #  - web-extra.yaml                       : enableGitInfo (voor .Lastmod)
-  overlayDir = ./torrlinny/overlay;
-
   buildScript = pkgs.writeShellScript "torrlinny-build" ''
     set -euo pipefail
 
@@ -42,18 +35,28 @@ let
     CHECKOUT="$WORK/checkout"
     BUILDS="$WORK/builds"
     LIVE="$WORK/live"
-    RECIPE="${pkgs.hugo}:${overlayDir}"
+    RECIPE="hugo=${pkgs.hugo.version};go=${pkgs.go.version}"
     FORCE="''${1:-}"
 
     export HOME="$WORK"
     export GIT_SSH_COMMAND="ssh -i ${keyPath} -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=$WORK/known_hosts"
 
-    mkdir -p "$BUILDS"
+    # Go / Hugo-module-cache in de (persistente) werkmap. GOPROXY=direct haalt de
+    # theme rechtstreeks van GitHub; go.sum (in de repo) borgt de integriteit, dus
+    # GOSUMDB uit (geen externe sumdb-afhankelijkheid).
+    export GOPATH="$WORK/go"
+    export GOMODCACHE="$WORK/go/pkg/mod"
+    export GOCACHE="$WORK/gocache"
+    export GOPROXY=direct
+    export GOSUMDB=off
+    export HUGO_CACHEDIR="$WORK/hugo_cache"
 
-    ## 1. sync (VOLLEDIGE clone + submodules voor het geekdoc-thema) + change-detectie
+    mkdir -p "$BUILDS" "$GOPATH" "$GOCACHE" "$HUGO_CACHEDIR"
+
+    ## 1. sync (VOLLEDIGE clone voor enableGitInfo/.Lastmod) + change-detectie
     if [ ! -d "$CHECKOUT/.git" ]; then
       rm -rf "$CHECKOUT"
-      git clone --recurse-submodules --branch main "${repoUrl}" "$CHECKOUT"
+      git clone --branch main "${repoUrl}" "$CHECKOUT"
     else
       if [ -f "$CHECKOUT/.git/shallow" ]; then
         git -C "$CHECKOUT" fetch --unshallow origin main || git -C "$CHECKOUT" fetch origin main
@@ -62,7 +65,7 @@ let
       fi
       LOCAL="$(git -C "$CHECKOUT" rev-parse HEAD)"
       REMOTE="$(git -C "$CHECKOUT" rev-parse origin/main)"
-      # Skip alleen als content (git HEAD) ÉN het bouw-recept (hugo-versie)
+      # Skip alleen als content (git HEAD) ÉN het bouw-recept (hugo/go-versie)
       # onveranderd zijn t.o.v. de laatste build.
       if [ "$LOCAL" = "$REMOTE" ] && [ -e "$LIVE" ] && [ "$FORCE" != "--force" ] \
          && [ "$(cat "$WORK/last-build-recipe" 2>/dev/null)" = "$RECIPE" ]; then
@@ -70,50 +73,48 @@ let
         exit 0
       fi
       git -C "$CHECKOUT" reset --hard origin/main
-      git -C "$CHECKOUT" submodule update --init --recursive
+      git -C "$CHECKOUT" clean -fdx
     fi
     REV="$(git -C "$CHECKOUT" rev-parse --short HEAD)"
 
-    ## 2. bouwen met de web-config (identiek aan start-web.sh: hugo-web.yaml +
-    ##    geekdoc-thema; configDir=doesnotexist zodat de Linny-JSON-config NIET meelaadt).
-    ##    Bouwt in een VERSE dir zodat de swap atomisch kan.
-    # Eerder gekopieerde overlay-bestanden (untracked) opruimen zodat een uit de
-    # overlay verwijderd bestand ook uit de checkout verdwijnt (cp/reset doen dat niet).
-    git -C "$CHECKOUT" clean -fd layouts content 2>/dev/null || true
+    ## 2. theme-module ophalen (github.com/torreirow/linny-web-theme, gepind in
+    ##    de repo's go.mod/go.sum).
+    ( cd "$CHECKOUT" && ${pkgs.hugo}/bin/hugo mod get github.com/torreirow/linny-web-theme )
 
-    # Overlay in de checkout leggen (layouts overriden/aanvullen + overzichtspagina's).
-    chmod -R u+w "$CHECKOUT/layouts" "$CHECKOUT/content" 2>/dev/null || true
-    cp -rf ${overlayDir}/layouts/. "$CHECKOUT/layouts/"
-    cp -rf ${overlayDir}/content/. "$CHECKOUT/content/"
-
-    # CLI-output met box-drawing tekens (bv. aws --output table) in code-fences
-    # wikkelen zodat het als nette monospace-tabel rendert. Idempotent (reset per sync).
+    ## 3. CLI-output met box-drawing tekens (bv. aws --output table) in code-fences
+    ##    wikkelen zodat het als nette monospace-tabel rendert. fence.py komt uit de
+    ##    repo. In-place op de (wegwerp-)checkout -> .git blijft -> enableGitInfo/
+    ##    .Lastmod werkt. Idempotent (checkout wordt per sync ge-reset). Bron-repo
+    ##    blijft ongemoeid (we bouwen in de checkout).
     find "$CHECKOUT/content" -name '*.md' -exec ${pkgs.bash}/bin/bash -c \
-      'for f; do ${pkgs.python3}/bin/python3 ${overlayDir}/fence.py < "$f" > "$f.pf" && mv "$f.pf" "$f"; done' _ {} +
+      'for f; do ${pkgs.python3}/bin/python3 "'"$CHECKOUT"'/fence.py" < "$f" > "$f.pf" && mv "$f.pf" "$f"; done' _ {} +
 
+    ## 4. bouwen met de web-config (hugo-web.yaml importeert de theme; configDir=
+    ##    doesnotexist zodat de Linny-JSON-indexer NIET meelaadt). In een VERSE dir
+    ##    zodat de swap atomisch kan.
     DEST="$BUILDS/$REV-$(date +%s)"
     rm -rf "$DEST"
     ${pkgs.hugo}/bin/hugo --source "$CHECKOUT" \
-      --config hugo-web.yaml,${overlayDir}/web-extra.yaml --configDir doesnotexist \
+      --config hugo-web.yaml --configDir doesnotexist \
       --baseURL "https://${cfg.domain}/" \
       --minify --destination "$DEST" --logLevel error
     chmod -R a+rX "$DEST"
 
-    ## 3. atomic swap. Faalt de build -> set -e stopt hier vóór -> LIVE (vorige goede
+    ## 5. atomic swap. Faalt de build -> set -e stopt hier vóór -> LIVE (vorige goede
     ##    build) blijft ongewijzigd (keep-last-good).
     ln -sfn "$DEST" "$WORK/live.new"
     mv -Tf "$WORK/live.new" "$LIVE"
     echo "$RECIPE" > "$WORK/last-build-recipe"
     echo "torrlinny: gepubliceerd rev $REV -> $DEST"
 
-    ## 4. prune: bewaar de 3 nieuwste builds
+    ## 6. prune: bewaar de 3 nieuwste builds
     find "$BUILDS" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
       | sort -rn | tail -n +4 | cut -d' ' -f2- | xargs -r rm -rf
   '';
 
 in {
   options.services.torrlinny = {
-    enable = mkEnableOption "Torrlinny notities-web (Hugo + Pagefind, auto-rebuild)";
+    enable = mkEnableOption "Torrlinny notities-web (Hugo + linny-web-theme, auto-rebuild)";
 
     domain = mkOption {
       type = types.str;
@@ -130,7 +131,7 @@ in {
     dataDir = mkOption {
       type = types.str;
       default = "/var/lib/torrlinny";
-      description = "Werkmap: checkout, builds en de live-symlink.";
+      description = "Werkmap: checkout, builds, module-cache en de live-symlink.";
     };
 
     user = mkOption {
@@ -179,10 +180,11 @@ in {
 
     ###### Build-service (oneshot) ######
     systemd.services.torrlinny-build = {
-      description = "Torrlinny: sync + Hugo + Pagefind build (atomic swap)";
+      description = "Torrlinny: sync + hugo mod get + Hugo build (atomic swap)";
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
-      path = with pkgs; [ git openssh coreutils findutils ];
+      # go: nodig voor `hugo mod get` (Hugo-modules resolven via de Go-toolchain).
+      path = with pkgs; [ git openssh coreutils findutils go ];
 
       serviceConfig = {
         Type = "oneshot";
