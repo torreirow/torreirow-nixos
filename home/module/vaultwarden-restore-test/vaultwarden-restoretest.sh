@@ -111,7 +111,9 @@ sudo docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
 if sudo ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
   fail "Poort $PORT is bezet — draai eerst '$0 --destroy' of maak de poort vrij"; exit 1
 fi
-sudo rm -rf "$WORK"; sudo mkdir -p "$WORK/data"
+# $WORK door de user aanmaken (user-owned), zodat de geïsoleerde rbw-home er later
+# in past. rustic draait als root en kan prima ín deze user-owned map schrijven.
+sudo rm -rf "$WORK"; mkdir -p "$WORK/data"
 
 ########## 1. Restore uit S3 ##########
 log "1/4  Terugzetten uit S3"
