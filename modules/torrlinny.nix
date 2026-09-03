@@ -6,15 +6,14 @@
 # statische site op https://linny.toorren.net (achter Authelia), die automatisch
 # herbouwt zodra er naar `main` gepusht is.
 #
-# Aanpak (uit /opsx:explore, epic nixos-anvf):
-#  - RENDER = Hugo, met een OVERLAY-frontend (modules/torrlinny/overlay/): een
-#    zelfstandige Hugo-site (eigen config + layouts + css) die ALLEEN torrlinny's
-#    content/ inleest. De content-repo blijft ongemoeid (geen PaperMod/submodules).
-#  - ZOEK/FACET = Pagefind (client-side): full-text + facet-filters op de
-#    taxonomieën (customer/project/type/tag/owner/subject/doctype) + datum-sort.
-#  - Runtime-build (systemd oneshot), GEEN nix-derivation: sync -> hugo -> pagefind
-#    -> ATOMIC SWAP van een symlink -> nginx serveert altijd de vorige goede build
-#    bij een fout (keep-last-good).
+# Aanpak (epic nixos-anvf):
+#  - RENDER = de EIGEN web-config van de repo: `hugo --config hugo-web.yaml
+#    --configDir doesnotexist` met het geekdoc-thema (submodule) — exact zoals
+#    `start-web.sh` lokaal. GeekDoc levert de zijbalk/file-tree, ingebouwde zoek en
+#    de taxonomie-menu's (customer/project/type/tags). Geen eigen overlay/Pagefind.
+#  - Runtime-build (systemd oneshot), GEEN nix-derivation: sync (git + submodules)
+#    -> hugo -> ATOMIC SWAP van een symlink -> nginx serveert altijd de vorige goede
+#    build bij een fout (keep-last-good).
 #  - Trigger = systemd-timer met change-detectie (git fetch + HEAD-compare).
 #    (GitHub-webhook is een aparte, latere bean.)
 
@@ -24,7 +23,6 @@ let
   cfg = config.services.torrlinny;
   autheliaHelpers = import ./authelia-nginx.nix { inherit lib; };
 
-  overlay = ./torrlinny/overlay;
   repoUrl = "git@github.com:torreirow/torrlinny.git";
   keyPath = config.age.secrets.torrlinny-deploy-key.path;
 
@@ -33,9 +31,9 @@ let
 
     WORK="${cfg.dataDir}"
     CHECKOUT="$WORK/checkout"
-    BUILDROOT="$WORK/buildroot"
     BUILDS="$WORK/builds"
     LIVE="$WORK/live"
+    RECIPE="${pkgs.hugo}"
     FORCE="''${1:-}"
 
     export HOME="$WORK"
@@ -43,13 +41,10 @@ let
 
     mkdir -p "$BUILDS"
 
-    ## 1. sync + change-detectie
-    #  VOLLEDIGE clone (geen --depth): enableGitInfo heeft de historie nodig om per
-    #  bestand de echte laatste-wijzig-commit (.Lastmod) te bepalen. Een oude shallow
-    #  checkout wordt automatisch ge-unshallowed.
+    ## 1. sync (VOLLEDIGE clone + submodules voor het geekdoc-thema) + change-detectie
     if [ ! -d "$CHECKOUT/.git" ]; then
       rm -rf "$CHECKOUT"
-      git clone --branch main "${repoUrl}" "$CHECKOUT"
+      git clone --recurse-submodules --branch main "${repoUrl}" "$CHECKOUT"
     else
       if [ -f "$CHECKOUT/.git/shallow" ]; then
         git -C "$CHECKOUT" fetch --unshallow origin main || git -C "$CHECKOUT" fetch origin main
@@ -58,45 +53,37 @@ let
       fi
       LOCAL="$(git -C "$CHECKOUT" rev-parse HEAD)"
       REMOTE="$(git -C "$CHECKOUT" rev-parse origin/main)"
-      # Skip alleen als ZOWEL de content (git HEAD) ALS de overlay-frontend
-      # (nix-store-path) onveranderd zijn t.o.v. de laatste build. Zo triggert een
-      # frontend/layout-wijziging (nieuwe store-path) óók een rebuild.
+      # Skip alleen als content (git HEAD) ÉN het bouw-recept (hugo-versie)
+      # onveranderd zijn t.o.v. de laatste build.
       if [ "$LOCAL" = "$REMOTE" ] && [ -e "$LIVE" ] && [ "$FORCE" != "--force" ] \
-         && [ "$(cat "$WORK/last-build-overlay" 2>/dev/null)" = "${overlay}" ]; then
-        echo "torrlinny: geen wijziging ($LOCAL) en overlay ongewijzigd, build overgeslagen"
+         && [ "$(cat "$WORK/last-build-recipe" 2>/dev/null)" = "$RECIPE" ]; then
+        echo "torrlinny: geen wijziging ($LOCAL), build overgeslagen"
         exit 0
       fi
       git -C "$CHECKOUT" reset --hard origin/main
+      git -C "$CHECKOUT" submodule update --init --recursive
     fi
     REV="$(git -C "$CHECKOUT" rev-parse --short HEAD)"
 
-    ## 2. overlay + content samenstellen tot een Hugo-project
-    rm -rf "$BUILDROOT"
-    mkdir -p "$BUILDROOT"
-    cp ${overlay}/hugo.toml "$BUILDROOT/"
-    cp -r ${overlay}/layouts "$BUILDROOT/layouts"
-    cp -r ${overlay}/static "$BUILDROOT/static"
-    cp -r "$CHECKOUT/content" "$BUILDROOT/content"
-    chmod -R u+w "$BUILDROOT"
-    # .git symlinken zodat hugo (enableGitInfo) per bestand de echte laatste-wijzig-
-    # commit (.Lastmod) kan bepalen. De content-paden matchen de git-historie.
-    ln -sfn "$CHECKOUT/.git" "$BUILDROOT/.git"
-
-    ## 3. bouwen in een VERSE dir (voorbereiding atomic swap)
+    ## 2. bouwen met de web-config (identiek aan start-web.sh: hugo-web.yaml +
+    ##    geekdoc-thema; configDir=doesnotexist zodat de Linny-JSON-config NIET meelaadt).
+    ##    Bouwt in een VERSE dir zodat de swap atomisch kan.
     DEST="$BUILDS/$REV-$(date +%s)"
     rm -rf "$DEST"
-    ${pkgs.hugo}/bin/hugo --source "$BUILDROOT" --destination "$DEST" --minify --logLevel error
-    ${pkgs.pagefind}/bin/pagefind --site "$DEST" >/dev/null
+    ${pkgs.hugo}/bin/hugo --source "$CHECKOUT" \
+      --config hugo-web.yaml --configDir doesnotexist \
+      --baseURL "https://${cfg.domain}/" \
+      --minify --destination "$DEST" --logLevel error
     chmod -R a+rX "$DEST"
 
-    ## 4. atomic swap. Faalt stap 3 -> set -e stopt hier vóór -> LIVE (vorige goede
+    ## 3. atomic swap. Faalt de build -> set -e stopt hier vóór -> LIVE (vorige goede
     ##    build) blijft ongewijzigd (keep-last-good).
     ln -sfn "$DEST" "$WORK/live.new"
     mv -Tf "$WORK/live.new" "$LIVE"
-    echo "${overlay}" > "$WORK/last-build-overlay"
+    echo "$RECIPE" > "$WORK/last-build-recipe"
     echo "torrlinny: gepubliceerd rev $REV -> $DEST"
 
-    ## 5. prune: bewaar de 3 nieuwste builds
+    ## 4. prune: bewaar de 3 nieuwste builds
     find "$BUILDS" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
       | sort -rn | tail -n +4 | cut -d' ' -f2- | xargs -r rm -rf
   '';

@@ -70,6 +70,18 @@ sudo bash -c 'cd /etc/rustic && set -a && . /run/agenix/rustic-s3-env && set +a 
 
 **Status:** ✅ Live. Timer draait dagelijks 03:00; eerste backups + restore-test geslaagd.
 
+**Restore-test (herhaalbaar):** `~/bin/vaultwarden-restoretest.sh` (bron: `home/module/vaultwarden-restore-test/`,
+via home-manager; OpenSpec change `add-vaultwarden-restore-test`). Non-destructief:
+```bash
+vaultwarden-restoretest.sh                # basis: restore→reassemble→wegwerp-container :8099→/alive+counts
+vaultwarden-restoretest.sh --rbw          # + geïsoleerde rbw-login (master-pw + TOTP) → bewijst decrypt
+vaultwarden-restoretest.sh --snapshot ID  # specifieke backup
+vaultwarden-restoretest.sh --keep         # container laten staan om te snuffelen
+vaultwarden-restoretest.sh --destroy      # opruimen
+```
+`--rbw` gebruikt een strikt geïsoleerde rbw (XDG-override, eigen agent) → raakt de echte rbw-config
+(`~/.config/rbw`, vw.toorren.net) niet aan. 2FA blijft staan, dus TOTP-code invoeren.
+
 ### Sessie 2026-08-26 - Aircraft-monitor tijdelijk uitzetten via /aircraft Telegram-commando - OPGELOST
 
 **Wens:** De Aircraft-Monitor-melding tijdelijk kunnen uitzetten. `/aircraft 120` → zet een timer op
