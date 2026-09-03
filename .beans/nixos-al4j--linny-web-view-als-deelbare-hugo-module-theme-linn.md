@@ -1,11 +1,11 @@
 ---
 # nixos-al4j
 title: Linny web-view als deelbare Hugo-Module-theme (linny-web-theme)
-status: in-progress
+status: completed
 type: epic
 priority: normal
 created_at: 2026-09-03T14:52:09Z
-updated_at: 2026-09-03T16:31:33Z
+updated_at: 2026-09-03T17:16:49Z
 ---
 
 Thematische container. De HTML-web-view die we voor torrlinny bouwden (geekdoc + hugo-web.yaml +
@@ -40,3 +40,7 @@ lokale HTML-view kunnen draaien — "zou mooi zijn als we het met een Hugo theme
 ## Ship
 Model: één OpenSpec change (`extract-linny-web-theme`) kan de nixos-kant dekken; de theme/template/
 notebook-repos zijn losse git-repos. Child-stories spiegelen de fases. `/cas:1shotepic` op deze epic.
+
+
+
+EPIC DONE (autonoom uitgevoerd, git). Kernbesluit: geekdoc is geen Hugo-Module -> linny-web-theme VENDORT geekdoc's prebuilt MIT-release + Linny-layouts (self-contained module, één hugo mod get). Repo's: NIEUW github.com/torreirow/linny-web-theme (public, v0.1.0->v0.1.2); linden-project/linny-notebook-template PR#3; torreirow/torrlinny main (772db1f, gemigreerd); torreirow-nixos system/malandro (06b7f2b, torrlinny.nix versimpeld + live gedeployed+geverifieerd). Geleerd: Hugo merget alleen 'params' uit een theme; taxonomies/menu/markup/frontmatter/enableGitInfo horen in het notebook (template levert die kant-en-klaar).
