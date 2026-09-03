@@ -75,7 +75,10 @@ in
   # Rustic backup
   "rustic-s3-env.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
   "rustic-repo-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  
+
+  # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
+  "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;

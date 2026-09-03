@@ -1,0 +1,18 @@
+{{- /* Verborgen Pagefind filter/sort-hints per taxonomie-veld (scalar of lijst).
+       Waarde staat als TEKST-INHOUD (niet in de attribuutwaarde) zodat hugo --minify
+       de spans niet als 'leeg' wegstript. Context = de Page. */ -}}
+{{- $fields := slice "customer" "project" "type" "tag" "owner" "subject" "doctype" -}}
+<div hidden>
+{{- range $f := $fields -}}
+  {{- with (index $.Params $f) -}}
+    {{- if reflect.IsSlice . -}}
+      {{- range . -}}<span data-pagefind-filter="{{ $f }}">{{ . }}</span>{{- end -}}
+    {{- else -}}
+      <span data-pagefind-filter="{{ $f }}">{{ . }}</span>
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+  <span data-pagefind-sort="date">{{ $.Date.Format "2006-01-02" }}</span>
+  <span data-pagefind-sort="title">{{ $.Title }}</span>
+  <span data-pagefind-meta="date">{{ $.Date.Format "2006-01-02" }}</span>
+</div>

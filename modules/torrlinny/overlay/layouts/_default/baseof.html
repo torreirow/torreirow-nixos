@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+  <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
+  {{ block "head" . }}{{ end }}
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ "/" | relURL }}">📓 {{ site.Title }}</a>
+    <nav class="browse">
+      {{ range slice "customer" "project" "type" "doctype" "tag" }}
+        {{ $tax := index site.Taxonomies . }}
+        {{ if $tax }}<a href="{{ (printf "/%s/" .) | relURL }}">{{ . | title }}</a>{{ end }}
+      {{ end }}
+    </nav>
+  </header>
+  <main>{{ block "main" . }}{{ end }}</main>
+  <footer class="foot">Torrlinny · statisch gebouwd · {{ now.Format "2006-01-02 15:04" }}</footer>
+</body>
+</html>

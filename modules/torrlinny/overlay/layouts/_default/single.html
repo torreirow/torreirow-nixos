@@ -1,0 +1,14 @@
+{{ define "main" }}
+<article class="note" data-pagefind-body>
+  {{ partial "pf-filters.html" . }}
+  <h1 data-pagefind-meta="title">{{ .Title }}</h1>
+  <p class="meta">
+    {{ with .Date }}{{ if not .IsZero }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "2 Jan 2006" }}</time>{{ end }}{{ end }}
+    {{ partial "chips.html" . }}
+  </p>
+  <div class="content">
+    {{ .Content }}
+  </div>
+  <p class="backlink"><a href="{{ "/" | relURL }}">← alle notities</a></p>
+</article>
+{{ end }}
