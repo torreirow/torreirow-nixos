@@ -74,6 +74,28 @@ sudo readlink /var/lib/torrlinny/live            # welke build is live
   `params.geekdocPageLastmod: true` (→ GeekDoc toont "Updated on …"). Vereist de **volledige** clone
   + `.git` in de source (we bouwen in de checkout). De torrlinny-repo blijft ongemoeid.
 
+## Web-editor (`/admin`, Sveltia CMS)
+
+`https://linny.toorren.net/admin/` is een browser-editor voor de notities (markdown-body +
+frontmatter-velden), achter dezelfde Authelia-gate. **Additief** — de read-only site, de
+build-service en de read-only deploy-key blijven ongemoeid.
+
+- **Sveltia CMS**, zelf-gehost en **versie-gepind** in `modules/torrlinny/admin/` (`sveltia-cms.js`
+  + `index.html` + `config.yml`; huidige versie in `.sveltia-version`). Geen CDN.
+- Geserveerd als aparte nginx-`location /admin/` vanaf het **nix-store-pad** — buiten `live/`, dus
+  rebuilds (`reset --hard`/`clean`/atomic-swap) raken 'm nooit.
+- **Auth = PAT-login** (geen OAuth-relay/backend): je plakt 1× een **fine-grained GitHub PAT** in
+  Sveltia (scope: alleen `torreirow/torrlinny`, permission **Contents: read+write**). De token leeft
+  in browser-localStorage — **niet** in git/nix/agenix. Master-kopie in Vaultwarden.
+- Opslaan = commit+push naar `main` → de bestaande ~3-min-timer herbouwt de read-only site.
+
+**PAT aanmaken/roteren:** GitHub → Settings → Developer settings → Fine-grained tokens → alleen
+`torrlinny`, Contents rw, verloopdatum. In Vaultwarden bewaren; bij verloop nieuwe token maken en 1×
+in Sveltia plakken (geen deploy nodig).
+
+**Sveltia-versie bumpen:** download een nieuwere `sveltia-cms.js` naar `modules/torrlinny/admin/`,
+werk `.sveltia-version` bij, en `nixos-rebuild switch`. (Bewuste bump, net als kiosk-mode.js.)
+
 ## Nog te doen (aparte bean `nixos-bvhd`, draft)
 
 GitHub-**webhook** als instant-trigger (HMAC), met de timer als vangnet. Nu doet de ~3-min-timer het.
