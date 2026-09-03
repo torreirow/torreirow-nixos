@@ -517,7 +517,7 @@ class MagisterServerClient:
                     # helemaal overslaan voorkomt een fantoom-duplicaat in de agenda.
                     continue
                 elif status == 3:
-                    status_prefix = "[UITGEVALLEN] "
+                    status_prefix = "[KEUZE] "
                     transparent = True  # les gaat niet door -> blok als beschikbaar tonen
                 elif status == 2:
                     status_prefix = "[GEWIJZIGD] "
