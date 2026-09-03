@@ -15,4 +15,8 @@
   <span data-pagefind-sort="date">{{ $.Date.Format "2006-01-02" }}</span>
   <span data-pagefind-sort="title">{{ $.Title }}</span>
   <span data-pagefind-meta="date">{{ $.Date.Format "2006-01-02" }}</span>
+  {{- if not $.Lastmod.IsZero -}}
+  <span data-pagefind-sort="updated">{{ $.Lastmod.Format "2006-01-02" }}</span>
+  <span data-pagefind-meta="updated">{{ $.Lastmod.Format "2006-01-02" }}</span>
+  {{- end -}}
 </div>

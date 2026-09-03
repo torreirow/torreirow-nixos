@@ -4,7 +4,9 @@
 baseURL = "https://linny.toorren.net/"
 title = "Linny"
 enableRobotsTXT = false
-enableGitInfo = false
+# .Lastmod = datum van de laatste git-commit die het bestand raakte (echte
+# "laatst gewijzigd"). Vereist een NIET-shallow clone + .git in de build-root.
+enableGitInfo = true
 disableKinds = ["RSS", "sitemap"]
 summaryLength = 30
 
