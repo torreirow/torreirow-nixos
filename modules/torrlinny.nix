@@ -77,10 +77,19 @@ let
     ## 2. bouwen met de web-config (identiek aan start-web.sh: hugo-web.yaml +
     ##    geekdoc-thema; configDir=doesnotexist zodat de Linny-JSON-config NIET meelaadt).
     ##    Bouwt in een VERSE dir zodat de swap atomisch kan.
+    # Eerder gekopieerde overlay-bestanden (untracked) opruimen zodat een uit de
+    # overlay verwijderd bestand ook uit de checkout verdwijnt (cp/reset doen dat niet).
+    git -C "$CHECKOUT" clean -fd layouts content 2>/dev/null || true
+
     # Overlay in de checkout leggen (layouts overriden/aanvullen + overzichtspagina's).
     chmod -R u+w "$CHECKOUT/layouts" "$CHECKOUT/content" 2>/dev/null || true
     cp -rf ${overlayDir}/layouts/. "$CHECKOUT/layouts/"
     cp -rf ${overlayDir}/content/. "$CHECKOUT/content/"
+
+    # CLI-output met box-drawing tekens (bv. aws --output table) in code-fences
+    # wikkelen zodat het als nette monospace-tabel rendert. Idempotent (reset per sync).
+    find "$CHECKOUT/content" -name '*.md' -exec ${pkgs.bash}/bin/bash -c \
+      'for f; do ${pkgs.python3}/bin/python3 ${overlayDir}/fence.py < "$f" > "$f.pf" && mv "$f.pf" "$f"; done' _ {} +
 
     DEST="$BUILDS/$REV-$(date +%s)"
     rm -rf "$DEST"
