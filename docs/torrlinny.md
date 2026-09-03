@@ -63,6 +63,11 @@ sudo readlink /var/lib/torrlinny/live            # welke build is live
 - **`hugo-web.yaml` gebruikt hugo-geekdoc**, niet PaperMod (ondanks de comment in `start-web.sh`).
 - **Deploy key = read-only** op GitHub; privé-repo → site achter Authelia (nooit publiek).
 - **`--configDir doesnotexist`** is essentieel om de Linny-JSON-config buiten de web-build te houden.
+- **"Last updated" = git-datum, niet fs-mtime.** Een clone/checkout stempelt alle bestanden op de
+  clone-tijd (git bewaart geen mtimes). Daarom een config-override (`webConfigExtra` in de module,
+  náást `hugo-web.yaml`) met `enableGitInfo: true` (→ `.Lastmod` = laatste-commit-datum) +
+  `params.geekdocPageLastmod: true` (→ GeekDoc toont "Updated on …"). Vereist de **volledige** clone
+  + `.git` in de source (we bouwen in de checkout). De torrlinny-repo blijft ongemoeid.
 
 ## Nog te doen (aparte bean `nixos-bvhd`, draft)
 

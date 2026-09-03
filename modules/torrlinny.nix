@@ -26,6 +26,15 @@ let
   repoUrl = "git@github.com:torreirow/torrlinny.git";
   keyPath = config.age.secrets.torrlinny-deploy-key.path;
 
+  # Config-override bovenop de repo's hugo-web.yaml (torrlinny-repo blijft ongemoeid):
+  # "last updated" = de echte git-commit-datum (.Lastmod) + geekdoc laten tonen.
+  # Werkt omdat we in de checkout MET .git bouwen en een VOLLEDIGE clone doen.
+  webConfigExtra = pkgs.writeText "torrlinny-web-extra.yaml" ''
+    enableGitInfo: true
+    params:
+      geekdocPageLastmod: true
+  '';
+
   buildScript = pkgs.writeShellScript "torrlinny-build" ''
     set -euo pipefail
 
@@ -33,7 +42,7 @@ let
     CHECKOUT="$WORK/checkout"
     BUILDS="$WORK/builds"
     LIVE="$WORK/live"
-    RECIPE="${pkgs.hugo}"
+    RECIPE="${pkgs.hugo}:${webConfigExtra}"
     FORCE="''${1:-}"
 
     export HOME="$WORK"
@@ -71,7 +80,7 @@ let
     DEST="$BUILDS/$REV-$(date +%s)"
     rm -rf "$DEST"
     ${pkgs.hugo}/bin/hugo --source "$CHECKOUT" \
-      --config hugo-web.yaml --configDir doesnotexist \
+      --config hugo-web.yaml,${webConfigExtra} --configDir doesnotexist \
       --baseURL "https://${cfg.domain}/" \
       --minify --destination "$DEST" --logLevel error
     chmod -R a+rX "$DEST"
