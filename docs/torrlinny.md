@@ -7,16 +7,21 @@ doorzoekbare statische site op **https://linny.toorren.net** (achter Authelia), 
 > Module: `modules/torrlinny.nix`. Ingeschakeld via `services.torrlinny.enable = true`
 > in `hosts/malandro/configuration.nix`.
 
-## Aanpak: bouw de eigen web-config van de repo (GeekDoc)
+## Aanpak: bouw met de gedeelde linny-web-theme Hugo-module
 
-De site wordt gebouwd **exact zoals `start-web.sh` lokaal** doet: met de repo's eigen
-`hugo-web.yaml` + het **hugo-geekdoc**-thema (submodule). GeekDoc levert de zijbalk/file-tree,
-de **ingebouwde full-text zoek** en de taxonomie-menu's (customer/project/type/tags). We
-onderhouden dus GEEN eigen layout — we hergebruiken de config die je lokaal al fijn vindt.
+De site wordt gebouwd met de repo's eigen `hugo-web.yaml`, die de **[linny-web-theme](https://github.com/torreirow/linny-web-theme)**
+Hugo-module importeert. Die module **bundelt geekdoc** (prebuilt) én levert de
+Linny-layouts: de **taxonomie-zijbalk** (customer/project/type/tags met counts), de
+per-notitie **Created + Updated**-datums, de twee **overzichtspagina's** en de
+config-`params`. GeekDoc levert daarbovenop de ingebouwde full-text zoek. We
+onderhouden dus **geen eigen overlay** meer op malandro — dat zit nu in de theme,
+herbruikbaar voor álle Linny-notebooks (zie epic `nixos-al4j`).
 
 ```
 GitHub (privé main) ──[timer ~3min + change-detectie]──▶ torrlinny-build.service (user: torrlinny)
-   (read-only deploy key, agenix)                          │ git pull + submodules (geekdoc-thema)
+   (read-only deploy key, agenix)                          │ git fetch/reset main
+                                                           │ hugo mod get  (linny-web-theme, Go in PATH)
+                                                           │ fence.py (box-drawing CLI → ```text)
                                                            │ hugo --config hugo-web.yaml
                                                            │       --configDir doesnotexist
                                                            │       --baseURL https://linny.toorren.net/
@@ -25,20 +30,23 @@ GitHub (privé main) ──[timer ~3min + change-detectie]──▶ torrlinny-bu
                                                     nginx (Authelia) ──▶ linny.toorren.net
 ```
 
+- **`hugo mod get`**: haalt de theme-module (gepind in de repo's `go.mod`/`go.sum`).
+  Vereist `go` in de service-PATH (`path = [... go]`); module-cache staat in
+  `/var/lib/torrlinny/go` + `hugo_cache`. `GOPROXY=direct` (rechtstreeks van GitHub),
+  `GOSUMDB=off` (integriteit via de gecommitte `go.sum`).
 - **`--configDir doesnotexist`**: voorkomt dat Hugo de `config/`-map (de Linny-JSON-indexer)
-  meelaadt — alleen `hugo-web.yaml` telt. Identiek aan `start-web.sh`.
-- **Submodules**: `git clone --recurse-submodules` / `git submodule update` halen `themes/hugo-geekdoc`
-  (publiek) op.
+  meelaadt — alleen `hugo-web.yaml` telt.
 - **`--baseURL`** override naar de productie-URL (de repo-config staat op localhost).
+- **`enableGitInfo`** staat in torrlinny's `hugo-web.yaml` (root-key — mergt NIET uit een
+  theme). Vereist de **volledige** clone + `.git` in de source (we bouwen in de checkout).
+- **fence-preprocessing**: `fence.py` (uit de repo) wikkelt CLI-output met box-drawing
+  tekens (bv. `aws … --output table`, U+2500–U+259F) in een ```text-fence. In-place op de
+  wegwerp-checkout (zodat `.git`/`.Lastmod` intact blijft), idempotent; de bron-repo blijft
+  ongemoeid.
 - **Runtime-build, geen nix-derivation**: een notitie-wijziging kost géén `nixos-rebuild`.
-- **Kleine overlay** (`modules/torrlinny/overlay/`, bij de build in de checkout gelegd — repo blijft
-  ongemoeid): notitiepagina toont **Created (crdate) + Updated (git `.Lastmod`)**; twee **paginated
-  overzichten** `notes-by-{title,date}/` (secties met `layout: noteslist`); een **"Overzichten"-blok**
-  in de zijbalk via een `menu.html`-override (geekdoc gebruikt géén Hugo `menu.main` maar een
-  filetree). `web-extra.yaml` zet `enableGitInfo` aan (voor de git-`.Lastmod`).
-- **Atomic swap + keep-last-good**: build gaat naar `builds/<rev>-<epoch>`; `live` swapt er atomisch
-  naartoe. Faalt hugo, dan blijft de vorige goede build live.
-- **Change-detectie**: skip als git HEAD én het bouw-recept (hugo-versie) onveranderd zijn.
+- **Atomic swap + keep-last-good**: build gaat naar `builds/<rev>-<epoch>`; `live` swapt er
+  atomisch naartoe. Faalt hugo, dan blijft de vorige goede build live.
+- **Change-detectie**: skip als git HEAD én het bouw-recept (`hugo=<v>;go=<v>`) onveranderd zijn.
 
 ## Bestanden & paden
 
@@ -46,33 +54,42 @@ GitHub (privé main) ──[timer ~3min + change-detectie]──▶ torrlinny-bu
 |------------------------------------------|------------------------------------------------|
 | `modules/torrlinny.nix` | Module: user, build-service, timer, nginx, agenix |
 | `secrets/torrlinny-deploy-key.age` | Read-only SSH deploy key (agenix) |
-| `/var/lib/torrlinny/checkout` | Git-checkout van torrlinny (+ submodules) |
+| `/var/lib/torrlinny/checkout` | Git-checkout van torrlinny |
+| `/var/lib/torrlinny/go`, `…/hugo_cache` | Go/Hugo-module-cache (theme) |
 | `/var/lib/torrlinny/builds/<rev>-<ts>` | Gebouwde sites (nieuwste 3 bewaard) |
 | `/var/lib/torrlinny/live` | Symlink → huidige build (nginx `root`) |
 | `/run/agenix/torrlinny-deploy-key` | Ontsleutelde deploy key (owner torrlinny, 0400) |
+
+De web-layouts/geekdoc/overzichtspagina's leven **niet** meer in deze repo maar in de
+theme-module `github.com/torreirow/linny-web-theme` (torrlinny's `hugo-web.yaml` importeert 'm).
 
 ## Beheer
 
 ```bash
 sudo systemctl start torrlinny-build.service     # handmatig (change-detectie; kan overslaan)
+sudo systemctl start torrlinny-build.service --force  # (via ExecStart-arg n.v.t.; forceer met: touch + reset)
 systemctl status torrlinny-build.timer
 journalctl -u torrlinny-build.service -f
 sudo readlink /var/lib/torrlinny/live            # welke build is live
 ```
 
+De theme bumpen (nieuwe versie): in de **torrlinny-repo** `hugo mod get -u github.com/torreirow/linny-web-theme`
+(werkt `go.mod`/`go.sum` bij), commit + push → de volgende malandro-build pikt het op.
+
 ## Belangrijke lessen
 
-- **`keys`-groep vereist**: de build-user leest de agenix deploy-key uit `/run/keys` (`root:keys 0750`)
-  → `SupplementaryGroups = [ "keys" ]` (zoals formrelay).
+- **Hugo merget alleen `params` uit een theme.** taxonomies/menu/markup/frontmatter/
+  pagination/`enableGitInfo` mergen NIET → die staan in torrlinny's `hugo-web.yaml`. De
+  geekdoc-`params` (incl. `geekdocPageLastmod`) komen wél uit de theme.
+- **`go` vereist in de service-PATH** voor `hugo mod get` (Hugo-modules resolven via de
+  Go-toolchain). Module-cache in de persistente werkmap zodat niet elke build opnieuw fetcht.
+- **`keys`-groep vereist**: de build-user leest de agenix deploy-key uit `/run/keys`
+  (`root:keys 0750`) → `SupplementaryGroups = [ "keys" ]` (zoals formrelay).
 - **createHome uit + werkmap 0750 + nginx in de torrlinny-groep**: anders 0700 en kan nginx niet lezen.
-- **`hugo-web.yaml` gebruikt hugo-geekdoc**, niet PaperMod (ondanks de comment in `start-web.sh`).
 - **Deploy key = read-only** op GitHub; privé-repo → site achter Authelia (nooit publiek).
 - **`--configDir doesnotexist`** is essentieel om de Linny-JSON-config buiten de web-build te houden.
-- **"Last updated" = git-datum, niet fs-mtime.** Een clone/checkout stempelt alle bestanden op de
-  clone-tijd (git bewaart geen mtimes). Daarom een config-override (`webConfigExtra` in de module,
-  náást `hugo-web.yaml`) met `enableGitInfo: true` (→ `.Lastmod` = laatste-commit-datum) +
-  `params.geekdocPageLastmod: true` (→ GeekDoc toont "Updated on …"). Vereist de **volledige** clone
-  + `.git` in de source (we bouwen in de checkout). De torrlinny-repo blijft ongemoeid.
+- **"Updated" = git-datum, niet fs-mtime** (`enableGitInfo` → `.Lastmod`). Vereist de volledige
+  clone + `.git` in de source. Fence draait daarom in-place op de checkout, niet op een kopie.
 
 ## Nog te doen (aparte bean `nixos-bvhd`, draft)
 

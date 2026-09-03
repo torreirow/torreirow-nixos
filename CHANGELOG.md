@@ -8,10 +8,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - **Torrlinny notities-web** (`linny.toorren.net`): de privé Hugo-repo `torreirow/torrlinny` wordt ontsloten als een strakke, doorzoekbare statische site achter Authelia, die automatisch herbouwt bij een push naar `main`.
-  - Overlay-frontend (`modules/torrlinny/overlay/`): een zelfstandige Hugo-site (eigen config + layouts + css) die ALLEEN torrlinny's `content/` inleest — de content-repo blijft ongemoeid (geen PaperMod/submodules).
-  - **Pagefind** (client-side): full-text zoeken + facet-filters op de taxonomieën (customer/project/type/tag/owner/subject/doctype) + sorteren op datum (`crdate`).
-  - Runtime build-service (git → `hugo --minify` → `pagefind` → **atomic symlink-swap**, **keep-last-good**) met een timer + change-detectie; géén `nixos-rebuild` per notitie-wijziging.
+  - Gebouwd met de gedeelde **[linny-web-theme](https://github.com/torreirow/linny-web-theme)** Hugo-module (bundelt geekdoc + de Linny-layouts: taxonomie-zijbalk, Created/Updated-datums, overzichtspagina's). Torrlinny's `hugo-web.yaml` importeert de module; de build haalt 'm met `hugo mod get` (Go in de service-PATH). Géén eigen overlay meer op malandro.
+  - **Full-text zoeken** (geekdoc, ingebouwd) + taxonomie-navigatie (customer/project/type/tags) + twee paginated overzichten (op titel/datum) + per-notitie Created (`crdate`) + Updated (git `.Lastmod`).
+  - **fence.py**: box-drawing CLI-output (bv. `aws … --output table`) wordt in een ```text-fence gewikkeld (in-place op de wegwerp-checkout, `.git` intact voor `enableGitInfo`).
+  - Runtime build-service (git → `hugo mod get` → fence → `hugo --minify` → **atomic symlink-swap**, **keep-last-good**) met een timer + change-detectie; géén `nixos-rebuild` per notitie-wijziging.
   - Read-only SSH deploy key via agenix (`secrets/torrlinny-deploy-key.age`); nginx-vhost achter Authelia.
+- **linny-web-theme** (nieuwe repo `github.com/torreirow/linny-web-theme`, publiek, Hugo-Module): de torrlinny-web-view als herbruikbare Hugo-theme voor álle Linny-notebooks. Vendort geekdoc's prebuilt release (MIT) + de Linny-layouts/overzichtspagina's; één `hugo mod get`. Opgenomen in `linden-project/linny-notebook-template` (PR) zodat elk nieuw notebook de web-view out-of-the-box heeft.
 - **Wayle clipboard dropdown**: Clipboard history icoon in de wayle-bar rechtsboven, naast planify. Klikken opent een native GTK4 dropdown met alle entries van `cliphist`. Klik op een entry → gekopieerd naar clipboard en dropdown sluit. Vervangt niet de `Ctrl+Super+C` fuzzel picker — beide bestaan naast elkaar.
   - Nieuw Rust/Relm4 component in de wayle fork (`crates/wayle-shell/src/shell/bar/dropdowns/clipboard/`)
   - Entries worden geladen via `cliphist list` op popover open-event (geen polling)
