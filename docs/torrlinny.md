@@ -31,6 +31,11 @@ GitHub (privé main) ──[timer ~3min + change-detectie]──▶ torrlinny-bu
   (publiek) op.
 - **`--baseURL`** override naar de productie-URL (de repo-config staat op localhost).
 - **Runtime-build, geen nix-derivation**: een notitie-wijziging kost géén `nixos-rebuild`.
+- **Kleine overlay** (`modules/torrlinny/overlay/`, bij de build in de checkout gelegd — repo blijft
+  ongemoeid): notitiepagina toont **Created (crdate) + Updated (git `.Lastmod`)**; twee **paginated
+  overzichten** `notes-by-{title,date}/` (secties met `layout: noteslist`); een **"Overzichten"-blok**
+  in de zijbalk via een `menu.html`-override (geekdoc gebruikt géén Hugo `menu.main` maar een
+  filetree). `web-extra.yaml` zet `enableGitInfo` aan (voor de git-`.Lastmod`).
 - **Atomic swap + keep-last-good**: build gaat naar `builds/<rev>-<epoch>`; `live` swapt er atomisch
   naartoe. Faalt hugo, dan blijft de vorige goede build live.
 - **Change-detectie**: skip als git HEAD én het bouw-recept (hugo-versie) onveranderd zijn.

@@ -26,14 +26,14 @@ let
   repoUrl = "git@github.com:torreirow/torrlinny.git";
   keyPath = config.age.secrets.torrlinny-deploy-key.path;
 
-  # Config-override bovenop de repo's hugo-web.yaml (torrlinny-repo blijft ongemoeid):
-  # "last updated" = de echte git-commit-datum (.Lastmod) + geekdoc laten tonen.
-  # Werkt omdat we in de checkout MET .git bouwen en een VOLLEDIGE clone doen.
-  webConfigExtra = pkgs.writeText "torrlinny-web-extra.yaml" ''
-    enableGitInfo: true
-    params:
-      geekdocPageLastmod: true
-  '';
+  # Overlay bovenop de geekdoc-web-build (torrlinny-repo blijft ongemoeid): wordt bij
+  # de build in de checkout gelegd en overschrijft/aanvult het thema.
+  #  - layouts/partials/page-metadata.html : Created (crdate) + Updated (git .Lastmod)
+  #  - layouts/partials/menu.html          : "Overzichten"-blok in de zijbalk
+  #  - layouts/_default/noteslist.html     : paginated overzicht (op titel/datum)
+  #  - content/notes-by-{title,date}/      : de twee overzichtspagina's
+  #  - web-extra.yaml                       : enableGitInfo (voor .Lastmod)
+  overlayDir = ./torrlinny/overlay;
 
   buildScript = pkgs.writeShellScript "torrlinny-build" ''
     set -euo pipefail
@@ -42,7 +42,7 @@ let
     CHECKOUT="$WORK/checkout"
     BUILDS="$WORK/builds"
     LIVE="$WORK/live"
-    RECIPE="${pkgs.hugo}:${webConfigExtra}"
+    RECIPE="${pkgs.hugo}:${overlayDir}"
     FORCE="''${1:-}"
 
     export HOME="$WORK"
@@ -77,10 +77,15 @@ let
     ## 2. bouwen met de web-config (identiek aan start-web.sh: hugo-web.yaml +
     ##    geekdoc-thema; configDir=doesnotexist zodat de Linny-JSON-config NIET meelaadt).
     ##    Bouwt in een VERSE dir zodat de swap atomisch kan.
+    # Overlay in de checkout leggen (layouts overriden/aanvullen + overzichtspagina's).
+    chmod -R u+w "$CHECKOUT/layouts" "$CHECKOUT/content" 2>/dev/null || true
+    cp -rf ${overlayDir}/layouts/. "$CHECKOUT/layouts/"
+    cp -rf ${overlayDir}/content/. "$CHECKOUT/content/"
+
     DEST="$BUILDS/$REV-$(date +%s)"
     rm -rf "$DEST"
     ${pkgs.hugo}/bin/hugo --source "$CHECKOUT" \
-      --config hugo-web.yaml,${webConfigExtra} --configDir doesnotexist \
+      --config hugo-web.yaml,${overlayDir}/web-extra.yaml --configDir doesnotexist \
       --baseURL "https://${cfg.domain}/" \
       --minify --destination "$DEST" --logLevel error
     chmod -R a+rX "$DEST"
