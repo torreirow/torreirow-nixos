@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Torrlinny notities-web** (`linny.toorren.net`): de privé Hugo-repo `torreirow/torrlinny` wordt ontsloten als een strakke, doorzoekbare statische site achter Authelia, die automatisch herbouwt bij een push naar `main`.
+  - Overlay-frontend (`modules/torrlinny/overlay/`): een zelfstandige Hugo-site (eigen config + layouts + css) die ALLEEN torrlinny's `content/` inleest — de content-repo blijft ongemoeid (geen PaperMod/submodules).
+  - **Pagefind** (client-side): full-text zoeken + facet-filters op de taxonomieën (customer/project/type/tag/owner/subject/doctype) + sorteren op datum (`crdate`).
+  - Runtime build-service (git → `hugo --minify` → `pagefind` → **atomic symlink-swap**, **keep-last-good**) met een timer + change-detectie; géén `nixos-rebuild` per notitie-wijziging.
+  - Read-only SSH deploy key via agenix (`secrets/torrlinny-deploy-key.age`); nginx-vhost achter Authelia.
 - **Wayle clipboard dropdown**: Clipboard history icoon in de wayle-bar rechtsboven, naast planify. Klikken opent een native GTK4 dropdown met alle entries van `cliphist`. Klik op een entry → gekopieerd naar clipboard en dropdown sluit. Vervangt niet de `Ctrl+Super+C` fuzzel picker — beide bestaan naast elkaar.
   - Nieuw Rust/Relm4 component in de wayle fork (`crates/wayle-shell/src/shell/bar/dropdowns/clipboard/`)
   - Entries worden geladen via `cliphist list` op popover open-event (geen polling)
