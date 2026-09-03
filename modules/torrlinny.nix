@@ -35,6 +35,11 @@ let
   #  - web-extra.yaml                       : enableGitInfo (voor .Lastmod)
   overlayDir = ./torrlinny/overlay;
 
+  # Sveltia CMS-editor (zelf-gehost, versie-gepind). Wordt op /admin geserveerd
+  # vanaf dit nix-store-pad — BUITEN de build-output (`live/`), zodat de rebuild
+  # (reset --hard + clean + atomic-swap) de editor nooit raakt.
+  adminDir = ./torrlinny/admin;
+
   buildScript = pkgs.writeShellScript "torrlinny-build" ''
     set -euo pipefail
 
@@ -221,6 +226,14 @@ in {
       root = "${cfg.dataDir}/live";
 
       locations."/authelia" = autheliaHelpers.autheliaVerifyLocation;
+
+      # Sveltia CMS-editor (statisch, achter dezelfde Authelia-gate). Aparte root
+      # buiten live/, dus rebuilds raken 'm niet. Sveltia gebruikt hash-routing →
+      # geen SPA-fallback nodig.
+      locations."/admin/" = {
+        alias = "${adminDir}/";
+        extraConfig = autheliaHelpers.autheliaAuthConfig;
+      };
 
       locations."/" = {
         tryFiles = "$uri $uri/ =404";

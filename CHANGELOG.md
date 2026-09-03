@@ -7,6 +7,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Torrlinny web-editor** (`linny.toorren.net/admin`): een browser-editor (Sveltia CMS) voor de notities, achter Authelia, additief naast de read-only site.
+  - Zelf-gehoste, versie-gepinde Sveltia-bundle (geen CDN), geserveerd als aparte nginx-`location /admin/` buiten de build-output.
+  - Auth via **PAT-login** (fine-grained GitHub token in de browser) — geen OAuth-relay of backend; de read-only deploy-key blijft ongemoeid.
+  - `config.yml` met een platte `content/`-collectie en alle frontmatter-velden als formulier-velden; opslaan commit naar `main` en de bestaande timer herbouwt de site.
 - **Torrlinny notities-web** (`linny.toorren.net`): de privé Hugo-repo `torreirow/torrlinny` wordt ontsloten als een strakke, doorzoekbare statische site achter Authelia, die automatisch herbouwt bij een push naar `main`.
   - Overlay-frontend (`modules/torrlinny/overlay/`): een zelfstandige Hugo-site (eigen config + layouts + css) die ALLEEN torrlinny's `content/` inleest — de content-repo blijft ongemoeid (geen PaperMod/submodules).
   - **Pagefind** (client-side): full-text zoeken + facet-filters op de taxonomieën (customer/project/type/tag/owner/subject/doctype) + sorteren op datum (`crdate`).
