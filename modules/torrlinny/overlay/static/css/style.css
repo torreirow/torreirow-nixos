@@ -69,11 +69,28 @@ time { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-num
 .content img { max-width: 100%; height: auto; }
 .backlink { margin-top: 2rem; color: var(--muted); }
 
-.browse-all summary { cursor: pointer; }
-.browse-all summary h2 { display: inline; }
+.lead { color: var(--muted); margin: .2rem 0 1.5rem; }
+.metadate { display: inline-flex; align-items: center; gap: .25rem; color: var(--muted); font-size: .85rem; }
 
 /* Pagefind UI theming */
 :root { --pagefind-ui-primary: var(--accent); --pagefind-ui-background: var(--card);
         --pagefind-ui-text: var(--fg); --pagefind-ui-border: var(--line);
-        --pagefind-ui-scale: .9; --pagefind-ui-border-radius: 10px; }
-#search { margin-bottom: 2rem; }
+        --pagefind-ui-scale: .8; --pagefind-ui-border-radius: 999px;
+        --pagefind-ui-font: inherit; }
+
+/* Zoekbalk in de menu-balk: compacte input + resultaten als overlay-dropdown */
+.topsearch { flex: 1 1 18rem; max-width: 30rem; position: relative; }
+.topsearch .pagefind-ui__form::before { top: 50%; transform: translateY(-50%) scale(.8); }
+.topsearch .pagefind-ui__search-input { padding-top: .5rem; padding-bottom: .5rem; background: var(--bg); }
+.topsearch .pagefind-ui__drawer {
+  position: absolute; top: calc(100% + .5rem); right: 0;
+  width: min(38rem, 92vw); max-height: 75vh; overflow-y: auto;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 12px 34px rgba(0,0,0,.28); padding: .4rem .9rem 1rem; z-index: 60;
+}
+.topsearch .pagefind-ui__drawer:not(.pagefind-ui__hidden):empty { display: none; }
+.topsearch .pagefind-ui__result { border-bottom: 1px solid var(--line); }
+@media (max-width: 640px) {
+  .topsearch { order: 3; flex-basis: 100%; max-width: none; }
+  .topsearch .pagefind-ui__drawer { width: 100%; }
+}

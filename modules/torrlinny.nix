@@ -44,15 +44,26 @@ let
     mkdir -p "$BUILDS"
 
     ## 1. sync + change-detectie
+    #  VOLLEDIGE clone (geen --depth): enableGitInfo heeft de historie nodig om per
+    #  bestand de echte laatste-wijzig-commit (.Lastmod) te bepalen. Een oude shallow
+    #  checkout wordt automatisch ge-unshallowed.
     if [ ! -d "$CHECKOUT/.git" ]; then
       rm -rf "$CHECKOUT"
-      git clone --depth 1 --branch main "${repoUrl}" "$CHECKOUT"
+      git clone --branch main "${repoUrl}" "$CHECKOUT"
     else
-      git -C "$CHECKOUT" fetch --depth 1 origin main
+      if [ -f "$CHECKOUT/.git/shallow" ]; then
+        git -C "$CHECKOUT" fetch --unshallow origin main || git -C "$CHECKOUT" fetch origin main
+      else
+        git -C "$CHECKOUT" fetch origin main
+      fi
       LOCAL="$(git -C "$CHECKOUT" rev-parse HEAD)"
       REMOTE="$(git -C "$CHECKOUT" rev-parse origin/main)"
-      if [ "$LOCAL" = "$REMOTE" ] && [ -e "$LIVE" ] && [ "$FORCE" != "--force" ]; then
-        echo "torrlinny: geen wijziging ($LOCAL), build overgeslagen"
+      # Skip alleen als ZOWEL de content (git HEAD) ALS de overlay-frontend
+      # (nix-store-path) onveranderd zijn t.o.v. de laatste build. Zo triggert een
+      # frontend/layout-wijziging (nieuwe store-path) óók een rebuild.
+      if [ "$LOCAL" = "$REMOTE" ] && [ -e "$LIVE" ] && [ "$FORCE" != "--force" ] \
+         && [ "$(cat "$WORK/last-build-overlay" 2>/dev/null)" = "${overlay}" ]; then
+        echo "torrlinny: geen wijziging ($LOCAL) en overlay ongewijzigd, build overgeslagen"
         exit 0
       fi
       git -C "$CHECKOUT" reset --hard origin/main
@@ -67,6 +78,9 @@ let
     cp -r ${overlay}/static "$BUILDROOT/static"
     cp -r "$CHECKOUT/content" "$BUILDROOT/content"
     chmod -R u+w "$BUILDROOT"
+    # .git symlinken zodat hugo (enableGitInfo) per bestand de echte laatste-wijzig-
+    # commit (.Lastmod) kan bepalen. De content-paden matchen de git-historie.
+    ln -sfn "$CHECKOUT/.git" "$BUILDROOT/.git"
 
     ## 3. bouwen in een VERSE dir (voorbereiding atomic swap)
     DEST="$BUILDS/$REV-$(date +%s)"
@@ -79,6 +93,7 @@ let
     ##    build) blijft ongewijzigd (keep-last-good).
     ln -sfn "$DEST" "$WORK/live.new"
     mv -Tf "$WORK/live.new" "$LIVE"
+    echo "${overlay}" > "$WORK/last-build-overlay"
     echo "torrlinny: gepubliceerd rev $REV -> $DEST"
 
     ## 5. prune: bewaar de 3 nieuwste builds
