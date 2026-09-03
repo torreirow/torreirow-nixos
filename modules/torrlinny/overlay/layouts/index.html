@@ -1,0 +1,38 @@
+{{ define "head" }}
+<link href="{{ "pagefind/pagefind-ui.css" | relURL }}" rel="stylesheet">
+{{ end }}
+{{ define "main" }}
+<section class="home">
+  <h1>Zoeken &amp; filteren</h1>
+  <div id="search"></div>
+  <script src="{{ "pagefind/pagefind-ui.js" | relURL }}"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      new PagefindUI({
+        element: "#search",
+        showSubResults: true,
+        showImages: false,
+        pageSize: 15,
+        sort: { date: "desc" },
+        translations: {
+          placeholder: "Zoek in alle notities…",
+          zero_results: "Geen notities voor \"[SEARCH_TERM]\"",
+        },
+      });
+    });
+  </script>
+
+  <details class="browse-all" open>
+    <summary><h2>Alle notities ({{ len site.RegularPages }})</h2></summary>
+    <ul class="notelist">
+      {{ range site.RegularPages.ByDate.Reverse }}
+        <li>
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          {{ with .Date }}{{ if not .IsZero }}<time>{{ .Format "2006-01-02" }}</time>{{ end }}{{ end }}
+          {{ partial "chips.html" . }}
+        </li>
+      {{ end }}
+    </ul>
+  </details>
+</section>
+{{ end }}

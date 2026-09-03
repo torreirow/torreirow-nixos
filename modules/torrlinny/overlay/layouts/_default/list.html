@@ -1,0 +1,23 @@
+{{ define "main" }}
+<section class="listing">
+  <h1>{{ if .Data.Singular }}{{ .Data.Singular | title }}: {{ .Title }}{{ else }}{{ .Title | default "Notities" }}{{ end }}</h1>
+  {{ $pages := .Pages }}
+  {{ if .Data.Terms }}
+    {{/* Taxonomie-index (bv. /customer/): lijst van termen met aantallen */}}
+    <ul class="terms">
+      {{ range .Data.Terms.Alphabetical }}
+        <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a> <span class="count">{{ .Count }}</span></li>
+      {{ end }}
+    </ul>
+  {{ else }}
+    <ul class="notelist">
+      {{ range $pages.ByDate.Reverse }}
+        <li>
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          {{ with .Date }}{{ if not .IsZero }}<time>{{ .Format "2006-01-02" }}</time>{{ end }}{{ end }}
+        </li>
+      {{ end }}
+    </ul>
+  {{ end }}
+</section>
+{{ end }}

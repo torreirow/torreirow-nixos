@@ -55,6 +55,7 @@
  ../../modules/wallos.nix
  ../../modules/status-page.nix
  ../../modules/rustic-backup.nix
+ ../../modules/torrlinny.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
@@ -68,6 +69,8 @@
     assertion = config.networking.hostName == "malandro";
     message = "ERROR: Deze configuratie is voor 'malandro', maar hostname is '${config.networking.hostName}'. Gebruik --flake .#${config.networking.hostName}";
   }];
+
+  services.torrlinny.enable = true;
 
   services.magister-sync = {
     enable = true;
