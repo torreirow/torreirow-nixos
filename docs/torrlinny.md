@@ -1,41 +1,47 @@
 # Torrlinny notities-web
 
-Ontsluit de **privé** Hugo-repo `torreirow/torrlinny` (markdown-notities met taxonomieën) als een
-strakke, doorzoekbare statische site op **https://linny.toorren.net** (achter Authelia), die
+Ontsluit de **privé** Hugo-repo `torreirow/torrlinny` (markdown-notities) als een
+doorzoekbare statische site op **https://linny.toorren.net** (achter Authelia), die
 **automatisch herbouwt** zodra er naar `main` gepusht is.
 
-> Module: `modules/torrlinny.nix` (+ overlay `modules/torrlinny/overlay/`). Ingeschakeld via
-> `services.torrlinny.enable = true` in `hosts/malandro/configuration.nix`.
+> Module: `modules/torrlinny.nix`. Ingeschakeld via `services.torrlinny.enable = true`
+> in `hosts/malandro/configuration.nix`.
 
-## Architectuur
+## Aanpak: bouw de eigen web-config van de repo (GeekDoc)
+
+De site wordt gebouwd **exact zoals `start-web.sh` lokaal** doet: met de repo's eigen
+`hugo-web.yaml` + het **hugo-geekdoc**-thema (submodule). GeekDoc levert de zijbalk/file-tree,
+de **ingebouwde full-text zoek** en de taxonomie-menu's (customer/project/type/tags). We
+onderhouden dus GEEN eigen layout — we hergebruiken de config die je lokaal al fijn vindt.
 
 ```
 GitHub (privé main) ──[timer ~3min + change-detectie]──▶ torrlinny-build.service (user: torrlinny)
-   (read-only deploy key, agenix)                          │ git pull  →  overlay + content
-                                                           │ hugo --minify  →  pagefind
+   (read-only deploy key, agenix)                          │ git pull + submodules (geekdoc-thema)
+                                                           │ hugo --config hugo-web.yaml
+                                                           │       --configDir doesnotexist
+                                                           │       --baseURL https://linny.toorren.net/
                                                            │ atomic symlink-swap  →  live/
                                                            ▼
                                                     nginx (Authelia) ──▶ linny.toorren.net
 ```
 
-- **Overlay-frontend:** een zelfstandige Hugo-site (`overlay/`: eigen config + layouts + css) die
-  ALLEEN torrlinny's `content/` inleest. De content-repo blijft ongemoeid (geen PaperMod/submodules).
-- **Pagefind** (client-side): full-text zoeken + facet-filters (customer/project/type/tag/owner/
-  subject/doctype) + datum-sort. De layouts emitteren `data-pagefind-filter`/`-sort` als **tekst-
-  inhoud** (niet lege spans) zodat `hugo --minify` ze niet wegstript.
-- **Runtime-build, geen nix-derivation:** een notitie-wijziging kost géén `nixos-rebuild`.
-- **Atomic swap + keep-last-good:** elke build gaat naar `builds/<rev>-<epoch>`; `live` wordt er
-  atomisch naartoe geswapt. Faalt hugo/pagefind, dan blijft de vorige goede build live.
-- **crdate → .Date:** `frontmatter.date = ["crdate", …]` zodat sorteren op datum werkt.
+- **`--configDir doesnotexist`**: voorkomt dat Hugo de `config/`-map (de Linny-JSON-indexer)
+  meelaadt — alleen `hugo-web.yaml` telt. Identiek aan `start-web.sh`.
+- **Submodules**: `git clone --recurse-submodules` / `git submodule update` halen `themes/hugo-geekdoc`
+  (publiek) op.
+- **`--baseURL`** override naar de productie-URL (de repo-config staat op localhost).
+- **Runtime-build, geen nix-derivation**: een notitie-wijziging kost géén `nixos-rebuild`.
+- **Atomic swap + keep-last-good**: build gaat naar `builds/<rev>-<epoch>`; `live` swapt er atomisch
+  naartoe. Faalt hugo, dan blijft de vorige goede build live.
+- **Change-detectie**: skip als git HEAD én het bouw-recept (hugo-versie) onveranderd zijn.
 
 ## Bestanden & paden
 
 | Pad | Rol |
 |------------------------------------------|------------------------------------------------|
 | `modules/torrlinny.nix` | Module: user, build-service, timer, nginx, agenix |
-| `modules/torrlinny/overlay/` | Hugo-overlay (hugo.toml, layouts/, static/css) |
 | `secrets/torrlinny-deploy-key.age` | Read-only SSH deploy key (agenix) |
-| `/var/lib/torrlinny/checkout` | Git-checkout van torrlinny (content-bron) |
+| `/var/lib/torrlinny/checkout` | Git-checkout van torrlinny (+ submodules) |
 | `/var/lib/torrlinny/builds/<rev>-<ts>` | Gebouwde sites (nieuwste 3 bewaard) |
 | `/var/lib/torrlinny/live` | Symlink → huidige build (nginx `root`) |
 | `/run/agenix/torrlinny-deploy-key` | Ontsleutelde deploy key (owner torrlinny, 0400) |
@@ -43,31 +49,20 @@ GitHub (privé main) ──[timer ~3min + change-detectie]──▶ torrlinny-bu
 ## Beheer
 
 ```bash
-# Handmatig herbouwen (change-detectie; --force negeert dat)
-sudo systemctl start torrlinny-build.service
-sudo systemctl start torrlinny-build.service   # (script arg --force via override indien nodig)
-
-# Status/logs
+sudo systemctl start torrlinny-build.service     # handmatig (change-detectie; kan overslaan)
 systemctl status torrlinny-build.timer
 journalctl -u torrlinny-build.service -f
-
-# Welke build is live?
-readlink /var/lib/torrlinny/live
+sudo readlink /var/lib/torrlinny/live            # welke build is live
 ```
 
 ## Belangrijke lessen
 
-- **`keys`-groep vereist:** de build-service draait als user `torrlinny` en moet `/run/keys`
-  (`root:keys 0750`) kunnen betreden om de agenix deploy-key te lezen → `SupplementaryGroups = [ "keys" ]`
-  (zelfde patroon als formrelay).
-- **Minify stript lege elementen:** Pagefind-filter/sort als tekst-inhoud emitteren, niet als lege spans.
-- **Deploy key = read-only** op GitHub; privé-repo, dus site achter Authelia (nooit publiek).
-- **"Laatst bijgewerkt" komt uit git, niet uit fs-mtime.** Een `git clone/checkout` stempelt álle
-  bestanden op de clone-tijd (git bewaart geen mtimes) → fs-mtime is onbruikbaar. Daarom
-  `enableGitInfo = true` (→ `.Lastmod` = laatste-commit-datum), wat een **volledige clone** (geen
-  `--depth`) én de `.git` in de build-root (symlink) vereist. `crdate` = aangemaakt; `.Lastmod` = bijgewerkt.
-- **Change-detectie kijkt ook naar de overlay-store-path** (`$WORK/last-build-overlay`): een
-  frontend/layout-wijziging triggert dus een rebuild ook als de content (git HEAD) niet veranderde.
+- **`keys`-groep vereist**: de build-user leest de agenix deploy-key uit `/run/keys` (`root:keys 0750`)
+  → `SupplementaryGroups = [ "keys" ]` (zoals formrelay).
+- **createHome uit + werkmap 0750 + nginx in de torrlinny-groep**: anders 0700 en kan nginx niet lezen.
+- **`hugo-web.yaml` gebruikt hugo-geekdoc**, niet PaperMod (ondanks de comment in `start-web.sh`).
+- **Deploy key = read-only** op GitHub; privé-repo → site achter Authelia (nooit publiek).
+- **`--configDir doesnotexist`** is essentieel om de Linny-JSON-config buiten de web-build te houden.
 
 ## Nog te doen (aparte bean `nixos-bvhd`, draft)
 
