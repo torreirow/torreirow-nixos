@@ -62,6 +62,12 @@ readlink /var/lib/torrlinny/live
   (zelfde patroon als formrelay).
 - **Minify stript lege elementen:** Pagefind-filter/sort als tekst-inhoud emitteren, niet als lege spans.
 - **Deploy key = read-only** op GitHub; privé-repo, dus site achter Authelia (nooit publiek).
+- **"Laatst bijgewerkt" komt uit git, niet uit fs-mtime.** Een `git clone/checkout` stempelt álle
+  bestanden op de clone-tijd (git bewaart geen mtimes) → fs-mtime is onbruikbaar. Daarom
+  `enableGitInfo = true` (→ `.Lastmod` = laatste-commit-datum), wat een **volledige clone** (geen
+  `--depth`) én de `.git` in de build-root (symlink) vereist. `crdate` = aangemaakt; `.Lastmod` = bijgewerkt.
+- **Change-detectie kijkt ook naar de overlay-store-path** (`$WORK/last-build-overlay`): een
+  frontend/layout-wijziging triggert dus een rebuild ook als de content (git HEAD) niet veranderde.
 
 ## Nog te doen (aparte bean `nixos-bvhd`, draft)
 
