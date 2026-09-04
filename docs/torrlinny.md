@@ -4,6 +4,14 @@ Ontsluit de **privé** Hugo-repo `torreirow/torrlinny` (markdown-notities) als e
 doorzoekbare statische site op **https://linny.toorren.net** (achter Authelia), die
 **automatisch herbouwt** zodra er naar `main` gepusht is.
 
+> **Sinds de migratie (feature `nixos-9596`)** is `modules/torrlinny.nix` een **dunne wrapper**
+> rond de gedeelde, herbruikbare **`services.linny-web`** module (flake
+> `github:torreirow/linny-web-theme`, geïmporteerd via de malandro modules-lijst in `flake.nix`).
+> De clone/build/atomic-swap/keep-last-good/timer + het permissie-model zitten nu in díé module;
+> de wrapper voegt alleen het malandro-specifieke toe: de agenix SSH-deploy-key, de Authelia-vhost
+> en `domain`/`acmeHost`. De systemd-unit heet daardoor nu **`linny-web-build.service`** (niet meer
+> `torrlinny-build`). De werkmap blijft `/var/lib/torrlinny`.
+
 > Module: `modules/torrlinny.nix`. Ingeschakeld via `services.torrlinny.enable = true`
 > in `hosts/malandro/configuration.nix`.
 
@@ -52,7 +60,8 @@ GitHub (privé main) ──[timer ~3min + change-detectie]──▶ torrlinny-bu
 
 | Pad | Rol |
 |------------------------------------------|------------------------------------------------|
-| `modules/torrlinny.nix` | Module: user, build-service, timer, nginx, agenix |
+| `modules/torrlinny.nix` | Wrapper: agenix SSH-key + `services.linny-web` + Authelia-vhost |
+| `linny-web-theme:nix/linny-web.nix` | Gedeelde module: user, build-service, timer, permissies |
 | `secrets/torrlinny-deploy-key.age` | Read-only SSH deploy key (agenix) |
 | `/var/lib/torrlinny/checkout` | Git-checkout van torrlinny |
 | `/var/lib/torrlinny/go`, `…/hugo_cache` | Go/Hugo-module-cache (theme) |
@@ -66,12 +75,14 @@ theme-module `github.com/torreirow/linny-web-theme` (torrlinny's `hugo-web.yaml`
 ## Beheer
 
 ```bash
-sudo systemctl start torrlinny-build.service     # handmatig (change-detectie; kan overslaan)
-sudo systemctl start torrlinny-build.service --force  # (via ExecStart-arg n.v.t.; forceer met: touch + reset)
-systemctl status torrlinny-build.timer
-journalctl -u torrlinny-build.service -f
+sudo systemctl start linny-web-build.service     # handmatig (change-detectie; kan overslaan)
+systemctl status linny-web-build.timer
+journalctl -u linny-web-build.service -f
 sudo readlink /var/lib/torrlinny/live            # welke build is live
 ```
+
+De wrapper-config staat in `modules/torrlinny.nix`; de generieke logica in de
+`linny-web`-module (repo `linny-web-theme`, `nix/linny-web.nix`).
 
 De theme bumpen (nieuwe versie): in de **torrlinny-repo** `hugo mod get -u github.com/torreirow/linny-web-theme`
 (werkt `go.mod`/`go.sum` bij), commit + push → de volgende malandro-build pikt het op.
