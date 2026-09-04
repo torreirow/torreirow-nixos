@@ -20,5 +20,6 @@ windows:
     commands:
       - xdg-open http://localhost:1399/torrlinny/
       - vim -c NERDTree
+      - ./start-web.sh
   - name: cmd
     layout: main-horizontal
