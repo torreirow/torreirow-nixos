@@ -129,7 +129,9 @@
   Use the instructions provided by `beans prime` as the authoritative
   documentation for working with Beans.
 
-  Inspect the current JJ repository state before making any changes.
+  Detect which version-control system this project uses before making
+  any changes (see section 7) and inspect the current working-copy
+  state accordingly.
 
   Do not discard, overwrite or modify unrelated existing work.
 
@@ -183,7 +185,8 @@
   3. Add or update the relevant tests.
   4. Verify the implementation.
   5. Archive the OpenSpec change when it is completely implemented.
-  6. Commit the archived change using JJ.
+  6. Commit the archived change using the project's version-control
+     system (see section 7).
 
   ## 4. Implementation
 
@@ -244,33 +247,55 @@
 
   Do not unnecessarily restructure or replace the existing Nix setup.
 
-  ## 7. JJ / version control
+  ## 7. Version control (JJ or Git)
 
-  JJ is the version-control system for this project.
+  This project may use either Jujutsu (JJ) or plain Git. Detect which
+  one before touching version control:
 
-  Do NOT create a Git branch for the epic unless explicitly requested
-  by the user.
+  - If a `.jj` directory exists (or `jj root` succeeds), use JJ.
+  - Otherwise, if a `.git` directory exists (or `git rev-parse
+    --is-inside-work-tree` succeeds), use Git.
 
-  Use JJ changes and commits to maintain the development history.
+  Use the detected system consistently for the whole epic. Do not mix
+  the two, and do not migrate the project from one to the other.
 
-  Before making changes, inspect the current JJ working-copy state.
+  When using JJ:
 
-  Never discard unrelated existing changes.
+  - Use JJ changes and commits to maintain the development history.
+  - Before making changes, inspect the current JJ working-copy state.
+  - Do NOT create a branch for the epic unless explicitly requested by
+    the user.
+
+  When using Git:
+
+  - Use ordinary Git commits to maintain the development history.
+  - Before making changes, inspect the current Git status and the
+    current branch (`git status`, `git branch --show-current`).
+  - Commit onto the current branch. Do NOT create a new branch, switch
+    branches, push, rebase or force-push unless explicitly requested by
+    the user.
+  - Stage only the files relevant to the epic. Never `git add -A`
+    unrelated work.
+
+  In both cases, never discard unrelated existing changes.
 
   After every OpenSpec archival:
 
   1. Review the resulting changes.
   2. Verify the tests relevant to that change.
-  3. Create a JJ commit.
+  3. Create a commit with the detected version-control system.
 
   Commit as:
 
     Wouter van der Toorren
 
+  With Git, set authorship explicitly when needed, e.g.
+  `git commit --author="Wouter van der Toorren <wouter@technative.eu>"`.
+
   Do not add self-promotional text, attribution or generated-by
   messages to commits.
 
-  Keep the JJ history clean and understandable.
+  Keep the history clean and understandable.
 
   ## 8. Autonomy
 
@@ -305,7 +330,8 @@
   - tests and verification pass;
   - OpenSpec changes are archived;
   - Beans accurately reflects the final state;
-  - every OpenSpec archival has been committed with JJ;
+  - every OpenSpec archival has been committed with the project's
+    version-control system (JJ or Git);
   - no unrelated work has been modified.
 
   At the end, provide a concise summary containing:
@@ -314,7 +340,7 @@
   - which Beans/tasks were completed;
   - which additional Beans/tasks were created, if any;
   - which OpenSpec changes were created and archived;
-  - which JJ commits were created;
+  - which commits were created (JJ or Git);
   - which tests/checks were executed;
   - any remaining blockers or follow-up work.
 '';
