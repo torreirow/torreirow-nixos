@@ -29,7 +29,7 @@
         eval $(systemctl --user show-environment | grep ^XAUTHORITY)
       fi
 
-      eval "$(atuin init zsh --disable-up-arrow)"
+      # atuin init wordt verzorgd door programs.atuin.enableZshIntegration (home/common.nix)
       export PATH="$HOME/bin:$PATH:/home/wtoorren/data/git/wearetechnative/toortools:/home/wtoorren/data/git/wearetechnative/bmc"
       mkdir -p "$HOME/.terraform.d/plugin-cache" ; export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#484848'
