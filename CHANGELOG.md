@@ -7,6 +7,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Nextcloud op JuiceFS/S3** (`nxc.toorren.net`, host bobadela1): de Nextcloud AIO-datadir draait nu op een JuiceFS-filesystem met de bestandsdata in AWS S3 (`s3://wto-s3-bucket/juicefs/`) en de metadata in een lokale PostgreSQL 16. JuiceFS levert echte POSIX-semantiek (atomic rename, flock) — veilig als datadir, anders dan naïef S3-via-FUSE.
+  - **Client-side encryptie** (`aes256gcm-rsa`): alle data staat versleuteld in S3 (geverifieerd ciphertext).
+  - **Metadata-DR via PostgreSQL logical replication**: bobadela1 (publisher) → malandro (subscriber, db `juicefs_meta_replica`), live gesynct. Automatisch mee in de rustic-backup via `pg_dumpall`, plus JuiceFS' eigen `--backup-meta` uur-dump naar S3.
+  - Eigen IAM-user (`juicefs-nextcloud`) write-scoped op de `juicefs/`-prefix; secrets via agenix (`secrets/juicefs-*.age`). systemd-mount met boot-ordering vóór de AIO-containers (geen split-brain).
+  - Migratie van 4,2 GiB byte-perfect (`files:scan`: 0 verschillen). Runbook + provisioning in `hosts/bobadela1/`.
+- **S3-bucket dichtgezet**: Block Public Access aangezet op `wto-s3-bucket` — persoonlijke data en backups zijn niet langer anoniem publiek leesbaar (eerdere `DirectReads`-policy stond bucket-breed open).
 - **Torrlinny notities-web** (`linny.toorren.net`): de privé Hugo-repo `torreirow/torrlinny` wordt ontsloten als een strakke, doorzoekbare statische site achter Authelia, die automatisch herbouwt bij een push naar `main`.
   - Gebouwd met de gedeelde **[linny-web-theme](https://github.com/torreirow/linny-web-theme)** Hugo-module (bundelt geekdoc + de Linny-layouts: taxonomie-zijbalk, Created/Updated-datums, overzichtspagina's). Torrlinny's `hugo-web.yaml` importeert de module; de build haalt 'm met `hugo mod get` (Go in de service-PATH). Géén eigen overlay meer op malandro.
   - **Full-text zoeken** (geekdoc, ingebouwd) + taxonomie-navigatie (customer/project/type/tags) + twee paginated overzichten (op titel/datum) + per-notitie Created (`crdate`) + Updated (git `.Lastmod`).
