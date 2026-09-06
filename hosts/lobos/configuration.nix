@@ -50,10 +50,8 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
   services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
   services.xserver.displayManager.sessionCommands = ''
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
-    #${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
-    ${lib.getBin pkgs.autorandr}/bin/xrandr --setprovideroutputsource 2 0
-    ${lib.getBin pkgs.autorandr}/bin/xrandr --auto
+    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+    ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
     '';
 
 
@@ -256,11 +254,16 @@ environment.variables.EDITOR = "vim";
   users.users.wtoorren = {
     isNormalUser = true;
     description = "Wouter van der Toorren";
-    extraGroups = [ "networkmanager" "wheel" "keys"];
+    extraGroups = [ "networkmanager" "wheel" "keys" ];
     # packages = with pkgs; [
     #  thunderbird
     # ];
   };
+
+  # Android dev: op nixpkgs 26.05 (systemd 258) worden de adb uaccess/udev-regels
+  # voor een fysiek toestel (Nothing Phone) automatisch afgehandeld — programs.adb
+  # en de adbusers-group zijn niet meer nodig. adb komt via pkgs.android-tools
+  # (zie hosts/lobos/programs.nix).
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
