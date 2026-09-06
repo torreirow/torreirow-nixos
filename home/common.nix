@@ -1,4 +1,4 @@
-{config,pkgs,services,lib, ...}: 
+{config,pkgs,services,lib,unstable, ...}:
 
 {
   imports = [
@@ -20,13 +20,17 @@ programs.fzf = {
   };
   programs.atuin = {
     enable = true;
+    package = unstable.atuin;
     enableZshIntegration = true;
     flags = [
       "--disable-up-arrow"
     ];
+    daemon = {
+      enable = true;
+    };
     settings = {
       auto_sync = true;
-      sync_frequency = "5m";
+      daemon.sync_frequency = 300;  # seconden — sync gebeurt nu via de daemon
       #sync_address = "https://api.atuin.sh";
       sync_address = "https://atuin.tools.technative.cloud";
       search_mode = "fuzzy";

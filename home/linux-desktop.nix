@@ -41,4 +41,18 @@ systemd.user.services.evolution-alarm-notify = {
   Install.WantedBy = [ "graphical-session.target" ];
 };
 
+# Headless Nextcloud-sync (module: home/module/nextcloud-sync).
+# Credentials (NC_USER/NC_PASSWORD, app-password) staan handmatig in
+# ~/.config/nextcloud-sync/credentials (0600), bewust niet in de nix-store.
+services.nextcloud-sync = {
+  enable = true;
+  syncs.docs = {
+    serverUrl = "https://nxc.toorren.net";
+    localPath = "~/Nextcloud";
+    # remotePath = "/";     # optioneel: alleen een submap syncen
+    # interval   = "10min"; # default (OnUnitActiveSec)
+    # trust      = false;   # true bij self-signed certificaat
+  };
+};
+
 }

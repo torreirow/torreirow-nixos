@@ -122,16 +122,12 @@
     };
   };
 
-  # GPaste clipboard daemon als user service (package levert etc/systemd/user/ die niet auto-gelinkt wordt)
-  systemd.user.services."org.gnome.GPaste" = {
-    description = "GPaste daemon";
-    partOf = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
-    wantedBy = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "dbus";
-      BusName = "org.gnome.GPaste";
-      ExecStart = "${pkgs.gpaste}/libexec/gpaste/gpaste-daemon";
-    };
-  };
+  # GPaste-daemon (X11-klembordbeheer) wordt hier BEWUST NIET als user-service gestart.
+  # Onder Hyprland draait de daemon via XWayland en kaapt de X11 CLIPBOARD-selectie; XWayland
+  # bridget die naar Wayland, waardoor kopiëren in Wayland-apps stukgaat (alacritty Ctrl+Shift+C,
+  # tmux-yank/wl-copy plakken niets meer). Klembordbeheer loopt op deze host via cliphist
+  # (zie home/hyprland/bindings.nix: CTRL+SUPER+C). Een eerdere poging om de daemon met
+  # GDK_BACKEND=x11 tóch te laten draaien liet 'm wél starten, maar brak juist het klembord.
+  # Onder een echte GNOME-sessie kan GPaste desgewenst via de gnome-shell-extensie/D-Bus
+  # geactiveerd worden; daar is deze systemd-service niet voor nodig.
 }

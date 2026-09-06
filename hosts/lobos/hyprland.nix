@@ -32,7 +32,6 @@
     hyprpicker
     rofi
     waybar
-    mako
     kitty
     adw-gtk3
     adwaita-icon-theme
@@ -47,6 +46,6 @@
     power-profiles-daemon
     gnome-power-manager
     libnotify
-    cosmic-files
+    nautilus
   ];
 }
