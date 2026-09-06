@@ -116,7 +116,7 @@
    gh
    bitwarden
    firefox
-   pkgs.atuin
+   unstable.atuin
    pkgs.terraform
    awscli2
    tfswitch
