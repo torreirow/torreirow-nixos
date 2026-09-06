@@ -83,6 +83,18 @@ De export spiegelt Magister-velden (zie ook geheugen `magister-status-codes`):
 - **InfoType:** 📚 huiswerk, 📝 toets/SO/mondeling/tentamen, ℹ️ info.
 - Tijden: Magister levert UTC (`...Z`); wordt genormaliseerd zodat Google Calendar niet 1-2u verschuift.
 
+## Cadans & footprint (opvallen vermijden)
+
+Om niet als bot op te vallen in Magisters logs:
+
+- **Keep-alive:** ~30 min (`KEEP_ALIVE_INTERVAL`) met ±5 min **jitter** (`KEEP_ALIVE_JITTER`),
+  alléén tussen **07:00–22:00** (`WINDOW_START_HOUR`/`WINDOW_END_HOUR`). 's Nachts stil; bij
+  service-start altijd één directe fetch, daarna volgt het venster.
+- **User-Agent:** alle token- en API-calls sturen `MAGISTER_UA` (app-achtig, `M6LOAPP`) i.p.v.
+  het opvallende `Python-urllib/x.y`.
+- De **max** keep-alive-interval wordt begrensd door de (onbekende) refresh-token idle-window;
+  de access-token (1 u) verversen we sowieso elke keer. ~30 min zit daar ruim binnen.
+
 ## Fout-afhandeling
 
 - **`invalid_grant` bij refresh** (refresh-token dood — bv. wachtwoordwijziging/intrekken): service

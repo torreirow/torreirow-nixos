@@ -42,7 +42,6 @@ in
   "gitea-admin.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "memos-psql.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "nginxendpoints.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "documenso-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "docseal-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "invoiceplane-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "invoiceplane-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
@@ -76,7 +75,20 @@ in
   # Rustic backup
   "rustic-s3-env.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
   "rustic-repo-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  
+
+  # JuiceFS (Nextcloud-opslag op bobadela1). bobadela1 is geen NixOS-host, dus deze
+  # secrets worden durably in de repo bewaard en via een provisioning-script naar
+  # bobadela1 uitgerold; malandro gebruikt juicefs-repl-password voor de subscription.
+  "juicefs-s3-env.age".publicKeys            = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-format-passphrase.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-rsa-key.age".publicKeys           = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-repl-password.age".publicKeys     = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-db-password.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-malandro-env.age".publicKeys      = users ++ [ wtoorren_workstation malandro_workstation ];
+
+  # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
+  "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;
