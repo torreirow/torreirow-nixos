@@ -95,6 +95,12 @@ in
 
     extraConfig = ''
       ##### Basis #####
+      # Groter scrollback-buffer
+      set -g history-limit 50000
+
+      # Truecolor (24-bit) voor nvim/gruvbox e.d.
+      set -ga terminal-features ",xterm-256color:RGB"
+
       # Update SSH variabelen in tmux environment
       set-option -g update-environment "SSH_CLIENT SSH_TTY SSH_CONNECTION WAYLAND_DISPLAY XDG_RUNTIME_DIR DISPLAY RBW_PROFILE"
 
@@ -128,6 +134,15 @@ in
       set -ga terminal-overrides ',xterm-256color:Ms=\E]52;c;%p1%s\007'
       set -as terminal-features ',xterm-256color:clipboard'
 
+      ##### Muis-select #####
+      # Slepen met de muis SELECTEERT alleen; het kopieert NIET automatisch.
+      # Kopieren doe je expliciet met y of Enter (blijft in copy-mode staan na loslaten).
+      # (overschrijft de auto-copy van de yank-plugin, die na de plugins wordt geladen)
+      unbind -T copy-mode    MouseDragEnd1Pane
+      bind   -T copy-mode    MouseDragEnd1Pane send-keys -X stop-selection
+      unbind -T copy-mode-vi MouseDragEnd1Pane
+      bind   -T copy-mode-vi MouseDragEnd1Pane send-keys -X stop-selection
+
       set-window-option -g window-active-style bg=black
       set-window-option -g window-style bg='#141414'
 
@@ -136,8 +151,8 @@ in
       set -g status-style bg=#282828,fg=#ebdbb2
 
       # Window status formats (rectangular blocks without arrows)
-      set -g window-status-current-format "#[fg=#282828,bg=#fe8019] #I > #W #[bg=#282828] "
-      set -g window-status-format "#[fg=#a89984,bg=#3c3836] #I > #W #[bg=#282828] "
+      set -g window-status-current-format "#[fg=#282828,bg=#fe8019] #I > #W#{?window_zoomed_flag, Z,} #[bg=#282828] "
+      set -g window-status-format "#[fg=#a89984,bg=#3c3836] #I > #W#{?window_zoomed_flag, Z,} #[bg=#282828] "
       set -g window-status-separator ""
 
       set -g status-left "#[fg=#282828,bg=#8ec07c] #S #[bg=#282828] "
