@@ -55,10 +55,12 @@ in
           "uwsm finalize HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
           "hyprsunset"
           "wl-clip-persist --clipboard regular"
-          "autocutsel -fork"
-          "autocutsel -selection PRIMARY -fork"
-          "clipse -listen"
-          "wl-paste --watch cliphist store"
+          # NB: autocutsel verwijderd - X11-clipboardtool onder XWayland die de
+          # Wayland->X11 clipboard-bridge verstoorde (gpaste-klasse probleem). Zie CLAUDE.md.
+          # cliphist is de ENIGE clipboard-history-manager: wayle's clipboard-dropdown
+          # leest hardcoded 'cliphist list'. clipse verwijderd (draaide dubbel -> races).
+          # -max-items begrenst de history (default is 750); wayle toont deze lijst.
+          "wl-paste --watch cliphist -max-items 200 store"
           "elephant"
           "sh -c 'until [ -S /run/user/1000/elephant/elephant.sock ]; do sleep 0.1; done; walker --gapplication-service'"
         ];

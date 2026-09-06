@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  home.packages = [ pkgs.cliphist ];
+  home.packages = [ pkgs.cliphist ];  # clipboard-history-manager (backend voor wayle's clipboard-dropdown)
 
   programs.fuzzel = {
     enable = true;
