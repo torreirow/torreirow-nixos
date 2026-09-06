@@ -84,6 +84,7 @@ in
   "juicefs-rsa-key.age".publicKeys           = users ++ [ wtoorren_workstation malandro_workstation ];
   "juicefs-repl-password.age".publicKeys     = users ++ [ wtoorren_workstation malandro_workstation ];
   "juicefs-db-password.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-malandro-env.age".publicKeys      = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
   "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];

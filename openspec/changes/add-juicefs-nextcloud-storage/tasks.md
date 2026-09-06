@@ -47,7 +47,7 @@
 - [x] 6.1 systemd-unit voor de JuiceFS-mount met royale lokale SSD-cache-dir (grootte bepalen op basis van vrije ruimte `/dev/sda3`)
 - [x] 6.2 Mount-unit afhankelijk maken van de lokale PostgreSQL (`After=`/`Requires=`)
 - [x] 6.3 Nextcloud AIO-containerservice ordenen ná de mount (`RequiresMountsFor`/`After=`) zodat de datadir nooit leeg opstart
-- [ ] 6.4 Reboot-test: na herstart is de mount actief vóór de AIO-stack; containers healthy
+- [x] 6.4 (reboot-test geslaagd: mount vóór docker, datadir niet leeg, containers healthy, HTTP 200) Reboot-test: na herstart is de mount actief vóór de AIO-stack; containers healthy
 
 ## 7. Datamigratie
 
