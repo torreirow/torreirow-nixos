@@ -6,6 +6,8 @@
 
 - **Vragen over USB dongle, Zigbee dongle, DSMR adapter, `/dev/zigbee`, `/dev/dsmr` of ttyUSB-poorten die verwisselen** → lees `docs/usb-dongles.md`
 - **Vragen over Magister, de agenda-sync, het token/refresh-token, `magister-sync.service`, `token.json`, iCal-feeds op `agenda.toorren.net` of opnieuw inloggen** → lees `docs/magister.md`
+- **Vragen over Torrlinny, `linny.toorren.net`, de notities-web, `torrlinny-build.service`, de Hugo/Pagefind-overlay of de deploy key** → lees `docs/torrlinny.md`
+- **Vragen over de Vaultwarden restore-test, `vaultwarden-restoretest.sh`, `--rbw`/`--destroy`, de wegwerp-container op poort 8099 of de rbw-crypto-test** → lees `docs/vaultwarden-restore-test.md`
 
 ## Huidige Status
 
@@ -121,6 +123,18 @@ sudo bash -c 'cd /etc/rustic && set -a && . /run/agenix/rustic-s3-env && set +a 
 ```
 
 **Status:** ✅ Live. Timer draait dagelijks 03:00; eerste backups + restore-test geslaagd.
+
+**Restore-test (herhaalbaar):** `~/bin/vaultwarden-restoretest.sh` (bron: `home/module/vaultwarden-restore-test/`,
+via home-manager; OpenSpec change `add-vaultwarden-restore-test`). Non-destructief:
+```bash
+vaultwarden-restoretest.sh                # basis: restore→reassemble→wegwerp-container :8099→/alive+counts
+vaultwarden-restoretest.sh --rbw          # + geïsoleerde rbw-login (master-pw + TOTP) → bewijst decrypt
+vaultwarden-restoretest.sh --snapshot ID  # specifieke backup
+vaultwarden-restoretest.sh --keep         # container laten staan om te snuffelen
+vaultwarden-restoretest.sh --destroy      # opruimen
+```
+`--rbw` gebruikt een strikt geïsoleerde rbw (XDG-override, eigen agent) → raakt de echte rbw-config
+(`~/.config/rbw`, vw.toorren.net) niet aan. 2FA blijft staan, dus TOTP-code invoeren.
 
 ### Sessie 2026-08-26 - Aircraft-monitor tijdelijk uitzetten via /aircraft Telegram-commando - OPGELOST
 
