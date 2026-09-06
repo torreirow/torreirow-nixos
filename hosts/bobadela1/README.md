@@ -81,6 +81,23 @@ sudo systemctl stop juicefs-nextcloud.service   # unmount → originele /mnt/ncd
 sudo docker start ...                            # AIO op de oude lokale datadir
 ```
 
+## Read-only mount op malandro (`/data/juicefs-nextcloud`)
+
+Malandro mount HETZELFDE volume **read-only** tegen bobadela1's live metadata, zodat de
+Nextcloud-bestanden daar leesbaar zijn (bv. voor backup/processing) zonder wijzigingsrisico.
+
+- **NixOS-module:** `modules/juicefs-nextcloud-mount.nix` → systemd-service `juicefs-nextcloud-ro`
+  (mount `/data/juicefs-nextcloud`, `--read-only -o allow_other`, cache `/var/cache/juicefs-nextcloud`,
+  `Restart=on-failure`). Creds uit agenix: `secrets/juicefs-malandro-env.age`
+  (ACCESS_KEY/SECRET_KEY/META_PASSWORD/JFS_RSA_PASSPHRASE).
+- **pg_hba (bobadela1):** extra regel `host juicefs_meta juicefs 192.168.2.52/32 scram-sha-256`
+  zodat malandro als `juicefs`-rol de metadata mag lezen.
+- **Wheel-toegang:** de volume-root is `chgrp 1` (= wheel op malandro) + mode `0750`, dus wheel-leden
+  kunnen lezen zonder sudo, zónder de datadir wereld-leesbaar te maken. (Op bobadela1 toont de groep
+  cosmetisch gid 1.) Gezet via bobadela1's RW-mount: `sudo chgrp 1 /mnt/ncdata && sudo chmod 0750 /mnt/ncdata`.
+- **Afhankelijkheid:** deze mount hangt aan bobadela1 (postgres) + de LAN; valt bobadela1 weg dan stalt
+  de mount en herstelt `Restart=on-failure` zodra bobadela1 er weer is.
+
 ## Operationele commando's
 
 ```bash

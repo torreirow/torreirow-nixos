@@ -55,6 +55,7 @@
  ../../modules/wallos.nix
  ../../modules/status-page.nix
  ../../modules/rustic-backup.nix
+ ../../modules/juicefs-nextcloud-mount.nix
  ../../modules/torrlinny.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
