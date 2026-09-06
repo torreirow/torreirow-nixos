@@ -1,0 +1,22 @@
+[Unit]
+Description=JuiceFS mount voor Nextcloud-data (S3 + PostgreSQL-metadata)
+Documentation=https://juicefs.com/docs/
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/juicefs/juicefs.env
+ExecStart=/usr/local/bin/juicefs mount \
+  postgres://juicefs@localhost:5432/juicefs_meta \
+  /mnt/ncdata \
+  --backup-meta 1h \
+  --cache-dir /var/jfsCache --cache-size 20480 \
+  -o allow_other
+ExecStop=/bin/umount /mnt/ncdata
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

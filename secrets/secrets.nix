@@ -76,6 +76,15 @@ in
   "rustic-s3-env.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
   "rustic-repo-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # JuiceFS (Nextcloud-opslag op bobadela1). bobadela1 is geen NixOS-host, dus deze
+  # secrets worden durably in de repo bewaard en via een provisioning-script naar
+  # bobadela1 uitgerold; malandro gebruikt juicefs-repl-password voor de subscription.
+  "juicefs-s3-env.age".publicKeys            = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-format-passphrase.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-rsa-key.age".publicKeys           = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-repl-password.age".publicKeys     = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-db-password.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
+
   # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
   "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
