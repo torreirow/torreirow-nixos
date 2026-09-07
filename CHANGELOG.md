@@ -7,6 +7,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **tmux notepad-shortcut**: Nieuwe tmux-binding `prefix + N` opent de smug `notepad`-werkomgeving (vim/LinnyStart + git-sync + hugo op poort 1314). Idempotent — bestaat de sessie al, dan alleen switchen; anders eerst `smug start notepad --detach`. Gebruikt `switch-client` (blijvende sessie) i.p.v. een popup, en richt zich op de echte sessienaam `TorrLinny` die `notepad.yml` aanmaakt.
 - **Nextcloud sync (home-manager)**: Nieuwe module `services.nextcloud-sync` (`home/module/nextcloud-sync/`) om per user een headless Nextcloud-sync in te regelen met `nextcloudcmd`. Elk sync-paar onder `syncs.<naam>` levert een oneshot `systemd.user.service` + `.timer`. Geïmporteerd in `wtoorren@linuxdesktop`; standaard uit (`enable = false`).
   - Auth via `nextcloudcmd --non-interactive` dat `$NC_USER`/`$NC_PASSWORD` uit een handmatig EnvironmentFile (`~/.config/nextcloud-sync/credentials`, 0600) leest — nooit in de nix-store of git
   - Timer-cadans via `OnUnitActiveSec` (default 10 min, geen overlap) + eerste run 2 min na login
