@@ -114,6 +114,13 @@ in
       bind B popup -E -d '#{pane_current_path}' -w 90% -h 90% 'beans-tui-popup'
       bind C-c popup -E -w 90% -h 90% 'tmux has-session -t cockpit 2>/dev/null || (smug start spg --detach && tmux select-window -t cockpit:spg); TMUX= tmux attach-session -t cockpit'
 
+      # smug notepad-layout (vim/LinnyStart + git-sync + hugo:1314). notepad.yml maakt sessie
+      # 'TorrLinny' aan (niet 'notepad') → controle/switch op TorrLinny. Idempotent: bestaat de
+      # sessie al, dan alleen switchen; anders eerst detached starten. switch-client i.p.v. popup:
+      # notepad is een blijvende werkomgeving, geen wegklikbare overlay.
+      bind N run-shell 'tmux has-session -t TorrLinny 2>/dev/null || smug start notepad --detach' \; \
+        switch-client -t TorrLinny
+
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf \; display-message "Reloaded!"
       set -g mouse on
