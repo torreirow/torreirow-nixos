@@ -1,9 +1,5 @@
-# tmux-notepad-binding Specification
+## MODIFIED Requirements
 
-## Purpose
-Biedt een tmux prefix-keybinding waarmee de gebruiker vanuit elke tmux-sessie snel en
-idempotent naar de smug notepad-werkomgeving springt.
-## Requirements
 ### Requirement: Notepad-keybinding start en switcht idempotent
 
 De tmux-configuratie SHALL een prefix-keybinding `N` bevatten die schakelt tussen de
@@ -49,16 +45,3 @@ huidige sessie als de switch-actie MUST `TorrLinny` als naam gebruiken.
 
 - **WHEN** de binding bepaalt of ze naar `main` of naar `TorrLinny` moet switchen
 - **THEN** vergelijkt ze de huidige sessienaam met `TorrLinny`
-
-### Requirement: Binding gebruikt switch-client, geen popup
-
-De binding SHALL de gebruiker via `switch-client` volledig naar de notepad-sessie brengen en
-MUST NOT een tijdelijke popup-overlay gebruiken, zodat de werkomgeving blijvend is in plaats
-van wegklikbaar.
-
-#### Scenario: Gebruiker landt in de volledige sessie
-
-- **WHEN** de gebruiker prefix + `N` indrukt
-- **THEN** wordt de client via `switch-client` naar de notepad-sessie gebracht
-- **AND** verschijnt er geen tijdelijke popup-overlay bovenop de huidige sessie
-
