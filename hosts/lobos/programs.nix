@@ -5,6 +5,40 @@ programs.ssh = {
   enableAskPassword = false;
   askPassword = null;
 };
+
+# Firefox op systeem-niveau met declaratieve extensie-policy.
+# (De system-Firefox leest deze policy; home-manager's programs.firefox.policies
+#  deed niets omdat home-manager's firefox daar disabled is.)
+programs.firefox = {
+  enable = true;
+  policies.ExtensionSettings =
+    let
+      ext = shortId: uuid: {
+        name = uuid;
+        value = {
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/${shortId}/latest.xpi";
+          installation_mode = "normal_installed";
+        };
+      };
+    in builtins.listToAttrs [
+      (ext "ublock-origin"                "uBlock0@raymondhill.net")
+      (ext "clearurls"                    "{74145f27-f039-47ce-a470-a662b129930a}")
+      (ext "granted"                      "{b5e0e8de-ebfe-4306-9528-bcc18241a490}")
+      (ext "aws-role-switch"              "{31f7b254-7ac9-4f3a-ae3c-ef67ea153e4a}")
+      (ext "foxyproxy-standard"           "foxyproxy@eric.h.jung")
+      (ext "tampermonkey"                 "firefox@tampermonkey.net")
+      (ext "uaswitcher"                   "user-agent-switcher@ninetailed.ninja")
+      (ext "bitwarden-password-manager"   "{446900e4-71c2-419f-a6a7-df9c091e268b}")
+      (ext "cookie-cutter-gdpr-auto-deny" "{11723f57-61e8-4531-b67d-54db011e2626}")
+      (ext "gnome-shell-integration"      "chrome-gnome-shell@gnome.org")
+      (ext "clearcache"                   "clearcache@michel.de.almeida")
+      (ext "buster-captcha-solver"        "{e58d3966-3d76-4cd9-8552-1582fbc800c1}")
+      (ext "solidtime"                    "hello@solidtime.io")
+      (ext "cookie-editor"                "{c3c10168-4186-445c-9c5b-63f12b8e2c87}")
+      # Zammad Ticket Extractor: lokale extensie (guid @local) -> NIET via AMO.
+    ];
+};
+
 environment.systemPackages = with pkgs; [
     planify
     wineWow64Packages.stable
@@ -25,7 +59,7 @@ environment.systemPackages = with pkgs; [
     rPackages.patchwork
     claude-code
     onlyoffice-desktopeditors
-    firefox
+    # firefox nu via programs.firefox (hierboven) i.p.v. los pakket
     lsb-release
     osv-scanner
     desktop-file-utils
