@@ -7,6 +7,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **tmux notepad-shortcut**: Nieuwe tmux-binding `prefix + N` toggelt tussen de smug `notepad`-werkomgeving (vim/LinnyStart + git-sync + hugo op poort 1314) en de hoofdsessie `main`. Zit je in notepad → terug naar `main`; zit je elders → naar notepad (idempotent gestart via `smug start notepad --detach` als de sessie nog niet draait). Gebruikt `switch-client` (blijvende sessie) i.p.v. een popup, en richt zich op de echte sessienaam `TorrLinny` die `notepad.yml` aanmaakt.
 - **Nextcloud op JuiceFS/S3** (`nxc.toorren.net`, host bobadela1): de Nextcloud AIO-datadir draait nu op een JuiceFS-filesystem met de bestandsdata in AWS S3 (`s3://wto-s3-bucket/juicefs/`) en de metadata in een lokale PostgreSQL 16. JuiceFS levert echte POSIX-semantiek (atomic rename, flock) — veilig als datadir, anders dan naïef S3-via-FUSE.
   - **Client-side encryptie** (`aes256gcm-rsa`): alle data staat versleuteld in S3 (geverifieerd ciphertext).
   - **Metadata-DR via PostgreSQL logical replication**: bobadela1 (publisher) → malandro (subscriber, db `juicefs_meta_replica`), live gesynct. Automatisch mee in de rustic-backup via `pg_dumpall`, plus JuiceFS' eigen `--backup-meta` uur-dump naar S3.

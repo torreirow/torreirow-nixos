@@ -1,4 +1,4 @@
-{config, unstable, lib, pkgs, pkgs-luca, agenix, ... }:
+{config, unstable, lib, pkgs, pkgs-luca, pkgs-2511, agenix, ... }:
 
 {
 programs.ssh = {
@@ -135,7 +135,8 @@ environment.systemPackages = with pkgs; [
     sqsh
     ssm-session-manager-plugin
     # ssmsh wordt toegevoegd via extraPkgs in flake.nix (flake input torreirow/ssmsh)
-    unstable.subtitleedit
+    # subtitleedit is uit nixpkgs-unstable verwijderd (gtk2 EOL); haal het uit 25.11 stable
+    pkgs-2511.subtitleedit
     tali # poker game
     teams-for-linux
     telegram-desktop
