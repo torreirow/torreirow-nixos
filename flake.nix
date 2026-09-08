@@ -21,6 +21,7 @@
     dirty-repo-scanner.url = "github:mipmip/dirty-repo-scanner";
     openspec.url = "github:Fission-AI/OpenSpec";
     parsh.url = "github:torreirow/parsh";
+    linny-web.url = "github:torreirow/linny-web-theme";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
     ragenx.url = "github:torreirow/ragenx/v0.2.0";
@@ -46,7 +47,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -198,6 +199,7 @@
         defaults
         extraPkgs
         agenix.nixosModules.default
+        inputs.linny-web.nixosModules.linny-web
         ./hosts/malandro/configuration.nix
         ./modules/tnaws.nix
       ];

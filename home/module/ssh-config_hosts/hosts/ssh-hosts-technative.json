@@ -5,5 +5,41 @@
     "user": "wtoorren",
     "identity_file": "toorren-lobos-ed25519",
     "port": 22
+  },
+  {
+    "host": "i-*",
+    "user": "root",
+    "identity_file": "technative-awsaccounts-workloads-key",
+    "extra_options": [
+      "IdentityAgent $SSH_AUTH_SOCK",
+      "StrictHostKeyChecking no",
+      "UserKnownHostsFile /dev/null",
+      "ProxyCommand sh -c 'aws ec2-instance-connect send-ssh-public-key --instance-id %h --instance-os-user %r --ssh-public-key file://${HOME}/.ssh/rbw-keys/technative-awsaccounts-workloads-key.pub --availability-zone \"$(aws ec2 describe-instances --instance-ids %h --query \"Reservations[0].Instances[0].Placement.AvailabilityZone\" --output text)\" && aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p'"
+    ]
+  },
+  {
+    "host": "bitbucket.org",
+    "user": "git",
+    "identity_file": "technative_rsa"
+  },
+  {
+    "host": "intomission",
+    "hostname": "s240.webhostingserver.nl",
+    "user": "deb125473",
+    "identity_file": "technative_rsa",
+    "port": 22,
+    "extra_options": [
+      "StrictHostKeyChecking no"
+    ]
+  },
+  {
+    "host": "intomission-new",
+    "hostname": "s239.webhostingserver.nl",
+    "user": "deb125473n2",
+    "identity_file": "technative_rsa",
+    "port": 22,
+    "extra_options": [
+      "StrictHostKeyChecking no"
+    ]
   }
 ]
