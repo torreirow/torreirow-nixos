@@ -31,7 +31,7 @@
     "host": "github.com",
     "hostname": "github.com",
     "user": "git",
-    "identity_file": "~/.ssh/technative_rsa",
+    "identity_file": "toorren-lobos-ed25519",
     "port": 22
   },
   {
