@@ -8,6 +8,7 @@
   ./vim.nix
   ./tmux.nix
   ./module/ssh-config_hosts
+  ./module/vaultwarden-restore-test
   ./sshkeys.nix
  ];
 
