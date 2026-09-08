@@ -98,6 +98,24 @@
         tmux setenv RBW_PROFILE "$profile" 2>/dev/null || true
         echo "RBW profiel: ''${profile:-(default)}"
       }
+
+      # spotdl / yt-dlp met YouTube PO-token-provider (bgutil).
+      # Vereist: docker-container bgutil-ytdlp-pot-provider op poort 4416 en
+      # de client-plugin in ~/.config/yt-dlp/plugins. De Nix-yt-dlp scant die
+      # plugin-map niet zelf, dus we zetten PYTHONPATH; web_music-client is
+      # nodig zodat de formats mét PO-token binnenkomen.
+      spotdl() {
+        PYTHONPATH="$HOME/.config/yt-dlp/plugins''${PYTHONPATH:+:$PYTHONPATH}" \
+          command spotdl "$@" \
+          --yt-dlp-args "--extractor-args youtube:player_client=web_music"
+      }
+
+      # Directe YouTube(-Music) downloads met cookies + PO-token-provider.
+      ytm() {
+        PYTHONPATH="$HOME/.config/yt-dlp/plugins''${PYTHONPATH:+:$PYTHONPATH}" \
+          yt-dlp --cookies-from-browser firefox \
+          --extractor-args "youtube:player_client=web_music" "$@"
+      }
     '';
 
       shellAliases = {
@@ -106,6 +124,13 @@
           #tfbackend="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfbackend.sh";
           #tfplan="$HOME/data/git/technative/Technative-AWS-DevOps-tools/tfplan.sh";
           aider="/run/keys/wouter/aider";
+          # De eval-fase van nixos-rebuild draait in dit proces (niet in de nix-daemon) en
+          # ontsnapt dus aan de SCHED_IDLE-instelling van de daemon. Lagere CPU+I/O-prioriteit
+          # zodat ook de eval interactieve sessies (o.a. claude-code) niet stoort. sudo zit in
+          # de alias, want een alias op 'nixos-rebuild' expandeert niet achter 'sudo'. Draai dus
+          # 'nixos-rebuild switch ...' ZONDER sudo; nice/ionice erven door naar sudo -> de eval.
+          nixos-rebuild="nice -n 15 ionice -c3 sudo nixos-rebuild";
+          bmcp="bmc profsel -p technative";
           view="vi -R";
           walker-reset="pkill -9 elephant; sleep 0.5; uwsm app -- elephant &";
           aws-switch="bmc profsel";

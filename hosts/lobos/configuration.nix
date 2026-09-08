@@ -31,6 +31,17 @@
     experimental-features = nix-command flakes
     '';
 
+  # Nix-build-throttling (OpenSpec change throttle-nix-builds).
+  # Deze ThinkPad heeft een mobiele 8c/16t APU (Ryzen 7840U, 15-28W). Een ongeremde build
+  # claimt alle threads en throttelt de chip thermisch (~5041 -> ~3418 MHz, 32% klokverlies),
+  # waardoor gelijktijdige interactieve sessies (o.a. meerdere claude-code) lijken vast te lopen.
+  # SCHED_IDLE laat build-werk wijken voor interactieve processen; idle I/O doet hetzelfde voor
+  # disk-I/O op de LUKS /nix/store; max-jobs/cores knijpen het parallelisme (thermisch vangnet).
+  nix.daemonCPUSchedPolicy = "idle";
+  nix.daemonIOSchedClass = "idle";
+  nix.settings.max-jobs = 6;
+  nix.settings.cores = 3;
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
