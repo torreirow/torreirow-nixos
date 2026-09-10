@@ -1,0 +1,35 @@
+[
+  {
+    "match": "host i-* exec \"case \\\"${AWS_PROFILE:-}\\\" in IIT*) exit 0;; *) exit 1;; esac\"",
+    "user": "admin",
+    "identity_file": "Technative-Devops.pem.pub",
+    "extra_options": [
+      "IdentityAgent $SSH_AUTH_SOCK",
+      "StrictHostKeyChecking no",
+      "UserKnownHostsFile /dev/null",
+      "ProxyCommand aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p"
+    ]
+  },
+  {
+    "match": "host i-* exec \"case \\\"${AWS_PROFILE:-}\\\" in TN*) exit 0;; *) exit 1;; esac\"",
+    "user": "root",
+    "identity_file": "technative-awsaccounts-workloads-key.pub",
+    "extra_options": [
+      "IdentityAgent $SSH_AUTH_SOCK",
+      "StrictHostKeyChecking no",
+      "UserKnownHostsFile /dev/null",
+      "ProxyCommand aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p"
+    ]
+  },
+  {
+    "match": "host i-* exec \"case \\\"${AWS_PROFILE:-}\\\" in IIT*|TN*) exit 1;; *) exit 0;; esac\"",
+    "user": "root",
+    "identity_file": "technative_rsa.pub",
+    "extra_options": [
+      "IdentityAgent $SSH_AUTH_SOCK",
+      "StrictHostKeyChecking no",
+      "UserKnownHostsFile /dev/null",
+      "ProxyCommand sh -c 'aws ec2-instance-connect send-ssh-public-key --instance-id %h --instance-os-user %r --ssh-public-key file://${HOME}/.ssh/rbw-keys/technative_rsa.pub --availability-zone \"$(aws ec2 describe-instances --instance-ids %h --query \"Reservations[0].Instances[0].Placement.AvailabilityZone\" --output text)\" && aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p'"
+    ]
+  }
+]
