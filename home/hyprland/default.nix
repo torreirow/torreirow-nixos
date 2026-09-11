@@ -17,6 +17,7 @@ in
       ./windows.nix
       ./input.nix
       ./envs.nix
+      ./signal.nix
     ];
 
     wayland.windowManager.hyprland = {
