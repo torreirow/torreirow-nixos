@@ -6,7 +6,7 @@
 # Part of: home/module/ssh-config_hosts (NixOS Home Manager module)
 # This script is installed to ~/bin/export-ssh-keys.sh via default.nix
 #
-# Version: 202601071425
+# Version: 202609111200
 
 set -euo pipefail
 
@@ -19,6 +19,10 @@ NC='\033[0m' # No Color
 
 # Output directory for SSH keys (can be overridden by environment variable)
 OUTPUT_DIR="${RBW_SSH_KEYS_DIR:-$HOME/.ssh/rbw-keys}"
+
+# Keys are also mirrored straight into ~/.ssh, so `IdentityFile ~/.ssh/<name>`
+# works next to `IdentityFile ~/.ssh/rbw-keys/<name>`.
+SSH_DIR="${RBW_SSH_DIR:-$HOME/.ssh}"
 
 echo "=== RBW SSH Key Export Tool ==="
 echo
@@ -42,9 +46,14 @@ if ! ssh-add -l &> /dev/null; then
     exit 1
 fi
 
-# Create output directory if it doesn't exist
+# Create output directories if they don't exist
 mkdir -p "$OUTPUT_DIR"
 echo -e "${BLUE}Output directory: $OUTPUT_DIR${NC}"
+if [ "$SSH_DIR" != "$OUTPUT_DIR" ]; then
+    mkdir -p "$SSH_DIR"
+    chmod 700 "$SSH_DIR"
+    echo -e "${BLUE}Mirror directory: $SSH_DIR${NC}"
+fi
 echo
 
 # Get all keys from SSH agent
@@ -182,6 +191,34 @@ for i in "${!agent_keys[@]}"; do
         echo -e "${GREEN}✓ Created: $pub_file${NC}"
         echo -e "${BLUE}  (Private key placeholder: $private_key_file)${NC}"
 
+        # Mirror the same pair into ~/.ssh
+        if [ "$SSH_DIR" != "$OUTPUT_DIR" ]; then
+            ssh_pub_file="$SSH_DIR/${rbw_name}.pub"
+            # ~/.ssh may hold hand-made .pub files with the same name. Keep a
+            # timestamped copy when we are about to replace a different key.
+            if [ -f "$ssh_pub_file" ] && [ "$(cat "$ssh_pub_file")" != "$key" ]; then
+                backup_file="$ssh_pub_file.bak-$(date +%Y%m%d-%H%M%S)"
+                cp -p "$ssh_pub_file" "$backup_file"
+                echo -e "${YELLOW}  ⚠ Replaced a different key; backup: $backup_file${NC}"
+            fi
+            echo "$key" > "$ssh_pub_file"
+            chmod 644 "$ssh_pub_file"
+            echo -e "${GREEN}✓ Created: $ssh_pub_file${NC}"
+
+            # Placeholder for the private key (it lives in the rbw agent only).
+            # Never overwrite an existing file here: it could be a real private key.
+            ssh_private_key_file="$SSH_DIR/${rbw_name}"
+            if [ -s "$ssh_private_key_file" ]; then
+                echo -e "${YELLOW}  ⚠ Kept existing non-empty file untouched: $ssh_private_key_file${NC}"
+            elif [ -e "$ssh_private_key_file" ]; then
+                echo -e "${BLUE}  (Private key placeholder: $ssh_private_key_file)${NC}"
+            else
+                touch "$ssh_private_key_file"
+                chmod 600 "$ssh_private_key_file"
+                echo -e "${BLUE}  (Private key placeholder: $ssh_private_key_file)${NC}"
+            fi
+        fi
+
         matched_count=$((matched_count + 1))
     else
         echo -e "${YELLOW}⚠ Warning: No matching item found in rbw ssh-keys folder${NC}"
@@ -205,3 +242,13 @@ echo
 
 echo "Generated files in $OUTPUT_DIR:"
 ls -lh "$OUTPUT_DIR"/*.pub 2>/dev/null || echo "No .pub files found"
+
+if [ "$SSH_DIR" != "$OUTPUT_DIR" ] && [ "$matched_count" -gt 0 ]; then
+    echo
+    echo "Mirrored files in $SSH_DIR:"
+    for name in "${rbw_fingerprints[@]}"; do
+        if [ -f "$SSH_DIR/${name}.pub" ]; then
+            ls -lh "$SSH_DIR/${name}.pub"
+        fi
+    done
+fi
