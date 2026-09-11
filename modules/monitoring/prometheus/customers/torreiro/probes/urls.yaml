@@ -10,7 +10,6 @@
   - https://cv-jolijn.toorren.net
   - https://homeassistant.toorren.net
   - https://filesender.toorren.net
-  - https://edge.toorren.net
 
   # Authelia-protected services (checkt SSL + Authelia redirect)
   - https://grafana.toorren.net
