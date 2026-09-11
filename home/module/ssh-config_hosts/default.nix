@@ -34,17 +34,14 @@ let
   # Generate SSH config entry for a single host
   generateHostEntry = host:
     let
-      # Extract identity file name (remove .pub extension if present)
-      identity_name =
-        if lib.hasSuffix ".pub" host.identity_file
-        then lib.removeSuffix ".pub" host.identity_file
-        else host.identity_file;
-
-      # Build the identity file path (absolute/home paths are used as-is)
+      # Use the identity_file verbatim. Point it at the PUBLIC key (`.pub`) so the
+      # matching private key can live only in the rbw agent (never on disk):
+      # ssh reads the pubkey, offers it, and the agent signs. A bare name resolves
+      # under the rbw-keys dir; absolute/home paths are used as-is.
       identity_path =
-        if lib.hasPrefix "/" identity_name || lib.hasPrefix "~" identity_name
-        then identity_name
-        else "${ssh_keys_dir}/${identity_name}";
+        if lib.hasPrefix "/" host.identity_file || lib.hasPrefix "~" host.identity_file
+        then host.identity_file
+        else "${ssh_keys_dir}/${host.identity_file}";
 
       # Optional fields
       hostnameField = lib.optionalString (host ? hostname) "  HostName ${host.hostname}\n";
@@ -57,9 +54,16 @@ let
       # Each entry is emitted verbatim as its own indented line.
       extraOptionsField = lib.optionalString (host ? extra_options)
         (lib.concatMapStrings (opt: "  ${opt}\n") host.extra_options);
+
+      # A host may emit either a plain `Host <pattern>` block or a `Match <criteria>`
+      # block (e.g. "host i-* user admin") when it needs per-user disambiguation.
+      headerLine =
+        if host ? match
+        then "Match ${host.match}"
+        else "Host ${host.host}";
     in
     ''
-      Host ${host.host}
+      ${headerLine}
       ${hostnameField}${userField}${portField}${hostKeyAlgorithmsField}${pubkeyAcceptedKeyTypesField}${extraOptionsField}  IdentityFile ${identity_path}
         IdentitiesOnly yes
     '';
