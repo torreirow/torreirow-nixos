@@ -52,7 +52,7 @@
 #  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
 boot.supportedFilesystems = [ "ntfs" ];
 boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-
+boot.binfmt.preferStaticEmulators = true; 
 
 
   services.flatpak.enable = true;
