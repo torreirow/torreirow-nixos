@@ -2,11 +2,8 @@
 
 let
   # Lokaal aangeleverde EGH-fonts (Letter Gothic Std, Blenda Script).
-  # Niet in nixpkgs beschikbaar, dus als eigen derivation uit hosts/lobos/fonts/egh/.
-  eghFonts = pkgs.runCommandLocal "egh-fonts" { } ''
-    install -Dm444 -t "$out/share/fonts/opentype" ${./fonts/egh}/*.otf
-    install -Dm444 -t "$out/share/fonts/truetype" ${./fonts/egh}/*.ttf
-  '';
+  # Gedeeld met home/module/onlyoffice-fonts.nix -- zie pkgs/egh-fonts/default.nix.
+  eghFonts = pkgs.callPackage ../../pkgs/egh-fonts { };
 
   fontsList = with pkgs; [
     awesome
