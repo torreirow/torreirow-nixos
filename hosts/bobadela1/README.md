@@ -41,6 +41,26 @@ JuiceFS-mount (POSIX, client-side AES256-GCM+RSA encrypted)
 De secrets staan durably (agenix-encrypted) in de repo onder `secrets/juicefs-*.age`; de plaintext op
 bobadela1 wordt daaruit uitgerold (zie provisioning).
 
+## Dagelijkse shutdown 23:00
+
+`nightly-shutdown.service` (oneshot → `systemctl poweroff`) + `nightly-shutdown.timer`
+(`OnCalendar=*-*-* 23:00:00`) zetten de machine elke avond om 23:00 uit. De unit-bestanden staan
+in deze map als bron; ze worden imperatief uitgerold naar `/etc/systemd/system/` op bobadela1.
+
+- **`Persistent=false`** bewust: bobadela1 flapt (zwakke accu). Met `Persistent=true` zou een gemiste
+  23:00 bij de eerstvolgende boot alsnog een directe poweroff triggeren.
+
+```bash
+# uitrollen / bijwerken (vanaf een host met ssh bobadela1):
+scp hosts/bobadela1/nightly-shutdown.{service,timer} bobadela1:/tmp/
+ssh bobadela1 'sudo mv /tmp/nightly-shutdown.{service,timer} /etc/systemd/system/ && \
+  sudo systemctl daemon-reload && sudo systemctl enable --now nightly-shutdown.timer'
+
+# bediening:
+ssh bobadela1 'systemctl list-timers nightly-shutdown.timer'     # volgende run
+ssh bobadela1 'sudo systemctl disable --now nightly-shutdown.timer'  # tijdelijk uit
+```
+
 ## Malandro-kant (NixOS)
 
 - PostgreSQL 16 subscriber: db `juicefs_meta_replica`, `CREATE SUBSCRIPTION juicefs_sub` op publisher
