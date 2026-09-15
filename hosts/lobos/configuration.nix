@@ -16,6 +16,7 @@
     ../../modules/claude.nix
     ./mail.nix
     ./midi.nix
+    ./security-hardening.nix
 #   ../../modules/monitoring
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
@@ -101,6 +102,8 @@ boot.binfmt.preferStaticEmulators = true;
 
 
   ## Security
+  # Audit-regels, kernelparameters en firewall-zichtbaarheid: zie
+  # ./security-hardening.nix
   security.auditd.enable = true;
   security.apparmor.enable = false;
   fileSystems."/proc" = {
@@ -108,10 +111,11 @@ boot.binfmt.preferStaticEmulators = true;
     fsType = "proc";
     options = [ "defaults" "hidepid=2" ];
   };
-#  security.pam.loginLimits = [
-#    { domain = "*"; item = "PASS_MAX_DAYS"; value = 90; }
-#    { domain = "*"; item = "PASS_MIN_DAYS"; value = 7; }
-#  ];
+  # Verwijderd: een uitgecommentarieerd `security.pam.loginLimits`-blok met
+  # PASS_MAX_DAYS/PASS_MIN_DAYS. Dat zou nooit gewerkt hebben -- loginLimits
+  # schrijft naar limits.conf (ulimits), niet naar login.defs. De juiste optie
+  # voor wachtwoordveroudering is `security.loginDefs.settings`, bewust buiten
+  # scope gehouden in change `harden-lobos-lynis`.
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth
