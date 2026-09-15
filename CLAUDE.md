@@ -71,7 +71,8 @@ enkel punt. De index is geen maat voor de beveiliging.
 
 **Nog open:** ~27 punten in AIDE, USB-autorisatie, wachtwoordbeleid, banner, core dumps en
 `AllowGroups` -- per stuk afgewogen in `openspec/changes/harden-lobos-lynis/design.md`
-(beslissing 5). Suspend/resume-regressietest nog niet gedraaid.
+(beslissing 5). Suspend/resume-regressietest geslaagd: resume-services `success`, `ath11k_pci`
+geladen, WiFi terug op dezelfde connectie/IP, en sysctls + auditregels overleefden de suspend.
 
 **Status:** Live en geverifieerd.
 
