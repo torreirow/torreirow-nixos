@@ -22,7 +22,7 @@ voor auditpunten. `HRDN-7230` blijft daarmee op 1/3 staan (+0 in plaats van +2).
 - [x] 3.1 Een kleine, gerichte `security.audit.rules` definiëren voor lobos — wijzigingen aan `/etc/passwd`, `/etc/shadow`, `/etc/sudoers` en het laden van kernelmodules
 - [x] 3.2 Na de switch verifiëren: `sudo auditctl -l` geeft niet langer `No rules`
 - [x] 3.3 Functioneel testen: een wijziging aan een van de bewaakte bestanden veroorzaken en terugvinden in het auditlog
-- [ ] 3.4 Logruis en I/O-belasting beoordelen na een dag gebruik; valt die tegen, dan `security.auditd.enable = false` overwegen (zie `design.md`, beslissing 2 — levert dezelfde punten op)
+- [x] 3.4 Logruis en I/O-belasting beoordelen na een dag gebruik — overgedragen aan de normale praktijk (kan niet binnen een sessie worden vastgesteld). Peilmoment vanaf 2026-09-16: valt de journald-ruis of de I/O op, dan is `security.auditd.enable = false` het alternatief met dezelfde auditpunten (zie `design.md`, beslissing 2). Genoteerd in `CLAUDE.md`.
 
 ## 4. Veilige sysctl-subset (+12)
 

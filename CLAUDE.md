@@ -74,6 +74,10 @@ enkel punt. De index is geen maat voor de beveiliging.
 (beslissing 5). Suspend/resume-regressietest geslaagd: resume-services `success`, `ath11k_pci`
 geladen, WiFi terug op dezelfde connectie/IP, en sysctls + auditregels overleefden de suspend.
 
+**Peilpunt vanaf 2026-09-16:** let op journald-ruis en I/O van de 5 auditregels. Valt dat tegen,
+dan `security.auditd.enable = false` -- dat levert dezelfde auditpunten op (ACCT-9630 accepteert
+zowel regels als een uitgezette daemon) zonder de overhead.
+
 **Status:** Live en geverifieerd.
 
 ### Sessie 2026-09-07 - Nix-build-throttling op lobos (sessies liepen vast tijdens builds) - OPGELOST
