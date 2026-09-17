@@ -40,6 +40,7 @@ programs.firefox = {
 };
 
 environment.systemPackages = with pkgs; [
+    audacity
     planify
     wineWow64Packages.stable
     # masterpdfeditor  # TEMP disabled: upstream 5.9.98 tarball 404s in pinned nixpkgs (re-enable after nixpkgs bump)
