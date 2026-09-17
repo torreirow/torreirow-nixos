@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **bobadela1 ochtend-wake** (`modules/wake-bobadela1/`, malandro): malandro wekt bobadela1 elke ochtend 09:00 automatisch via Wake-on-LAN — het complement van de bestaande 23:00-shutdown, zodat Nextcloud 's ochtends vanzelf beschikbaar is (voorheen handwerk).
+  - Doorzettend: 30 minuten lang proberen met een WoL-burst elke 5 minuten (`systemd`-timer, `Persistent=true`, dagelijks incl. weekend).
+  - Succescriterium is **Nextcloud zelf**, niet alleen ping: pas klaar als `status.php` HTTP 200 geeft met `installed:true` en `maintenance:false`. Idempotent — al gezond → geen packet.
+  - **Signal-melding bij falen** met onderscheid: host kwam niet op (geen ping) versus host op maar Nextcloud niet gezond. Best-effort via de bestaande signal-cli REST API.
+  - Eén gedeelde bron: de root-service gebruikt het store-pad; `wake-bobadela1` staat ook in `~/bin` (home-manager) voor handmatig wekken.
 - **Lynis-beveiligingsbaseline voor lobos** (`hosts/lobos/security-hardening.nix`): hardening-index van 64 naar 72.
   - `nftables` toegevoegd aan de systeempakketten, waardoor audittooling de al draaiende firewall weer detecteert (was een vals negatief: NixOS bouwt iptables als kernelmodule en het `nft`-binary ontbrak in PATH). Het filtergedrag is ongewijzigd.
   - `security.audit.rules` met gerichte watches op `/etc/passwd`, `/etc/shadow`, `/etc/group`, `/etc/sudoers` en op het laden van kernelmodules. De audit-daemon draaide voorheen met een lege regelset: wel overhead, geen opbrengst.

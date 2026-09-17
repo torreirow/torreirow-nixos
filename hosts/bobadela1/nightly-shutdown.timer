@@ -1,0 +1,10 @@
+[Unit]
+Description=Trigger dagelijkse shutdown om 23:00
+
+[Timer]
+OnCalendar=*-*-* 23:00:00
+Persistent=false
+Unit=nightly-shutdown.service
+
+[Install]
+WantedBy=timers.target

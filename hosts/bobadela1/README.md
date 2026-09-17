@@ -41,6 +41,49 @@ JuiceFS-mount (POSIX, client-side AES256-GCM+RSA encrypted)
 De secrets staan durably (agenix-encrypted) in de repo onder `secrets/juicefs-*.age`; de plaintext op
 bobadela1 wordt daaruit uitgerold (zie provisioning).
 
+## Dagelijkse shutdown 23:00
+
+`nightly-shutdown.service` (oneshot → `systemctl poweroff`) + `nightly-shutdown.timer`
+(`OnCalendar=*-*-* 23:00:00`) zetten de machine elke avond om 23:00 uit. De unit-bestanden staan
+in deze map als bron; ze worden imperatief uitgerold naar `/etc/systemd/system/` op bobadela1.
+
+- **`Persistent=false`** bewust: bobadela1 flapt (zwakke accu). Met `Persistent=true` zou een gemiste
+  23:00 bij de eerstvolgende boot alsnog een directe poweroff triggeren.
+
+```bash
+# uitrollen / bijwerken (vanaf een host met ssh bobadela1):
+scp hosts/bobadela1/nightly-shutdown.{service,timer} bobadela1:/tmp/
+ssh bobadela1 'sudo mv /tmp/nightly-shutdown.{service,timer} /etc/systemd/system/ && \
+  sudo systemctl daemon-reload && sudo systemctl enable --now nightly-shutdown.timer'
+
+# bediening:
+ssh bobadela1 'systemctl list-timers nightly-shutdown.timer'     # volgende run
+ssh bobadela1 'sudo systemctl disable --now nightly-shutdown.timer'  # tijdelijk uit
+```
+
+## Dagelijkse ochtend-wake 09:00 (vanaf malandro)
+
+Complement van de 23:00-shutdown: malandro wekt bobadela1 elke ochtend 09:00 via **Wake-on-LAN**.
+Beheerd in NixOS (`modules/wake-bobadela1/`, import in `hosts/malandro/configuration.nix`) — dus in
+tegenstelling tot de shutdown-units imperatief-op-bobadela1 leeft deze kant volledig in de repo.
+
+- **`wake-bobadela1.timer`** (`OnCalendar=*-*-* 09:00`, `Persistent=true`) → **`wake-bobadela1.service`**
+  (oneshot, root). Draait het gedeelde script `modules/wake-bobadela1/wake-bobadela1.py`.
+- **Doorzetten:** 30 min lang proberen, WoL-burst elke 5 min (`--wait 1800 --burst 300`).
+- **Succes = Nextcloud, niet alleen ping:** pas klaar als `http://192.168.2.67:11000/status.php` HTTP 200
+  geeft met `installed:true` + `maintenance:false` (`--check-nextcloud`). Idempotent: al gezond → geen packet.
+- **Signal bij falen** (`--notify`, via signal-cli REST `:8088`, zelfde afzender/ontvanger als
+  `rustic-notify@`): **A** geen ping na 30 min · **B** host op maar Nextcloud niet gezond.
+- **Handmatig wekken:** `wake-bobadela1` (op malandro; `~/bin`-symlink via home-manager, zelfde bron).
+
+```bash
+# op malandro:
+systemctl list-timers wake-bobadela1.timer          # volgende run (09:00)
+sudo systemctl start wake-bobadela1.service          # nu draaien (service-modus + Signal)
+wake-bobadela1 --check-nextcloud                     # handmatig, snel, zonder Signal
+sudo systemctl disable --now wake-bobadela1.timer    # tijdelijk uit
+```
+
 ## Malandro-kant (NixOS)
 
 - PostgreSQL 16 subscriber: db `juicefs_meta_replica`, `CREATE SUBSCRIPTION juicefs_sub` op publisher
