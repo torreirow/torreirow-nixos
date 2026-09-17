@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **bobadela1 ochtend-wake** (`modules/wake-bobadela1/`, malandro): malandro wekt bobadela1 elke ochtend 09:00 automatisch via Wake-on-LAN — het complement van de bestaande 23:00-shutdown, zodat Nextcloud 's ochtends vanzelf beschikbaar is (voorheen handwerk).
+  - Doorzettend: 30 minuten lang proberen met een WoL-burst elke 5 minuten (`systemd`-timer, `Persistent=true`, dagelijks incl. weekend).
+  - Succescriterium is **Nextcloud zelf**, niet alleen ping: pas klaar als `status.php` HTTP 200 geeft met `installed:true` en `maintenance:false`. Idempotent — al gezond → geen packet.
+  - **Signal-melding bij falen** met onderscheid: host kwam niet op (geen ping) versus host op maar Nextcloud niet gezond. Best-effort via de bestaande signal-cli REST API.
+  - Eén gedeelde bron: de root-service gebruikt het store-pad; `wake-bobadela1` staat ook in `~/bin` (home-manager) voor handmatig wekken.
 - **Nextcloud op JuiceFS/S3** (`nxc.toorren.net`, host bobadela1): de Nextcloud AIO-datadir draait nu op een JuiceFS-filesystem met de bestandsdata in AWS S3 (`s3://wto-s3-bucket/juicefs/`) en de metadata in een lokale PostgreSQL 16. JuiceFS levert echte POSIX-semantiek (atomic rename, flock) — veilig als datadir, anders dan naïef S3-via-FUSE.
   - **Client-side encryptie** (`aes256gcm-rsa`): alle data staat versleuteld in S3 (geverifieerd ciphertext).
   - **Metadata-DR via PostgreSQL logical replication**: bobadela1 (publisher) → malandro (subscriber, db `juicefs_meta_replica`), live gesynct. Automatisch mee in de rustic-backup via `pg_dumpall`, plus JuiceFS' eigen `--backup-meta` uur-dump naar S3.
