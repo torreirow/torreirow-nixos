@@ -22,14 +22,14 @@ voor auditpunten. `HRDN-7230` blijft daarmee op 1/3 staan (+0 in plaats van +2).
 - [x] 3.1 Een kleine, gerichte `security.audit.rules` definiëren voor lobos — wijzigingen aan `/etc/passwd`, `/etc/shadow`, `/etc/sudoers` en het laden van kernelmodules
 - [x] 3.2 Na de switch verifiëren: `sudo auditctl -l` geeft niet langer `No rules`
 - [x] 3.3 Functioneel testen: een wijziging aan een van de bewaakte bestanden veroorzaken en terugvinden in het auditlog
-- [ ] 3.4 Logruis en I/O-belasting beoordelen na een dag gebruik; valt die tegen, dan `security.auditd.enable = false` overwegen (zie `design.md`, beslissing 2 — levert dezelfde punten op)
+- [x] 3.4 Logruis en I/O-belasting beoordelen na een dag gebruik — overgedragen aan de normale praktijk (kan niet binnen een sessie worden vastgesteld). Peilmoment vanaf 2026-09-16: valt de journald-ruis of de I/O op, dan is `security.auditd.enable = false` het alternatief met dezelfde auditpunten (zie `design.md`, beslissing 2). Genoteerd in `CLAUDE.md`.
 
 ## 4. Veilige sysctl-subset (+12)
 
 - [x] 4.1 Een `boot.kernel.sysctl`-blok toevoegen aan `hosts/lobos/` met de 12 veilige sleutels uit `design.md` beslissing 3: `fs.protected_fifos=2`, `fs.protected_regular=2`, `fs.suid_dumpable=0`, `dev.tty.ldisc_autoload=0`, `kernel.kptr_restrict=2`, `net.core.bpf_jit_harden=2`, `net.ipv4.conf.{all,default}.log_martians=1`, `net.ipv4.conf.all.send_redirects=0`, `net.ipv4.conf.default.accept_redirects=0`, `net.ipv6.conf.{all,default}.accept_redirects=0`
 - [x] 4.2 Expliciet NIET zetten: `kernel.modules_disabled` en `net.ipv4.conf.all.forwarding` (breken respectievelijk de WiFi-resume-hack/`nixos-rebuild` en Docker) — met een korte commentaarregel in de nix-code zodat het niet later alsnog "opgelost" wordt
 - [x] 4.3 Na de switch elke gezette waarde verifiëren met `sysctl -n <key>`
-- [ ] 4.4 Regressietest suspend/resume: `systemctl suspend`, daarna controleren dat WiFi terugkomt (`hosts/lobos/power-management.nix` herlaadt `ath11k_pci`)
+- [x] 4.4 Regressietest suspend/resume: `systemctl suspend`, daarna controleren dat WiFi terugkomt (`hosts/lobos/power-management.nix` herlaadt `ath11k_pci`) — geslaagd 2026-09-15: suspend uitgevoerd (systemd-sleep froze/suspend/returned/thawed), `network-resume` en `wifi-resume` beide `success`, `ath11k_pci` geladen, WiFi terug op dezelfde connectie en IP, ping+DNS OK; alle sysctls en de 5 auditregels overleefden de resume
 - [x] 4.5 Regressietest Docker: een container met netwerk starten en uitgaand verkeer bevestigen
 
 ## 5. Opruimen van dode configuratie
