@@ -8,6 +8,21 @@
 - **Vragen over Magister, de agenda-sync, het token/refresh-token, `magister-sync.service`, `token.json`, iCal-feeds op `agenda.toorren.net` of opnieuw inloggen** → lees `docs/magister.md`
 - **Vragen over Torrlinny, `linny.toorren.net`, de notities-web, `torrlinny-build.service`, de Hugo/Pagefind-overlay of de deploy key** → lees `docs/torrlinny.md`
 - **Vragen over de Vaultwarden restore-test, `vaultwarden-restoretest.sh`, `--rbw`/`--destroy`, de wegwerp-container op poort 8099 of de rbw-crypto-test** → lees `docs/vaultwarden-restore-test.md`
+- **Vragen over de reMarkable, `remarkable-sync`, `10.11.99.1`, de USB-webinterface van xochitl, `.rm`-bestanden, `error -71` op USB of PDF-export naar Nextcloud** → lees `docs/remarkable.md`
+- **Vragen over `staleness-monitor`, waarom de Nextcloud-sync géén melding per mislukking meer geeft, de twee drempels (24u/48u), het stempelbestand `last-success-*` of `notify-signal.sendCommand`** → lees `home/module/staleness-monitor/README.md`
+
+## Meetprincipe bij periodiek werk met geplande downtime
+
+Meet het **resultaat**, niet de storing. Een melding per mislukte run vraagt om het onderscheiden
+van oorzaken (geen netwerk / dienst uit / echt stuk) en is daardoor duur en broos. De vraag "is dit
+werk de afgelopen N uur überhaupt geslaagd?" is zonder enige oorzaakkennis te beantwoorden.
+
+Concreet bewijs waarom dat onderscheid duur is: op 2026-09-17 faalde de Nextcloud-sync twee keer
+kort na elkaar met twee verschillende oorzaken — een DNS-fout omdat lobos zelf nog geen netwerk
+had, en een `502 Bad Gateway` omdat de nginx vóór Nextcloud wél draaide maar de backend niet. Let
+op dat tweede geval: **een reverse proxy antwoordt ook als de dienst erachter plat ligt**, dus een
+poort- of ping-probe zegt ten onrechte "beschikbaar". Toets op inhoud (`status.php` → `installed`,
+`maintenance`), niet op een statuscode.
 
 ## Huidige Status
 
