@@ -12,6 +12,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - **`nextcloud-sync` legt zijn succesmoment vast** via `ExecStartPost=` — dat draait per definitie alleen ná een geslaagde run, dus een mislukte sync laat het vorige moment ongemoeid. De mtime van dat bestand is de state; er wordt niets geparseerd.
   - **De per-mislukking-melding op `nextcloud-sync` is vervallen.** De server (bobadela1) gaat 's nachts uit om stroom te besparen en wordt 's ochtends handmatig gewekt; dat gaf elke ochtend loos alarm, met bovendien wisselende oorzaken (DNS-fout omdat de laptop zelf nog geen netwerk had, en een 502 omdat de nginx vóór Nextcloud wél draaide maar de backend niet). `remarkable-sync` houdt zijn melding per mislukking wél, want daar geeft afwezigheid al exit 0.
   - **Het meldkanaal is herbruikbaar geworden**: het verzendgedeelte van `notify-signal` is losgetrokken als `sendCommand`, zodat een melding die géén unit-fout is niet zijn eigen token-lezing en curl-implementatie nodig heeft.
+  - Samenspel met de bobadela1-ochtend-wake hieronder: die dicht het ochtendgat grotendeels, maar de readiness-check blijft nuttig tijdens het 30-minuten retry-venster en wanneer de wake zelf niet slaagt.
   - Achtergrond, de reden voor twee drempels en waarom het readiness-commando op inhoud toetst in plaats van op een statuscode: `home/module/staleness-monitor/README.md`.
 
 - **Faalmeldingen van user-services naar Signal** (`home/module/notify-signal/`, lobos): één template-unit `notify-signal@.service` die je via `Unit.OnFailure` aan elke systemd user-service hangt. Bij een fout gaat er een Signal-bericht uit met de unitnaam en de laatste vijf logregels, zodat je niet pas na een week ontdekt dat iets stilstaat.
@@ -25,6 +26,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Afwezigheid is normaal gedrag: slaapt de tablet (dan verdwijnt de complete USB-gadget) of ligt de kabel eruit, dan eindigt de sync stil met exit 0 in plaats van te falen.
   - `hosts/lobos/remarkable-network.nix` voegt een NetworkManager-profiel toe dat op **MAC-adres** is vastgezet. NetworkManager laat de gadget-interface anders op `disconnected` staan, en een kaal `nmcli device connect` kan het profiel van een andere interface afpakken.
   - Achtergrond en valkuilen staan in `docs/remarkable.md`: een afgebroken download legt de webserver van xochitl plat tot die herstart, en `error -71` in de kernellog betekent een defecte USB-kabel, geen softwareprobleem.
+
+- **bobadela1 ochtend-wake** (`modules/wake-bobadela1/`, malandro): malandro wekt bobadela1 elke ochtend 09:00 automatisch via Wake-on-LAN — het complement van de bestaande 23:00-shutdown, zodat Nextcloud 's ochtends vanzelf beschikbaar is (voorheen handwerk).
+  - Doorzettend: 30 minuten lang proberen met een WoL-burst elke 5 minuten (`systemd`-timer, `Persistent=true`, dagelijks incl. weekend).
+  - Succescriterium is **Nextcloud zelf**, niet alleen ping: pas klaar als `status.php` HTTP 200 geeft met `installed:true` en `maintenance:false`. Idempotent — al gezond → geen packet.
+  - **Signal-melding bij falen** met onderscheid: host kwam niet op (geen ping) versus host op maar Nextcloud niet gezond. Best-effort via de bestaande signal-cli REST API.
+  - Eén gedeelde bron: de root-service gebruikt het store-pad; `wake-bobadela1` staat ook in `~/bin` (home-manager) voor handmatig wekken.
 - **Lynis-beveiligingsbaseline voor lobos** (`hosts/lobos/security-hardening.nix`): hardening-index van 64 naar 72.
   - `nftables` toegevoegd aan de systeempakketten, waardoor audittooling de al draaiende firewall weer detecteert (was een vals negatief: NixOS bouwt iptables als kernelmodule en het `nft`-binary ontbrak in PATH). Het filtergedrag is ongewijzigd.
   - `security.audit.rules` met gerichte watches op `/etc/passwd`, `/etc/shadow`, `/etc/group`, `/etc/sudoers` en op het laden van kernelmodules. De audit-daemon draaide voorheen met een lege regelset: wel overhead, geen opbrengst.

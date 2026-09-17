@@ -1,42 +1,49 @@
 groups:
   - name: Internet Connectivity
     rules:
+      # Speedtest draait ~1x/uur (speedtestdotnet-integratie in de HA-container op
+      # malandro). Losse metingen zijn ruisgevoelig: ~20-40% leest los <80 Mbit/s
+      # terwijl de mediaan ~184 Mbit/s is (download <-> upload zakken in 79% samen ->
+      # momentane contentie/host-load, niet de lijn). Daarom alerten we op de MEDIAAN
+      # over 3u i.p.v. min_over_time over 65m: een enkele rotmeting of mislukte test
+      # (0 Mbit/s) trekt de mediaan niet omlaag, een echte aanhoudende storing wel
+      # (>50% van de metingen in 3u moet slecht zijn).
+
       # Alert: Internet onbruikbaar — huisgenoten gaan klagen
-      # Vereist 2 opeenvolgende slechte metingen (~60 min) om ruis te filteren
       - alert: InternetKapot
-        expr: min_over_time(homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"}[65m]) < 25
-        for: 5m
+        expr: quantile_over_time(0.5, homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"}[3h]) < 25
+        for: 15m
         labels:
           severity: critical
           component: internet
           service: speedtest
         annotations:
-          summary: "Internet onbruikbaar (< 25 Mbit/s download)"
-          description: "Download snelheid is al ~60 min onder 25 Mbit/s (nu {{ $value | humanize }} Mbit/s). Glasvezel 200 contract."
+          summary: "Internet onbruikbaar (mediaan < 25 Mbit/s download)"
+          description: "Mediane download over 3u is onder 25 Mbit/s (nu {{ $value | humanize }} Mbit/s). Glasvezel 200 contract."
 
       # Alert: Internet significant onder contract — bewijs voor ISP-klacht
       - alert: InternetMatig
-        expr: min_over_time(homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"}[65m]) < 80
-        for: 5m
+        expr: quantile_over_time(0.5, homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_download"}[3h]) < 80
+        for: 15m
         labels:
           severity: warning
           component: internet
           service: speedtest
         annotations:
-          summary: "Internet significant onder contract (< 80 Mbit/s download)"
-          description: "Download snelheid is al ~60 min onder 80 Mbit/s (nu {{ $value | humanize }} Mbit/s, < 40% van 200 Mbit/s contract)."
+          summary: "Internet significant onder contract (mediaan < 80 Mbit/s download)"
+          description: "Mediane download over 3u is onder 80 Mbit/s (nu {{ $value | humanize }} Mbit/s, < 40% van 200 Mbit/s contract)."
 
       # Alert: Upload onbruikbaar — videobellen/Teams onmogelijk
       - alert: UploadKapot
-        expr: min_over_time(homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"}[65m]) < 10
-        for: 5m
+        expr: quantile_over_time(0.5, homeassistant_sensor_data_rate_mbit_per_s{entity="sensor.speedtest_upload"}[3h]) < 10
+        for: 15m
         labels:
           severity: critical
           component: internet
           service: speedtest
         annotations:
-          summary: "Upload onbruikbaar (< 10 Mbit/s)"
-          description: "Upload snelheid is al ~60 min onder 10 Mbit/s (nu {{ $value | humanize }} Mbit/s). Videobellen niet mogelijk."
+          summary: "Upload onbruikbaar (mediaan < 10 Mbit/s)"
+          description: "Mediane upload over 3u is onder 10 Mbit/s (nu {{ $value | humanize }} Mbit/s). Videobellen niet mogelijk."
 
       # Alert: Speedtest niet recent uitgevoerd
       - alert: SpeedtestStale
