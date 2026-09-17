@@ -9,6 +9,7 @@
   ./tmux.nix
   ./module/ssh-config_hosts
   ./module/vaultwarden-restore-test
+  ./module/wake-bobadela1
   ./sshkeys.nix
  ];
 
