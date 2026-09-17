@@ -1,6 +1,10 @@
 { config, lib, pkgs, unstable, ... }:
 
 let
+  # Lokaal aangeleverde EGH-fonts (Letter Gothic Std, Blenda Script).
+  # Gedeeld met home/module/onlyoffice-fonts.nix -- zie pkgs/egh-fonts/default.nix.
+  eghFonts = pkgs.callPackage ../../pkgs/egh-fonts { };
+
   fontsList = with pkgs; [
     awesome
     dejavu_fonts
@@ -22,7 +26,7 @@ in
   fonts = {
     enableDefaultPackages = true;
     fontconfig.enable = true;
-    packages = fontsList ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts) ;
+    packages = fontsList ++ [ eghFonts ] ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts) ;
 
     fontconfig = {
       defaultFonts = {

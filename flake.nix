@@ -320,6 +320,7 @@
          ./home/module/staleness-monitor
          ./home/sshkeys.nix
          ./home/module/opencode.nix
+         ./home/module/onlyoffice-fonts.nix
          ./home/hyprland/default.nix
          nixvim.homeModules.default
          linux-defaults
