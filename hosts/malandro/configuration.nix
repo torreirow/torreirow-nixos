@@ -25,7 +25,7 @@
  ../../modules/ittools.nix
  ../../modules/kpn.nix
  ../../modules/magister/magister-service.nix
- ../../modules/memos.nix
+ ../../modules/wake-bobadela1
  ../../modules/monitoring
  ../../modules/mqtt.nix
  ../../modules/nfs.nix
