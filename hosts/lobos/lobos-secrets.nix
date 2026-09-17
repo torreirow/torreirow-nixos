@@ -44,6 +44,16 @@ update_latop = {
   group = "root";
   mode = "0550";
 };
+# Long-lived access token voor Home Assistant (malandro). Gebruikt door de
+# home-manager-module notify-signal om faalmeldingen via notify.signal_maria te
+# versturen. Expliciet `path` opgeven is vereist: zonder dat legt agenix de
+# secret alleen in /run/keys/<owner>/ neer en ontstaat er geen symlink.
+ha-token = {
+  file = ../../secrets/ha-token.age;
+  path = "/run/secrets/ha-token";
+  owner = "wtoorren";
+  mode = "0400";
+};
 kar01_vpn_lobos = {
   file = ../../secrets/kar01-lobos-ovpn.age;
   path = "/data/agenix/kar01-lobos.ovpn";

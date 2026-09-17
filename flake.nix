@@ -315,6 +315,9 @@
          ./home/firefox.nix
          ./home/module/ssh-config_hosts
          ./home/module/nextcloud-sync
+         ./home/module/remarkable-sync
+         ./home/module/notify-signal
+         ./home/module/staleness-monitor
          ./home/sshkeys.nix
          ./home/module/opencode.nix
          ./home/hyprland/default.nix

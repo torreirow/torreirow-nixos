@@ -25,6 +25,7 @@ let
     else p;
 
   configDir = "${config.home.homeDirectory}/.config/nextcloud-sync";
+  stateDir = "${config.home.homeDirectory}/.local/state/nextcloud-sync";
 
   syncModule = { name, ... }: {
     options = {
@@ -80,11 +81,21 @@ let
   # ervoor dat nextcloudcmd enkel de usage-tekst print en stopt (exit 0, geen
   # sync) — een parser-bug in die vlag. Zonder `--confdir` gebruikt nextcloudcmd
   # zijn default config-dir en synct het correct.
+  #
+  # LET OP 2: `--silent` staat bewust NIET meer standaard aan. Met die vlag
+  # schrijft nextcloudcmd niets naar de journal, ook niet bij een fout. Daardoor
+  # bleef deze sync van 2026-09-09 tot 2026-09-16 onopgemerkt kapot: 419
+  # mislukte runs, nul geslaagde, en in `journalctl` alleen "Failed to start"
+  # zonder enige aanwijzing waarom. De oorzaak (een verlopen wachtwoord, en
+  # daarna HTTP 429 brute-force-throttling) was pas zichtbaar door het commando
+  # handmatig zonder `--silent` te draaien. Zet `quiet = true` als je de
+  # uitvoer per se kwijt wilt.
   mkExecStart = name: sync:
     let
       localPath = normalizePath sync.localPath;
       args =
-        [ "${cfg.package}/bin/nextcloudcmd" "--non-interactive" "--silent" ]
+        [ "${cfg.package}/bin/nextcloudcmd" "--non-interactive" ]
+        ++ optional cfg.quiet "--silent"
         ++ optional sync.trust "--trust"
         ++ optionals (sync.remotePath != "/") [ "--path" sync.remotePath ]
         ++ optionals (sync.excludeFile != null) [ "--exclude" (normalizePath sync.excludeFile) ]
@@ -111,7 +122,19 @@ let
         exit 1
       fi
       mkdir -p "${localPath}"
+      mkdir -p "${stateDir}"
     '';
+
+  # Het succesmoment van een sync, als mtime van een leeg bestand.
+  #
+  # Wordt aangeraakt via `ExecStartPost=`, en systemd draait dat uitsluitend
+  # wanneer `ExecStart` is geslaagd -- een mislukte sync laat het vorige moment
+  # dus ongemoeid. Bedoeld voor losstaande bewaking (zie
+  # home/module/staleness-monitor): die hoeft dan niets te parseren, want de
+  # mtime *is* de state. Zonder dit bestond er geen bron van waarheid: systemd
+  # kent alleen de uitkomst van de laatste run, en de journal doorzoeken voor
+  # state is broos.
+  stampFile = name: "${stateDir}/last-success-${name}";
 
 in
 {
@@ -123,6 +146,46 @@ in
       default = pkgs.nextcloud-client;
       defaultText = literalExpression "pkgs.nextcloud-client";
       description = "Package die `nextcloudcmd` levert.";
+    };
+
+    stampFiles = mkOption {
+      type = types.attrsOf types.str;
+      readOnly = true;
+      default = mapAttrs (name: _: stampFile name) cfg.syncs;
+      defaultText = literalExpression ''{ "<sync-naam>" = "~/.local/state/nextcloud-sync/last-success-<sync-naam>"; }'';
+      description = ''
+        Per sync-naam het pad naar het bestand waarvan de mtime het laatste
+        geslaagde sync-moment is. Read-only; bedoeld om naar te verwijzen vanuit
+        bewaking, zodat het pad niet op twee plekken hardgecodeerd staat:
+
+        ```nix
+        services.staleness-monitor.watch.nextcloud.stampFile =
+          config.services.nextcloud-sync.stampFiles.docs;
+        ```
+      '';
+    };
+
+    quiet = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Geef `--silent` mee aan `nextcloudcmd`. Standaard **uit**: met die vlag
+        logt nextcloudcmd niets, ook geen fouten, waardoor een kapotte sync
+        onzichtbaar blijft. Zet alleen op `true` als de journal je te vol loopt
+        en je de faalmelding elders al opvangt.
+      '';
+    };
+
+    onFailure = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = literalExpression ''[ "notify-failure@%i.service" ]'';
+      description = ''
+        Units die systemd start zodra een sync faalt (`Unit.OnFailure`). Bedoeld
+        voor een meldingskanaal, zodat een storing niet zeven dagen onopgemerkt
+        blijft. `%i` is niet beschikbaar; gebruik een vaste unitnaam of een
+        template met de sync-naam erin.
+      '';
     };
 
     credentialsFile = mkOption {
@@ -169,10 +232,16 @@ in
 
     systemd.user.services = mapAttrs'
       (name: sync: nameValuePair "nextcloud-sync-${name}" {
+        # LET OP: hier stond `After`/`Wants = [ "network-online.target" ]`.
+        # Die target bestaat NIET in de user-manager (`LoadState=not-found`), dus
+        # de unit wachtte er in werkelijkheid nooit op -- gemeten 2026-09-17,
+        # toen een sync vuurde op dezelfde seconde als de resume uit suspend,
+        # met de wifi nog niet geassocieerd. Weggehaald omdat het een wachtgedrag
+        # suggereerde dat er niet was; de bewaking vangt zo'n vroege mislukking op.
         Unit = {
           Description = "Nextcloud sync (${name})";
-          After = [ "network-online.target" ];
-          Wants = [ "network-online.target" ];
+        } // optionalAttrs (cfg.onFailure != [ ]) {
+          OnFailure = cfg.onFailure;
         };
         Service = {
           Type = "oneshot";
@@ -181,6 +250,9 @@ in
           EnvironmentFile = "-${cfg.credentialsFile}";
           ExecStartPre = "${mkPreStart name sync}";
           ExecStart = mkExecStart name sync;
+          # Draait alleen na een geslaagde ExecStart -> de mtime van dit bestand
+          # is het laatste succesmoment. Zie de opmerking bij `stampFile`.
+          ExecStartPost = "${pkgs.coreutils}/bin/touch ${escapeShellArg (stampFile name)}";
         };
       })
       cfg.syncs;
