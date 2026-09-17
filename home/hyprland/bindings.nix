@@ -83,7 +83,6 @@ let
     ─── Diversen ─────────────────────────────────────────────
     SUPER+SHIFT + K            Sneltoetsen (dit scherm)
     CTRL+SUPER + C             Klembord history (fuzzel picker)
-    CTRL+SUPER + V             Klembord TUI (clipse)
     CTRL+SUPER + N             Netwerk (nmtui)
     ALT + Tab                  Vensterlijst (walker)
     SHORTCUTS
@@ -175,7 +174,6 @@ in
       "SUPER, PRINT, exec, hyprpicker -a"
 
       "CTRL SUPER, C, exec, cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"
-      "CTRL SUPER, V, exec, alacritty --title clipse -e clipse"
       "CTRL SUPER, N, exec, alacritty --title nmtui -e nmtui"
 
       "ALT, Tab, exec, uwsm app -- walker -m windows"

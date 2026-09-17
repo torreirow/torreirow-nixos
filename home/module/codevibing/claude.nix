@@ -108,6 +108,17 @@
         repo = "mksglu/claude-context-mode";
       };
 
+      # i-have-adhd: action-first, ADHD-vriendelijke output-shaping.
+      # Marketplace + plugin: https://github.com/ayghri/i-have-adhd
+      # Claude Code kan settings.json niet zelf schrijven (home-manager symlink,
+      # read-only nix-store), dus de plugin wordt hier declaratief aangezet i.p.v.
+      # via `claude plugin install`. Optioneel altijd-aan: `touch ~/.claude/.i-have-adhd-always`.
+      extraKnownMarketplaces.i-have-adhd.source = {
+        source = "github";
+        repo = "ayghri/i-have-adhd";
+      };
+      enabledPlugins."i-have-adhd@i-have-adhd" = true;
+
       statusLine = {
         command = "input=$(cat); echo \"[$(echo \"$input\" | jq -r '.model.display_name')] 📁 $(basename \"$(echo \"$input\" | jq -r '.workspace.current_dir')\")\"";
         padding = 0;

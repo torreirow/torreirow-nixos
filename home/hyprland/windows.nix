@@ -23,10 +23,6 @@
       "workspace 3 silent, match:class ^(teams-for-linux)$"
       "workspace 4 silent, match:class ^(firefox)$"
 
-      "float on, match:title (clipse)"
-      "size 622 652, match:title (clipse)"
-      "stay_focused on, match:title (clipse)"
-
       "float on, match:title (nmtui)"
       "size 622 652, match:title (nmtui)"
       "stay_focused on, match:title (nmtui)"

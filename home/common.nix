@@ -69,6 +69,10 @@ programs.fzf = {
  home.username = "wtoorren";
  #home.username = "${config.username}";
  home.packages = with pkgs; [
+    # pinentry voor rbw: nodig op non-NixOS home-manager doelen (bijv. nixhost),
+    # waar /run/current-system/sw/bin/pinentry-tty niet bestaat. Op NixOS staat
+    # pinentry-tty in de system packages; deze regel schaadt daar niet.
+    pinentry-tty
   ];
 
 home.sessionVariables = {

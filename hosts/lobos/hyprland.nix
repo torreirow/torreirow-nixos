@@ -41,7 +41,6 @@
     playerctl
     wl-clipboard
     wl-clip-persist
-    clipse
     foot
     power-profiles-daemon
     gnome-power-manager

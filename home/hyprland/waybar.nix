@@ -124,7 +124,7 @@ in
 
       modules-left = [ "hyprland/workspaces" "hyprland/window" "mpris" ];
       modules-center = [ "clock" ];
-      modules-right = [ "custom/solidtime" "pulseaudio" "custom/powerprofile" "battery" "custom/clipse" "custom/swaync" "tray" ];
+      modules-right = [ "custom/solidtime" "pulseaudio" "custom/powerprofile" "battery" "custom/swaync" "tray" ];
 
 
       "hyprland/workspaces" = {
@@ -206,12 +206,6 @@ in
         return-type = "json";
         on-click = "solidtime-desktop";
         tooltip = true;
-      };
-
-      "custom/clipse" = {
-        format = "󰅌";
-        tooltip = false;
-        on-click = "kitty --title=clipse clipse";
       };
 
       "custom/swaync" = {

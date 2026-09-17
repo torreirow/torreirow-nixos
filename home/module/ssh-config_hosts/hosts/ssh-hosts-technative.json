@@ -5,5 +5,30 @@
     "user": "wtoorren",
     "identity_file": "toorren-lobos-ed25519",
     "port": 22
+  },
+  {
+    "host": "bitbucket.org",
+    "user": "git",
+    "identity_file": "technative_rsa"
+  },
+  {
+    "host": "intomission",
+    "hostname": "s240.webhostingserver.nl",
+    "user": "deb125473",
+    "identity_file": "technative_rsa",
+    "port": 22,
+    "extra_options": [
+      "StrictHostKeyChecking no"
+    ]
+  },
+  {
+    "host": "intomission-new",
+    "hostname": "s239.webhostingserver.nl",
+    "user": "deb125473n2",
+    "identity_file": "technative_rsa",
+    "port": 22,
+    "extra_options": [
+      "StrictHostKeyChecking no"
+    ]
   }
 ]
