@@ -1,6 +1,6 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-08-26
+**Laatst bijgewerkt:** 2026-09-15
 
 ## Contextbestanden (lees on-demand)
 
@@ -10,6 +10,104 @@
 - **Vragen over de Vaultwarden restore-test, `vaultwarden-restoretest.sh`, `--rbw`/`--destroy`, de wegwerp-container op poort 8099 of de rbw-crypto-test** → lees `docs/vaultwarden-restore-test.md`
 
 ## Huidige Status
+
+### Sessie 2026-09-15 - Lynis-hardening lobos (index 64 -> 72) - OPGELOST
+
+**Doel:** Quick-wins om de lynis hardening-index van lobos te verhogen. OpenSpec change
+`harden-lobos-lynis`. Baseline gemeten 2026-09-14: **158/244 = index 64**, 30 suggesties.
+
+**Alle puntenwaardes zijn uit de lynis-broncode zelf gehaald** (`share/lynis/include/tests_*`,
+de `AddHP`-aanroepen) -- niet geschat. Handig voor een volgende ronde.
+
+**Drie defecten gevonden (geen smaakkwestie):**
+- **Firewall werd niet gedetecteerd.** `firewall_installed=0` terwijl `networking.firewall.enable`
+  aan stond. Oorzaak is NixOS-specifiek: `FIRE-4502` grept `/proc/config.gz` naar
+  `CONFIG_IP_NF_IPTABLES` (NixOS bouwt dat als *module*, niet builtin) en `FIRE-4536` vereist het
+  `nft`-binary in PATH, dat ontbrak. Beide overgeslagen -> `FIRE-4590` gaf `AddHP 0 5`. De kernel
+  gebruikte nftables allang (`lsmod` toont `nf_tables`, `iptables --version` = `(nf_tables)`).
+  **Fix: `pkgs.nftables` in systemPackages = +5 punten zonder enige gedragsverandering.**
+- **`modules/hardening.nix` werd nergens geimporteerd** -> chkrootkit nooit geinstalleerd, timer
+  nooit gedraaid. Bij een poging tot activeren bleek de module bovendien **onbouwbaar**: nixpkgs
+  26.05 gooit `chkrootkit has been removed as it is unmaintained and archived upstream and didn't
+  even work on NixOS`. Ook `rkhunter` bestaat niet meer in nixpkgs. Module **verwijderd** i.p.v.
+  geactiveerd; geen scanner toegevoegd (ClamAV was het enige alternatief -- ~1GB signature-DB voor
+  2 auditpunten, past niet bij het uitgangspunt "geen daemons voor punten"). `HRDN-7230` blijft 1/3.
+- **auditd draaide met een lege ruleset** -- overhead zonder opbrengst, `ACCT-9630` strafte dat af.
+  Nu 5 gerichte regels.
+
+**Doorgevoerd (`hosts/lobos/security-hardening.nix`, nieuw):**
+- `pkgs.nftables` in systemPackages (firewall-zichtbaarheid).
+- `security.audit.rules`: watches op `/etc/{passwd,shadow,group,sudoers}` + `init_module`/
+  `finit_module`/`delete_module`. Let op: die `/etc`-bestanden zijn op NixOS **gewone bestanden**
+  (bij activatie gegenereerd), geen store-symlinks -- watch-regels werken dus.
+  `security.auditd.enable` zet `security.audit.enable` op `mkDefault true`; de unit
+  `audit-rules-nixos.service` laadt de regels.
+- **12 van de 17** afwijkende sysctls gezet (bestandsbescherming, suid-coredumps, kptr_restrict,
+  bpf_jit_harden, ICMP-redirects/martians).
+
+**BEWUST NIET GEZET (staat als commentaar in de nix-code, niet later alsnog "oplossen"):**
+- `kernel.modules_disabled=1` -> breekt de `modprobe -r ath11k_pci`-resume-hack in
+  `power-management.nix` **en** `nixos-rebuild switch`.
+- `net.ipv4.conf.all.forwarding=0` -> breekt Docker-containernetwerk.
+- `kernel.sysrq=0` (verlies van REISUB), `rp_filter=1` (bijt met VPN), `unprivileged_bpf_disabled`
+  (staat op 2, profiel wil exact 1 -- cosmetisch).
+
+**Opgeruimd:** uitgecommentarieerd `security.pam.loginLimits`-blok met PASS_MAX_DAYS/PASS_MIN_DAYS.
+Dat zou nooit gewerkt hebben: `loginLimits` schrijft `limits.conf` (ulimits), niet `login.defs`.
+De juiste optie is `security.loginDefs.settings` (buiten scope gehouden).
+
+**Geverifieerd na switch:** index **72** (175/242). `firewall_installed=1` +
+`firewall_software[]=nftables`; FIRE-4590 en ACCT-9630 uit de suggesties; `auditctl -l` toont 5
+regels en een `touch /etc/passwd` werd gevangen onder `key=identity`; alle 12 sysctls correct;
+nog exact 5 KRNL-6000-afwijkingen = precies de bewust gelaten sleutels. Docker-regressietest OK
+(DNS/HTTP/HTTPS in container). **Let op bij testen:** `neverssl.com` resolvt hier IPv6-only en is
+onbereikbaar vanaf de IPv4-only Docker-bridge -- gebruik `example.com`, niet neverssl.
+
+**Wat lynis NIET meet (bewust buiten scope):** `sudo-nopasswd.nix` zet
+`security.sudo.wheelNeedsPassword = false` en sshd draait -- `AUTH-9250` checkt alleen de
+*permissies* van `/etc/sudoers`, niet de inhoud. Nul strafpunten, terwijl het de grootste
+werkelijke escalatieroute op deze host is. Omgekeerd krijgt `/proc` met `hidepid=invisible` geen
+enkel punt. De index is geen maat voor de beveiliging.
+
+**Nog open:** ~27 punten in AIDE, USB-autorisatie, wachtwoordbeleid, banner, core dumps en
+`AllowGroups` -- per stuk afgewogen in `openspec/changes/harden-lobos-lynis/design.md`
+(beslissing 5). Suspend/resume-regressietest nog niet gedraaid.
+
+**Status:** Live en geverifieerd.
+
+### Sessie 2026-09-07 - Nix-build-throttling op lobos (sessies liepen vast tijdens builds) - OPGELOST
+
+**Klacht:** Meerdere `claude-code`-sessies (3-5, in tmux) leken vast te lopen zodra ergens een
+`nix build`/`nixos-rebuild` liep. OpenSpec change `throttle-nix-builds`.
+
+**Diagnose (gemeten, niet gegokt):** lobos is een **ThinkPad met een mobiele APU** (AMD Ryzen 7
+PRO 7840U, 8c/16t, 15-28W — de doc zei eerder "Desktop", klopt niet). Geen OOM (58 GB RAM, ruim
+vrij). De nix-daemon draaide **ongeremd**: `CPUSchedulingPolicy=0` (SCHED_OTHER), `max-jobs=16`,
+`cores=0` (∞) → tot ~256 build-threads. Met `stress-ng --cpu 16` (120s) + een monitor op k10temp/
+klok gemeten: chip zakt van **~5041 → ~3418 MHz (32% klokverlies)**, piek **87 °C**, en de throttle
+**verdiept over tijd** door heat-soak in de behuizing. Elke interactieve taak deelt die 32%-straf
+mee → "vastlopen" = CPU-verhongering + thermal throttling, niet geheugen en niet netwerk/upload.
+Afkoeling na load weg: 87 → 62 °C in ~30s (koeling zelf is prima; het is puur *sustained* load).
+
+**Fix (declaratief, `hosts/lobos/configuration.nix`):**
+- `nix.daemonCPUSchedPolicy = "idle";` → SCHED_IDLE: build wijkt voor élk interactief proces,
+  krijgt alleen CPU die niemand anders wil. Bij idle machine draait de build alsnog vol.
+- `nix.daemonIOSchedClass = "idle";` → idle I/O-klasse voor de LUKS `/nix/store` (disk-contentie).
+- `nix.settings.max-jobs = 6;` + `nix.settings.cores = 3;` → thermisch vangnet (was 16/∞).
+- **Eval-fase-alias** (`home/zsh.nix`): `nixos-rebuild="nice -n 15 ionice -c3 sudo nixos-rebuild"`.
+  De eval-fase draait in het `nixos-rebuild`-proces zelf (niet de daemon) en ontsnapt aan
+  SCHED_IDLE. **Let op:** sudo zit ín de alias, want een alias expandeert niet achter `sudo` →
+  draai `nixos-rebuild switch ...` **zonder** sudo; nice/ionice erven door naar sudo → de eval.
+
+**Geverifieerd na switch:** `systemctl show nix-daemon.service` → `CPUSchedulingPolicy=5` (SCHED_IDLE),
+`IOSchedulingClass=3` (idle); `nix show-config` → `max-jobs = 6`, `cores = 3`.
+
+**Buiten scope (bewust):** ACPI power-profiel (stond op `performance`; bepaalt het totale
+vermogens/hitte-budget, complementair aan SCHED_IDLE — `balanced` maakt builds koeler, `low-power`
+knijpt óók je sessies af = verkeerde trade) en fysieke koeling (koelstandaard = hardware-plafond
+omhoog, complementair). SCHED_IDLE verdeelt binnen het budget; het power-profiel bepaalt het budget.
+
+**Status:** ✅ Live en geverifieerd. Optioneel nog: temp/klok her-meten bij de eerstvolgende echte build.
 
 ### Sessie 2026-08-31 - Agenda-wandpaneel (HA read-only kiosk-dashboard) - GROTENDEELS OPGELOST
 

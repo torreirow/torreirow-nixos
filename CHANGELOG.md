@@ -12,6 +12,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Succescriterium is **Nextcloud zelf**, niet alleen ping: pas klaar als `status.php` HTTP 200 geeft met `installed:true` en `maintenance:false`. Idempotent — al gezond → geen packet.
   - **Signal-melding bij falen** met onderscheid: host kwam niet op (geen ping) versus host op maar Nextcloud niet gezond. Best-effort via de bestaande signal-cli REST API.
   - Eén gedeelde bron: de root-service gebruikt het store-pad; `wake-bobadela1` staat ook in `~/bin` (home-manager) voor handmatig wekken.
+- **Lynis-beveiligingsbaseline voor lobos** (`hosts/lobos/security-hardening.nix`): hardening-index van 64 naar 72.
+  - `nftables` toegevoegd aan de systeempakketten, waardoor audittooling de al draaiende firewall weer detecteert (was een vals negatief: NixOS bouwt iptables als kernelmodule en het `nft`-binary ontbrak in PATH). Het filtergedrag is ongewijzigd.
+  - `security.audit.rules` met gerichte watches op `/etc/passwd`, `/etc/shadow`, `/etc/group`, `/etc/sudoers` en op het laden van kernelmodules. De audit-daemon draaide voorheen met een lege regelset: wel overhead, geen opbrengst.
+  - Twaalf gehardende kernelparameters via `boot.kernel.sysctl` (bestandsbescherming, suid-coredumps, kernel-pointer-restrictie, BPF-JIT-hardening, ICMP-redirects en martian-logging). Vijf parameters uit het scanprofiel zijn bewust niet gezet en staan met reden gedocumenteerd in de module -- twee ervan zouden de WiFi-resume-hack en het Docker-containernetwerk breken.
+- **tmux notepad-shortcut**: Nieuwe tmux-binding `prefix + N` toggelt tussen de smug `notepad`-werkomgeving (vim/LinnyStart + git-sync + hugo op poort 1314) en de hoofdsessie `main`. Zit je in notepad → terug naar `main`; zit je elders → naar notepad (idempotent gestart via `smug start notepad --detach` als de sessie nog niet draait). Gebruikt `switch-client` (blijvende sessie) i.p.v. een popup, en richt zich op de echte sessienaam `TorrLinny` die `notepad.yml` aanmaakt.
 - **Nextcloud op JuiceFS/S3** (`nxc.toorren.net`, host bobadela1): de Nextcloud AIO-datadir draait nu op een JuiceFS-filesystem met de bestandsdata in AWS S3 (`s3://wto-s3-bucket/juicefs/`) en de metadata in een lokale PostgreSQL 16. JuiceFS levert echte POSIX-semantiek (atomic rename, flock) — veilig als datadir, anders dan naïef S3-via-FUSE.
   - **Client-side encryptie** (`aes256gcm-rsa`): alle data staat versleuteld in S3 (geverifieerd ciphertext).
   - **Metadata-DR via PostgreSQL logical replication**: bobadela1 (publisher) → malandro (subscriber, db `juicefs_meta_replica`), live gesynct. Automatisch mee in de rustic-backup via `pg_dumpall`, plus JuiceFS' eigen `--backup-meta` uur-dump naar S3.
@@ -45,6 +50,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `location-name` veld toegevoegd aan `WeatherConfig` schema in de fork
   - Weather dropdown header toont nu geconfigureerde naam i.p.v. API-resultaat
 
+### Removed
+- **`modules/hardening.nix`**: werd nergens geimporteerd en was bovendien onbouwbaar geworden -- `chkrootkit` is uit nixpkgs verwijderd ("unmaintained and archived upstream and didn't even work on NixOS") en `rkhunter` bestaat er evenmin nog. Er is bewust geen malware-scanner voor in de plaats gekomen.
+
 ### Fixed
+- **Dode wachtwoordbeleid-configuratie in `hosts/lobos/configuration.nix`**: een uitgecommentarieerd `security.pam.loginLimits`-blok met `PASS_MAX_DAYS`/`PASS_MIN_DAYS` verwijderd. Die optie schrijft naar `limits.conf` (ulimits) en nooit naar `login.defs`, dus het zou ook actief niets gedaan hebben.
 - **Wayle weather crash bij Refresh**: `trigger_refresh()` in de wayle fork gebruikte `LocationQuery::city()` ongeacht de locatie-invoer, waardoor coördinaten (`"52.2983,5.6222"`) werden doorgegeven aan de Open-Meteo geocoding API als plaatsnaam — resulterend in `location not found`. De fix past dezelfde coördinatendetectie toe (`split_once(',')` → `parse::<f64>()`) als de rest van de codebase.
 - **SubtitleEdit Ctrl-X/Ctrl-V clipboard**: `autocutsel` toegevoegd aan Hyprland exec-once om de X11 clipboard actief te houden. SubtitleEdit draait via Mono/XWayland en verliest de clipboard selection zodra de muisknop wordt losgelaten; `autocutsel` synchroniseert de X11 PRIMARY selection naar de clipboard continu.

@@ -16,6 +16,7 @@
     ../../modules/claude.nix
     ./mail.nix
     ./midi.nix
+    ./security-hardening.nix
 #   ../../modules/monitoring
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
@@ -31,6 +32,17 @@
     experimental-features = nix-command flakes
     '';
 
+  # Nix-build-throttling (OpenSpec change throttle-nix-builds).
+  # Deze ThinkPad heeft een mobiele 8c/16t APU (Ryzen 7840U, 15-28W). Een ongeremde build
+  # claimt alle threads en throttelt de chip thermisch (~5041 -> ~3418 MHz, 32% klokverlies),
+  # waardoor gelijktijdige interactieve sessies (o.a. meerdere claude-code) lijken vast te lopen.
+  # SCHED_IDLE laat build-werk wijken voor interactieve processen; idle I/O doet hetzelfde voor
+  # disk-I/O op de LUKS /nix/store; max-jobs/cores knijpen het parallelisme (thermisch vangnet).
+  nix.daemonCPUSchedPolicy = "idle";
+  nix.daemonIOSchedClass = "idle";
+  nix.settings.max-jobs = 6;
+  nix.settings.cores = 3;
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -41,7 +53,7 @@
 #  boot.kernelPackages = pkgs.linuxKernel.packages.linux_6_1;
 boot.supportedFilesystems = [ "ntfs" ];
 boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-
+boot.binfmt.preferStaticEmulators = true; 
 
 
   services.flatpak.enable = true;
@@ -90,6 +102,8 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
 
   ## Security
+  # Audit-regels, kernelparameters en firewall-zichtbaarheid: zie
+  # ./security-hardening.nix
   security.auditd.enable = true;
   security.apparmor.enable = false;
   fileSystems."/proc" = {
@@ -97,10 +111,11 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
     fsType = "proc";
     options = [ "defaults" "hidepid=2" ];
   };
-#  security.pam.loginLimits = [
-#    { domain = "*"; item = "PASS_MAX_DAYS"; value = 90; }
-#    { domain = "*"; item = "PASS_MIN_DAYS"; value = 7; }
-#  ];
+  # Verwijderd: een uitgecommentarieerd `security.pam.loginLimits`-blok met
+  # PASS_MAX_DAYS/PASS_MIN_DAYS. Dat zou nooit gewerkt hebben -- loginLimits
+  # schrijft naar limits.conf (ulimits), niet naar login.defs. De juiste optie
+  # voor wachtwoordveroudering is `security.loginDefs.settings`, bewust buiten
+  # scope gehouden in change `harden-lobos-lynis`.
 
   # Enable bluetooth
   hardware.bluetooth.enable = true; # enables support for Bluetooth

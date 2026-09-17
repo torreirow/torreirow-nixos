@@ -34,17 +34,14 @@ let
   # Generate SSH config entry for a single host
   generateHostEntry = host:
     let
-      # Extract identity file name (remove .pub extension if present)
-      identity_name =
-        if lib.hasSuffix ".pub" host.identity_file
-        then lib.removeSuffix ".pub" host.identity_file
-        else host.identity_file;
-
-      # Build the identity file path (absolute/home paths are used as-is)
+      # Use the identity_file verbatim. Point it at the PUBLIC key (`.pub`) so the
+      # matching private key can live only in the rbw agent (never on disk):
+      # ssh reads the pubkey, offers it, and the agent signs. A bare name resolves
+      # under the rbw-keys dir; absolute/home paths are used as-is.
       identity_path =
-        if lib.hasPrefix "/" identity_name || lib.hasPrefix "~" identity_name
-        then identity_name
-        else "${ssh_keys_dir}/${identity_name}";
+        if lib.hasPrefix "/" host.identity_file || lib.hasPrefix "~" host.identity_file
+        then host.identity_file
+        else "${ssh_keys_dir}/${host.identity_file}";
 
       # Optional fields
       hostnameField = lib.optionalString (host ? hostname) "  HostName ${host.hostname}\n";
@@ -52,10 +49,22 @@ let
       portField = lib.optionalString (host ? port && host.port != 22) "  Port ${toString host.port}\n";
       hostKeyAlgorithmsField = lib.optionalString (host ? HostKeyAlgorithms) "  HostKeyAlgorithms ${host.HostKeyAlgorithms}\n";
       pubkeyAcceptedKeyTypesField = lib.optionalString (host ? PubkeyAcceptedKeyTypes) "  PubkeyAcceptedKeyTypes ${host.PubkeyAcceptedKeyTypes}\n";
+      # Raw passthrough for ssh options the structured schema does not model
+      # (ProxyCommand, IdentityAgent, StrictHostKeyChecking, UserKnownHostsFile, ...).
+      # Each entry is emitted verbatim as its own indented line.
+      extraOptionsField = lib.optionalString (host ? extra_options)
+        (lib.concatMapStrings (opt: "  ${opt}\n") host.extra_options);
+
+      # A host may emit either a plain `Host <pattern>` block or a `Match <criteria>`
+      # block (e.g. "host i-* user admin") when it needs per-user disambiguation.
+      headerLine =
+        if host ? match
+        then "Match ${host.match}"
+        else "Host ${host.host}";
     in
     ''
-      Host ${host.host}
-      ${hostnameField}${userField}${portField}${hostKeyAlgorithmsField}${pubkeyAcceptedKeyTypesField}  IdentityFile ${identity_path}
+      ${headerLine}
+      ${hostnameField}${userField}${portField}${hostKeyAlgorithmsField}${pubkeyAcceptedKeyTypesField}${extraOptionsField}  IdentityFile ${identity_path}
         IdentitiesOnly yes
     '';
 
@@ -152,7 +161,7 @@ let
         echo ""
 
         # Parse JSON and generate entries using jq to format each host directly
-        ${pkgs.jq}/bin/jq -r '.[] | "Host \(.host)\n" + (if .hostname then "  HostName \(.hostname)\n" else "" end) + (if .user then "  User \(.user)\n" else "" end) + (if .port and .port != 22 then "  Port \(.port)\n" else "" end) + (if .HostKeyAlgorithms then "  HostKeyAlgorithms \(.HostKeyAlgorithms)\n" else "" end) + (if .PubkeyAcceptedKeyTypes then "  PubkeyAcceptedKeyTypes \(.PubkeyAcceptedKeyTypes)\n" else "" end) + ((.identity_file | sub("\\.pub$"; "")) as $idf | "  IdentityFile " + (if ($idf | startswith("/") or startswith("~")) then $idf else ("'"$SSH_KEYS_DIR"'/" + $idf) end) + "\n    IdentitiesOnly yes\n")' "$path"
+        ${pkgs.jq}/bin/jq -r '.[] | "Host \(.host)\n" + (if .hostname then "  HostName \(.hostname)\n" else "" end) + (if .user then "  User \(.user)\n" else "" end) + (if .port and .port != 22 then "  Port \(.port)\n" else "" end) + (if .HostKeyAlgorithms then "  HostKeyAlgorithms \(.HostKeyAlgorithms)\n" else "" end) + (if .PubkeyAcceptedKeyTypes then "  PubkeyAcceptedKeyTypes \(.PubkeyAcceptedKeyTypes)\n" else "" end) + (if .extra_options then (.extra_options | map("  " + . + "\n") | join("")) else "" end) + ((.identity_file | sub("\\.pub$"; "")) as $idf | "  IdentityFile " + (if ($idf | startswith("/") or startswith("~")) then $idf else ("'"$SSH_KEYS_DIR"'/" + $idf) end) + "\n    IdentitiesOnly yes\n")' "$path"
       } > "$output_file"
 
       chmod 600 "$output_file"
