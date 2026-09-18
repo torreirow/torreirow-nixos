@@ -37,6 +37,17 @@ programs.firefox = {
       (ext "cookie-editor"                "{c3c10168-4186-445c-9c5b-63f12b8e2c87}")
       # Zammad Ticket Extractor: lokale extensie (guid @local) -> NIET via AMO.
     ];
+
+  # jitsi-meet:// zonder dialoog naar de systeem-handler (jitsi-meet-electron,
+  # geregistreerd voor x-scheme-handler/jitsi-meet). Zonder dit vraagt Firefox
+  # per profiel eenmalig "welke applicatie?" -- de registratie stond alleen in
+  # een van de twee profielen, een policy geldt voor alle.
+  # Hoort bij home/module/jitsi-open-in-app (het userscript dat de https-link
+  # naar dit schema omzet).
+  policies.Handlers.schemes."jitsi-meet" = {
+    action = "useSystemDefault";
+    ask = false;
+  };
 };
 
 environment.systemPackages = with pkgs; [
