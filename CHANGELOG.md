@@ -7,6 +7,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **meet.jit.si-links openen in de Jitsi desktop-app** (`home/module/jitsi-open-in-app/`, lobos): een meeting-link uit Outlook Web of Slack landt nu in `jitsi-meet-electron` in plaats van in een Firefox-tab.
+  - **Firefox kan dit niet zelf.** Hij handelt `https` altijd zelf af en kent geen per-domein externe handler, dus geen enkele pref, policy of `handlers.json`-truc lost dit op — de omzetting moet ín de pagina gebeuren. Vandaar een Tampermonkey-userscript; Tampermonkey stond al declaratief in de Firefox-policy, dus er kwam geen extensie bij. De rest van de keten bestond al: `jitsi-meet-electron.desktop` is geregistreerd voor `x-scheme-handler/jitsi-meet`, en de app pakt een tweede aanroep op via zijn singleInstanceLock.
+  - **Eén mechanisme dekt beide bronnen.** Slack heeft geen eigen uitgang maar doet `xdg-open`, wat via `x-scheme-handler/https` bij Firefox uitkomt. Outlook Web zit al in een tab. Beide eindigen dus in dezelfde Firefox-tab, waardoor een OS-dispatcher als standaardbrowser overbodig is.
+  - **`window.stop()` vóórdat de SPA laadt**, anders vraagt Firefox óók de camera op en geef je twee keer toestemming voor dezelfde meeting.
+  - **Alleen een pad van één segment geldt als kamernaam**, zodat de inlogpagina van meet.jit.si (`/v1/_cdn/auth-static/.../signin.html`) met rust blijft — daar omleiden breekt de inlogflow.
+  - **Tussenpagina met twee knoppen** in plaats van blind vertrouwen op de automatische start: Firefox mág een protocol-start zonder gebruikersactie weigeren, en een echte klik werkt altijd. De tweede knop joint alsnog in de browser, nodig voor de agenda-tab van meet.jit.si — die zet de Electron-app hardcoded uit (`enableCalendarIntegration: false`), terwijl de server hem juist aan heeft staan.
+  - **`policies.Handlers` voor het `jitsi-meet://`-schema** (`hosts/lobos/programs.nix`) haalt de eenmalige "welke applicatie?"-dialoog weg. Die registratie stond in maar één van de twee Firefox-profielen; een policy geldt voor alle.
+  - Het userscript zelf moet éénmalig handmatig in Tampermonkey geïnstalleerd worden — userscripts leven in de extensie-opslag van de browser en zijn niet declaratief te plaatsen. Zie de README van de module.
 - **Staleness-bewaking van periodiek werk** (`home/module/staleness-monitor/`, lobos): meldt dagelijks via Signal wanneer werk te lang niet is geslaagd, in plaats van bij elke losse mislukking.
   - **Twee drempels per item.** Binnen 24-48 uur wordt er alleen gemeld als een opgegeven readiness-commando slaagt, zodat het ochtendgat waarin de Nextcloud-server nog uit staat stil blijft. Na 48 uur wordt er altijd gemeld, zodat een server die dagen uit blijft alsnog een herinnering oplevert. Zonder readiness-commando vallen beide drempels samen.
   - **`nextcloud-sync` legt zijn succesmoment vast** via `ExecStartPost=` — dat draait per definitie alleen ná een geslaagde run, dus een mislukte sync laat het vorige moment ongemoeid. De mtime van dat bestand is de state; er wordt niets geparseerd.
@@ -71,6 +79,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Weather dropdown header toont nu geconfigureerde naam i.p.v. API-resultaat
 
 ### Removed
+- **OpenSpec-change `jitsi-meet-malandro` geannuleerd** (gearchiveerd als `2026-09-18-jitsi-meet-malandro`): Jitsi zelf hosten op malandro gaat niet door wegens onvoldoende resources; de desktop-client op lobos blijft. De delta-specs zijn bewust **niet** naar de hoofdspecs gesynct — ze beschrijven een capability die niet draait. Op malandro draait geen enkele jitsi-component meer (geverifieerd op units, containers, poorten, nginx-vhost en firewall); wel staan er nog dode state-dirs `/var/lib/jitsi-meet/` en `/var/lib/prosody/` met secrets uit de teruggedraaide deploy van 2026-08-28.
 - **`modules/hardening.nix`**: werd nergens geimporteerd en was bovendien onbouwbaar geworden -- `chkrootkit` is uit nixpkgs verwijderd ("unmaintained and archived upstream and didn't even work on NixOS") en `rkhunter` bestaat er evenmin nog. Er is bewust geen malware-scanner voor in de plaats gekomen.
 
 ### Fixed
