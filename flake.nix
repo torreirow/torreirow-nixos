@@ -315,8 +315,13 @@
          ./home/firefox.nix
          ./home/module/ssh-config_hosts
          ./home/module/nextcloud-sync
+         ./home/module/remarkable-sync
+         ./home/module/notify-signal
+         ./home/module/staleness-monitor
+         ./home/module/jitsi-open-in-app
          ./home/sshkeys.nix
          ./home/module/opencode.nix
+         ./home/module/onlyoffice-fonts.nix
          ./home/hyprland/default.nix
          nixvim.homeModules.default
          linux-defaults
