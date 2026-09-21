@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **JuiceFS-metadata-dump in de rustic-backup** (`modules/rustic-backup.nix`, malandro): een engine-onafhankelijke, `juicefs load`-bare plaintext JSON-export van de JuiceFS/Nextcloud-metadata landt nu in de dagelijkse rustic→S3-snapshot — de tweede, format-onafhankelijke representatie die de spec al eiste maar die ontbrak (rustic had enkel de Postgres-schema-specifieke replica-dump).
+  - Nieuwe oneshot `juicefs-meta-dump.service` draait `juicefs dump` tegen de lokale `juicefs_meta_replica`-DB (unix-socket peer-auth als `postgres`, géén nieuw secret) en schrijft `/var/backup/db/juicefs-meta-dump.json`.
+  - Bewust niet live tegen bobadela1 (staat om 03:00 uit) en niet de `--backup-meta`-export uit S3 (die is client-side versleuteld → onbruikbare ciphertext). De Postgres-metadata is onversleuteld, dus de dump is schone JSON; juicefs scrubt zelf de S3-secret-key.
+  - Faalt de dump (replica onbereikbaar), dan blokkeert dat de backup niet (`Wants=`, geen `Requires=`) en volgt een Signal-melding via `OnFailure=`.
+
 - **bobadela1 ochtend-wake** (`modules/wake-bobadela1/`, malandro): malandro wekt bobadela1 elke ochtend 09:00 automatisch via Wake-on-LAN — het complement van de bestaande 23:00-shutdown, zodat Nextcloud 's ochtends vanzelf beschikbaar is (voorheen handwerk).
   - Doorzettend: 30 minuten lang proberen met een WoL-burst elke 5 minuten (`systemd`-timer, `Persistent=true`, dagelijks incl. weekend).
   - Succescriterium is **Nextcloud zelf**, niet alleen ping: pas klaar als `status.php` HTTP 200 geeft met `installed:true` en `maintenance:false`. Idempotent — al gezond → geen packet.
