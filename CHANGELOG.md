@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **JuiceFS-metadata-dump in de rustic-backup** (`modules/rustic-backup.nix`, malandro): een engine-onafhankelijke, `juicefs load`-bare plaintext JSON-export van de JuiceFS/Nextcloud-metadata landt nu in de dagelijkse rustic→S3-snapshot — de tweede, format-onafhankelijke representatie die de spec al eiste maar die ontbrak (rustic had enkel de Postgres-schema-specifieke replica-dump).
+  - Nieuwe oneshot `juicefs-meta-dump.service` draait `juicefs dump` tegen de lokale `juicefs_meta_replica`-DB (unix-socket peer-auth als `postgres`, géén nieuw secret) en schrijft `/var/backup/db/juicefs-meta-dump.json`.
+  - Bewust niet live tegen bobadela1 (staat om 03:00 uit) en niet de `--backup-meta`-export uit S3 (die is client-side versleuteld → onbruikbare ciphertext). De Postgres-metadata is onversleuteld, dus de dump is schone JSON; juicefs scrubt zelf de S3-secret-key.
+  - Faalt de dump (replica onbereikbaar), dan blokkeert dat de backup niet (`Wants=`, geen `Requires=`) en volgt een Signal-melding via `OnFailure=`.
+
 - **meet.jit.si-links openen in de Jitsi desktop-app** (`home/module/jitsi-open-in-app/`, lobos): een meeting-link uit Outlook Web of Slack landt nu in `jitsi-meet-electron` in plaats van in een Firefox-tab.
   - **Firefox kan dit niet zelf.** Hij handelt `https` altijd zelf af en kent geen per-domein externe handler, dus geen enkele pref, policy of `handlers.json`-truc lost dit op — de omzetting moet ín de pagina gebeuren. Vandaar een Tampermonkey-userscript; Tampermonkey stond al declaratief in de Firefox-policy, dus er kwam geen extensie bij. De rest van de keten bestond al: `jitsi-meet-electron.desktop` is geregistreerd voor `x-scheme-handler/jitsi-meet`, en de app pakt een tweede aanroep op via zijn singleInstanceLock.
   - **Eén mechanisme dekt beide bronnen.** Slack heeft geen eigen uitgang maar doet `xdg-open`, wat via `x-scheme-handler/https` bij Firefox uitkomt. Outlook Web zit al in een tab. Beide eindigen dus in dezelfde Firefox-tab, waardoor een OS-dispatcher als standaardbrowser overbodig is.
