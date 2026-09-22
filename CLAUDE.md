@@ -9,6 +9,7 @@
 - **Vragen over Torrlinny, `linny.toorren.net`, de notities-web, `torrlinny-build.service`, de Hugo/Pagefind-overlay of de deploy key** → lees `docs/torrlinny.md`
 - **Vragen over de Vaultwarden restore-test, `vaultwarden-restoretest.sh`, `--rbw`/`--destroy`, de wegwerp-container op poort 8099 of de rbw-crypto-test** → lees `docs/vaultwarden-restore-test.md`
 - **Vragen over de reMarkable, `remarkable-sync`, `10.11.99.1`, de USB-webinterface van xochitl, `.rm`-bestanden, `error -71` op USB of PDF-export naar Nextcloud** → lees `docs/remarkable.md`
+- **Vragen over het opnemen van een meeting, `meetrec`, `~/Meetings`, de twee sporen (`anderen`/`ik`), `stream.capture.sink`, de Opus-encoding of het whisper-transcript** → lees `home/module/meeting-record/README.md`
 - **Vragen over `staleness-monitor`, waarom de Nextcloud-sync géén melding per mislukking meer geeft, de twee drempels (24u/48u), het stempelbestand `last-success-*` of `notify-signal.sendCommand`** → lees `home/module/staleness-monitor/README.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
