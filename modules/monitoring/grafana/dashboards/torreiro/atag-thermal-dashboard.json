@@ -675,7 +675,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "increase(homeassistant_sensor_state{entity=\"sensor.atag_one_lumc_brander_starts"}[1h])",
+          "expr": "increase(homeassistant_sensor_state{entity=\"sensor.atag_one_lumc_brander_starts\"}[1h])",
           "refId": "A",
           "legendFormat": "Brander Starts"
         }
