@@ -33,6 +33,19 @@
       dnsResolver = "1.1.1.1:53";  # Use Cloudflare DNS to follow CNAME
       dnsPropagationCheck = true;
     };
+
+    certs."cckafe.com" = {
+      domain = "*.cckafe.com";
+      extraDomainNames = [ "cckafe.com" ];
+      group = "nginx";
+      email = "admin@cckafe.com";  # per-cert override op de default admin@toorren.net
+      # DNS bij OpenProvider (wildcard A-record *.cckafe.com -> malandro).
+      # ACME-challenge is naar toorren.net (Route53) gedelegeerd via CNAME:
+      # CNAME: _acme-challenge.cckafe.com -> _acme-challenge.cckafe.toorren.net
+      # (dekt zowel *.cckafe.com als de apex; beide gebruiken _acme-challenge.cckafe.com)
+      dnsResolver = "1.1.1.1:53";  # Cloudflare DNS om de CNAME te volgen
+      dnsPropagationCheck = true;
+    };
   };
   users.users.nginx.extraGroups = [ "acme" ];
 }
