@@ -7,6 +7,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Neerslag-indicator op het "Temperatuur & Luchtvochtigheid"-dashboard** (malandro): het dashboard toont nu ook regen, naast temperatuur en vocht.
+  - Nieuwe rij **Neerslag** met "Neerslag nu" (mm/h), "Verwacht komende 2u" (mm) en een neerslag-verloopgrafiek, gevoed door de gratis **Buienradar**-integratie (radar-nowcast op de eigen locatie, dus geldig voor Ermelo zonder meetstation dichtbij).
+  - Een lokaal berekend **dauwpunt** (Magnus-formule uit de buiten-sensor) is als extra lijn aan de temperatuurgrafiek toegevoegd, en voedt samen met de radar een samengestelde `sensor.neerslag_indicator` in Home Assistant met de toestanden **Regent / Bui op komst / Verzadigd / Droog**.
 - **JuiceFS-metadata-dump in de rustic-backup** (`modules/rustic-backup.nix`, malandro): een engine-onafhankelijke, `juicefs load`-bare plaintext JSON-export van de JuiceFS/Nextcloud-metadata landt nu in de dagelijkse rustic→S3-snapshot — de tweede, format-onafhankelijke representatie die de spec al eiste maar die ontbrak (rustic had enkel de Postgres-schema-specifieke replica-dump).
   - Nieuwe oneshot `juicefs-meta-dump.service` draait `juicefs dump` tegen de lokale `juicefs_meta_replica`-DB (unix-socket peer-auth als `postgres`, géén nieuw secret) en schrijft `/var/backup/db/juicefs-meta-dump.json`.
   - Bewust niet live tegen bobadela1 (staat om 03:00 uit) en niet de `--backup-meta`-export uit S3 (die is client-side versleuteld → onbruikbare ciphertext). De Postgres-metadata is onversleuteld, dus de dump is schone JSON; juicefs scrubt zelf de S3-secret-key.
