@@ -1,11 +1,11 @@
 ---
 # nixos-rtcc
 title: 'Meeting-opname: inkomende audio + eigen microfoon (lobos)'
-status: in-progress
+status: completed
 type: epic
 priority: normal
 created_at: 2026-09-22T09:00:23Z
-updated_at: 2026-09-22T10:07:35Z
+updated_at: 2026-09-22T14:37:52Z
 ---
 
 Thematic container. Een CLI-opnamescript voor lobos dat van een meeting (Teams, Slack, Jitsi) zowel de inkomende audio als de eigen microfoon vastlegt.
@@ -56,3 +56,31 @@ onderbreking. Tijdens dezelfde sessie bleek bovendien dat node-id's vanzelf vers
 dat id's had vastgelegd, had die opname verloren.
 
 Nog te doen door de gebruiker: `home-manager switch` draaien om `meetrec` op het PATH te krijgen.
+
+
+## Summary of Changes
+
+Afgerond 2026-09-22. `home/module/meeting-record/` levert `meetrec` met
+start/stop/status/list/mix/transcribe; geïmporteerd in `flake.nix`, aangezet in
+`home/linux-desktop.nix`, live op lobos na `home-manager switch`.
+
+OpenSpec change `add-meeting-record` geïmplementeerd en gearchiveerd als
+`2026-09-22-add-meeting-record`; hoofdspec (8 requirements) in `openspec/specs/meeting-record/`.
+Commit `d32173a`.
+
+**Alle vier de architectuurbesluiten hielden stand in de praktijk:**
+- twee sporen zonder live mix -- rechtgezet door de allereerste echte opname, waarin bleek dat de
+  microfoon op speakers 29% van de tegenpartij meeving. Live mixen had dat onherstelbaar gemaakt;
+- geen apparaatnamen of node-id's -- node-id's verschoven tijdens het testen daadwerkelijk vanzelf;
+- geen klokdrift (gemeten 10,666 / 10,667 ms, constant);
+- rauw opnemen, comprimeren en transcriberen pas ná het gesprek.
+
+**Buiten scope gebleven, bewust:** `nixos-js5l` (automatische call-detectie) blijft draft/deferred
+-- het mechanisme is uitgezocht en vastgelegd, de vorm is een keuze die niet gemaakt is. En acp63
+in PipeWire krijgen is een losse kwestie.
+
+**Nevenopbrengst.** De switch die hierbij hoorde legde een latent defect bloot: de `unstable`-input
+pinde atuin 18.19.0 terwijl de draaiende generatie 18.21.0 gebruikte en de history-database al had
+gemigreerd, waardoor elke switch de terminal sloopte. Opgelost in `15a4cc2`. De dode
+root-`configuration.nix` die tijdens het onderzoek twee keer voor verwarring zorgde is weg in
+`97c637a`.
