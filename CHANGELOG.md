@@ -7,6 +7,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Meeting-opname** (`home/module/meeting-record/`, lobos): `meetrec` neemt beide kanten van een gesprek (Teams, Slack, Jitsi) op als twee gescheiden sporen.
+  - `meetrec start|stop|status|list|mix|transcribe`; een map per gesprek onder `~/Meetings/`.
+  - Inkomende audio via `stream.capture.sink=true` en de microfoon via de default source: geen apparaatnamen of node-id's in het script, dus een device-wissel midden in een gesprek wordt gevolgd.
+  - Rauwe WAV tijdens het gesprek, Opus 32k mono bij `stop` (~15 MB/uur in plaats van ~350 MB/uur), met `nice`/`ionice`.
+  - `mix` voegt de sporen desgewenst samen tot één bestand; de sporen blijven de bron van waarheid.
+  - `transcribe` draait whisper per spoor en levert één tijdgeordend transcript met sprekerlabels — sprekerscheiding komt uit de opnamestructuur, niet uit een diarisatiemodel.
+  - Neemt nooit uit zichzelf op: `start` is altijd een expliciete handeling.
 - **meet.jit.si-links openen in de Jitsi desktop-app** (`home/module/jitsi-open-in-app/`, lobos): een meeting-link uit Outlook Web of Slack landt nu in `jitsi-meet-electron` in plaats van in een Firefox-tab.
   - **Firefox kan dit niet zelf.** Hij handelt `https` altijd zelf af en kent geen per-domein externe handler, dus geen enkele pref, policy of `handlers.json`-truc lost dit op — de omzetting moet ín de pagina gebeuren. Vandaar een Tampermonkey-userscript; Tampermonkey stond al declaratief in de Firefox-policy, dus er kwam geen extensie bij. De rest van de keten bestond al: `jitsi-meet-electron.desktop` is geregistreerd voor `x-scheme-handler/jitsi-meet`, en de app pakt een tweede aanroep op via zijn singleInstanceLock.
   - **Eén mechanisme dekt beide bronnen.** Slack heeft geen eigen uitgang maar doet `xdg-open`, wat via `x-scheme-handler/https` bij Firefox uitkomt. Outlook Web zit al in een tab. Beide eindigen dus in dezelfde Firefox-tab, waardoor een OS-dispatcher als standaardbrowser overbodig is.
