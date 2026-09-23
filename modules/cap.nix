@@ -34,7 +34,10 @@ in
 
   systemd.tmpfiles.rules = [
     "d ${dataDir} 0755 root root - -"
-    "d ${dataDir}/valkey 0755 root root - -"
+    # Valkey draait in de container als uid 999; de data-map moet door die uid
+    # beschrijfbaar zijn, anders faalt de RDB-snapshot (Permission denied) en
+    # blokkeert Valkey alle writes (stop-writes-on-bgsave-error).
+    "d ${dataDir}/valkey 0755 999 999 - -"
   ];
 
   # Maak het user-defined netwerk aan zodat containers elkaar op naam vinden.
