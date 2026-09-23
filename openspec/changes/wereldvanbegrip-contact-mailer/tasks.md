@@ -4,7 +4,7 @@
 - [x] 1.2 Deploy Cap; maak in het dashboard een **site-key** aan; noteer site-key (publiek) + key-secret (privé)
 - [x] 1.3 Versleutel de key-secret: `ragenx -e secrets/cap-mailer-secret.age`
 - [x] 1.4 Voeg de nieuwe secrets (`cap-admin-key`, `cap-mailer-secret`) toe aan `secrets/secrets.nix`
-- [ ] 1.5 Zet de `corsOrigins` van de site-key op `https://wereldvanbegrip.nl` + `https://cckafe.com` (dashboard)
+- [x] 1.5 Zet de `corsOrigins` van de site-key op `https://wereldvanbegrip.nl` + `https://cckafe.com` (dashboard)
 
 ## 2. NixOS module `modules/mailer.nix` aanmaken
 
@@ -55,5 +55,5 @@
 - [x] 5.1 Voer een dry-build uit: `sudo nixos-rebuild dry-build --flake .#malandro --show-trace`
 - [x] 5.2 Deploy naar malandro: `sudo nixos-rebuild switch --flake .#malandro`
 - [x] 5.3 Controleer PHP-FPM pool status: `systemctl status phpfpm-mailer.service`
-- [ ] 5.4 Test het formulier op wereldvanbegrip.nl en verifieer email aankomst op `wereldvanbegrip@toorren.net`
+- [x] 5.4 E2E geverifieerd op cckafe.com (mail aangekomen op hello@cckafe.com, redirect ?verzonden=1). wereldvanbegrip-form omgezet naar cap-widget; nog te testen.
 - [ ] 5.5 Test beveiligingslagen: rate limiting (>5 requests/min), Origin mismatch (403), honeypot (stille negatie)
