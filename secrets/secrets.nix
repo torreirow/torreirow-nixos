@@ -90,6 +90,8 @@ in
 
   # Cap CAPTCHA (self-hosted): ADMIN_KEY env-file voor de standalone server
   "cap-admin-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  # Cap CAPTCHA: key-secret voor server-side siteverify vanuit de mailer
+  "cap-mailer-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;

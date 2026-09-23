@@ -1,19 +1,20 @@
-## 1. Cloudflare Turnstile inrichten (handmatig)
+## 1. Self-hosted Cap CAPTCHA inrichten
 
-- [ ] 1.1 Maak een nieuw Turnstile widget aan in het Cloudflare dashboard voor `wereldvanbegrip.nl`
-- [ ] 1.2 Kopieer de **Site Key** (publiek, voor de HTML) en de **Secret Key** (privé, voor PHP)
-- [ ] 1.3 Versleutel de secret key: `agenix -e secrets/turnstile-secret.age`
-- [x] 1.4 Voeg het nieuwe secret toe aan `secrets/secrets.nix` met de juiste public keys
+- [x] 1.1 Maak `modules/cap.nix` aan: Cap-server + Valkey (oci-containers), nginx-vhost `cap.toorren.net`, `ADMIN_KEY` via agenix env-file
+- [x] 1.2 Deploy Cap; maak in het dashboard een **site-key** aan; noteer site-key (publiek) + key-secret (privé)
+- [x] 1.3 Versleutel de key-secret: `ragenx -e secrets/cap-mailer-secret.age`
+- [x] 1.4 Voeg de nieuwe secrets (`cap-admin-key`, `cap-mailer-secret`) toe aan `secrets/secrets.nix`
+- [ ] 1.5 Zet de `corsOrigins` van de site-key op `https://wereldvanbegrip.nl` + `https://cckafe.com` (dashboard)
 
 ## 2. NixOS module `modules/mailer.nix` aanmaken
 
-- [x] 2.1 Maak `modules/mailer.nix` aan met NixOS module opties: `enable`, `recipients` (attrsOf str), `turnstileSecretFile`
+- [x] 2.1 Maak `modules/mailer.nix` aan met NixOS module opties: `enable`, `recipients` (attrsOf str), `capBaseUrl`, `capSiteKey`, `capSecretFile`
 - [x] 2.2 Voeg PHP-FPM pool toe aan de module (volg patroon van `modules/invoiceplane.nix`): minimale pool, user=nginx, php83 met curl en openssl extensies
 - [x] 2.3 Genereer het PHP contactformulier script via `pkgs.writeTextFile` met de volgende logica:
   - Laad recipients config uit een gegenereerd JSON-bestand (via `pkgs.writeText`)
   - Valideer Origin/Referer header tegen geconfigureerde domeinen (403 bij mismatch)
   - Controleer honeypot veld `website` (stil negeren als ingevuld)
-  - Valideer Cloudflare Turnstile token via `file_get_contents` naar de Turnstile API
+  - Valideer het Cap `cap-token` via een JSON siteverify-call naar `${capBaseUrl}/${capSiteKey}/siteverify`
   - Verstuur email via `mail()` naar het geconfigureerde ontvangst-emailadres
   - Redirect terug naar de referrer met een succesparameter
 - [x] 2.4 Voeg nginx vhost `mailer.toorren.net` toe aan de module:
@@ -31,8 +32,12 @@
   ```nix
   services.contactMailer = {
     enable = true;
-    recipients = { "wereldvanbegrip.nl" = "wereldvanbegrip@toorren.net"; };
-    turnstileSecretFile = config.age.secrets.turnstile-secret.path;
+    recipients = {
+      "wereldvanbegrip.nl" = "wereldvanbegrip@toorren.net";
+      "cckafe.com" = "hello@cckafe.com";
+    };
+    capSiteKey = "eaa5abea30";
+    capSecretFile = config.age.secrets.cap-mailer-secret.path;
   };
   ```
 - [x] 3.3 Voeg het agenix secret toe aan de malandro host configuratie
@@ -42,7 +47,7 @@
 - [x] 4.1 Voeg een contactformulier sectie toe aan `modules/nginx-wereldvanbegrip.nix` of de Hugo site bronbestanden:
   - Velden: `naam`, `email`, `bericht`
   - Honeypot veld `website` (verborgen via CSS, niet `display:none` voor screenreaders)
-  - Cloudflare Turnstile widget met de Site Key uit stap 1.2
+  - Cap-widget (`<cap-widget data-cap-api-endpoint="https://cap.toorren.net/<site-key>/">`) uit stap 1.2
   - `action="https://mailer.toorren.net/send"` en `method="POST"`
 
 ## 5. Testen en deployen

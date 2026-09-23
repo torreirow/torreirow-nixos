@@ -33,17 +33,21 @@ let
       }
       $toEmail = $recipients[$domain];
 
-      // Cloudflare Turnstile server-side validatie
-      $token = $_POST['cf-turnstile-response'] ?? "";
+      // Cap (self-hosted) server-side validatie.
+      // De widget levert een hidden veld 'cap-token'; wij verifiëren dat via
+      // de reCAPTCHA-achtige siteverify-API. Let op: deze Cap-versie gebruikt
+      // een JSON-body met het veld 'token' (niet 'response').
+      $token = $_POST['cap-token'] ?? "";
       if (empty($token)) {
           http_response_code(403);
           exit;
       }
-      $secretKey = trim(file_get_contents('${cfg.turnstileSecretFile}'));
-      $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+      $secretKey = trim(file_get_contents('${cfg.capSecretFile}'));
+      $ch = curl_init('${cfg.capBaseUrl}/${cfg.capSiteKey}/siteverify');
       curl_setopt_array($ch, [
           CURLOPT_POST           => true,
-          CURLOPT_POSTFIELDS     => http_build_query(['secret' => $secretKey, 'response' => $token]),
+          CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+          CURLOPT_POSTFIELDS     => json_encode(['secret' => $secretKey, 'token' => $token]),
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_TIMEOUT        => 10,
       ]);
@@ -94,10 +98,22 @@ in
       '';
     };
 
-    turnstileSecretFile = lib.mkOption {
+    capBaseUrl = lib.mkOption {
       type = lib.types.str;
-      description = "Pad naar het bestand met de Cloudflare Turnstile secret key (via agenix).";
-      example = "/run/secrets/turnstile-secret";
+      default = "https://cap.toorren.net";
+      description = "Basis-URL van de self-hosted Cap CAPTCHA-server.";
+    };
+
+    capSiteKey = lib.mkOption {
+      type = lib.types.str;
+      description = "Cap site-key (publiek) gebruikt in de siteverify-URL.";
+      example = "eaa5abea30";
+    };
+
+    capSecretFile = lib.mkOption {
+      type = lib.types.str;
+      description = "Pad naar het bestand met de Cap key-secret (via agenix).";
+      example = "/run/secrets/cap-mailer-secret";
     };
   };
 
