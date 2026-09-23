@@ -41,7 +41,7 @@ wereldvanbegrip.nl draait als statische Hugo site op malandro achter nginx. Mala
 
 ### Self-hosted Cap i.p.v. Cloudflare Turnstile
 
-**Keuze:** CAPTCHA-validatie via een self-hosted Cap-instance (`modules/cap.nix`: Cap-server + Valkey op malandro). De key-secret staat als `secrets/cap-mailer-secret.age`, ontsleuteld naar een pad via `age.secrets`; het PHP script doet een JSON siteverify-call (`{"secret","token"}`) naar `${capBaseUrl}/${capSiteKey}/siteverify`.
+**Keuze:** CAPTCHA-validatie via een self-hosted Cap-instance (`modules/cap.nix`: Cap-server + Valkey op malandro). De key-secret staat als `secrets/cap-mailer-secret.age`, ontsleuteld naar een pad via `age.secrets`; het PHP script doet een JSON siteverify-call (`{"secret","response"}`, waarbij het widget-token als `response` meegaat) naar `${capBaseUrl}/${capSiteKey}/siteverify`.
 
 **Reden:** Geen externe (Cloudflare) afhankelijkheid meer — proof-of-work + instrumentatie, privacy-first, volledig op eigen infra (consistent met de rest van de repo). Het secret wordt uit een bestand gelezen (niet via een environment variable) zodat het niet in de Nix store belandt. Kanttekening: de Cap site-key/secret worden eenmalig via het Cap-dashboard aangemaakt (niet declaratief).
 
