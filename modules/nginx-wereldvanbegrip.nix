@@ -1,8 +1,9 @@
 { config, pkgs, lib, ... }:
 
 let
-  # Vervang na stap 1.2 (Cloudflare dashboard → Turnstile → Site Key)
-  turnstileSiteKey = "0x4AAAAAADpt4F-inu2dVAOF";
+  # Self-hosted Cap CAPTCHA (zie modules/cap.nix). De site-key is publiek.
+  capApiEndpoint = "https://cap.toorren.net/eaa5abea30/";
+  capWidgetScript = "https://cdn.jsdelivr.net/npm/@cap.js/widget";
 
   contactHtml = pkgs.writeTextFile {
     name = "wereldvanbegrip-contact.html";
@@ -13,7 +14,7 @@ let
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Contact - Wereld van Begrip</title>
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        <script src="${capWidgetScript}" defer></script>
         <style>
           body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
           label { display: block; margin-top: 1rem; font-weight: bold; }
@@ -43,7 +44,7 @@ let
             <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
           </div>
 
-          <div class="cf-turnstile" data-sitekey="${turnstileSiteKey}"></div>
+          <cap-widget data-cap-api-endpoint="${capApiEndpoint}"></cap-widget>
 
           <button type="submit">Verstuur</button>
         </form>
