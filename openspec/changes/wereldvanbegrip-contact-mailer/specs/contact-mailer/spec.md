@@ -21,7 +21,7 @@ Het `/send` endpoint SHALL een traditionele HTML form POST (`application/x-www-f
 
 #### Scenario: Geldig formulier ingediend
 
-- **WHEN** een POST request binnenkomt van een toegestaan domein met geldige Turnstile token, leeg honeypot veld, en gevulde velden naam/email/bericht
+- **WHEN** een POST request binnenkomt van een toegestaan domein met geldige Cap token, leeg honeypot veld, en gevulde velden naam/email/bericht
 - **THEN** verstuurt het script een email via `mail()` naar het geconfigureerde ontvangst-adres voor dat domein
 - **THEN** geeft het script een HTTP 200 terug met bevestigingstekst of redirect
 
@@ -44,18 +44,18 @@ Het PHP script MUST de `HTTP_ORIGIN` of `HTTP_REFERER` header valideren tegen de
 - **WHEN** de Origin header niet overeenkomt met een geconfigureerd domein
 - **THEN** geeft het script HTTP 403 terug en verstuurt geen email
 
-### Requirement: Cloudflare Turnstile token wordt server-side gevalideerd
+### Requirement: Cap (self-hosted) token wordt server-side gevalideerd
 
-Het PHP script MUST het `cf-turnstile-response` token server-side valideren via de Cloudflare Turnstile API (`https://challenges.cloudflare.com/turnstile/v0/siteverify`) met de secret key uit `turnstileSecretFile`. Requests zonder geldig token MUST geweigerd worden.
+Het PHP script MUST het `cap-token` (geleverd door de Cap-widget) server-side valideren via de self-hosted Cap siteverify-API (`${capBaseUrl}/${capSiteKey}/siteverify`) met de key-secret uit `capSecretFile`. De request MUST een JSON-body `{"secret": ..., "token": ...}` met `Content-Type: application/json` gebruiken. Requests zonder geldig token MUST geweigerd worden.
 
-#### Scenario: Geldig Turnstile token
+#### Scenario: Geldig Cap token
 
-- **WHEN** het `cf-turnstile-response` veld aanwezig is en de Cloudflare API bevestigt het token als geldig
+- **WHEN** het `cap-token` veld aanwezig is en de Cap siteverify-API `success: true` teruggeeft
 - **THEN** gaat het script door met verwerking van het formulier
 
 #### Scenario: Ontbrekend of ongeldig token
 
-- **WHEN** het token ontbreekt of de Cloudflare API geeft `success: false` terug
+- **WHEN** het token ontbreekt of de Cap siteverify-API geeft `success: false` terug
 - **THEN** geeft het script HTTP 403 terug en verstuurt geen email
 
 ### Requirement: Nginx rate limiting beperkt POST requests per IP

@@ -46,6 +46,14 @@
         group = "nginx";
         mode = "0400";
       };
+      # Cap CAPTCHA key-secret voor server-side siteverify vanuit de mailer
+      cap-mailer-secret = {
+        file = ../../secrets/cap-mailer-secret.age;
+        path = "/run/secrets/cap-mailer-secret";
+        owner = "nginx";
+        group = "nginx";
+        mode = "0400";
+      };
 };
   };
 
