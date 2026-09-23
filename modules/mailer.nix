@@ -12,8 +12,13 @@ let
           exit;
       }
 
+      // TIJDELIJKE diagnostiek: log de beslissings-relevante feiten (geen PII-waarden,
+      // alleen lengtes/origin) zodat we zien op welke tak het formulier strandt.
+      error_log("mailer-dbg: origin='" . ($_SERVER['HTTP_ORIGIN'] ?? "") . "' referer='" . ($_SERVER['HTTP_REFERER'] ?? "") . "' website_len=" . strlen($_POST['website'] ?? "") . " captoken_len=" . strlen($_POST['cap-token'] ?? "") . " email_len=" . strlen($_POST['email'] ?? "") . " naam_len=" . strlen($_POST['naam'] ?? "") . " bericht_len=" . strlen($_POST['bericht'] ?? ""));
+
       // Honeypot: stil negeren als het veld ingevuld is
       if (!empty($_POST['website'])) {
+          error_log("mailer-dbg: honeypot getriggerd (website ingevuld)");
           http_response_code(200);
           exit;
       }
@@ -28,6 +33,7 @@ let
       }
       $domain = parse_url($origin, PHP_URL_HOST) ?: "";
       if (!array_key_exists($domain, $recipients)) {
+          error_log("mailer-dbg: origin geweigerd domain='" . $domain . "'");
           http_response_code(403);
           exit;
       }
@@ -39,6 +45,7 @@ let
       // een JSON-body met het veld 'token' (niet 'response').
       $token = $_POST['cap-token'] ?? "";
       if (empty($token)) {
+          error_log("mailer-dbg: cap-token ontbreekt");
           http_response_code(403);
           exit;
       }
@@ -135,6 +142,8 @@ in
         extraConfig = ''
           sendmail_path = ${pkgs.postfix}/bin/sendmail -t -i
           allow_url_fopen = On
+          log_errors = On
+          error_log = /dev/stderr
         '';
       };
 
@@ -144,6 +153,8 @@ in
         "pm" = "ondemand";
         "pm.max_children" = 5;
         "pm.process_idle_timeout" = "10s";
+        # Zodat PHP error_log()-regels in journald (phpfpm-mailer) verschijnen.
+        "catch_workers_output" = "yes";
       };
     };
 
