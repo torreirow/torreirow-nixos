@@ -50,10 +50,17 @@ let
           CURLOPT_POSTFIELDS     => json_encode(['secret' => $secretKey, 'token' => $token]),
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_TIMEOUT        => 10,
+          // PHP-FPM heeft geen SSL_CERT_FILE in de omgeving; geef de CA-bundle
+          // expliciet mee zodat de HTTPS-call naar Cap niet op SSL-verificatie faalt.
+          CURLOPT_CAINFO         => '${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt',
       ]);
-      $result = json_decode(curl_exec($ch), true);
+      $raw      = curl_exec($ch);
+      $curlErr  = curl_error($ch);
+      $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       curl_close($ch);
+      $result = json_decode($raw, true);
       if (!($result['success'] ?? false)) {
+          error_log("mailer: Cap siteverify faalde http=$httpCode curl=\"$curlErr\" body=" . substr((string)$raw, 0, 300));
           http_response_code(403);
           exit;
       }
