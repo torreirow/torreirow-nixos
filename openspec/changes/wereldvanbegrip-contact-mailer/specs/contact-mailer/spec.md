@@ -46,7 +46,7 @@ Het PHP script MUST de `HTTP_ORIGIN` of `HTTP_REFERER` header valideren tegen de
 
 ### Requirement: Cap (self-hosted) token wordt server-side gevalideerd
 
-Het PHP script MUST het `cap-token` (geleverd door de Cap-widget) server-side valideren via de self-hosted Cap siteverify-API (`${capBaseUrl}/${capSiteKey}/siteverify`) met de key-secret uit `capSecretFile`. De request MUST een JSON-body `{"secret": ..., "token": ...}` met `Content-Type: application/json` gebruiken. Requests zonder geldig token MUST geweigerd worden.
+Het PHP script MUST het `cap-token` (geleverd door de Cap-widget) server-side valideren via de self-hosted Cap siteverify-API (`${capBaseUrl}/${capSiteKey}/siteverify`) met de key-secret uit `capSecretFile`. De request MUST een JSON-body `{"secret": ..., "response": ...}` (het widget-token gaat mee als `response`) met `Content-Type: application/json` gebruiken. Requests zonder geldig token MUST geweigerd worden.
 
 #### Scenario: Geldig Cap token
 

@@ -12,13 +12,8 @@ let
           exit;
       }
 
-      // TIJDELIJKE diagnostiek: log de beslissings-relevante feiten (geen PII-waarden,
-      // alleen lengtes/origin) zodat we zien op welke tak het formulier strandt.
-      error_log("mailer-dbg: origin='" . ($_SERVER['HTTP_ORIGIN'] ?? "") . "' referer='" . ($_SERVER['HTTP_REFERER'] ?? "") . "' website_len=" . strlen($_POST['website'] ?? "") . " captoken_len=" . strlen($_POST['cap-token'] ?? "") . " email_len=" . strlen($_POST['email'] ?? "") . " naam_len=" . strlen($_POST['naam'] ?? "") . " bericht_len=" . strlen($_POST['bericht'] ?? ""));
-
       // Honeypot: stil negeren als het veld ingevuld is
       if (!empty($_POST['website'])) {
-          error_log("mailer-dbg: honeypot getriggerd (website ingevuld)");
           http_response_code(200);
           exit;
       }
@@ -33,7 +28,6 @@ let
       }
       $domain = parse_url($origin, PHP_URL_HOST) ?: "";
       if (!array_key_exists($domain, $recipients)) {
-          error_log("mailer-dbg: origin geweigerd domain='" . $domain . "'");
           http_response_code(403);
           exit;
       }
@@ -41,11 +35,10 @@ let
 
       // Cap (self-hosted) server-side validatie.
       // De widget levert een hidden veld 'cap-token'; wij verifiëren dat via
-      // de reCAPTCHA-achtige siteverify-API. Let op: deze Cap-versie gebruikt
-      // een JSON-body met het veld 'token' (niet 'response').
+      // de reCAPTCHA-compatibele siteverify-API met een JSON-body
+      // {"secret", "response"} (het token gaat mee als 'response').
       $token = $_POST['cap-token'] ?? "";
       if (empty($token)) {
-          error_log("mailer-dbg: cap-token ontbreekt");
           http_response_code(403);
           exit;
       }
@@ -54,7 +47,7 @@ let
       curl_setopt_array($ch, [
           CURLOPT_POST           => true,
           CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-          CURLOPT_POSTFIELDS     => json_encode(['secret' => $secretKey, 'token' => $token]),
+          CURLOPT_POSTFIELDS     => json_encode(['secret' => $secretKey, 'response' => $token]),
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_TIMEOUT        => 10,
           // PHP-FPM heeft geen SSL_CERT_FILE in de omgeving; geef de CA-bundle
