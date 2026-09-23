@@ -7,9 +7,21 @@ let
     name = "mailer-send.php";
     text = ''
       <?php
-      if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-          http_response_code(405);
+      // Nette foutpagina i.p.v. een blanco response.
+      function fail($code, $msg) {
+          http_response_code($code);
+          header("Content-Type: text/html; charset=UTF-8");
+          $back = htmlspecialchars($_SERVER['HTTP_REFERER'] ?? "/", ENT_QUOTES);
+          $safe = htmlspecialchars($msg, ENT_QUOTES);
+          echo "<!doctype html><html lang=\"nl\"><head><meta charset=\"utf-8\">";
+          echo "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Formulier</title>";
+          echo "<style>body{font-family:sans-serif;max-width:600px;margin:3rem auto;padding:0 1rem;line-height:1.6;color:#141414}a{color:#2563eb}</style>";
+          echo "</head><body><p>" . $safe . "</p><p><a href=\"" . $back . "\">&larr; Ga terug / Go back</a></p></body></html>";
           exit;
+      }
+
+      if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+          fail(405, "Ongeldig verzoek. / Invalid request.");
       }
 
       // Honeypot: stil negeren als het veld ingevuld is
@@ -28,8 +40,7 @@ let
       }
       $domain = parse_url($origin, PHP_URL_HOST) ?: "";
       if (!array_key_exists($domain, $recipients)) {
-          http_response_code(403);
-          exit;
+          fail(403, "Verzoek geweigerd. / Request denied.");
       }
       $toEmail = $recipients[$domain];
 
@@ -39,8 +50,7 @@ let
       // {"secret", "response"} (het token gaat mee als 'response').
       $token = $_POST['cap-token'] ?? "";
       if (empty($token)) {
-          http_response_code(403);
-          exit;
+          fail(403, "Bevestig eerst dat je geen robot bent. / Please confirm you're human first.");
       }
       $secretKey = trim(file_get_contents('${cfg.capSecretFile}'));
       $ch = curl_init('${cfg.capBaseUrl}/${cfg.capSiteKey}/siteverify');
@@ -61,8 +71,7 @@ let
       $result = json_decode($raw, true);
       if (!($result['success'] ?? false)) {
           error_log("mailer: Cap siteverify faalde http=$httpCode curl=\"$curlErr\" body=" . substr((string)$raw, 0, 300));
-          http_response_code(403);
-          exit;
+          fail(403, "Verificatie mislukt. Probeer het opnieuw. / Verification failed. Please try again.");
       }
 
       // Valideer verplichte velden
@@ -70,8 +79,7 @@ let
       $email   = filter_var(trim($_POST['email'] ?? ""), FILTER_VALIDATE_EMAIL);
       $bericht = strip_tags(trim($_POST['bericht'] ?? ""));
       if (empty($naam) || !$email || empty($bericht)) {
-          http_response_code(400);
-          exit;
+          fail(400, "Vul alle verplichte velden in. / Please fill in all required fields.");
       }
 
       // Verstuur via Postfix (lokale MTA)
