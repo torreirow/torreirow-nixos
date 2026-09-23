@@ -46,6 +46,7 @@
  ../../modules/vaultwarden.nix
  ../../modules/wg.nix
  ../../modules/bento-pdf.nix
+ ../../modules/cap.nix
  ../../modules/docseal.nix
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
