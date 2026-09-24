@@ -319,6 +319,7 @@
          ./home/module/notify-signal
          ./home/module/staleness-monitor
          ./home/module/jitsi-open-in-app
+         ./home/module/meeting-record
          ./home/sshkeys.nix
          ./home/module/opencode.nix
          ./home/module/onlyoffice-fonts.nix
