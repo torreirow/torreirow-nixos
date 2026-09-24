@@ -119,6 +119,11 @@ in {
       group = cfg.group;
       home = cfg.workingDirectory;
       createHome = true;
+      # De working-dir is óók de nginx-feed-root: nginx (in de magister-groep) moet
+      # kunnen traversen. users-activation chmod't home elke `nixos-rebuild switch`
+      # naar homeMode; default 0700 zette dat telkens terug → agenda.toorren.net 401.
+      # 0750 laat de activatie mét de tmpfiles-regel (regel ~134) meebewegen i.p.v. tegen.
+      homeMode = "0750";
       description = "Magister sync service user";
       extraGroups = [ "wheel" "postdrop" ];  # postdrop nodig voor email verzending
     };

@@ -121,6 +121,30 @@ let
     mv -f "$tmp" "$out"
   '';
 
+  # Engine-onafhankelijke JuiceFS-metadata-dump (plaintext JSON, `juicefs load`-baar).
+  #
+  # Waarom niet de S3 `--backup-meta`-export overnemen: die objecten zijn client-side
+  # VERSLEUTELD (aes256gcm-rsa) → een rauwe kopie is ciphertext, geen bruikbare JSON.
+  # Waarom niet live tegen bobadela1: die staat om 03:00 uit (nightly-shutdown 23:00).
+  #
+  # Dus dumpen we uit de lokaal gerepliceerde metadata-DB `juicefs_meta_replica`. De
+  # metadata-engine (Postgres) is NIET versleuteld, dus `juicefs dump` levert schone
+  # JSON. Auth via unix-socket peer-auth als de `postgres`-OS-gebruiker (geen secret):
+  # root opent de output-fd (`> "$tmp"` in de protected staging-dir), postgres schrijft
+  # erin — zelfde patroon als pg-dump. juicefs scrubt zelf de secret-key uit de JSON.
+  juicefsMetaDumpScript = pkgs.writeShellScript "juicefs-meta-dump" ''
+    set -euo pipefail
+    umask 077
+    tmp="${stagingDir}/juicefs-meta-dump.json.tmp"
+    out="${stagingDir}/juicefs-meta-dump.json"
+    ${pkgs.util-linux}/bin/runuser -u postgres -- \
+      ${pkgs.juicefs}/bin/juicefs dump \
+      "postgres://postgres@/juicefs_meta_replica?host=/run/postgresql&sslmode=disable" \
+      > "$tmp"
+    ${pkgs.jq}/bin/jq -e '.Setting.Name' "$tmp" >/dev/null  # valideer JSON vóór publish
+    mv -f "$tmp" "$out"
+  '';
+
   backupScript = pkgs.writeShellScript "rustic-backup" ''
     set -euo pipefail
     cd ${configDir}
@@ -176,6 +200,8 @@ in
   systemd.services.pg-dump = dumpService "pg-dump" pgDumpScript;
   systemd.services.mariadb-dump = dumpService "mariadb-dump" mariadbDumpScript;
   systemd.services.vaultwarden-dump = dumpService "vaultwarden-dump" vaultwardenDumpScript;
+  # JuiceFS-metadata-dump uit de lokale replica (peer-auth als postgres, geen secret).
+  systemd.services.juicefs-meta-dump = dumpService "juicefs-meta-dump" juicefsMetaDumpScript;
 
   ###### Hoofd-backup-service ######
   systemd.services.rustic-backup = {
@@ -184,12 +210,14 @@ in
       "pg-dump.service"
       "mariadb-dump.service"
       "vaultwarden-dump.service"
+      "juicefs-meta-dump.service"
       "network-online.target"
     ];
     wants = [
       "pg-dump.service"
       "mariadb-dump.service"
       "vaultwarden-dump.service"
+      "juicefs-meta-dump.service"
       "network-online.target"
     ];
     onFailure = [ "rustic-notify@rustic-backup.service" ];
