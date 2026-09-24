@@ -92,6 +92,18 @@ services.staleness-monitor = {
   };
 };
 
+# Meeting-opname: beide kanten van een gesprek als twee sporen
+# (module: home/module/meeting-record). Neemt nooit uit zichzelf op --
+# `meetrec start` is altijd een expliciete handeling.
+services.meeting-record = {
+  enable = true;
+  # targetDir       = "~/Meetings";  # default
+  # opusBitrate     = "32k";         # spraak; ~15 MB/uur per spoor
+  # mixWeights      = "1 1";         # volgorde: anderen ik
+  # whisperModel    = "turbo";
+  # whisperLanguage = "nl";
+};
+
 services.remarkable-sync = {
   enable = true;
   # Een slapend/losgekoppeld apparaat is exit 0, dus dit vuurt alleen bij een
