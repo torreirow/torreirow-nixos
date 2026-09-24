@@ -72,6 +72,12 @@ let
       WHISPER_CMD=${shq cfg.whisperCommand}
       WHISPER_MODEL=${shq cfg.whisperModel}
       WHISPER_LANGUAGE=${shq cfg.whisperLanguage}
+      ECHO_FILTER=${if cfg.echoFilter.enable then "1" else "0"}
+      ECHO_WINDOW=${shq cfg.echoFilter.window}
+      ECHO_THRESHOLD=${shq cfg.echoFilter.threshold}
+      SUMMARIZE_CMD=${shq cfg.summarizeCommand}
+      SUMMARIZE_ARGS=(${concatMapStringsSep " " shq cfg.summarizeArgs})
+      SUMMARIZE_PROMPT=${shq cfg.summarizePrompt}
       WANT_INCOMING=${if cfg.incoming.enable then "1" else "0"}
       WANT_MIC=${if cfg.mic.enable then "1" else "0"}
 
@@ -96,8 +102,10 @@ let
         meetrec list               afgeronde opnames
         meetrec mix [map]          voeg de twee sporen samen tot één bestand
         meetrec transcribe [map]   whisper per spoor + samengevoegd transcript
+        meetrec summarize [map]    vat transcript.txt samen tot summary.md
 
-      Zonder [map] pakken mix en transcribe de nieuwste opname.
+      Zonder [map] pakken mix, transcribe en summarize de nieuwste opname;
+      [map] mag een pad zijn of een naam zoals `meetrec list` die toont.
       USAGE
       }
 
@@ -345,19 +353,27 @@ let
           if [ -f "$dir/ik.opus" ]; then bits="$bits ik"; fi
           if [ -f "$dir/meeting.opus" ]; then bits="$bits mix"; fi
           if [ -f "$dir/transcript.txt" ]; then bits="$bits transcript"; fi
+          if [ -f "$dir/summary.md" ]; then bits="$bits samenvatting"; fi
           if [ -z "$bits" ]; then bits=" (leeg)"; fi
           printf '  %-28s %s\n' "$(basename "$dir")" "''${bits# }"
         done < <(find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -type d | sort)
         [ "$found" = 1 ] || echo "meetrec: nog geen opnames in $TARGET_DIR"
       }
 
-      # Zonder argument: de nieuwste opname.
+      # Zonder argument: de nieuwste opname. Met argument: een pad, of --
+      # zoals `meetrec list` ze toont -- een kale naam onder $TARGET_DIR.
       resolve_dir() {
         local given="''${1:-}"
         if [ -n "$given" ]; then
-          [ -d "$given" ] || die "$given bestaat niet"
-          printf '%s' "$given"
-          return 0
+          if [ -d "$given" ]; then
+            printf '%s' "$given"
+            return 0
+          fi
+          if [ -d "$TARGET_DIR/$given" ]; then
+            printf '%s' "$TARGET_DIR/$given"
+            return 0
+          fi
+          die "$given bestaat niet (gezocht als pad en als $TARGET_DIR/$given)"
         fi
         local newest
         newest=$(find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort | tail -1)
@@ -405,10 +421,47 @@ let
         done
         [ "$found" = 1 ] || die "geen .opus-sporen in $dir -- is de opname gestopt?"
 
+        # Het filter draait op de samenvoeging, niet op de .srt's: die blijven
+        # staan als origineel waar het transcript uit te herleiden is.
+        local merge_args=()
+        if [ "$ECHO_FILTER" = 1 ]; then
+          merge_args+=(--echo-track ik --echo-window "$ECHO_WINDOW" --echo-threshold "$ECHO_THRESHOLD")
+        fi
+
         python3 ${mergeScript} \
           --track "ik=$dir/ik.srt" \
           --track "anderen=$dir/anderen.srt" \
-          --output "$dir/transcript.txt"
+          --output "$dir/transcript.txt" \
+          "''${merge_args[@]}"
+      }
+
+      cmd_summarize() {
+        local dir
+        dir=$(resolve_dir "''${1:-}")
+        local transcript="$dir/transcript.txt" out="$dir/summary.md"
+
+        [ -f "$transcript" ] \
+          || die "$transcript ontbreekt -- draai eerst: meetrec transcribe $(basename "$dir")"
+        command -v "$SUMMARIZE_CMD" >/dev/null 2>&1 \
+          || die "$SUMMARIZE_CMD niet gevonden -- zie services.meeting-record.summarizeCommand"
+
+        # Naar een tijdelijk bestand en pas bij succes op zijn plek, zodat een
+        # afgebroken run geen halve samenvatting achterlaat waar de vorige stond.
+        local tmp="$out.tmp"
+        if ! nice -n 15 "$SUMMARIZE_CMD" "''${SUMMARIZE_ARGS[@]}" "$SUMMARIZE_PROMPT" \
+             <"$transcript" >"$tmp"; then
+          rm -f "$tmp"
+          die "samenvatten mislukt -- $transcript is ongemoeid gebleven"
+        fi
+        if [ ! -s "$tmp" ]; then
+          rm -f "$tmp"
+          die "$SUMMARIZE_CMD gaf niets terug"
+        fi
+        mv "$tmp" "$out"
+
+        echo "meetrec: $out geschreven ($(human_size "$out"))"
+        echo
+        cat "$out"
       }
 
       main() {
@@ -424,6 +477,7 @@ let
           list)       cmd_list ;;
           mix)        cmd_mix "''${1:-}" ;;
           transcribe) cmd_transcribe "''${1:-}" ;;
+          summarize)  cmd_summarize "''${1:-}" ;;
           -h|--help|help) usage ;;
           *)          usage >&2; die "onbekend commando: $cmd" ;;
         esac
@@ -523,6 +577,101 @@ in
       description = ''
         Taal die aan whisper wordt doorgegeven. Leeg laten betekent: whisper laten
         raden.
+      '';
+    };
+
+    echoFilter = {
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Schrap bij `meetrec transcribe` uit het spoor `ik` wat van `anderen` is
+          overgesproken. Zat je op speakers, dan heeft je microfoon de tegenpartij
+          meegenomen en staan hun zinnen twee keer in het transcript -- één keer
+          goed en één keer als "ik".
+
+          Overspraak gaat maar één kant op: meeting-apps spelen je eigen microfoon
+          niet terug naar de sink (dat zou echoën), dus `anderen` blijft altijd
+          ongemoeid. De losse `.srt`-bestanden worden ook niet aangeraakt; alleen
+          `transcript.txt` wordt gefilterd.
+
+          Dit blijft een heuristiek op de tekst, geen echo-onderdrukking op de
+          audio. Een headset lost het probleem bij de bron op.
+        '';
+      };
+
+      window = mkOption {
+        type = types.float;
+        default = 3.0;
+        description = ''
+          Speling in seconden bij het zoeken naar overlap in de tijd. Whisper knipt
+          de twee sporen onafhankelijk van elkaar, dus de blokgrenzen liggen niet
+          gelijk en een harde overlap-toets is te streng.
+        '';
+      };
+
+      threshold = mkOption {
+        type = types.float;
+        default = 0.65;
+        description = ''
+          Vanaf welke woordovereenkomst (0..1) een regel als overspraak telt. Op de
+          proefopname van 2026-09-24 scoorde eigen inbreng 0.00--0.50 en overspraak
+          0.70--1.00; 0.65 ligt midden in dat gat.
+
+          Hoger zetten is de veilige kant op: een blijven staan gemiste regel is
+          een dubbele zin, een ten onrechte geschrapte regel is verloren inbreng.
+          Korte bevestigingen ("ja", "oké") zijn niet van overspraak te
+          onderscheiden en verdwijnen mee.
+        '';
+      };
+    };
+
+    summarizeCommand = mkOption {
+      type = types.str;
+      default = "claude";
+      description = ''
+        Commando voor `meetrec summarize`, gezocht op `$PATH`. Krijgt het transcript
+        op stdin en moet de samenvatting op stdout schrijven.
+
+        Let op: de standaard stuurt de inhoud van je gesprek naar een externe
+        dienst. Wil je dat niet, zet hier dan een lokaal model neer (bijvoorbeeld
+        `ollama` met bijpassende `summarizeArgs`) of laat `summarize` ongebruikt.
+      '';
+    };
+
+    summarizeArgs = mkOption {
+      type = types.listOf types.str;
+      default = [ "-p" ];
+      example = [ "run" "llama3" ];
+      description = ''
+        Argumenten vóór de prompt. De prompt wordt er als laatste argument achter
+        geplakt, dus de aanroep is `<command> <args...> <prompt>` met het transcript
+        op stdin.
+      '';
+    };
+
+    summarizePrompt = mkOption {
+      type = types.lines;
+      default = ''
+        Vat dit vergadertranscript samen in het Nederlands.
+
+        Het transcript komt uit twee los opgenomen sporen. Regels met [ik] zijn van
+        mij, regels met [anderen] van de gesprekspartner(s). De tekst komt uit
+        automatische spraakherkenning, dus namen en vaktermen kunnen verhaspeld
+        zijn.
+
+        Geef in deze volgorde:
+        1. Een korte alinea: waar ging het gesprek over?
+        2. "Besluiten" -- wat is er afgesproken, als lijst. Laat de kop weg als er
+           niets besloten is.
+        3. "Actiepunten" -- wie doet wat, als lijst. Laat de kop weg als er geen
+           actiepunten zijn.
+
+        Verzin niets bij. Staat iets niet duidelijk in het transcript, schrijf dan
+        op dat het onduidelijk is.
+      '';
+      description = ''
+        Prompt die als laatste argument aan `summarizeCommand` wordt meegegeven.
       '';
     };
   };

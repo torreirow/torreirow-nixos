@@ -10,6 +10,9 @@ services.meeting-record = {
   # mixWeights      = "1 1";         # volgorde: anderen ik
   # whisperModel    = "turbo";
   # whisperLanguage = "nl";
+  # echoFilter.enable    = true;    # zie "Overspraak van de speakers"
+  # echoFilter.threshold = 0.65;
+  # summarizeCommand = "claude";    # zie "Samenvatten"
 };
 ```
 
@@ -20,7 +23,10 @@ meetrec stop               # stop, comprimeer naar Opus, ruim de WAV's op
 meetrec list               # afgeronde opnames
 meetrec mix [map]          # voeg de twee sporen samen tot één bestand
 meetrec transcribe [map]   # whisper per spoor + samengevoegd transcript
+meetrec summarize [map]    # vat transcript.txt samen tot summary.md
 ```
+
+`[map]` mag een pad zijn of de kale naam zoals `meetrec list` die toont.
 
 ## Waarom twee sporen
 
@@ -104,6 +110,61 @@ Automatische call-detectie is technisch goed te doen -- een `Stream/Input/Audio`
 een app nú de microfoon afneemt, en `application.process.binary` geeft betrouwbaar `slack` /
 `electron` / `firefox` (waar `application.name` voor élke Electron-app "Chromium input" zegt) --
 maar een dienst die ongevraagd elk gesprek opneemt is geen detail. Zie bean `nixos-js5l`.
+
+## Overspraak van de speakers
+
+Zat je op speakers, dan heeft je microfoon de tegenpartij meegenomen en staan hun zinnen twee
+keer in het transcript -- één keer goed onder `anderen`, één keer als `ik`. Uit een echte opname:
+
+```
+[00:00:18] [anderen] So there is another role called landing zone DevOps user, which tech native
+                     users and mustard user, they both can assume.
+[00:00:18] [ik     ] So there is another role called landing zone DevOps user,
+[00:00:22] [ik     ] which technical users and musterive users, they both can assume.
+```
+
+`meetrec transcribe` schrapt dat bij het samenvoegen: een `ik`-regel valt af als hij in de tijd
+overlapt met wat `anderen` zegt én grotendeels uit dezelfde woorden bestaat. **Het gaat maar één
+kant op** -- meeting-apps spelen je eigen microfoon niet terug naar de sink, dus er wordt nooit
+iets uit `anderen` geschrapt.
+
+De vergelijking is *containment* (welk deel van de `ik`-regel komt in `anderen` terug), niet
+`SequenceMatcher.ratio()`. Dat is wezenlijk: whisper knipt de twee sporen onafhankelijk, dus één
+blok bij `anderen` komt bij `ik` terug als twee halve blokken. Die halve blokken scoren op `ratio()`
+juist láág, precies waar het filter moet werken -- zie het voorbeeld hierboven.
+
+Gemeten op de opname van 2026-09-24 (21 `ik`-regels), score per regel:
+
+| Wat het is    | Score       | Voorbeeld                                                  |
+|---------------|-------------|------------------------------------------------------------|
+| eigen inbreng | 0.00 - 0.50 | "Yeah, and also there's a user, Hamid." (0.12)              |
+| overspraak    | 0.70 - 1.00 | "That's not possible because the trust policy..." (1.00)    |
+
+De standaarddrempel van 0.65 ligt midden in dat gat. Hoger zetten is de veilige kant op: een
+gemiste regel is een dubbele zin, een ten onrechte geschrapte regel is verloren inbreng.
+
+**Wat dit niet is:** echo-onderdrukking op de audio. Het filter werkt op tekst, ná whisper. Korte
+bevestigingen ("ja", "oké", "bye") zijn niet van overspraak te onderscheiden en verdwijnen mee.
+De losse `.srt`-bestanden worden nooit aangeraakt, dus het ongefilterde origineel blijft staan.
+Bij de bron oplossen doe je met een headset.
+
+## Samenvatten
+
+`meetrec summarize` duwt `transcript.txt` door `summarizeCommand` en schrijft `summary.md`. De
+standaard is `claude -p` met een Nederlandse prompt die om onderwerp, besluiten en actiepunten
+vraagt, en die expliciet zegt niets bij te verzinnen.
+
+> **Let op:** de standaard stuurt de inhoud van je gesprek naar een externe dienst. Wil je dat
+> niet, zet dan `summarizeCommand` op een lokaal model (met bijpassende `summarizeArgs`) of laat
+> `summarize` ongebruikt. Het commando draait alleen als je het zelf aanroept -- `transcribe` doet
+> dit niet uit zichzelf.
+
+Het commando krijgt het transcript op stdin en moet de samenvatting op stdout schrijven; de
+aanroep is `<summarizeCommand> <summarizeArgs...> <summarizePrompt>`. De samenvatting gaat eerst
+naar een tijdelijk bestand en pas bij succes op zijn plek, zodat een afgebroken run geen halve
+`summary.md` achterlaat.
+
+`claude` zit bewust niet in `runtimeInputs`, net zomin als whisper: het komt van `$PATH`.
 
 ## Testen
 
