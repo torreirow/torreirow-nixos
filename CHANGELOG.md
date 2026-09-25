@@ -12,6 +12,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - **Een eigen werkmap, los van de Hugo-build.** Die build doet elke drie minuten `reset --hard` + `clean -fdx` op zíjn checkout; een net geschreven agent-notitie is daar een untracked bestand en zou stil gewist worden. Beide werkmappen praten via GitHub, waardoor een agent-notitie binnen ongeveer vier minuten ook op de website staat.
   - Bidirectionele git-sync met een aparte read/write deploy key — de sleutel van de Hugo-build blijft bewust read-only, want een proces dat zijn werkmap leegveegt hoort niet te kunnen pushen.
   - Bearer-tokens per client (`claude-web`, `claude-mobile`), gehasht opgeslagen, apart in te trekken. De vhost staat bewust niet achter Authelia: een MCP-client stuurt alleen een token en volgt geen loginredirect.
+  - De nginx-vhost zet `Host` bewust op `localhost`. De MCP-SDK zet DNS-rebinding-bescherming automatisch aan voor een server die op loopback luistert en antwoordt anders 403 op elke `/mcp`-call, ook met een geldig token — terwijl `/healthz` gewoon 200 blijft.
   - Achtergrond, valkuilen en het roteren van tokens: `docs/linny-mcp.md`.
 - **Meeting-opname** (`home/module/meeting-record/`, lobos): `meetrec` neemt beide kanten van een gesprek (Teams, Slack, Jitsi) op als twee gescheiden sporen.
   - `meetrec start|stop|status|list|mix|transcribe|summarize`; een map per gesprek onder `~/Meetings/`.
