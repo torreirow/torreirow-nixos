@@ -153,12 +153,15 @@ in
 
       cacheTtl = mkOption {
         type = types.str;
-        default = "60";
+        default = "5";
         description = ''
-          Hoe lang een geldig bevonden token wordt onthouden (seconden). Een
-          MCP-sessie doet veel aanroepen; zonder cache kost elke tool-call een
-          introspection-ronde. Keerzijde: een ingetrokken token blijft zo lang
-          bruikbaar.
+          Hoe lang een geldig bevonden token wordt onthouden (seconden). Dit is
+          precies het venster waarin een INGETROKKEN token nog bruikbaar blijft,
+          dus kort houden.
+
+          Stond eerst op 60, omdat een introspection 164 ms kostte. Daarvan was
+          163 ms de argon2-verificatie van het clientgeheim; met goedkopere
+          hash-parameters (zie modules/authelia.nix) verdween die reden.
         '';
       };
 
