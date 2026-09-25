@@ -17,6 +17,7 @@
     ./mail.nix
     ./midi.nix
     ./security-hardening.nix
+    ./suspend-wakeup.nix
     ./remarkable-network.nix
 #   ../../modules/monitoring
     ../../modules/teamviewer.nix
