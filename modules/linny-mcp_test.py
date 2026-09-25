@@ -51,6 +51,7 @@ in {
   oidcLocaties   = builtins.attrNames oidcVhost.locations;
   oidcRootExtra  = oidcVhost.locations."/".extraConfig;
   oidcAuthzPass  = oidcVhost.locations."/authz-mcp".proxyPass;
+  oidcAuthzExtra = oidcVhost.locations."/authz-mcp".extraConfig;
   oidcChallenge  = oidcVhost.locations."@mcp_unauthorized".extraConfig;
   oidcWellKnown  = oidcVhost.locations."= /.well-known/oauth-protected-resource".extraConfig;
   oidcSecretPad  = toString oidcCfg.age.secrets.linny-mcp-nginx-token.path;
@@ -234,6 +235,9 @@ def main():
           c["oidcRootExtra"][-300:])
     check("authz gaat naar Authelia's mcp-endpoint",
           "/api/authz/mcp" in c["oidcAuthzPass"], c["oidcAuthzPass"])
+    check("Authelia's Basic-uitdaging wordt onderdrukt",
+          "proxy_hide_header WWW-Authenticate;" in c["oidcAuthzExtra"],
+          c["oidcAuthzExtra"][:200])
     check("401 daagt uit met Bearer, niet Basic",
           "WWW-Authenticate" in c["oidcChallenge"]
           and "Bearer resource_metadata=" in c["oidcChallenge"],

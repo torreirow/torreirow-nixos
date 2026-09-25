@@ -411,6 +411,12 @@ in
           recommendedProxySettings = false;
           extraConfig = ''
             internal;
+            # Nginx geeft de WWW-Authenticate van een auth_request-401 door aan
+            # de client. Authelia stuurt daar `Basic realm=...`, en dan krijgt de
+            # client TWEE uitdagingen mee -- met Basic als eerste. Een MCP-client
+            # die de eerste pakt, gaat de verkeerde kant op. Onderdrukken, zodat
+            # alleen onze Bearer-uitdaging overblijft.
+            proxy_hide_header WWW-Authenticate;
             proxy_pass_request_body off;
             proxy_set_header Content-Length "";
             # Authelia leidt uit deze twee af wélke bron je opvraagt, en toetst
