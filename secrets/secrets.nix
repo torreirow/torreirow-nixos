@@ -94,6 +94,10 @@ in
   # `reset --hard` + `clean -fdx` -- dat mag nooit kunnen pushen.
   "linny-mcp-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # linny-mcp bearer-tokens (gehashte records, JSON-lines). De one-time secrets
+  # zelf staan in Vaultwarden en in de Claude-connectors, nooit hier.
+  "linny-mcp-tokens.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;
