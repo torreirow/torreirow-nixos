@@ -68,6 +68,7 @@ in {
   vhostRecProxy  = vhost.locations."/".recommendedProxySettings;
   vhostLocations = builtins.attrNames vhost.locations;
   vhostForceSSL  = vhost.forceSSL;
+  vhostServerCfg = vhost.extraConfig;
   vhostACME      = vhost.useACMEHost;
 
   # Bewijs dat de Hugo-build een ANDERE werkmap heeft.
@@ -171,6 +172,12 @@ def main():
     check("gebruikt het wildcard-cert", c["vhostACME"] == "toorren.net", str(c["vhostACME"]))
     # Een MCP-client stuurt alleen een bearer-token en volgt geen loginredirect,
     # dus Authelia zou het eindpunt onbruikbaar maken.
+    check("alleen LAN en wireguard mogen erbij",
+          "allow 192.168.2.0/24;" in c["vhostServerCfg"]
+          and "allow 10.8.0.0/24;" in c["vhostServerCfg"],
+          c["vhostServerCfg"])
+    check("al het overige verkeer wordt geweigerd",
+          "deny all;" in c["vhostServerCfg"], c["vhostServerCfg"])
     check("GEEN Authelia op deze vhost",
           "auth_request" not in c["vhostExtra"] and "/authelia" not in c["vhostLocations"],
           f'locations={c["vhostLocations"]}')

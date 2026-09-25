@@ -63,10 +63,14 @@ in
       type = types.str;
       default = "linny-mcp.toorren.net";
       description = ''
-        Publieke hostnaam waarop de MCP-server bereikbaar is. Moet publiek zijn:
-        een custom connector op claude.ai wordt server-side door Anthropic
-        opgehaald, niet door de browser of de telefoon, dus een endpoint binnen
-        wireguard is voor Claude Online en Mobile onbereikbaar.
+        Hostnaam waarop de MCP-server bereikbaar is.
+
+        Een custom connector op claude.ai wordt server-side door Anthropic
+        opgehaald, niet door de browser of de telefoon; die route vereist dus een
+        publiek bereikbaar endpoint. Zolang de organisatie geen custom connectors
+        toestaat is die route dicht en zijn de clients lokaal (Claude Code,
+        Claude Desktop) -- vandaar `allowedNetworks`, dat het bereik terugbrengt
+        tot LAN en wireguard. Zet dat op `[ ]` om weer publiek te gaan.
       '';
     };
 
@@ -74,6 +78,21 @@ in
       type = types.str;
       default = "toorren.net";
       description = "ACME-host voor het (wildcard) TLS-certificaat.";
+    };
+
+    allowedNetworks = mkOption {
+      type = types.listOf types.str;
+      default = [ "127.0.0.1" "192.168.2.0/24" "10.8.0.0/24" ];
+      example = literalExpression "[ ]";
+      description = ''
+        Netwerken die de vhost mogen bereiken; al het andere krijgt 403. Een lege
+        lijst laat de beperking weg en stelt de server publiek beschikbaar, wat
+        alleen zin heeft zodra een custom connector op claude.ai mag.
+
+        Let op bij wireguard: die draait hier in de `wg-easy`-container. NAT't die,
+        dan ziet nginx het bridge-adres van de container en niet 10.8.0.x -- toets
+        dat in het access-log voordat je aanneemt dat de telefoon erdoor komt.
+      '';
     };
 
     port = mkOption {
@@ -261,6 +280,11 @@ in
     services.nginx.virtualHosts.${cfg.domain} = {
       forceSSL = true;
       useACMEHost = cfg.acmeHost;
+      # Op server-niveau, niet per location: zo valt ook /healthz eronder.
+      extraConfig = optionalString (cfg.allowedNetworks != [ ]) (
+        concatMapStringsSep "\n" (net: "allow ${net};") cfg.allowedNetworks
+        + "\ndeny all;\n"
+      );
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString cfg.port}";
         # forceert HTTP/1.1 + Upgrade/Connection
