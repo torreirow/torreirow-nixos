@@ -28,12 +28,20 @@ DOMAIN = "linny-mcp.toorren.net"
 # repo-root ("unsupported type"). Via de installable ziet nix alleen de
 # git-getrackte bron.
 APPLY = """
-cfg:
+sys:
 let
+  cfg = sys.config;
   mcp = cfg.services.linny-mcp;
-  vhost = cfg.services.nginx.virtualHosts."%s";
   unit = n: cfg.systemd.services.${n};
+
+  # De publieke vhost staat standaard uit; om hem toch te kunnen toetsen wordt
+  # de configuratie één keer uitgebreid met publicEndpoint = true.
+  pub = (sys.extendModules {
+    modules = [ { services.linny-mcp-host.publicEndpoint = true; } ];
+  }).config;
+  vhost = pub.services.nginx.virtualHosts."%s";
 in {
+  vhostAanwezigStandaard = builtins.hasAttr "%s" cfg.services.nginx.virtualHosts;
   listenAddress = mcp.listenAddress;
   port          = mcp.port;
   corpusPath    = toString mcp.corpusPath;
@@ -68,19 +76,18 @@ in {
   vhostRecProxy  = vhost.locations."/".recommendedProxySettings;
   vhostLocations = builtins.attrNames vhost.locations;
   vhostForceSSL  = vhost.forceSSL;
-  vhostServerCfg = vhost.extraConfig;
   vhostACME      = vhost.useACMEHost;
 
   # Bewijs dat de Hugo-build een ANDERE werkmap heeft.
   linnyWebStateDir = toString cfg.services.linny-web.stateDir;
 }
-""" % DOMAIN
+""" % (DOMAIN, DOMAIN)
 
 
 def load():
     out = subprocess.run(
         ["nix", "eval", "--impure", "--json",
-         ".#nixosConfigurations.malandro.config", "--apply", APPLY,
+         ".#nixosConfigurations.malandro", "--apply", APPLY,
          "--extra-experimental-features", "nix-command flakes"],
         capture_output=True, text=True, cwd=REPO,
         env={"PATH": "/run/current-system/sw/bin:/usr/bin:/bin",
@@ -172,12 +179,9 @@ def main():
     check("gebruikt het wildcard-cert", c["vhostACME"] == "toorren.net", str(c["vhostACME"]))
     # Een MCP-client stuurt alleen een bearer-token en volgt geen loginredirect,
     # dus Authelia zou het eindpunt onbruikbaar maken.
-    check("alleen LAN en wireguard mogen erbij",
-          "allow 192.168.2.0/24;" in c["vhostServerCfg"]
-          and "allow 10.8.0.0/24;" in c["vhostServerCfg"],
-          c["vhostServerCfg"])
-    check("al het overige verkeer wordt geweigerd",
-          "deny all;" in c["vhostServerCfg"], c["vhostServerCfg"])
+    check("standaard GEEN publieke vhost (clients gaan via een ssh-tunnel)",
+          c["vhostAanwezigStandaard"] is False,
+          str(c["vhostAanwezigStandaard"]))
     check("GEEN Authelia op deze vhost",
           "auth_request" not in c["vhostExtra"] and "/authelia" not in c["vhostLocations"],
           f'locations={c["vhostLocations"]}')
