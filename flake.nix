@@ -22,6 +22,8 @@
     openspec.url = "github:Fission-AI/OpenSpec";
     parsh.url = "github:torreirow/parsh";
     linny-web.url = "github:torreirow/linny-web-theme";
+    linny-mcp.url = "github:linden-project/linny-mcp-server";
+    linny-mcp.inputs.nixpkgs.follows = "nixpkgs";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
     ragenx.url = "github:torreirow/ragenx/v0.2.0";
@@ -47,7 +49,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -148,6 +150,7 @@
           nixpkgs.overlays = [
             (final: prev: { rbw = inputs.rbw.packages.${system}.rbw; })
             (import ./overlays)
+            inputs.linny-mcp.overlays.default
             (final: prev:
               let
                 pandoc-3_8_3 = prev.stdenv.mkDerivation {
@@ -200,6 +203,7 @@
         extraPkgs
         agenix.nixosModules.default
         inputs.linny-web.nixosModules.linny-web
+        inputs.linny-mcp.nixosModules.linny-mcp
         ./hosts/malandro/configuration.nix
         ./modules/tnaws.nix
       ];

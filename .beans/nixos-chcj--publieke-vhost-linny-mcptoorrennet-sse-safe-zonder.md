@@ -1,11 +1,11 @@
 ---
 # nixos-chcj
 title: publieke vhost linny-mcp.toorren.net (SSE-safe, zonder Authelia)
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-09-25T07:45:27Z
-updated_at: 2026-09-25T07:45:40Z
+updated_at: 2026-09-25T11:30:45Z
 parent: nixos-m0vn
 blocked_by:
     - nixos-dqs2
@@ -41,12 +41,19 @@ read-timeout, anders stallen of breken langlopende `/mcp`-streams. mipmip's vhos
 plus `proxyWebsockets = true` (dat forceert HTTP/1.1 + Upgrade/Connection).
 
 ## Todo
-- [ ] DNS `linny-mcp.toorren.net` -> malandro
-- [ ] `services.nginx.virtualHosts."linny-mcp.toorren.net"`: `forceSSL`, ACME/`useACMEHost`
+- [x] DNS `linny-mcp.toorren.net` -> malandro
+- [x] `services.nginx.virtualHosts."linny-mcp.toorren.net"`: `forceSSL`, ACME/`useACMEHost`
       conform het patroon van de andere vhosts in deze repo
-- [ ] `locations."/"` proxyPass naar het lokale linny-mcp-adres + de SSE-config hierboven
-- [ ] **geen** `autheliaAuthConfig` / `autheliaVerifyLocation` op deze vhost
-- [ ] fail2ban overwegen op herhaalde 401's (repo heeft al `modules/fail2ban.nix`) — afwegen, niet verplicht
-- [ ] verifieer: cert geldig, `/healthz` 200 zonder auth
-- [ ] verifieer: `/mcp` zonder token -> geweigerd
-- [ ] verifieer: een langlopende stream wordt niet afgekapt
+- [x] `locations."/"` proxyPass naar het lokale linny-mcp-adres + de SSE-config hierboven
+- [x] **geen** `autheliaAuthConfig` / `autheliaVerifyLocation` op deze vhost
+- [x] fail2ban overwegen op herhaalde 401's (repo heeft al `modules/fail2ban.nix`) — afwegen, niet verplicht
+- [x] verifieer: cert geldig, `/healthz` 200 zonder auth
+- [x] verifieer: `/mcp` zonder token -> geweigerd
+- [x] verifieer: een langlopende stream wordt niet afgekapt
+
+## Summary of Changes
+
+Vhost `linny-mcp.toorren.net` op het bestaande wildcard-cert (`useACMEHost = "toorren.net"`),
+proxy naar `127.0.0.1:8096`. SSE-veilig: `proxy_buffering off`, `proxyWebsockets` (forceert HTTP/1.1)
+en 3600s timeouts. **Geen Authelia** -- getoetst in de modultest, omdat een MCP-client alleen een
+bearer-token stuurt en geen loginredirect volgt.

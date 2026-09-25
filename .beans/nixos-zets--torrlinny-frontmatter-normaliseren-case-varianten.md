@@ -33,7 +33,20 @@ De concrete waarden staan bewust niet in deze bean: torreirow-nixos is een **pub
 taxonomie bevat klant- en projectnamen. Draai het detectiescript hieronder in de torrlinny-checkout
 om de actuele lijst te krijgen.
 
-## Waarom dit geen blokkade is
+## Gemeten tijdens de epic-uitvoering (2026-09-25)
+
+`lindexer build` op het echte corpus: **117 records** geindexeerd, met
+
+    WARN malformed front matter: <notitie> (no front matter)
+
+Die notitie staat daarna **niet** in de index (`SELECT count(*) ... = 0`) en is dus onzichtbaar
+voor de agent -- het bestand bestaat, maar de MCP-server ziet het niet. Dat maakt het dichten van
+dat ene gat geen hygiene maar een echte omissie.
+
+De case-varianten zijn dat wel: de indexer normaliseert (`lower()` + spaties naar dashes), dus die
+vallen sowieso samen.
+
+## Waarom het overige geen blokkade is
 De indexer normaliseert zelf, dus voor MCP vallen de varianten sowieso samen. Waar het wél
 zichtbaar is: de Hugo-taxonomiezijbalk met counts op `linny.toorren.net` toont een variant als een
 aparte regel met een eigen telling. Hygiëne en voorspelbaarheid dus, geen afhankelijkheid — deze
