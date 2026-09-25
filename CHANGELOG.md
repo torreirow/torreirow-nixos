@@ -7,6 +7,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Notitieboek als schrijfbaar tweede brein voor Claude** (`modules/linny-mcp.nix`, malandro): dezelfde torrlinny-notities die op `linny.toorren.net` te lezen zijn, zijn nu ook via MCP te doorzoeken en aan te vullen vanuit Claude Online en Mobile, op `https://linny-mcp.toorren.net`.
+  - **De agent kan je bestaande notities niet wijzigen.** Wat hij aanmaakt krijgt `status: agent-draft` en blijft zijn eigen terrein; promoveren doe je met de hand door die regel weg te halen, en daarna kan hij er niet meer bij. Dat is geen smaakkwestie maar een verdediging: de inhoud van een notitieboek is onvertrouwde invoer, en een notitie kan een agent aansturen — zeker zodra er vergadertranscripten in belanden.
+  - **Een eigen werkmap, los van de Hugo-build.** Die build doet elke drie minuten `reset --hard` + `clean -fdx` op zíjn checkout; een net geschreven agent-notitie is daar een untracked bestand en zou stil gewist worden. Beide werkmappen praten via GitHub, waardoor een agent-notitie binnen ongeveer vier minuten ook op de website staat.
+  - Bidirectionele git-sync met een aparte read/write deploy key — de sleutel van de Hugo-build blijft bewust read-only, want een proces dat zijn werkmap leegveegt hoort niet te kunnen pushen.
+  - Bearer-tokens per client (`claude-web`, `claude-mobile`), gehasht opgeslagen, apart in te trekken. De vhost staat bewust niet achter Authelia: een MCP-client stuurt alleen een token en volgt geen loginredirect.
+  - Achtergrond, valkuilen en het roteren van tokens: `docs/linny-mcp.md`.
 - **Meeting-opname** (`home/module/meeting-record/`, lobos): `meetrec` neemt beide kanten van een gesprek (Teams, Slack, Jitsi) op als twee gescheiden sporen.
   - `meetrec start|stop|status|list|mix|transcribe|summarize`; een map per gesprek onder `~/Meetings/`.
   - Inkomende audio via `stream.capture.sink=true` en de microfoon via de default source: geen apparaatnamen of node-id's in het script, dus een device-wissel midden in een gesprek wordt gevolgd.

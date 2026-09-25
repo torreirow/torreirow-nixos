@@ -20,6 +20,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | 8094 | formrelay | 127.0.0.1 | Native | Form-to-email relay met hCaptcha (forms.toorren.net) |
 | 8093 | Vikunja | 127.0.0.1 | Native | Todo/task management app (tasks.toorren.net) |
 | 8095 | Wallos | 127.0.0.1 | Docker | Self-hosted subscription tracker (subscriptions.toorren.net) |
+| 8096 | linny-mcp | 127.0.0.1 | Native | MCP-server op het torrlinny-notitieboek (linny-mcp.toorren.net, bearer-auth, GEEN Authelia) |
 | 8123 | Home Assistant | 0.0.0.0 | Docker | Home automation platform |
 | 8181 | Paperless | 0.0.0.0 | Docker | Document management system |
 

@@ -59,6 +59,7 @@
  ../../modules/rustic-backup.nix
  ../../modules/juicefs-nextcloud-mount.nix
  ../../modules/torrlinny.nix
+ ../../modules/linny-mcp.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
@@ -74,6 +75,11 @@
   }];
 
   services.torrlinny.enable = true;
+
+  # linny-mcp: hetzelfde notitieboek, maar schrijfbaar voor Claude via MCP.
+  # Eigen corpus-clone -- NIET de checkout van torrlinny, die wordt periodiek
+  # met `reset --hard` + `clean -fdx` opgeruimd. Zie modules/linny-mcp.nix.
+  services.linny-mcp-host.enable = true;
 
   services.magister-sync = {
     enable = true;

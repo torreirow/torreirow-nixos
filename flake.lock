@@ -343,6 +343,26 @@
         "type": "github"
       }
     },
+    "linny-mcp": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789730439,
+        "narHash": "sha256-VTlBqtQzaCUfeFcRjWYVrPs7uutl0J5QoscBd0GSV7c=",
+        "owner": "linden-project",
+        "repo": "linny-mcp-server",
+        "rev": "ee628a0b08a126fba8b166f31eabd3b59e55938e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "linden-project",
+        "repo": "linny-mcp-server",
+        "type": "github"
+      }
+    },
     "linny-web": {
       "inputs": {
         "nixpkgs": "nixpkgs_6"
@@ -866,6 +886,7 @@
         "homeage": "homeage",
         "hyprquickframe": "hyprquickframe",
         "jsonify-aws-dotfiles": "jsonify-aws-dotfiles",
+        "linny-mcp": "linny-mcp",
         "linny-web": "linny-web",
         "nixpkgs": "nixpkgs_7",
         "nixpkgs-2505": "nixpkgs-2505",

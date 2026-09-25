@@ -7,6 +7,7 @@
 - **Vragen over USB dongle, Zigbee dongle, DSMR adapter, `/dev/zigbee`, `/dev/dsmr` of ttyUSB-poorten die verwisselen** → lees `docs/usb-dongles.md`
 - **Vragen over Magister, de agenda-sync, het token/refresh-token, `magister-sync.service`, `token.json`, iCal-feeds op `agenda.toorren.net` of opnieuw inloggen** → lees `docs/magister.md`
 - **Vragen over Torrlinny, `linny.toorren.net`, de notities-web, `torrlinny-build.service`, de Hugo/Pagefind-overlay of de deploy key** → lees `docs/torrlinny.md`
+- **Vragen over linny-mcp, `linny-mcp.toorren.net`, het notitieboek als MCP-server voor Claude, `status: agent-draft`/quarantine, de bearer-tokens of waarom er twee corpus-werkmappen zijn** → lees `docs/linny-mcp.md`
 - **Vragen over de Vaultwarden restore-test, `vaultwarden-restoretest.sh`, `--rbw`/`--destroy`, de wegwerp-container op poort 8099 of de rbw-crypto-test** → lees `docs/vaultwarden-restore-test.md`
 - **Vragen over de reMarkable, `remarkable-sync`, `10.11.99.1`, de USB-webinterface van xochitl, `.rm`-bestanden, `error -71` op USB of PDF-export naar Nextcloud** → lees `docs/remarkable.md`
 - **Vragen over het opnemen van een meeting, `meetrec`, `~/Meetings`, de twee sporen (`anderen`/`ik`), `stream.capture.sink`, de Opus-encoding of het whisper-transcript** → lees `home/module/meeting-record/README.md`

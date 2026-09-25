@@ -1,10 +1,11 @@
 ---
 # nixos-m0vn
 title: 'linny-mcp: torrlinny als schrijfbaar tweede brein voor Claude'
-status: todo
+status: in-progress
 type: epic
+priority: normal
 created_at: 2026-09-25T07:43:25Z
-updated_at: 2026-09-25T07:43:25Z
+updated_at: 2026-09-25T11:19:51Z
 ---
 
 Thematische container. Het torrlinny-notitieboek (122 markdown-notities) ontsluiten aan Claude

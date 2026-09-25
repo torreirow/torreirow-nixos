@@ -1,11 +1,11 @@
 ---
 # nixos-eo2h
 title: end-to-end verificatie + Claude Online/Mobile koppelen + documentatie
-status: todo
+status: in-progress
 type: task
 priority: normal
 created_at: 2026-09-25T07:45:27Z
-updated_at: 2026-09-25T07:45:40Z
+updated_at: 2026-09-25T11:30:45Z
 parent: nixos-m0vn
 blocked_by:
     - nixos-ce9f
