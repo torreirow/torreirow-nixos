@@ -150,9 +150,11 @@ in
     # Hercoderen van het secret laat de unitdefinitie byte-identiek, dus zonder
     # deze trigger zou een `switch` de oude scopes in geheugen houden. Triggeren
     # op het ciphertext-pad: dat verandert bij elke hercodering.
-    systemd.services.linny-mcp.restartTriggers = [
-      config.age.secrets.linny-mcp-tokens.file
-    ];
+    systemd.services.linny-mcp = {
+      restartTriggers = [ config.age.secrets.linny-mcp-tokens.file ];
+      # Zelfde reden als bij clone/git-sync: het tokenbestand ligt onder /run/keys.
+      serviceConfig.SupplementaryGroups = [ "keys" ];
+    };
 
     # Corpus en state moeten BESTAAN voordat de unit start: ReadWritePaths
     # bind-mount ze, en een ontbrekend pad faalt met 226/NAMESPACE nog voor exec.
@@ -176,6 +178,9 @@ in
         RemainAfterExit = true;
         User = user;
         Group = user;
+        # /run/keys is root:keys 0750 -- zonder deze groep is de agenix-secret
+        # onbereikbaar, ook al is het bestand zelf eigendom van deze user.
+        SupplementaryGroups = [ "keys" ];
       };
       script = ''
         if [ ! -e ${corpusDir}/.git ]; then
@@ -196,6 +201,9 @@ in
         Type = "oneshot";
         User = user;
         Group = user;
+        # /run/keys is root:keys 0750 -- zonder deze groep is de agenix-secret
+        # onbereikbaar, ook al is het bestand zelf eigendom van deze user.
+        SupplementaryGroups = [ "keys" ];
         WorkingDirectory = corpusDir;
       };
       script = ''
@@ -234,6 +242,9 @@ in
       serviceConfig = {
         User = user;
         Group = user;
+        # /run/keys is root:keys 0750 -- zonder deze groep is de agenix-secret
+        # onbereikbaar, ook al is het bestand zelf eigendom van deze user.
+        SupplementaryGroups = [ "keys" ];
         Restart = "on-failure";
         RestartSec = 5;
         # ExecStartPre is klaar voordat de unit als gestart geldt, dus
