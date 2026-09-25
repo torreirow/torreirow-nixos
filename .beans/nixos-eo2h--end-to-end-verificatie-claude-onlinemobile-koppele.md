@@ -64,3 +64,21 @@ Beide zijn nu door modules/linny-mcp_test.py afgedekt (36 checks).
 [x] docs/linny-mcp.md geschreven, inclusief de Host-header-valkuil
 [x] CLAUDE.md verwijst ernaar in de contextbestanden-lijst
 [x] CHANGELOG.md onder ## NEXT VERSION
+
+## Naschrift: de connector-route is dicht
+
+Claude Online en Mobile via een custom connector gaat niet: gebruikers mogen in
+de organisatie geen connectors aanmaken die een admin niet heeft aangezet. Die
+twee criteria blijven open en liggen buiten ons bereik.
+
+Daarmee verviel de reden voor een publiek endpoint — dat bestond alleen omdat
+Anthropic een connector server-side ophaalt. De vhost staat nu achter
+`publicEndpoint` (standaard uit); lokale clients gaan via een ssh-tunnel naar
+127.0.0.1:8096 (`home/module/linny-mcp-tunnel` op lobos). Geverifieerd:
+`healthz` 200, `/mcp` 401 zonder token.
+
+Een IP-filter op de vhost is geprobeerd en teruggedraaid — het kan hier
+principieel niet werken. De naam wijst naar het publieke adres, dus ook
+LAN-verkeer hairpint via de router en komt met het WAN-adres binnen; lobos komt
+door een policy-route (tabel 51820) zelfs met een derde adres binnen. Er bestaat
+geen bronadres dat "LAN" betekent. Zie docs/linny-mcp.md.
