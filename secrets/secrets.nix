@@ -88,6 +88,12 @@ in
   # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
   "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # linny-mcp (READ/WRITE deploy key voor torreirow/torrlinny -- git-sync pusht
+  # agent-notities terug). Bewust een tweede sleutel: torrlinny-deploy-key blijft
+  # read-only, want dat is de sleutel van linny-web-build en dat proces doet
+  # `reset --hard` + `clean -fdx` -- dat mag nooit kunnen pushen.
+  "linny-mcp-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;
