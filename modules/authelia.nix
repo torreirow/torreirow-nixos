@@ -330,6 +330,12 @@
               require_pkce = true;
               pkce_challenge_method = "S256";
               scopes = [ "openid" "profile" "email" "offline_access" ];
+              # Claude stuurt `resource=https://linny-mcp.toorren.net` mee
+              # (RFC 8707) en Authelia vertaalt dat naar een audience. Zonder
+              # deze regel: "Requested audience has not been whitelisted by the
+              # OAuth 2.0 Client". Hoort niet bij bearer-authz -- het geldt ook
+              # voor een gewone client.
+              audience = [ "https://linny-mcp.toorren.net" ];
               grant_types = [ "authorization_code" "refresh_token" ];
               response_types = [ "code" ];
               response_modes = [ "query" "form_post" ];
