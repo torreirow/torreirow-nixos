@@ -103,6 +103,13 @@ in
   # zelf staan in Vaultwarden en in de Claude-connectors, nooit hier.
   "linny-mcp-tokens.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # nginx-snippet met de Authorization-header voor de upstream. Nginx zet het
+  # interne token pas NA een geslaagde auth_request bij Authelia; dit bestand is
+  # dus het gedeelde geheim tussen twee processen op dezelfde host, geen
+  # identiteit. Een snippet en geen kale waarde, zodat het niet als optie in de
+  # nix-store belandt.
+  "linny-mcp-nginx-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;
