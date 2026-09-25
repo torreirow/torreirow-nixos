@@ -80,18 +80,22 @@ in
       description = "ACME-host voor het (wildcard) TLS-certificaat.";
     };
 
-    allowedNetworks = mkOption {
-      type = types.listOf types.str;
-      default = [ "127.0.0.1" "192.168.2.0/24" "10.8.0.0/24" ];
-      example = literalExpression "[ ]";
+    publicEndpoint = mkOption {
+      type = types.bool;
+      default = false;
       description = ''
-        Netwerken die de vhost mogen bereiken; al het andere krijgt 403. Een lege
-        lijst laat de beperking weg en stelt de server publiek beschikbaar, wat
-        alleen zin heeft zodra een custom connector op claude.ai mag.
+        Of er een publieke nginx-vhost op `domain` komt.
 
-        Let op bij wireguard: die draait hier in de `wg-easy`-container. NAT't die,
-        dan ziet nginx het bridge-adres van de container en niet 10.8.0.x -- toets
-        dat in het access-log voordat je aanneemt dat de telefoon erdoor komt.
+        Alleen zinvol zodra claude.ai custom connectors toestaat: die worden
+        server-side door Anthropic opgehaald en vereisen dus een publiek
+        endpoint. Lokale clients (Claude Code, Claude Desktop) bereiken de
+        server via een SSH-tunnel naar 127.0.0.1:<port> en hebben deze vhost
+        niet nodig.
+
+        Een IP-filter op de vhost is géén alternatief voor "alleen LAN". De naam
+        wijst naar het publieke adres, dus ook verkeer van het eigen netwerk gaat
+        naar buiten en komt via de router terug; nginx ziet dan het WAN-adres.
+        Er bestaat in deze opstelling simpelweg geen bronadres dat "LAN" betekent.
       '';
     };
 
@@ -277,14 +281,10 @@ in
     # BEWUST ZONDER AUTHELIA. Dat is een redirect-gebaseerde browserflow; een
     # MCP-client stuurt alleen `Authorization: Bearer` en volgt geen redirect.
     # De authenticatie zit in linny-mcp zelf (bearer-tokens uit agenix).
-    services.nginx.virtualHosts.${cfg.domain} = {
+    services.nginx.virtualHosts = mkIf cfg.publicEndpoint {
+      ${cfg.domain} = {
       forceSSL = true;
       useACMEHost = cfg.acmeHost;
-      # Op server-niveau, niet per location: zo valt ook /healthz eronder.
-      extraConfig = optionalString (cfg.allowedNetworks != [ ]) (
-        concatMapStringsSep "\n" (net: "allow ${net};") cfg.allowedNetworks
-        + "\ndeny all;\n"
-      );
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString cfg.port}";
         # forceert HTTP/1.1 + Upgrade/Connection
@@ -313,6 +313,7 @@ in
           proxy_send_timeout 3600s;
           chunked_transfer_encoding off;
         '';
+      };
       };
     };
   };
