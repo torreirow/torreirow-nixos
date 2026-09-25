@@ -46,6 +46,7 @@
  ../../modules/vaultwarden.nix
  ../../modules/wg.nix
  ../../modules/bento-pdf.nix
+ ../../modules/cap.nix
  ../../modules/docseal.nix
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
@@ -89,8 +90,12 @@
     enable = true;
     recipients = {
       "wereldvanbegrip.nl" = "wereldvanbegrip@toorren.net";
+      # LET OP: pas dit ontvangstadres aan indien gewenst.
+      "cckafe.com" = "hello@cckafe.com";
     };
-    turnstileSecretFile = config.age.secrets.turnstile-secret.path;
+    # Self-hosted Cap CAPTCHA i.p.v. Cloudflare Turnstile.
+    capSiteKey = "eaa5abea30";
+    capSecretFile = config.age.secrets.cap-mailer-secret.path;
   };
 
   nix.extraOptions = ''
