@@ -1,11 +1,11 @@
 ---
 # nixos-zets
 title: torrlinny-frontmatter normaliseren (case-varianten + ontbrekende customer)
-status: todo
+status: in-progress
 type: task
 priority: normal
 created_at: 2026-09-25T07:43:48Z
-updated_at: 2026-09-25T08:06:10Z
+updated_at: 2026-09-25T11:34:09Z
 parent: nixos-m0vn
 ---
 
@@ -83,11 +83,39 @@ for f, why in missing:
 ```
 
 ## Todo
-- [ ] detectiescript draaien; lijst met te raken notities vaststellen
-- [ ] alle case-varianten naar de canonieke (lowercase) vorm brengen
-- [ ] termen met spaties in `project` naar de dash-vorm, zodat bron en index gelijk zijn
+- [x] detectiescript draaien; lijst met te raken notities vaststellen
+- [x] alle case-varianten naar de canonieke (lowercase) vorm brengen
+- [x] termen met spaties in `project` naar de dash-vorm, zodat bron en index gelijk zijn
 - [ ] de notities zonder `customer` een waarde geven (of bewust een afgesproken placeholder)
-- [ ] de notitie zonder frontmatter er een geven
-- [ ] hercontrole: het script rapporteert niets meer
+- [x] de notitie zonder frontmatter er een geven
+- [x] hercontrole: 0 case-varianten; index 117 -> 118 records, geen WARN meer
 - [ ] `linny.toorren.net` na de volgende build visueel checken: geen dubbele zijbalk-termen
-- [ ] committen + pushen naar `torreirow/torrlinny`
+- [x] committen + pushen naar `torreirow/torrlinny` (ging vanzelf: git-sync op lobos commit en pusht binnen seconden -- commits 4c3b06b + cd85ca2)
+
+## Summary of Changes
+
+Uitgevoerd in `torreirow/torrlinny` (commits `4c3b06b` + `cd85ca2`, al gepusht -- git-sync op lobos
+pakte ze binnen seconden op, dus ze staan onder zijn automatische commitbericht en niet onder een
+beschrijvende).
+
+- **Case-varianten: 0.** 12 bestanden genormaliseerd naar de indexer-regel (`lower()` + spaties naar
+  dashes) over `customer` (6), `project` (7) en `owner` (1).
+- **De notitie zonder frontmatter hersteld.** `content/medux-incident-rapport-2026-05-27.md` had er
+  geen; `customer: improvement` is afgeleid uit de inhoud (`medux.improvement-it.nl`,
+  `IIT-Medux-Production`) en komt overeen met de zusternotitie `medux-rapportage.md`.
+  `doctype: client-info` volgt diezelfde notitie.
+- **Bewezen effect:** `lindexer build` ging van **117 naar 118 records** en de WARN over malformed
+  front matter is weg. Die notitie bestond wél maar stond niet in de index -- hij was dus onzichtbaar
+  voor de agent. Dat was geen hygiene maar een echt gat.
+
+## Nog open: 2 notities zonder `customer`
+
+Niet ingevuld omdat een verkeerde klanttoewijzing in je eigen notities erger is dan een leeg veld:
+
+| Notitie | Wat het lijkt | Waarom ik niet gok |
+|---------------------|--------------------------------|------------------------------------|
+| `content/bedrock.md` | AWS Bedrock-referentie, `tag: [note,woutr]` | kan `torreirow` of `technative` zijn |
+| `content/to-do-wk52.md` | weekly-todo, `project: bestuur` | "bestuur" is geen klant uit de lijst |
+
+`content/search.md` is bewust overgeslagen: die heeft `type: "search"` en is een Hugo-zoekpagina,
+geen notitie. Daar hoort geen `customer` op.
