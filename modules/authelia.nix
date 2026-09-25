@@ -283,10 +283,11 @@
           # are required but this Authorization Request was not made as a Pushed
           # Authorization Request".
           #
-          # Deze vlag verschijnt letterlijk in de discovery-metadata, en daar
-          # baseert een client zijn gedrag op: met `false` ziet Claude geen reden
-          # om PAR te gebruiken. Op `true` adverteren we het als verplicht.
-          require_pushed_authorization_requests = true;
+          # Deze vlag verschijnt letterlijk in de discovery-metadata. GEMETEN
+          # 2026-09-25: op `true` gebruikt Claude alsnog geen PAR -- dezelfde
+          # foutmelding -- en brak Wallos er wél op. Blijft dus uit.
+          # Zie openspec/changes/add-linny-mcp-oidc/design.md.
+          require_pushed_authorization_requests = false;
 
           cors = {
             endpoints = [ "authorization" "token" "revocation" "introspection" ];
