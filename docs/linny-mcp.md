@@ -84,6 +84,49 @@ aanstuurt — relevant zodra er meetrec-transcripten in het notitieboek belanden
 Poort 8096, gebonden op `127.0.0.1`. De server weigert publieke adressen en `0.0.0.0`; TLS
 termineert in de nginx op dezelfde host.
 
+## Hoe je erbij komt: een ssh-tunnel, geen publieke vhost
+
+De publieke vhost staat **uit** (`services.linny-mcp-host.publicEndpoint = false`). Hij bestond
+alleen voor custom connectors op claude.ai — en die mogen in de organisatie niet door gebruikers
+worden aangemaakt, alleen door een admin. Zolang dat zo is bestaat de enige reden voor een publiek
+endpoint niet, en zijn alle clients lokaal.
+
+```
+lobos                                    malandro
+
+Claude Code ──┐
+              ├─► 127.0.0.1:8096 ══ssh══► 127.0.0.1:8096 ──► linny-mcp
+Claude Desktop┘
+              linny-mcp-tunnel.service              (geen nginx, geen TLS nodig)
+```
+
+De tunnel is een home-manager user-service, `home/module/linny-mcp-tunnel`. Twee dingen daarin zijn
+geen detail:
+
+- **`SSH_AUTH_SOCK` moet expliciet.** De systemd-user-manager erft je shell-omgeving niet en zet
+  zelf `%t/gcr/ssh` (gnome-keyring). Die agent kent de malandro-sleutel niet en meldt
+  `agent refused operation` — misleidend, want er ís een agent, alleen de verkeerde. De sleutel
+  komt uit rbw: `%t/rbw/ssh-agent-socket`.
+- **`ExitOnForwardFailure=yes`.** Zonder dit blijft ssh draaien terwijl de forward mislukte, en lijkt
+  de unit gezond terwijl geen enkele client verbinding maakt.
+
+Toegangsbewijs is dus ssh-toegang tot malandro, plus het bearer-token.
+
+### Waarom een IP-filter géén alternatief was
+
+De eerste poging was `allow 192.168.2.0/24` op de vhost. Dat kan in deze opstelling principieel niet
+werken: `linny-mcp.toorren.net` wijst naar het publieke adres, dus ook verkeer uit het eigen netwerk
+gaat naar buiten en komt via de router terug — nginx ziet het WAN-adres. Gemeten:
+
+```
+82.172.137.171  "GET /healthz"  403   ← lobos
+82.170.93.180   "GET /healthz"  403   ← malandro zelf
+```
+
+Lobos komt met wéér een ander adres binnen doordat een policy-route (tabel 51820) verkeer naar dat
+publieke adres door de `tn_arkana`-tunnel stuurt. Er bestaat hier geen bronadres dat "LAN" betekent.
+Split-horizon DNS zou het oplossen, maar de resolver is de router (192.168.2.254), niet de Pi-hole.
+
 ## Waarom er geen Authelia voor zit
 
 Een custom connector op claude.ai wordt **server-side door Anthropic opgehaald**, niet door je
