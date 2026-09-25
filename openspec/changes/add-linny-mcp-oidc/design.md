@@ -137,3 +137,55 @@ Een tweede, kleinere onbekende: de redirect-URI. `https://pivot.claude.ai/auth/g
 is de beste aanwijzing die we hebben, maar die komt uit een zoekresultaat en niet uit een
 specificatie. Authelia-clients accepteren meerdere redirect-URI's, dus bijstellen is goedkoop zodra
 de dialoog de echte toont.
+
+
+## Uitkomst van de spike (2026-09-25)
+
+**De route via Authelia's eigen authz-endpoint werkt niet met Claude.** Niet door een
+configuratiefout, maar door botsende eisen.
+
+Wat wél bleek te werken, en dat is aanzienlijk:
+
+- Claude haalde onze discovery op — in het nginx-log staan de verzoeken van `160.79.106.160`
+  (python-httpx) naar `/.well-known/oauth-protected-resource` (200) en vervolgens naar
+  `auth.toorren.net/.well-known/oauth-authorization-server` (200).
+- De dialoog toonde **"Detected"** bij zowel *Sign in now* als *Use your own OAuth client*: Claude
+  las onze 401 met de Bearer-uitdaging correct, en zag in Authelia's metadata dat er geen
+  `registration_endpoint` is. De dubbele `WWW-Authenticate` (Basic vóór Bearer) heeft hem niet
+  gehinderd.
+- Claude blijkt DCR wél te ondersteunen ("Register automatically"); Authelia niet. Onze keuze voor
+  een vooraf geregistreerde client was dus de juiste.
+- De connector-dialoog heeft ook een veld voor **eigen request-headers**, anders dan de
+  documentatie suggereerde. Die gaan mee *naast* het OAuth-token, dus voor een server die alleen
+  `Authorization` leest is dat geen alternatief.
+
+Waar het op strandde:
+
+```
+Claude    →  doet geen PAR, ook niet als de metadata het als verplicht adverteert
+Authelia  →  eist PAR zodra een client de scope authelia.bearer.authz gebruikt
+```
+
+De tweede is hard. `validate-config` weigert de client:
+
+```
+option 'require_pushed_authorization_requests' must be configured as 'true'
+when configured with scope 'authelia.bearer.authz' but it's configured as 'false'
+```
+
+De eerste is gemeten met een omweg: `identity_providers.oidc.require_pushed_authorization_requests`
+server-breed op `true` gezet, wat de vlag letterlijk in de discovery-metadata zet. Claude gebruikte
+alsnog geen PAR en gaf dezelfde fout. **Wallos brak er wel op** — die vlag geldt voor alle clients.
+Teruggedraaid.
+
+## Wat dit betekent voor het ontwerp
+
+Beslissing 1 ("nginx wisselt de header om; linny-mcp blijft ongemoeid") blijft overeind, maar de
+validatiestap kan niet bij Authelia's authz-endpoint liggen. Zonder de scope `authelia.bearer.authz`
+vervalt de PAR-eis en kan de client een gewone OIDC-client zijn — maar dan accepteert dat endpoint
+het token niet meer.
+
+Het alternatief is een eigen validator: een kleine dienst die het token bij Authelia's
+introspection-endpoint toetst en 200 of 401 teruggeeft, waar nginx' `auth_request` naar wijst.
+Nginx zelf kan dat niet: introspection antwoordt 200 met `{"active": false}` voor een ongeldig
+token, dus de status alleen volstaat niet en de body moet gelezen worden.
