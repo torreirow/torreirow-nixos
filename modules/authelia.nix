@@ -336,9 +336,10 @@
               consent_mode = "explicit";
               token_endpoint_auth_method = "none";
               authorization_policy = "two_factor";
-              # Beste aanwijzing die we hebben; bijstellen zodra de dialoog de
-              # echte toont. Meerdere URI's zijn toegestaan.
-              redirect_uris = [ "https://pivot.claude.ai/auth/gateway-callback" ];
+              # GEMETEN 2026-09-25 uit de authorization request in het
+              # nginx-access.log. Niet gokken: documentatie en zoekresultaten
+              # noemden pivot.claude.ai/auth/gateway-callback, en dat is het niet.
+              redirect_uris = [ "https://claude.ai/api/mcp/auth_callback" ];
             }
 
             # De tokenvalidator. Praat alleen met het introspection-endpoint en
