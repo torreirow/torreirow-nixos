@@ -411,11 +411,14 @@ in
           recommendedProxySettings = false;
           extraConfig = ''
             internal;
-            # Nginx geeft de WWW-Authenticate van een auth_request-401 door aan
-            # de client. Authelia stuurt daar `Basic realm=...`, en dan krijgt de
-            # client TWEE uitdagingen mee -- met Basic als eerste. Een MCP-client
-            # die de eerste pakt, gaat de verkeerde kant op. Onderdrukken, zodat
-            # alleen onze Bearer-uitdaging overblijft.
+            # Poging om Authelia's `WWW-Authenticate: Basic` te onderdrukken.
+            # GEMETEN 2026-09-25: dit werkt NIET -- de auth_request-module
+            # kopieert de header rechtstreeks uit de subrequest, buiten de
+            # proxy-headerfiltering om. De client krijgt dus twee uitdagingen,
+            # Basic eerst en onze Bearer erna. RFC 7235 staat meerdere
+            # uitdagingen toe en een client hoort de juiste te kiezen; of Claude
+            # dat doet is onderdeel van de spike. Blijft staan omdat het geen
+            # kwaad kan en de bedoeling documenteert.
             proxy_hide_header WWW-Authenticate;
             proxy_pass_request_body off;
             proxy_set_header Content-Length "";
