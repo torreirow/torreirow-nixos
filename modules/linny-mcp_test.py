@@ -40,8 +40,22 @@ let
     modules = [ { services.linny-mcp-host.publicEndpoint = true; } ];
   }).config;
   vhost = pub.services.nginx.virtualHosts."%s";
+
+  # En nog een keer mét de OIDC-laag aan. Apart nodig: `//` op vhost-niveau is
+  # een ondiepe merge, dus een fout daarin is alleen zichtbaar als oidc AAN staat.
+  oidcCfg = (sys.extendModules {
+    modules = [ { services.linny-mcp-host = { publicEndpoint = true; oidc.enable = true; }; } ];
+  }).config;
+  oidcVhost = oidcCfg.services.nginx.virtualHosts."%s";
 in {
+  oidcLocaties   = builtins.attrNames oidcVhost.locations;
+  oidcRootExtra  = oidcVhost.locations."/".extraConfig;
+  oidcAuthzPass  = oidcVhost.locations."/authz-mcp".proxyPass;
+  oidcChallenge  = oidcVhost.locations."@mcp_unauthorized".extraConfig;
+  oidcWellKnown  = oidcVhost.locations."= /.well-known/oauth-protected-resource".extraConfig;
+  oidcSecretPad  = toString oidcCfg.age.secrets.linny-mcp-nginx-token.path;
   vhostAanwezigStandaard = builtins.hasAttr "%s" cfg.services.nginx.virtualHosts;
+  oidcAanStandaard       = cfg.services.linny-mcp-host.oidc.enable;
   listenAddress = mcp.listenAddress;
   port          = mcp.port;
   corpusPath    = toString mcp.corpusPath;
@@ -81,7 +95,7 @@ in {
   # Bewijs dat de Hugo-build een ANDERE werkmap heeft.
   linnyWebStateDir = toString cfg.services.linny-web.stateDir;
 }
-""" % (DOMAIN, DOMAIN)
+""" % (DOMAIN, DOMAIN, DOMAIN)
 
 
 def load():
@@ -177,13 +191,17 @@ def main():
     check("proxyt naar de lokale poort", f':{c["port"]}' in c["vhostProxy"], c["vhostProxy"])
     check("TLS afgedwongen", c["vhostForceSSL"] is True)
     check("gebruikt het wildcard-cert", c["vhostACME"] == "toorren.net", str(c["vhostACME"]))
-    # Een MCP-client stuurt alleen een bearer-token en volgt geen loginredirect,
-    # dus Authelia zou het eindpunt onbruikbaar maken.
-    check("standaard GEEN publieke vhost (clients gaan via een ssh-tunnel)",
-          c["vhostAanwezigStandaard"] is False,
-          str(c["vhostAanwezigStandaard"]))
-    check("GEEN Authelia op deze vhost",
-          "auth_request" not in c["vhostExtra"] and "/authelia" not in c["vhostLocations"],
+    # De vhost is opt-in. Op malandro staat hij AAN sinds de OIDC-laag er is;
+    # zonder die laag hoort hij uit te staan, want dan is er geen slot.
+    check("publieke vhost alleen samen met de OIDC-laag",
+          c["vhostAanwezigStandaard"] == c["oidcAanStandaard"],
+          f'vhost={c["vhostAanwezigStandaard"]} oidc={c["oidcAanStandaard"]}')
+    # Authelia mag ervoor staan, maar NOOIT in zijn redirect-vorm: een MCP-client
+    # stuurt alleen een bearer-token en volgt geen loginredirect naar HTML.
+    # Het legacy /api/verify-endpoint en de /authelia-location horen bij die vorm.
+    check("geen redirect-gebaseerde Authelia (wel bearer-authz)",
+          "/authelia" not in c["vhostLocations"]
+          and "/api/verify" not in c["vhostExtra"],
           f'locations={c["vhostLocations"]}')
     check("Host wordt op loopback gezet (DNS-rebinding-check van de SDK)",
           "proxy_set_header Host localhost;" in c["vhostExtra"],
@@ -193,6 +211,40 @@ def main():
           str(c["vhostRecProxy"]))
     check("X-Forwarded-For blijft gezet",
           "X-Forwarded-For" in c["vhostExtra"], c["vhostExtra"])
+    print("oidc-laag")
+    for loc in ["/", "/authz-mcp", "@mcp_unauthorized",
+                "= /.well-known/oauth-protected-resource"]:
+        check(f"location {loc} bestaat met oidc aan",
+              loc in c["oidcLocaties"], str(c["oidcLocaties"]))
+    check("de proxy naar linny-mcp overleeft de merge",
+          "proxy_set_header Host localhost;" in c["oidcRootExtra"],
+          c["oidcRootExtra"][:200])
+    # Alleen directives vergelijken: het commentaar hierboven noemt "include"
+    # ook, en dat staat er juist vóór -- een naïeve index() faalt daarop.
+    directives = [ln.strip() for ln in c["oidcRootExtra"].splitlines()
+                  if ln.strip() and not ln.strip().startswith("#")]
+    volgorde = [i for i, d in enumerate(directives)
+                if d.startswith("auth_request") or d.startswith("include")]
+    check("auth_request staat vóór de token-include",
+          len(volgorde) == 2
+          and directives[volgorde[0]].startswith("auth_request"),
+          str([directives[i] for i in volgorde]))
+    check("token-include is een wildcard (nginx -t draait zonder /run/agenix)",
+          "include /run/agenix/linny-mcp-nginx-token*;" in c["oidcRootExtra"],
+          c["oidcRootExtra"][-300:])
+    check("authz gaat naar Authelia's mcp-endpoint",
+          "/api/authz/mcp" in c["oidcAuthzPass"], c["oidcAuthzPass"])
+    check("401 daagt uit met Bearer, niet Basic",
+          "WWW-Authenticate" in c["oidcChallenge"]
+          and "Bearer resource_metadata=" in c["oidcChallenge"],
+          c["oidcChallenge"][:200])
+    check("well-known wijst de authorization server aan",
+          "auth.toorren.net" in c["oidcWellKnown"], c["oidcWellKnown"][:200])
+    check("well-known declareert de scope die Authelia eist",
+          "authelia.bearer.authz" in c["oidcWellKnown"], c["oidcWellKnown"][:200])
+    check("geen tokenliteral in de nginx-config",
+          "Bearer " not in c["oidcRootExtra"], c["oidcRootExtra"][-200:])
+    print("vhost")
     check("SSE: buffering uit", "proxy_buffering off" in c["vhostExtra"])
     check("SSE: lange read-timeout", "proxy_read_timeout 3600s" in c["vhostExtra"])
 
