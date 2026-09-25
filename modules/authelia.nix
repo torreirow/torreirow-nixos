@@ -358,7 +358,16 @@
               public = false;
               # Argon2id-hash; het platte geheim staat in
               # secrets/linny-mcp-authz-secret.age en gaat nergens anders heen.
-              client_secret = "$argon2id$v=19$m=65536,t=3,p=4$a6LV5uCYSwuaVdcofTXKIA$QLVhWVwHLyCZxd+V+WzhQNsj2T3mkTN7f4n0lIx0XbU";
+              #
+              # BEWUST GOEDKOPE PARAMETERS (m=8192,t=1,p=1 in plaats van de
+              # standaard m=65536,t=3,p=4). Gemeten op malandro: met de standaard
+              # kostte élke introspection 164 ms, waarvan 163 ms deze hash -- een
+              # verzoek zonder client-auth doet er 1 ms over. Die kosten bestaan
+              # om zwakke, door mensen gekozen wachtwoorden te beschermen tegen
+              # offline kraken. Dit geheim is 72 willekeurige tekens; daar helpt
+              # een dure hash niets extra tegen. Zo kan de cache in de validator
+              # kort, en blijft een ingetrokken token niet minutenlang bruikbaar.
+              client_secret = "$argon2id$v=19$m=8192,t=1,p=1$N8jjWMoAbL5ht7JDuISO9Q$ezP2zOsok/uxM/SRLQ0JAUm3FXLABF55k0J5WR/ItRQ";
               authorization_policy = "one_factor";
               grant_types = [ "client_credentials" ];
               # Leeg, niet [ "openid" ]: Authelia weigert openid bij
