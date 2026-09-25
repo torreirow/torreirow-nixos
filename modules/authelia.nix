@@ -73,24 +73,32 @@
       server = {
         address = "tcp://127.0.0.1:9091";
 
-        # Eigen authz-endpoint voor de MCP-server. BEWUST APART: alle bestaande
-        # vhosts (pihole, status-page, hassio, ...) gebruiken het legacy
-        # /api/verify-endpoint. Door hier een nieuw endpoint te definiëren in
-        # plaats van dat gedrag te wijzigen, kan een fout hier niets breken aan
-        # wat er al draait.
+        # LET OP -- dit blok VERVANGT de standaardset authz-endpoints; het vult
+        # hem niet aan. Alles wat je wilt houden moet hier staan.
         #
-        # AuthRequest is de implementatie die bij nginx' auth_request-module
-        # hoort. Alleen het Bearer-schema: een MCP-client stuurt een token en
-        # volgt géén redirect naar een inlogpagina, dus CookieSession staat er
-        # bewust niet bij -- die zou een 302 naar het portaal opleveren.
-        endpoints.authz.mcp = {
-          implementation = "AuthRequest";
-          authn_strategies = [
-            {
-              name = "HeaderAuthorization";
-              schemes = [ "Bearer" ];
-            }
-          ];
+        # Gemeten op 2026-09-25: met alleen `mcp` hieronder gaf /api/verify een
+        # 404, en daarmee gaven ALLE bestaande vhosts (linny, status-page,
+        # pihole, hassio, ...) een 500 -- die gebruiken stuk voor stuk nog het
+        # legacy-endpoint. Haal `legacy` hier dus niet weg zonder eerst elke
+        # auth_request in modules/ om te bouwen.
+        endpoints.authz = {
+          # Waar de bestaande vhosts op wijzen: /api/verify
+          legacy.implementation = "Legacy";
+
+          # Eigen endpoint voor de MCP-server, op /api/authz/mcp. AuthRequest is
+          # de implementatie die bij nginx' auth_request-module hoort. Alleen het
+          # Bearer-schema: een MCP-client stuurt een token en volgt géén redirect
+          # naar een inlogpagina, dus CookieSession staat er bewust niet bij --
+          # die zou een 302 naar het portaal opleveren.
+          mcp = {
+            implementation = "AuthRequest";
+            authn_strategies = [
+              {
+                name = "HeaderAuthorization";
+                schemes = [ "Bearer" ];
+              }
+            ];
+          };
         };
       };
 
