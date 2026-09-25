@@ -44,6 +44,14 @@ in {
 
   restartTriggers = map toString (unit "linny-mcp").restartTriggers;
 
+  # De secrets liggen onder /run/keys (root:keys 0750). Zonder de groep `keys`
+  # kan de linny-mcp-user de map niet traverseren en faalt élke unit die een
+  # secret leest -- ook al is het bestand zelf van hem.
+  keysGroups = builtins.listToAttrs (map (n: {
+    name = n;
+    value = (unit n).serviceConfig.SupplementaryGroups or [ ];
+  }) [ "linny-mcp" "linny-mcp-clone" "linny-mcp-git-sync" ]);
+
   indexPre    = (unit "linny-mcp-index").serviceConfig.ExecStartPre;
   indexStart  = (unit "linny-mcp-index").serviceConfig.ExecStart;
   indexBefore = (unit "linny-mcp-index").before;
@@ -126,6 +134,11 @@ def main():
     check("restartTrigger op het tokens-secret",
           any("linny-mcp-tokens" in t for t in c["restartTriggers"]),
           str(c["restartTriggers"]))
+
+    for unit_name, groups in sorted(c["keysGroups"].items()):
+        check(f"{unit_name} zit in de groep keys",
+              "keys" in groups,
+              f"SupplementaryGroups={groups}")
 
     print("indexer")
     # `serve` bouwt zelf nooit een index; zonder deze unit zien clients nul docs.
