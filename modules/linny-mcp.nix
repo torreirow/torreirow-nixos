@@ -202,6 +202,16 @@ in
       mode = "0400";
     };
 
+    # Bevat een kant-en-klare `proxy_set_header Authorization "Bearer ...";`.
+    # Een nginx-snippet en geen kale tokenwaarde, zodat het nooit als
+    # optie-waarde in de wereldleesbare nix-store terechtkomt.
+    age.secrets.linny-mcp-nginx-token = mkIf cfg.oidc.enable {
+      file = ../secrets/linny-mcp-nginx-token.age;
+      path = cfg.oidc.tokenSnippet;
+      owner = "nginx";
+      mode = "0400";
+    };
+
     age.secrets.linny-mcp-tokens = {
       file = ../secrets/linny-mcp-tokens.age;
       path = "/run/agenix/linny-mcp-tokens";
@@ -375,7 +385,12 @@ in
           # auth_request, anders zou het interne token al gezet zijn op een
           # verzoek dat nog geweigerd kan worden.
           auth_request /authz-mcp;
-          include ${cfg.oidc.tokenSnippet};
+          # Wildcard, geen letterlijk pad: nginx valideert zijn config in de
+          # build-sandbox, waar /run/agenix niet bestaat. Een `include` met een
+          # mask die niets matcht is geen fout; een ontbrekend letterlijk pad wel.
+          # Ontbreekt het bestand op de host, dan gaat het verzoek zonder
+          # Authorization door en antwoordt linny-mcp 401 -- het faalt dicht.
+          include ${cfg.oidc.tokenSnippet}*;
 
           # Authelia antwoordt met `WWW-Authenticate: Basic`. Een MCP-client
           # heeft daar niets aan -- die zoekt een Bearer-uitdaging met een
