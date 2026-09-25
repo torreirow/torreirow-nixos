@@ -13,6 +13,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Bidirectionele git-sync met een aparte read/write deploy key — de sleutel van de Hugo-build blijft bewust read-only, want een proces dat zijn werkmap leegveegt hoort niet te kunnen pushen.
   - Bearer-tokens per client (`claude-web`, `claude-mobile`), gehasht opgeslagen, apart in te trekken. De vhost staat bewust niet achter Authelia: een MCP-client stuurt alleen een token en volgt geen loginredirect.
   - De nginx-vhost zet `Host` bewust op `localhost`. De MCP-SDK zet DNS-rebinding-bescherming automatisch aan voor een server die op loopback luistert en antwoordt anders 403 op elke `/mcp`-call, ook met een geldig token — terwijl `/healthz` gewoon 200 blijft.
+  - **Bereikbaar via een ssh-tunnel, niet publiek.** Custom connectors mogen in de organisatie alleen door een admin worden aangezet; zolang dat niet kan vervalt de reden voor een publiek endpoint. De vhost staat achter `publicEndpoint` (standaard uit) en lokale clients praten met `127.0.0.1:8096` via `linny-mcp-tunnel.service` op lobos. Toegangsbewijs is ssh-toegang tot malandro plus het token.
   - Achtergrond, valkuilen en het roteren van tokens: `docs/linny-mcp.md`.
 - **Meeting-opname** (`home/module/meeting-record/`, lobos): `meetrec` neemt beide kanten van een gesprek (Teams, Slack, Jitsi) op als twee gescheiden sporen.
   - `meetrec start|stop|status|list|mix|transcribe|summarize`; een map per gesprek onder `~/Meetings/`.
