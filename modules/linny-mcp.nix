@@ -80,6 +80,62 @@ in
       description = "ACME-host voor het (wildcard) TLS-certificaat.";
     };
 
+    oidc = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Authelia als OpenID Connect-provider vóór de MCP-vhost.
+
+          Alleen zinvol samen met `publicEndpoint`. Nginx valideert het
+          bearer-token via `auth_request` bij Authelia en vervangt daarna de
+          `Authorization`-header door het interne linny-mcp-token.
+        '';
+      };
+
+      authzEndpoint = mkOption {
+        type = types.str;
+        default = "http://127.0.0.1:9091/api/authz/mcp";
+        description = ''
+          Authelia's authz-endpoint met het Bearer-schema. Let op: dit endpoint
+          bestaat alleen als `server.endpoints.authz.mcp` in de Authelia-config
+          staat -- en dat blok VERVANGT de standaardset, dus `legacy` moet daar
+          expliciet naast blijven staan. Zie modules/authelia.nix.
+        '';
+      };
+
+      issuer = mkOption {
+        type = types.str;
+        default = "https://auth.toorren.net";
+        description = "Authorization server die de protected-resource-metadata aanwijst.";
+      };
+
+      scope = mkOption {
+        type = types.str;
+        default = "authelia.bearer.authz";
+        description = ''
+          De scope die we in de protected-resource-metadata declareren.
+
+          Authelia staat voor een bearer-authz-client uitsluitend deze scope toe
+          (plus `offline_access`); het is geen vrije keuze. We declareren hem hier
+          omdat het MCP-authspec voorschrijft dat een client de scopes gebruikt
+          die de resource opgeeft -- dat is de enige manier waarop Claude aan een
+          bruikbaar token komt.
+        '';
+      };
+
+      tokenSnippet = mkOption {
+        type = types.str;
+        default = "/run/agenix/linny-mcp-nginx-token";
+        description = ''
+          Pad naar een nginx-snippet die de `Authorization`-header voor de
+          upstream zet. Een agenix-bestand, geen optie-waarde: een
+          `proxy_set_header` met het token erin zou in de wereldleesbare
+          nix-store belanden.
+        '';
+      };
+    };
+
     publicEndpoint = mkOption {
       type = types.bool;
       default = false;
@@ -312,8 +368,58 @@ in
           proxy_read_timeout 3600s;
           proxy_send_timeout 3600s;
           chunked_transfer_encoding off;
+        '' + optionalString cfg.oidc.enable ''
+
+          # Authelia valideert het bearer-token; pas daarna wisselt de snippet de
+          # header om voor het interne token. Volgorde telt: include ná de
+          # auth_request, anders zou het interne token al gezet zijn op een
+          # verzoek dat nog geweigerd kan worden.
+          auth_request /authz-mcp;
+          include ${cfg.oidc.tokenSnippet};
+
+          # Authelia antwoordt met `WWW-Authenticate: Basic`. Een MCP-client
+          # heeft daar niets aan -- die zoekt een Bearer-uitdaging met een
+          # verwijzing naar de protected-resource-metadata. Vandaar de eigen 401.
+          error_page 401 = @mcp_unauthorized;
         '';
       };
+      } // optionalAttrs cfg.oidc.enable {
+        # Interne location: alleen bereikbaar via auth_request, nooit van buiten.
+        locations."/authz-mcp" = {
+          proxyPass = cfg.oidc.authzEndpoint;
+          recommendedProxySettings = false;
+          extraConfig = ''
+            internal;
+            proxy_pass_request_body off;
+            proxy_set_header Content-Length "";
+            # Authelia leidt uit deze twee af wélke bron je opvraagt, en toetst
+            # dat tegen de audience van het token en de access_control-regels.
+            proxy_set_header X-Original-Method $request_method;
+            proxy_set_header X-Original-URL https://${cfg.domain}$request_uri;
+          '';
+        };
+
+        locations."@mcp_unauthorized" = {
+          extraConfig = ''
+            add_header WWW-Authenticate 'Bearer resource_metadata="https://${cfg.domain}/.well-known/oauth-protected-resource"' always;
+            add_header Content-Type application/json always;
+            return 401 '{"error":"unauthorized"}';
+          '';
+        };
+
+        # RFC 9728. Moet zonder authenticatie leesbaar zijn -- een client haalt
+        # dit juist op omdát hij nog geen token heeft.
+        locations."= /.well-known/oauth-protected-resource" = {
+          extraConfig = ''
+            default_type application/json;
+            return 200 '${builtins.toJSON {
+              resource = "https://${cfg.domain}";
+              authorization_servers = [ cfg.oidc.issuer ];
+              scopes_supported = [ cfg.oidc.scope ];
+              bearer_methods_supported = [ "header" ];
+            }}';
+          '';
+        };
       };
     };
   };
