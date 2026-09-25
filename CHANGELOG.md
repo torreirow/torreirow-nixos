@@ -7,6 +7,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Meeting-opname** (`home/module/meeting-record/`, lobos): `meetrec` neemt beide kanten van een gesprek (Teams, Slack, Jitsi) op als twee gescheiden sporen.
+  - `meetrec start|stop|status|list|mix|transcribe|summarize`; een map per gesprek onder `~/Meetings/`.
+  - Inkomende audio via `stream.capture.sink=true` en de microfoon via de default source: geen apparaatnamen of node-id's in het script, dus een device-wissel midden in een gesprek wordt gevolgd.
+  - Rauwe WAV tijdens het gesprek, Opus 32k mono bij `stop` (~15 MB/uur in plaats van ~350 MB/uur), met `nice`/`ionice`.
+  - `mix` voegt de sporen desgewenst samen tot één bestand; de sporen blijven de bron van waarheid.
+  - `transcribe` draait whisper per spoor en levert één tijdgeordend transcript met sprekerlabels — sprekerscheiding komt uit de opnamestructuur, niet uit een diarisatiemodel.
+  - **Overspraak van de speakers wordt uit het transcript gefilterd.** Zat je op speakers, dan pikt je microfoon de tegenpartij op en stond elke zin van de ander twee keer in het transcript — een keer goed, een keer als "ik". Een `ik`-regel valt nu af als hij in de tijd overlapt met wat de ander zegt én grotendeels uit dezelfde woorden bestaat. Het gaat maar één kant op, dus er verdwijnt nooit iets van de tegenpartij; de losse `.srt`-bestanden blijven bovendien ongefilterd staan. Het is een heuristiek op tekst en geen echo-onderdrukking op de audio: korte bevestigingen ("ja", "oké") zijn niet van overspraak te onderscheiden en verdwijnen mee. Uit te zetten met `echoFilter.enable = false`.
+  - **`meetrec summarize` vat het transcript samen** tot `summary.md` — onderwerp, besluiten en actiepunten. Let op: de standaard (`claude -p`) stuurt de inhoud van je gesprek naar een externe dienst. Het draait alleen als je het zelf aanroept, en `summarizeCommand`/`summarizeArgs` laten een lokaal model toe.
+  - `mix`, `transcribe` en `summarize` accepteren nu ook de kale naam die `meetrec list` toont, niet alleen een pad.
+  - Neemt nooit uit zichzelf op: `start` is altijd een expliciete handeling.
 - **Neerslag-indicator op het "Temperatuur & Luchtvochtigheid"-dashboard** (malandro): het dashboard toont nu ook regen, naast temperatuur en vocht.
   - Nieuwe rij **Neerslag** met "Neerslag nu" (mm/h), "Verwacht komende 2u" (mm) en een neerslag-verloopgrafiek, gevoed door de gratis **Buienradar**-integratie (radar-nowcast op de eigen locatie, dus geldig voor Ermelo zonder meetstation dichtbij).
   - Een lokaal berekend **dauwpunt** (Magnus-formule uit de buiten-sensor) is als extra lijn aan de temperatuurgrafiek toegevoegd, en voedt samen met de radar een samengestelde `sensor.neerslag_indicator` in Home Assistant met de toestanden **Regent / Bui op komst / Verzadigd / Droog**.
@@ -87,10 +97,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Weather dropdown header toont nu geconfigureerde naam i.p.v. API-resultaat
 
 ### Removed
+- **Dode `configuration.nix` in de repo-root** (205 regels): werd nergens geïmporteerd — `flake.nix` gebruikt `hosts/<host>/configuration.nix` — en bevatte bovendien een syntaxfout (`wireplumber.enable = true;A`), dus hij zou niet eens evalueren. Had al twee keer tot verwarring geleid, o.a. rond een `alsa-card-profiles`-instelling en een systeembrede `atuin` die nooit actief zijn geweest.
 - **OpenSpec-change `jitsi-meet-malandro` geannuleerd** (gearchiveerd als `2026-09-18-jitsi-meet-malandro`): Jitsi zelf hosten op malandro gaat niet door wegens onvoldoende resources; de desktop-client op lobos blijft. De delta-specs zijn bewust **niet** naar de hoofdspecs gesynct — ze beschrijven een capability die niet draait. Op malandro draait geen enkele jitsi-component meer (geverifieerd op units, containers, poorten, nginx-vhost en firewall); wel staan er nog dode state-dirs `/var/lib/jitsi-meet/` en `/var/lib/prosody/` met secrets uit de teruggedraaide deploy van 2026-08-28.
 - **`modules/hardening.nix`**: werd nergens geimporteerd en was bovendien onbouwbaar geworden -- `chkrootkit` is uit nixpkgs verwijderd ("unmaintained and archived upstream and didn't even work on NixOS") en `rkhunter` bestaat er evenmin nog. Er is bewust geen malware-scanner voor in de plaats gekomen.
 
 ### Fixed
+- **Atuin-versie vastgezet op wat de history-database aankan**: de `unstable`-input stond gepind op een nixpkgs van 10 september met atuin 18.19.0, terwijl de draaiende generatie 18.21.0 gebruikte en de database al had gemigreerd (`migration 20260818000000`). Elke `home-manager switch` viel daardoor terug op 18.19.0, waarop de atuin-daemon crashte en de terminal onbruikbaar werd. `unstable` bijgewerkt naar 20 september, dat weer atuin 18.21.0 levert.
 - **Dode netwerk-afhankelijkheid in de Nextcloud-sync-unit** (`home/module/nextcloud-sync/`): `After`/`Wants=network-online.target` stond in de user-unit, maar die target bestaat daar niet (`LoadState=not-found`) en deed dus niets. Het suggereerde een wachtgedrag dat er niet was — de sync vuurde op dezelfde seconde als het ontwaken uit suspend, met de wifi nog niet geassocieerd.
 - **Nextcloud-sync logde niets bij een fout** (`home/module/nextcloud-sync/`): `--silent` stond hardgecodeerd aan, waardoor `nextcloudcmd` ook bij mislukking zweeg. Daardoor bleef de sync op lobos van 9 tot 16 september onopgemerkt kapot — 419 mislukte runs, nul geslaagde, en in de journal alleen "Failed to start" zonder reden. De vlag zit nu achter een nieuwe optie `quiet` die standaard uit staat, en er is een `onFailure`-haak bijgekomen.
 - **Dode wachtwoordbeleid-configuratie in `hosts/lobos/configuration.nix`**: een uitgecommentarieerd `security.pam.loginLimits`-blok met `PASS_MAX_DAYS`/`PASS_MIN_DAYS` verwijderd. Die optie schrijft naar `limits.conf` (ulimits) en nooit naar `login.defs`, dus het zou ook actief niets gedaan hebben.
