@@ -72,6 +72,26 @@
 
       server = {
         address = "tcp://127.0.0.1:9091";
+
+        # Eigen authz-endpoint voor de MCP-server. BEWUST APART: alle bestaande
+        # vhosts (pihole, status-page, hassio, ...) gebruiken het legacy
+        # /api/verify-endpoint. Door hier een nieuw endpoint te definiëren in
+        # plaats van dat gedrag te wijzigen, kan een fout hier niets breken aan
+        # wat er al draait.
+        #
+        # AuthRequest is de implementatie die bij nginx' auth_request-module
+        # hoort. Alleen het Bearer-schema: een MCP-client stuurt een token en
+        # volgt géén redirect naar een inlogpagina, dus CookieSession staat er
+        # bewust niet bij -- die zou een 302 naar het portaal opleveren.
+        endpoints.authz.mcp = {
+          implementation = "AuthRequest";
+          authn_strategies = [
+            {
+              name = "HeaderAuthorization";
+              schemes = [ "Bearer" ];
+            }
+          ];
+        };
       };
 
       log = {
@@ -270,6 +290,36 @@
               # Onthoud toestemming één maand (M = maand, m = minuut) i.p.v. bij elke login vragen
               consent_mode = "pre-configured";
               pre_configured_consent_duration = "1M";
+            }
+
+            # Claude's MCP-connector. Publieke client: Claude's dialoog vraagt
+            # optioneel om een client secret, maar met PKCE S256 is een secret
+            # niet nodig -- en het scheelt een argon2-hash in een publieke repo.
+            #
+            # Alle onderstaande velden zijn EIS van Authelia zodra een client de
+            # scope authelia.bearer.authz mag gebruiken; ze zijn niet naar smaak
+            # te wijzigen. Authelia weigert de client anders bij het laden.
+            {
+              client_id = "claude-connector";
+              client_name = "Claude MCP connector";
+              public = true;
+              require_pkce = true;
+              pkce_challenge_method = "S256";
+              # Alleen deze scope (+ offline_access) is toegestaan bij bearer-authz.
+              scopes = [ "authelia.bearer.authz" "offline_access" ];
+              # De audience MOET door de client worden opgevraagd; Authelia geeft
+              # er anders geen af, en dan faalt de autorisatie op het endpoint.
+              audience = [ "https://linny-mcp.toorren.net" ];
+              grant_types = [ "authorization_code" "refresh_token" ];
+              response_types = [ "code" ];
+              response_modes = [ "form_post" ];
+              consent_mode = "explicit";
+              require_pushed_authorization_requests = true;
+              token_endpoint_auth_method = "none";
+              authorization_policy = "two_factor";
+              # Beste aanwijzing die we hebben; bijstellen zodra de dialoog de
+              # echte toont. Meerdere URI's zijn toegestaan.
+              redirect_uris = [ "https://pivot.claude.ai/auth/gateway-callback" ];
             }
           ];
         };
