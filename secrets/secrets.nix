@@ -110,6 +110,11 @@ in
   # nix-store belandt.
   "linny-mcp-nginx-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # Client secret waarmee de tokenvalidator zich legitimeert bij Authelia's
+  # introspection-endpoint. De argon2-hash staat in modules/authelia.nix; dit is
+  # het platte geheim, dat alleen de validator leest.
+  "linny-mcp-authz-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;

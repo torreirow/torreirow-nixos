@@ -55,6 +55,10 @@ in {
   oidcChallenge  = oidcVhost.locations."@mcp_unauthorized".extraConfig;
   oidcWellKnown  = oidcVhost.locations."= /.well-known/oauth-protected-resource".extraConfig;
   oidcSecretPad  = toString oidcCfg.age.secrets.linny-mcp-nginx-token.path;
+  oidcValidatorHost   = (oidcCfg.systemd.services.linny-mcp-authz).environment.AUTHZ_LISTEN_HOST;
+  oidcExpectedClient  = (oidcCfg.systemd.services.linny-mcp-authz).environment.AUTHZ_EXPECTED_CLIENT;
+  oidcSecretEnv       = (oidcCfg.systemd.services.linny-mcp-authz).environment.AUTHZ_CLIENT_SECRET_FILE;
+  oidcAuthzTriggers   = map toString (oidcCfg.systemd.services.linny-mcp-authz).restartTriggers;
   vhostAanwezigStandaard = builtins.hasAttr "%s" cfg.services.nginx.virtualHosts;
   oidcAanStandaard       = cfg.services.linny-mcp-host.oidc.enable;
   listenAddress = mcp.listenAddress;
@@ -233,8 +237,21 @@ def main():
     check("token-include is een wildcard (nginx -t draait zonder /run/agenix)",
           "include /run/agenix/linny-mcp-nginx-token*;" in c["oidcRootExtra"],
           c["oidcRootExtra"][-300:])
-    check("authz gaat naar Authelia's mcp-endpoint",
-          "/api/authz/mcp" in c["oidcAuthzPass"], c["oidcAuthzPass"])
+    # Niet rechtstreeks naar Authelia: auth_request beslist op een statuscode en
+    # introspection antwoordt 200 met {"active": false} voor een ongeldig token.
+    check("authz gaat naar de lokale validator, niet naar Authelia",
+          "127.0.0.1:8097" in c["oidcAuthzPass"]
+          and "9091" not in c["oidcAuthzPass"],
+          c["oidcAuthzPass"])
+    check("validator luistert op loopback",
+          c["oidcValidatorHost"] == "127.0.0.1", c["oidcValidatorHost"])
+    check("validator weigert tokens van andere clients",
+          c["oidcExpectedClient"] == "claude-connector", c["oidcExpectedClient"])
+    check("client secret komt uit een bestand, niet uit een optie",
+          c["oidcSecretEnv"].startswith("/run/agenix/"), c["oidcSecretEnv"])
+    check("herstart bij hercodering van het secret",
+          any("linny-mcp-authz-secret" in t for t in c["oidcAuthzTriggers"]),
+          str(c["oidcAuthzTriggers"]))
     check("Authelia's Basic-uitdaging wordt onderdrukt",
           "proxy_hide_header WWW-Authenticate;" in c["oidcAuthzExtra"],
           c["oidcAuthzExtra"][:200])
@@ -244,8 +261,12 @@ def main():
           c["oidcChallenge"][:200])
     check("well-known wijst de authorization server aan",
           "auth.toorren.net" in c["oidcWellKnown"], c["oidcWellKnown"][:200])
-    check("well-known declareert de scope die Authelia eist",
-          "authelia.bearer.authz" in c["oidcWellKnown"], c["oidcWellKnown"][:200])
+    check("well-known declareert de scopes van de connector-client",
+          all(sc in c["oidcWellKnown"] for sc in ["openid", "profile", "email"]),
+          c["oidcWellKnown"][:300])
+    check("well-known vraagt NIET meer om authelia.bearer.authz (trekt PAR mee)",
+          "authelia.bearer.authz" not in c["oidcWellKnown"],
+          c["oidcWellKnown"][:300])
     check("geen tokenliteral in de nginx-config",
           "Bearer " not in c["oidcRootExtra"], c["oidcRootExtra"][-200:])
     print("vhost")
