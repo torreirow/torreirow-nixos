@@ -88,6 +88,11 @@ in
   # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
   "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # Cap CAPTCHA (self-hosted): ADMIN_KEY env-file voor de standalone server
+  "cap-admin-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  # Cap CAPTCHA: key-secret voor server-side siteverify vanuit de mailer
+  "cap-mailer-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
   # linny-mcp (READ/WRITE deploy key voor torreirow/torrlinny -- git-sync pusht
   # agent-notities terug). Bewust een tweede sleutel: torrlinny-deploy-key blijft
   # read-only, want dat is de sleutel van linny-web-build en dat proces doet
