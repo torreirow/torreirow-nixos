@@ -275,6 +275,19 @@
 
       identity_providers = {
         oidc = {
+          # SERVER-BREED, raakt dus ook de Wallos-client.
+          #
+          # Authelia eist PAR zodra een client de scope `authelia.bearer.authz`
+          # gebruikt -- gemeten 2026-09-25, validate-config weigert de client
+          # anders. Claude deed geen PAR en kreeg "Pushed Authorization Requests
+          # are required but this Authorization Request was not made as a Pushed
+          # Authorization Request".
+          #
+          # Deze vlag verschijnt letterlijk in de discovery-metadata, en daar
+          # baseert een client zijn gedrag op: met `false` ziet Claude geen reden
+          # om PAR te gebruiken. Op `true` adverteren we het als verplicht.
+          require_pushed_authorization_requests = true;
+
           cors = {
             endpoints = [ "authorization" "token" "revocation" "introspection" ];
             allowed_origins_from_client_redirect_uris = true;
