@@ -79,7 +79,14 @@
   # linny-mcp: hetzelfde notitieboek, maar schrijfbaar voor Claude via MCP.
   # Eigen corpus-clone -- NIET de checkout van torrlinny, die wordt periodiek
   # met `reset --hard` + `clean -fdx` opgeruimd. Zie modules/linny-mcp.nix.
-  services.linny-mcp-host.enable = true;
+  services.linny-mcp-host = {
+    enable = true;
+    # Publiek endpoint met Authelia ervoor als OIDC-provider, voor de
+    # Claude-connector op mobiel. Lokale clients gaan nog steeds via de
+    # ssh-tunnel naar 127.0.0.1 -- die route blijft onveranderd bestaan.
+    publicEndpoint = true;
+    oidc.enable = true;
+  };
 
   services.magister-sync = {
     enable = true;
