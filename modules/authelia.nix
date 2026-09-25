@@ -314,34 +314,53 @@
               pre_configured_consent_duration = "1M";
             }
 
-            # Claude's MCP-connector. Publieke client: Claude's dialoog vraagt
-            # optioneel om een client secret, maar met PKCE S256 is een secret
-            # niet nodig -- en het scheelt een argon2-hash in een publieke repo.
+            # Claude's MCP-connector. Publieke client met PKCE; Claude's dialoog
+            # vraagt optioneel om een secret, maar dat is bij PKCE niet nodig.
             #
-            # Alle onderstaande velden zijn EIS van Authelia zodra een client de
-            # scope authelia.bearer.authz mag gebruiken; ze zijn niet naar smaak
-            # te wijzigen. Authelia weigert de client anders bij het laden.
+            # BEWUST GEEN `authelia.bearer.authz`. Die scope trekt een hele reeks
+            # eisen mee -- verplicht PAR, alleen form_post, geen andere scopes --
+            # en Claude doet geen PAR. Gemeten 2026-09-25, ook niet wanneer de
+            # discovery-metadata het als verplicht adverteert. Het token wordt nu
+            # gevalideerd door linny-mcp-authz via het introspection-endpoint, en
+            # daarvoor gelden die eisen niet.
             {
               client_id = "claude-connector";
               client_name = "Claude MCP connector";
               public = true;
               require_pkce = true;
               pkce_challenge_method = "S256";
-              # Alleen deze scope (+ offline_access) is toegestaan bij bearer-authz.
-              scopes = [ "authelia.bearer.authz" "offline_access" ];
-              # De audience MOET door de client worden opgevraagd; Authelia geeft
-              # er anders geen af, en dan faalt de autorisatie op het endpoint.
-              audience = [ "https://linny-mcp.toorren.net" ];
+              scopes = [ "openid" "profile" "email" "offline_access" ];
               grant_types = [ "authorization_code" "refresh_token" ];
               response_types = [ "code" ];
-              response_modes = [ "form_post" ];
+              response_modes = [ "query" "form_post" ];
               consent_mode = "explicit";
-              require_pushed_authorization_requests = true;
               token_endpoint_auth_method = "none";
               authorization_policy = "two_factor";
               # Beste aanwijzing die we hebben; bijstellen zodra de dialoog de
               # echte toont. Meerdere URI's zijn toegestaan.
               redirect_uris = [ "https://pivot.claude.ai/auth/gateway-callback" ];
+            }
+
+            # De tokenvalidator. Praat alleen met het introspection-endpoint en
+            # doorloopt zelf nooit een gebruikersflow -- vandaar client_credentials
+            # en geen redirect_uris. Vertrouwelijke client: hij moet zich kunnen
+            # legitimeren bij introspection.
+            {
+              client_id = "linny-mcp-authz";
+              client_name = "linny-mcp tokenvalidator";
+              public = false;
+              # Argon2id-hash; het platte geheim staat in
+              # secrets/linny-mcp-authz-secret.age en gaat nergens anders heen.
+              client_secret = "$argon2id$v=19$m=65536,t=3,p=4$a6LV5uCYSwuaVdcofTXKIA$QLVhWVwHLyCZxd+V+WzhQNsj2T3mkTN7f4n0lIx0XbU";
+              authorization_policy = "one_factor";
+              grant_types = [ "client_credentials" ];
+              # Leeg, niet [ "openid" ]: Authelia weigert openid bij
+              # client_credentials -- er is geen gebruiker om een identiteit van
+              # te maken. Introspection vraagt alleen dat de client zich kan
+              # legitimeren, geen scope.
+              scopes = [ ];
+              response_types = [ ];
+              redirect_uris = [ ];
             }
           ];
         };

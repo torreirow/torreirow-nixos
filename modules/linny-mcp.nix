@@ -93,14 +93,61 @@ in
         '';
       };
 
-      authzEndpoint = mkOption {
-        type = types.str;
-        default = "http://127.0.0.1:9091/api/authz/mcp";
+      validatorPort = mkOption {
+        type = types.port;
+        default = 8097;
         description = ''
-          Authelia's authz-endpoint met het Bearer-schema. Let op: dit endpoint
-          bestaat alleen als `server.endpoints.authz.mcp` in de Authelia-config
-          staat -- en dat blok VERVANGT de standaardset, dus `legacy` moet daar
-          expliciet naast blijven staan. Zie modules/authelia.nix.
+          Poort van `linny-mcp-authz`, de dienst waar nginx' `auth_request` naar
+          wijst.
+
+          Waarom niet rechtstreeks naar Authelia: `auth_request` beslist op een
+          statuscode, en het introspection-endpoint antwoordt met 200 en
+          `{"active": false}` voor een ongeldig token. De body moet dus gelezen
+          worden, en dat kan nginx niet.
+
+          En waarom niet Authelia's eigen authz-endpoint: dat accepteert alleen
+          tokens met de scope `authelia.bearer.authz`, en bij die scope eist
+          Authelia verplicht PAR. Claude doet geen PAR -- gemeten 2026-09-25,
+          ook niet wanneer de discovery-metadata het als verplicht adverteert.
+        '';
+      };
+
+      introspectionUrl = mkOption {
+        type = types.str;
+        default = "https://auth.toorren.net/api/oidc/introspection";
+        description = "RFC 7662-endpoint van de authorization server.";
+      };
+
+      validatorClientId = mkOption {
+        type = types.str;
+        default = "linny-mcp-authz";
+        description = ''
+          Vertrouwelijke client waarmee de validator zich legitimeert bij
+          introspection. Niet dezelfde als de connector-client: deze doorloopt
+          nooit een gebruikersflow.
+        '';
+      };
+
+      expectedClientId = mkOption {
+        type = types.str;
+        default = "claude-connector";
+        description = ''
+          De client waarvan tokens worden geaccepteerd.
+
+          Dit is geen detail: zonder deze controle zou élk geldig token van élke
+          client op deze Authelia toegang geven tot het notitieboek -- ook dat
+          van Wallos.
+        '';
+      };
+
+      cacheTtl = mkOption {
+        type = types.str;
+        default = "60";
+        description = ''
+          Hoe lang een geldig bevonden token wordt onthouden (seconden). Een
+          MCP-sessie doet veel aanroepen; zonder cache kost elke tool-call een
+          introspection-ronde. Keerzijde: een ingetrokken token blijft zo lang
+          bruikbaar.
         '';
       };
 
@@ -112,15 +159,11 @@ in
 
       scope = mkOption {
         type = types.str;
-        default = "authelia.bearer.authz";
+        default = "openid profile email offline_access";
         description = ''
-          De scope die we in de protected-resource-metadata declareren.
-
-          Authelia staat voor een bearer-authz-client uitsluitend deze scope toe
-          (plus `offline_access`); het is geen vrije keuze. We declareren hem hier
-          omdat het MCP-authspec voorschrijft dat een client de scopes gebruikt
-          die de resource opgeeft -- dat is de enige manier waarop Claude aan een
-          bruikbaar token komt.
+          De scopes die we in de protected-resource-metadata declareren, als één
+          door spaties gescheiden string. Het MCP-authspec schrijft voor dat een
+          client de scopes gebruikt die de resource opgeeft.
         '';
       };
 
@@ -209,6 +252,15 @@ in
       file = ../secrets/linny-mcp-nginx-token.age;
       path = cfg.oidc.tokenSnippet;
       owner = "nginx";
+      mode = "0400";
+    };
+
+    # Client secret van de validator. Alleen die dienst leest hem; hij gaat
+    # nooit naar een client en staat nergens anders.
+    age.secrets.linny-mcp-authz-secret = mkIf cfg.oidc.enable {
+      file = ../secrets/linny-mcp-authz-secret.age;
+      path = "/run/agenix/linny-mcp-authz-secret";
+      owner = "linny-mcp-authz";
       mode = "0400";
     };
 
@@ -347,6 +399,56 @@ in
     # BEWUST ZONDER AUTHELIA. Dat is een redirect-gebaseerde browserflow; een
     # MCP-client stuurt alleen `Authorization: Bearer` en volgt geen redirect.
     # De authenticatie zit in linny-mcp zelf (bearer-tokens uit agenix).
+    ###### Tokenvalidator ####################################################
+    users.groups.linny-mcp-authz = mkIf cfg.oidc.enable { };
+    users.users.linny-mcp-authz = mkIf cfg.oidc.enable {
+      isSystemUser = true;
+      group = "linny-mcp-authz";
+      # /run/keys is root:keys 0750 -- zonder deze groep komt de dienst niet bij
+      # zijn eigen agenix-secret. Zelfde valkuil als bij linny-mcp zelf.
+      extraGroups = [ "keys" ];
+    };
+
+    systemd.services.linny-mcp-authz = mkIf cfg.oidc.enable {
+      description = "tokenvalidator tussen nginx en linny-mcp";
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+      # De dienst leest het secret één keer bij start, dus een hercodering moet
+      # een herstart afdwingen -- anders draait hij stil door met het oude.
+      restartTriggers = [ config.age.secrets.linny-mcp-authz-secret.file ];
+      environment = {
+        AUTHZ_INTROSPECTION_URL = cfg.oidc.introspectionUrl;
+        AUTHZ_CLIENT_ID = cfg.oidc.validatorClientId;
+        AUTHZ_EXPECTED_CLIENT = cfg.oidc.expectedClientId;
+        AUTHZ_CLIENT_SECRET_FILE = config.age.secrets.linny-mcp-authz-secret.path;
+        AUTHZ_LISTEN_HOST = "127.0.0.1";
+        AUTHZ_LISTEN_PORT = toString cfg.oidc.validatorPort;
+        AUTHZ_CACHE_TTL = cfg.oidc.cacheTtl;
+        PYTHONUNBUFFERED = "1";
+      };
+      serviceConfig = {
+        ExecStart = "${pkgs.python3}/bin/python3 ${./linny-mcp-authz/linny-mcp-authz.py}";
+        User = "linny-mcp-authz";
+        Group = "linny-mcp-authz";
+        Restart = "always";
+        RestartSec = 5;
+        # Deze dienst heeft niets nodig buiten een socket en één bestand.
+        NoNewPrivileges = true;
+        PrivateTmp = true;
+        PrivateDevices = true;
+        ProtectSystem = "strict";
+        ProtectHome = true;
+        ProtectKernelTunables = true;
+        ProtectKernelModules = true;
+        ProtectControlGroups = true;
+        RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
+        RestrictNamespaces = true;
+        LockPersonality = true;
+        MemoryDenyWriteExecute = true;
+        SystemCallArchitectures = "native";
+      };
+    };
+
     services.nginx.virtualHosts = mkIf cfg.publicEndpoint {
       ${cfg.domain} = {
       forceSSL = true;
@@ -407,7 +509,7 @@ in
       } // optionalAttrs cfg.oidc.enable {
         # Interne location: alleen bereikbaar via auth_request, nooit van buiten.
         "/authz-mcp" = {
-          proxyPass = cfg.oidc.authzEndpoint;
+          proxyPass = "http://127.0.0.1:${toString cfg.oidc.validatorPort}";
           recommendedProxySettings = false;
           extraConfig = ''
             internal;
@@ -445,7 +547,7 @@ in
             return 200 '${builtins.toJSON {
               resource = "https://${cfg.domain}";
               authorization_servers = [ cfg.oidc.issuer ];
-              scopes_supported = [ cfg.oidc.scope ];
+              scopes_supported = splitString " " cfg.oidc.scope;
               bearer_methods_supported = [ "header" ];
             }}';
           '';
