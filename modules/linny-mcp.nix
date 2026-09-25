@@ -351,7 +351,13 @@ in
       ${cfg.domain} = {
       forceSSL = true;
       useACMEHost = cfg.acmeHost;
-      locations."/" = {
+      # LET OP: hieronder wordt op `locations`-niveau samengevoegd, niet op
+      # vhost-niveau. `//` is een ONDIEPE merge: een rechterkant met een eigen
+      # `locations` gooit de linker `locations` in zijn geheel weg, inclusief "/".
+      # Gemeten 2026-09-25: dat leverde een vhost op die 404 gaf op /mcp terwijl
+      # de well-known gewoon werkte.
+      locations = {
+      "/" = {
         proxyPass = "http://127.0.0.1:${toString cfg.port}";
         # forceert HTTP/1.1 + Upgrade/Connection
         proxyWebsockets = true;
@@ -400,7 +406,7 @@ in
       };
       } // optionalAttrs cfg.oidc.enable {
         # Interne location: alleen bereikbaar via auth_request, nooit van buiten.
-        locations."/authz-mcp" = {
+        "/authz-mcp" = {
           proxyPass = cfg.oidc.authzEndpoint;
           recommendedProxySettings = false;
           extraConfig = ''
@@ -414,7 +420,7 @@ in
           '';
         };
 
-        locations."@mcp_unauthorized" = {
+        "@mcp_unauthorized" = {
           extraConfig = ''
             add_header WWW-Authenticate 'Bearer resource_metadata="https://${cfg.domain}/.well-known/oauth-protected-resource"' always;
             add_header Content-Type application/json always;
@@ -424,7 +430,7 @@ in
 
         # RFC 9728. Moet zonder authenticatie leesbaar zijn -- een client haalt
         # dit juist op omdát hij nog geen token heeft.
-        locations."= /.well-known/oauth-protected-resource" = {
+        "= /.well-known/oauth-protected-resource" = {
           extraConfig = ''
             default_type application/json;
             return 200 '${builtins.toJSON {
@@ -435,6 +441,7 @@ in
             }}';
           '';
         };
+      };
       };
     };
   };
