@@ -121,3 +121,26 @@ alleen `Authorization: Bearer`. Dus een **eigen vhost** die Authelia overslaat.
 ## Ship
 Eén OpenSpec change voor de nixos-kant (voorstel: `add-linny-mcp-hosting`). Story 1 valt buiten
 OpenSpec (andere repo). Child-stories spiegelen de fases. `/cas:1shotepic` op deze epic.
+
+## Stand na de eerste uitvoerronde (2026-09-25)
+
+**Af en gecommit** (`76ac627` op `feat/linny-mcp`): flake-input + overlay + module, eigen
+corpus-clone, git-sync, indexer, secrets met restartTrigger, publieke vhost, PORTS.md,
+`docs/linny-mcp.md`, CLAUDE.md-verwijzing en CHANGELOG. OpenSpec-change `add-linny-mcp-hosting`
+(25/31 taken).
+
+Stories `nixos-dqs2`, `nixos-ce9f`, `nixos-pbph`, `nixos-ero6`, `nixos-chcj`: completed.
+`nixos-zets`: grotendeels af, 2 notities wachten op een klantkeuze.
+
+**Statisch geverifieerd, zonder deploy:**
+- `modules/linny-mcp_test.py` -- 30 assertions op de opgebouwde malandro-config.
+- Pakket bouwt (v0.2.0, Go-tests via `doCheck`).
+- `lindexer build` tegen het echte corpus: 117 -> 118 records na de normalisatie, FTS-zoeken werkt.
+
+**Niet verifieerbaar zonder switch** (story `nixos-eo2h`, acceptatiecriteria 1-8): alles wat een
+draaiende server vereist. `nixos-rebuild switch --flake .#malandro` is aan jou.
+
+**Bewust niet gearchiveerd.** De OpenSpec-change blijft open omdat 6.3 t/m 6.8 live-stappen zijn.
+Archiveren terwijl de dienst nooit gedraaid heeft zou de spec laten zeggen dat iets bewezen is wat
+alleen geëvalueerd is.
+
