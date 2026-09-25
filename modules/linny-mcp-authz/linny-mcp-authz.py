@@ -115,12 +115,18 @@ def introspect(token: str) -> dict:
     request.add_header("Accept", "application/json")
     basic = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
     request.add_header("Authorization", f"Basic {basic}")
-    # Authelia draait op dezelfde host; we praten over loopback en zetten de
-    # publieke naam als Host-header. Anders loopt élke introspection via de
-    # publieke DNS-naam de router uit en weer in, en ligt de MCP-server plat
-    # zodra de internetverbinding hapert.
+    # Authelia draait op dezelfde host; we praten over loopback en doen ons voor
+    # als de reverse proxy. Anders loopt élke introspection via de publieke
+    # DNS-naam de router uit en weer in, en ligt de MCP-server plat zodra de
+    # internetverbinding hapert.
+    #
+    # Beide headers zijn nodig. Authelia leidt de "effective issuer" uit het
+    # verzoek af en weigert met `invalid X-Forwarded-Proto header value 'http'`
+    # als je alleen de Host meestuurt -- de issuer moet https zijn.
     if HOST_HEADER:
         request.add_header("Host", HOST_HEADER)
+        request.add_header("X-Forwarded-Proto", "https")
+        request.add_header("X-Forwarded-Host", HOST_HEADER)
     with urllib.request.urlopen(request, timeout=5) as response:
         return json.loads(response.read())
 
