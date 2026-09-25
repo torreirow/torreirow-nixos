@@ -20,6 +20,7 @@ en een afhankelijkheid minder is er een minder om te breken.
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -48,6 +49,9 @@ LISTEN_PORT = int(env("AUTHZ_LISTEN_PORT", "8097"))
 # introspection-ronde naar Authelia kosten; met 60s blijft een ingetrokken token
 # hooguit een minuut bruikbaar. Dat is de afweging, bewust kort gehouden.
 CACHE_TTL = float(env("AUTHZ_CACHE_TTL", "60"))
+# Leeg = niet zetten. Nodig wanneer INTROSPECTION_URL naar loopback wijst terwijl
+# Authelia op zijn publieke naam geconfigureerd staat.
+HOST_HEADER = os.environ.get("AUTHZ_HOST_HEADER", "")
 
 with open(env("AUTHZ_CLIENT_SECRET_FILE"), encoding="utf-8") as fh:
     CLIENT_SECRET = fh.read().strip()
@@ -102,14 +106,21 @@ def parse_bearer(header: str | None) -> str | None:
 
 def introspect(token: str) -> dict:
     """RFC 7662. Werpt bij netwerk- of protocolfouten."""
-    # client_secret_post in plaats van Basic: Authelia accepteert beide, en zo
-    # staat het geheim niet in een header die sneller ergens gelogd wordt.
-    body = urllib.parse.urlencode(
-        {"token": token, "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET}
-    ).encode()
+    # client_secret_basic, niet _post. Authelia registreert per client één
+    # toegestane methode en die staat standaard op basic; met _post weigert het
+    # endpoint met "the OAuth 2.0 client registration does not allow this method".
+    body = urllib.parse.urlencode({"token": token}).encode()
     request = urllib.request.Request(INTROSPECTION_URL, data=body, method="POST")
     request.add_header("Content-Type", "application/x-www-form-urlencoded")
     request.add_header("Accept", "application/json")
+    basic = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+    request.add_header("Authorization", f"Basic {basic}")
+    # Authelia draait op dezelfde host; we praten over loopback en zetten de
+    # publieke naam als Host-header. Anders loopt élke introspection via de
+    # publieke DNS-naam de router uit en weer in, en ligt de MCP-server plat
+    # zodra de internetverbinding hapert.
+    if HOST_HEADER:
+        request.add_header("Host", HOST_HEADER)
     with urllib.request.urlopen(request, timeout=5) as response:
         return json.loads(response.read())
 

@@ -114,8 +114,19 @@ in
 
       introspectionUrl = mkOption {
         type = types.str;
-        default = "https://auth.toorren.net/api/oidc/introspection";
-        description = "RFC 7662-endpoint van de authorization server.";
+        default = "http://127.0.0.1:9091/api/oidc/introspection";
+        description = ''
+          RFC 7662-endpoint van de authorization server, over loopback. Anders
+          loopt elke introspection via de publieke naam de router uit en weer in,
+          en ligt de MCP-server plat zodra de internetverbinding hapert.
+          `hostHeader` levert dan de naam waaronder Authelia zichzelf kent.
+        '';
+      };
+
+      hostHeader = mkOption {
+        type = types.str;
+        default = "auth.toorren.net";
+        description = "Host-header bij het loopback-verzoek naar Authelia.";
       };
 
       validatorClientId = mkOption {
@@ -424,6 +435,7 @@ in
         AUTHZ_LISTEN_HOST = "127.0.0.1";
         AUTHZ_LISTEN_PORT = toString cfg.oidc.validatorPort;
         AUTHZ_CACHE_TTL = cfg.oidc.cacheTtl;
+        AUTHZ_HOST_HEADER = cfg.oidc.hostHeader;
         PYTHONUNBUFFERED = "1";
       };
       serviceConfig = {
