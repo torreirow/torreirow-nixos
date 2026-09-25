@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Maakt een private GitHub-repo aan voor de huidige map, zet origin en pusht met upstream.
+# Gebruik: ghrepocreate [owner]   (zonder owner wordt erom gevraagd)
+set -euo pipefail
+
+owner="${1:-}"
+if [[ -z "$owner" ]]; then
+  read -rp "GitHub owner: " owner
+fi
+[[ -z "$owner" ]] && { echo "geen owner opgegeven" >&2; exit 1; }
+
+git rev-parse --verify HEAD >/dev/null 2>&1 \
+  || { echo "nog geen commits, kan niet pushen" >&2; exit 1; }
+
+gh repo create "$owner/$(basename "$PWD")" \
+  --private --source=. --remote=origin --push
