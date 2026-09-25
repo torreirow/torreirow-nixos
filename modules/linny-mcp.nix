@@ -265,9 +265,24 @@ in
         proxyPass = "http://127.0.0.1:${toString cfg.port}";
         # forceert HTTP/1.1 + Upgrade/Connection
         proxyWebsockets = true;
+        # De aanbevolen headers zetten `Host $host`, en dat botst met de
+        # DNS-rebinding-bescherming van de MCP-SDK: die springt automatisch aan
+        # zodra de server op loopback luistert en weigert dan elke Host die geen
+        # loopback-naam is (streamable.go: "Forbidden: invalid Host header").
+        # Daarom zelf de headers zetten -- twee keer proxy_set_header Host zou
+        # nginx allebei meesturen en Go antwoordt dan met 400.
+        # `req.Host` wordt in de SDK nergens anders gebruikt dan in die check,
+        # dus overschrijven kost geen functionaliteit.
+        recommendedProxySettings = false;
         # MCP's streamable-HTTP (SSE) mag niet gebufferd worden en heeft een lange
         # upstream-read nodig, anders stallen of breken langlopende /mcp-streams.
         extraConfig = ''
+          proxy_set_header Host localhost;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header X-Forwarded-Host $host;
+
           proxy_buffering off;
           proxy_request_buffering off;
           proxy_read_timeout 3600s;

@@ -65,6 +65,7 @@ in {
 
   vhostProxy     = vhost.locations."/".proxyPass;
   vhostExtra     = vhost.locations."/".extraConfig;
+  vhostRecProxy  = vhost.locations."/".recommendedProxySettings;
   vhostLocations = builtins.attrNames vhost.locations;
   vhostForceSSL  = vhost.forceSSL;
   vhostACME      = vhost.useACMEHost;
@@ -173,6 +174,14 @@ def main():
     check("GEEN Authelia op deze vhost",
           "auth_request" not in c["vhostExtra"] and "/authelia" not in c["vhostLocations"],
           f'locations={c["vhostLocations"]}')
+    check("Host wordt op loopback gezet (DNS-rebinding-check van de SDK)",
+          "proxy_set_header Host localhost;" in c["vhostExtra"],
+          c["vhostExtra"])
+    check("aanbevolen proxy-headers uit (anders dubbele Host)",
+          c["vhostRecProxy"] is False,
+          str(c["vhostRecProxy"]))
+    check("X-Forwarded-For blijft gezet",
+          "X-Forwarded-For" in c["vhostExtra"], c["vhostExtra"])
     check("SSE: buffering uit", "proxy_buffering off" in c["vhostExtra"])
     check("SSE: lange read-timeout", "proxy_read_timeout 3600s" in c["vhostExtra"])
 
