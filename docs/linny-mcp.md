@@ -94,6 +94,28 @@ En Authelia is een redirect-gebaseerde browserflow; een MCP-client stuurt alleen
 `Authorization: Bearer` en volgt geen redirect. Deze vhost gebruikt daarom bewust **niet** het
 `autheliaAuthConfig`-patroon van `linny.toorren.net`. Het slot is het bearer-token.
 
+## De Host-header moet loopback blijven
+
+De MCP-SDK zet DNS-rebinding-bescherming **automatisch** aan zodra de server op een loopback-adres
+luistert, en weigert dan elke `Host` die geen loopback-naam is:
+
+```go
+// go-sdk/mcp/streamable.go
+if util.IsLoopback(localAddr.String()) && !util.IsLoopback(req.Host) {
+    http.Error(w, "Forbidden: invalid Host header", 403)
+}
+```
+
+Met nginx' aanbevolen proxy-headers (`proxy_set_header Host $host;`) komt daar
+`linny-mcp.toorren.net` binnen en antwoordt de server **403 op elke `/mcp`-call, óók met een geldig
+token**. Het symptoom lijkt op een tokenprobleem maar is het niet: `/healthz` blijft gewoon 200.
+
+Daarom staat `recommendedProxySettings = false` op deze location en zetten we de headers zelf, met
+`Host localhost`. Twee keer `proxy_set_header Host` is géén optie — nginx stuurt ze dan allebei en
+Go antwoordt met 400. `req.Host` wordt in de SDK nergens anders gebruikt dan in die ene check, dus
+het overschrijven kost geen functionaliteit; `publicHostname` in de serverconfig staat los daarvan
+en dient alleen de logregel.
+
 ## Twee sleutels op één repo
 
 ```
