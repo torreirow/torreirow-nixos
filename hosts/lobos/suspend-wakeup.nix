@@ -37,13 +37,20 @@
     SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{device}=="0x15b9", ATTR{power/wakeup}="disabled"
     # XHC1 -- pci:0000:64:00.4, AMD Family 19h xHCI
     SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{device}=="0x15ba", ATTR{power/wakeup}="disabled"
+    # XHC3 -- pci:0000:66:00.3, AMD USB4/dock-kant xHCI
+    SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{device}=="0x15c0", ATTR{power/wakeup}="disabled"
+    # XHC4 -- pci:0000:66:00.4, AMD USB4/dock-kant xHCI
+    SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{device}=="0x15c1", ATTR{power/wakeup}="disabled"
   '';
 
-  # BEWUST NIET UITGEZET: XHC3/XHC4 (pci:0000:66:00.{3,4}) zijn de USB4/dock-kant.
-  # Die hebben de suspends niet gewekt en zijn de route waarlangs een dock of
-  # USB-toetsenbord de laptop juist MOET kunnen wekken. Blijft lobos alsnog
-  # spontaan wakker worden, dan zijn dat de volgende verdachten
-  # (0x15c0 resp. 0x15c1) -- eerst meten via /sys/kernel/debug/wakeup_sources.
+  # XHC3/XHC4 (pci:0000:66:00.{3,4}) zijn de USB4/dock-kant. Die bleven eerst
+  # bewust aan (dock/USB-toetsenbord moest kunnen wekken), maar op 2026-09-26
+  # wekten ze lobos 6x binnen 1-4 s -- met XHC0/XHC1 al uit en het dock net
+  # losgekoppeld (er hing dus niets aan). Bewijs: /sys/power/pm_wakeup_irq = 39
+  # = "PCIe PME" van root port 0000:00:08.3, waar 66:00.{0,3,4,6} achter hangen.
+  # Prijs: dock of USB-toetsenbord wekt de laptop niet meer; deksel/knop wel.
+  # Blijft het daarna nog gebeuren, dan is de USB4-router NHI1 (66:00.6,
+  # 0x1022:0x1669) de volgende verdachte.
   #
-  # LID en SLPB blijven eveneens gearmeerd: deksel open en de slaapknop horen te wekken.
+  # LID en SLPB blijven gearmeerd: deksel open en de slaapknop horen te wekken.
 }
