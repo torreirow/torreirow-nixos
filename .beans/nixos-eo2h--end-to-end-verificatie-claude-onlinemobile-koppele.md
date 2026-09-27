@@ -1,11 +1,11 @@
 ---
 # nixos-eo2h
 title: end-to-end verificatie + Claude Online/Mobile koppelen + documentatie
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-09-25T07:45:27Z
-updated_at: 2026-09-25T14:12:10Z
+updated_at: 2026-09-27T16:38:07Z
 parent: nixos-m0vn
 blocked_by:
     - nixos-ce9f
@@ -82,3 +82,16 @@ principieel niet werken. De naam wijst naar het publieke adres, dus ook
 LAN-verkeer hairpint via de router en komt met het WAN-adres binnen; lobos komt
 door een policy-route (tabel 51820) zelfs met een derde adres binnen. Er bestaat
 geen bronadres dat "LAN" betekent. Zie docs/linny-mcp.md.
+
+## Afgerond 2026-09-27
+
+De twee openstaande connector-criteria zijn vervuld via `nixos-8ncn`:
+
+- [x] Claude Online: custom connector `LinnyTRW`, notities doorzoeken
+- [x] Claude Mobile: idem
+
+Niet zoals hier oorspronkelijk voorzien. Het one-time bearer-token bleek geen
+begaanbare weg: de connector-dialoog heeft er geen veld voor en verwacht OAuth.
+De mobiele route loopt nu via Authelia als OIDC-provider, met een leestoken dat
+nginx pas ná validatie injecteert — schrijven blijft voorbehouden aan de
+ssh-tunnel. Zie `nixos-8ncn` en `docs/linny-mcp.md`.
