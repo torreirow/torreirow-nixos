@@ -28,6 +28,10 @@
       source = ./.vim;
       recursive = true;
     };
+    "bin/ghrepocreate" = {
+      source = ./bin/ghrepocreate;
+      executable = true;
+    };
     ".vimrc" = { 
       source = ./.vimrc;
       recursive = false;
