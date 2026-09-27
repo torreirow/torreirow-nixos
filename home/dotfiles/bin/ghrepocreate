@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Maakt een private GitHub-repo aan voor de huidige map, zet origin en pusht met upstream.
+# Maakt een private GitHub-repo aan voor de huidige map, zet origin als remote en
+# configureert de upstream van de huidige branch. Pusht niet en vereist geen commit;
+# een latere `git push` gaat direct naar origin/<branch>.
 # Gebruik: ghrepocreate [owner]   (zonder owner wordt erom gevraagd)
 set -euo pipefail
 
@@ -9,8 +11,13 @@ if [[ -z "$owner" ]]; then
 fi
 [[ -z "$owner" ]] && { echo "geen owner opgegeven" >&2; exit 1; }
 
-git rev-parse --verify HEAD >/dev/null 2>&1 \
-  || { echo "nog geen commits, kan niet pushen" >&2; exit 1; }
+git rev-parse --git-dir >/dev/null 2>&1 || git init
 
 gh repo create "$owner/$(basename "$PWD")" \
-  --private --source=. --remote=origin --push
+  --private --source=. --remote=origin
+
+# Werkt ook op een unborn branch (nog geen commit): de branchnaam staat al in HEAD.
+branch="$(git symbolic-ref --short HEAD)"
+git config "branch.$branch.remote" origin
+git config "branch.$branch.merge" "refs/heads/$branch"
+echo "upstream van '$branch' gezet op origin/$branch"
