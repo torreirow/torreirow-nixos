@@ -74,34 +74,55 @@ aanstuurt — relevant zodra er meetrec-transcripten in het notitieboek belanden
 
 | Pad | Rol |
 |-------------------------------------|------------------------------------------------|
-| `modules/linny-mcp.nix` | Wrapper: secrets, corpus, git-sync, indexer, vhost |
+| `modules/linny-mcp.nix` | Wrapper: secrets, corpus, git-sync, indexer, validator, vhost |
+| `modules/linny-mcp-authz/` | Tokenvalidator + tests + `verify-live.sh` |
+| `home/module/linny-mcp-tunnel/` | Ssh-tunnel als home-manager user-service (lobos) |
 | `secrets/linny-mcp-deploy-key.age` | **Read/write** deploy key voor torrlinny |
 | `secrets/linny-mcp-tokens.age` | Gehashte bearer-records (JSON-lines) |
+| `secrets/linny-mcp-nginx-token.age` | Nginx-snippet met het interne leestoken |
+| `secrets/linny-mcp-authz-secret.age` | Client secret van de validator bij Authelia |
 | `/var/lib/linny-mcp/corpus` | Git-werkmap die de agent beschrijft |
 | `/var/lib/linny-mcp/state` | Wegwerp-index (SQLite + JSON) |
 | `/var/lib/linny-mcp/known_hosts` | Buiten de working tree, anders synct git-sync 'm mee |
 
-Poort 8096, gebonden op `127.0.0.1`. De server weigert publieke adressen en `0.0.0.0`; TLS
-termineert in de nginx op dezelfde host.
+Poort 8096 (linny-mcp) en 8097 (de validator), beide op `127.0.0.1`. De server weigert publieke
+adressen en `0.0.0.0`; TLS termineert in de nginx op dezelfde host.
 
-## Hoe je erbij komt: een ssh-tunnel, geen publieke vhost
+## Twee routes naar binnen
 
-De publieke vhost staat **uit** (`services.linny-mcp-host.publicEndpoint = false`). Hij bestond
-alleen voor custom connectors op claude.ai — en die mogen in de organisatie niet door gebruikers
-worden aangemaakt, alleen door een admin. Zolang dat zo is bestaat de enige reden voor een publiek
-endpoint niet, en zijn alle clients lokaal.
+Er zijn twee wegen naar dezelfde server, met een verschillend slot en verschillende rechten.
 
 ```
-lobos                                    malandro
-
-Claude Code ──┐
-              ├─► 127.0.0.1:8096 ══ssh══► 127.0.0.1:8096 ──► linny-mcp
-Claude Desktop┘
-              linny-mcp-tunnel.service              (geen nginx, geen TLS nodig)
+                                     malandro
+lobos                                ┌──────────────────────────────┐
+  Claude Code ──┐                    │                              │
+                ├─► 127.0.0.1:8096 ══╪═ssh═► 127.0.0.1:8096 ────────┼─► linny-mcp
+  Claude Desktop┘                    │            ▲                 │   (read + write)
+        linny-mcp-tunnel.service     │            │                 │
+                                     │       nginx:443 ─────────────┼─► leestoken
+telefoon / claude.ai                 │            │ auth_request    │
+  Claude Mobile ─────────────────────┼─────►      ▼                 │
+  Claude Online                      │       linny-mcp-authz :8097  │
+                                     │            │ introspection   │
+                                     │            ▼                 │
+                                     │       Authelia :9091         │
+                                     └──────────────────────────────┘
 ```
 
-De tunnel is een home-manager user-service, `home/module/linny-mcp-tunnel`. Twee dingen daarin zijn
-geen detail:
+| | tunnel | publieke route |
+|------------|---------------------------|-------------------------------|
+| slot | ssh-toegang tot malandro | Authelia-inlog met 2FA |
+| token | `read:*`, `write:inbox` | `read:*` |
+| schrijven | ja, als quarantaine-draft | **nee** |
+| clients | Claude Code, Desktop | Claude Mobile, Online |
+
+De schrijfbare route loopt dus uitsluitend via ssh. Wat er via je telefoon binnenkomt kan niets
+veranderen aan het notitieboek — dat is niet een instelling in Claude maar een eigenschap van het
+token dat nginx injecteert.
+
+### De tunnel
+
+Een home-manager user-service, `home/module/linny-mcp-tunnel`. Twee dingen daarin zijn geen detail:
 
 - **`SSH_AUTH_SOCK` moet expliciet.** De systemd-user-manager erft je shell-omgeving niet en zet
   zelf `%t/gcr/ssh` (gnome-keyring). Die agent kent de malandro-sleutel niet en meldt
@@ -110,13 +131,54 @@ geen detail:
 - **`ExitOnForwardFailure=yes`.** Zonder dit blijft ssh draaien terwijl de forward mislukte, en lijkt
   de unit gezond terwijl geen enkele client verbinding maakt.
 
-Toegangsbewijs is dus ssh-toegang tot malandro, plus het bearer-token.
+### De publieke route: Authelia als OIDC-provider, niet als forward-auth
+
+Een custom connector op claude.ai wordt **server-side door Anthropic opgehaald**, niet door je
+browser of je telefoon. Een endpoint binnen wireguard is voor Claude Mobile dus onbereikbaar, ook
+al zit je telefoon zelf in de VPN. Vandaar publiek.
+
+Het `autheliaAuthConfig`-patroon van `linny.toorren.net` kan hier niet: dat is een redirect naar een
+inlogpagina, en een MCP-client volgt geen redirect naar HTML. **Maar Authelia kan twee dingen**, en
+alleen de eerste was hier ongeschikt:
+
+```
+forward-auth (linny.toorren.net)       OIDC-provider (linny-mcp.toorren.net)
+────────────────────────────────       ─────────────────────────────────────
+onauthenticated → 302 naar portaal     client haalt zelf een access token
+alleen bruikbaar in een browser        client stuurt Bearer authelia_at_…
+```
+
+`nginx` doet `auth_request` naar **`linny-mcp-authz`** en wisselt daarna de `Authorization`-header
+om voor het interne leestoken. Die tussenstap is nodig omdat `auth_request` alleen op een
+statuscode kan beslissen, terwijl Authelia's introspection-endpoint met **200 en
+`{"active": false}`** antwoordt voor een ongeldig token — de body moet dus gelezen worden.
+
+Waarom niet Authelia's eigen authz-endpoint, dat bearer-tokens aankan: dat accepteert alleen tokens
+met de scope `authelia.bearer.authz`, en bij die scope eist Authelia **verplicht PAR**. Claude doet
+geen PAR. Gemeten op 2026-09-25, ook niet nadat de discovery-metadata het als verplicht adverteerde
+— en Wallos brak daar wél op, want die vlag geldt server-breed.
+
+### Wat de flow onderweg nodig had
+
+Vier dingen die je niet kunt beredeneren, alleen meten. Alle vier kwamen uit het
+`nginx-access.log`, dat de volledige query-parameters van de authorization request bewaart:
+
+| symptoom | oorzaak |
+|---------------------------------------|------------------------------------------------|
+| PAR-fout | scope `authelia.bearer.authz` laten vallen |
+| `redirect_uri` komt niet overeen | echte waarde is `https://claude.ai/api/mcp/auth_callback`, niet wat de documentatie suggereert |
+| audience niet whitelisted | Claude stuurt `resource=` (RFC 8707) → `audience` op de client |
+| introspection weigert de validator | Authelia legt per client één methode vast; hier `client_secret_basic` |
+
+En één die je pas ziet als je loopback gebruikt: Authelia leidt zijn *effective issuer* uit het
+verzoek af en weigert met `invalid X-Forwarded-Proto header value 'http'`. De validator doet zich
+daarom voor als de reverse proxy — `Host`, `X-Forwarded-Proto` en `X-Forwarded-Host`.
 
 ### Waarom een IP-filter géén alternatief was
 
-De eerste poging was `allow 192.168.2.0/24` op de vhost. Dat kan in deze opstelling principieel niet
-werken: `linny-mcp.toorren.net` wijst naar het publieke adres, dus ook verkeer uit het eigen netwerk
-gaat naar buiten en komt via de router terug — nginx ziet het WAN-adres. Gemeten:
+Een eerdere poging was `allow 192.168.2.0/24` op de vhost. Dat kan in deze opstelling principieel
+niet werken: `linny-mcp.toorren.net` wijst naar het publieke adres, dus ook verkeer uit het eigen
+netwerk gaat naar buiten en komt via de router terug — nginx ziet het WAN-adres. Gemeten:
 
 ```
 82.172.137.171  "GET /healthz"  403   ← lobos
@@ -126,16 +188,6 @@ gaat naar buiten en komt via de router terug — nginx ziet het WAN-adres. Gemet
 Lobos komt met wéér een ander adres binnen doordat een policy-route (tabel 51820) verkeer naar dat
 publieke adres door de `tn_arkana`-tunnel stuurt. Er bestaat hier geen bronadres dat "LAN" betekent.
 Split-horizon DNS zou het oplossen, maar de resolver is de router (192.168.2.254), niet de Pi-hole.
-
-## Waarom er geen Authelia voor zit
-
-Een custom connector op claude.ai wordt **server-side door Anthropic opgehaald**, niet door je
-browser of je telefoon. Een endpoint dat alleen binnen wireguard bereikbaar is, is voor Claude
-Online en Mobile dus onbereikbaar — ook al zit je telefoon zelf in de VPN. Vandaar publiek.
-
-En Authelia is een redirect-gebaseerde browserflow; een MCP-client stuurt alleen
-`Authorization: Bearer` en volgt geen redirect. Deze vhost gebruikt daarom bewust **niet** het
-`autheliaAuthConfig`-patroon van `linny.toorren.net`. Het slot is het bearer-token.
 
 ## De Host-header moet loopback blijven
 
@@ -205,6 +257,35 @@ regel 167). Een zelfgekozen editor levert dan stil een **lege payload** op — e
 Na hercodering pikt de `restartTrigger` op het ciphertext-pad de wijziging op: de server leest het
 tokenbestand namelijk eenmalig bij start en herlaadt nooit.
 
+### Drie soorten geheimen, met verschillende levens
+
+| Geheim | Waar het heen gaat | Wanneer roteren |
+|---------------------------------|--------------------------------|------------------------|
+| `linny-mcp-tokens.age` | Vaultwarden + tunnel-clients | bij verlies of vertrek |
+| `linny-mcp-nginx-token.age` | nergens; nginx ↔ linny-mcp | vrij, genereer opnieuw |
+| `linny-mcp-authz-secret.age` | nergens; validator ↔ Authelia | idem |
+
+De onderste twee gaan **nooit naar een client**. Ze hoeven dus niet in Vaultwarden, en roteren is
+een kwestie van opnieuw genereren en uitrollen — er is niemand die ze opnieuw moet invullen.
+
+**Het clientgeheim van de validator is bewust goedkoop gehasht** (`m=8192,t=1,p=1` in plaats van
+Authelia's standaard `m=65536,t=3,p=4`). Gemeten op malandro: met de standaard kostte élke
+introspection **164 ms, waarvan 163 ms die hash** — een verzoek zónder client-auth deed er 1 ms
+over. Nu 29 ms. Die rekenkosten bestaan om zwakke, door mensen gekozen wachtwoorden te beschermen
+tegen offline kraken; dit geheim is 72 willekeurige tekens, en daar voegt een dure hash niets aan
+toe. Zonder die correctie zou de cache in de validator lang moeten zijn, en precies die cachetijd
+is het venster waarin een ingetrokken token nog werkt.
+
+Hergenereer het geheim en de hash samen — ze horen bij elkaar:
+
+```bash
+# op malandro: nieuw geheim + hash
+authelia crypto rand --length 72 --charset alphanumeric
+authelia crypto hash generate argon2 -m 8192 -i 1 -p 1 --password '<geheim>'
+# op lobos: platte geheim versleutelen, hash in modules/authelia.nix
+cd secrets && ragenx -e linny-mcp-authz-secret.age
+```
+
 ## Commando's
 
 ```bash
@@ -219,17 +300,32 @@ sudo -u linny-mcp git -C /var/lib/linny-mcp/corpus status
 ## Testen
 
 ```bash
-python3 modules/linny-mcp_test.py
+python3 modules/linny-mcp_test.py                       # config, zonder deploy
+python3 modules/linny-mcp-authz/linny_mcp_authz_test.py # validator, zonder netwerk
+ssh malandro 'bash modules/linny-mcp-authz/verify-live.sh'   # live, op de host
 ```
 
-Toetst de opgebouwde malandro-config zonder te deployen: bind-adres, de scheiding van de
-Hugo-werkmap, quarantine, het agenix-pad, de restartTrigger, de ordening van de units en dat er
-géén Authelia op de vhost zit.
+De eerste toetst de opgebouwde malandro-config: bind-adres, de scheiding van de Hugo-werkmap,
+quarantine, de agenix-paden, de restartTriggers, de ordening van de units, en dat er géén
+tokenliteral in de nginx-config staat. Hij evalueert de configuratie **twee keer** — met en zonder
+de OIDC-laag — omdat `//` in Nix een ondiepe merge is en een fout daarin alleen zichtbaar is als de
+laag aanstaat.
+
+`verify-live.sh` toont aan dat het publieke endpoint zonder Authelia-inlog niets prijsgeeft. De
+scherpste controle is niet dat onzin geweigerd wordt, maar dat een **echt, door Authelia als
+`active` bevestigd token van een andere client** ook 401 krijgt. Zonder die `client_id`-controle in
+de validator zou elk geldig token op deze Authelia het notitieboek openen — ook dat van Wallos.
 
 ## Open punten
 
 - **git-sync stopt stil bij een hard conflict.** Er is nog geen melding. `notify-signal` bestaat al
   in deze repo en is de voor de hand liggende opvolging.
 - **Geen signaal als de indexer achterloopt.**
+- **Een ingetrokken token blijft tot 5 seconden bruikbaar.** De validator cachet een geldig bevonden
+  token op de sha256 ervan (`oidc.cacheTtl`). Zonder cache kost elke aanroep een introspection van
+  ~29 ms. Dat was ooit 164 ms; zie "Tokens roteren".
+- **Het slot is een Authelia-account mét 2FA, niet groepslidmaatschap.** Er zijn geen custom
+  `authorization_policies`, dus de `group:admins`-regel uit `access_control` geldt niet voor de
+  OIDC-flow. Elke Authelia-gebruiker die 2FA doorloopt krijgt een token.
 - **Agent-drafts verschijnen gewoon op `linny.toorren.net`** — `status` is verder ongebruikt in
   torrlinny, dus Hugo toont ze mee. Filteren kan, is nog niet besloten.
