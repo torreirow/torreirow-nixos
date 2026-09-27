@@ -73,6 +73,27 @@ if [ -z "$SECRET" ]; then echo "  (overgeslagen: client secret niet leesbaar)"; 
   fi
 fi
 
+echo "intrekken werkt door in introspection"
+# LET OP wat dit wel en niet bewijst. Dit token komt van linny-mcp-authz, dus de
+# validator zou het sowieso op de client_id afwijzen. Bewezen wordt hier alleen
+# de eerste helft van de keten: revocation -> active wordt false. Dat de
+# validator een niet-actief token weigert blijkt uit de tests hierboven. Samen
+# dekt dat 4.3; los van elkaar geen van beide.
+if [ -n "${SECRET:-}" ] && [ -n "${TOKEN:-}" ]; then
+  curl -sS -o /dev/null -u "linny-mcp-authz:$SECRET" -d "token=$TOKEN" \
+    -H 'Host: auth.toorren.net' -H 'X-Forwarded-Proto: https' \
+    "$AUTHELIA/api/oidc/revocation"
+  NA=$(curl -sS -u "linny-mcp-authz:$SECRET" -d "token=$TOKEN" \
+    -H 'Host: auth.toorren.net' -H 'X-Forwarded-Proto: https' \
+    "$AUTHELIA/api/oidc/introspection" \
+    | python3 -c 'import json,sys; print(json.load(sys.stdin).get("active"))')
+  want False "$NA" "na revocation is het token inactief"
+  want 401 "$(code -X POST -H "Authorization: Bearer $TOKEN" -d "$BODY" "$URL")" \
+       "en wordt het geweigerd"
+else
+  echo "  (overgeslagen: geen token uit de vorige stap)"
+fi
+
 echo "backend-poorten niet van buiten bereikbaar"
 for port in 8096 8097 9091; do
   if timeout 5 bash -c "echo > /dev/tcp/82.170.93.180/$port" 2>/dev/null; then
