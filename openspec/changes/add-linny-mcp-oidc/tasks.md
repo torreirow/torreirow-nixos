@@ -8,10 +8,10 @@
 - [x] 1.2 Het bearer-schema toestaan op het `auth-request`-authz-endpoint en met `curl` bewijzen dat
       een `authelia_at_…` token 200 krijgt en een onzinnig token 401 — nog zonder linny-mcp erachter
 - [x] 1.3 `linny-mcp.toorren.net` publiek zetten met `auth_request` ervoor
-- [ ] 1.4 **Beslispunt:** connector toevoegen in Claude en de flow doorlopen. Komt de authorization
+- [x] 1.4 **Beslispunt:** connector toevoegen in Claude en de flow doorlopen. Komt de authorization
       code rond zonder dynamische clientregistratie? Noteer de werkelijke redirect-URI die de
       dialoog toont
-- [ ] 1.5 Strandt 1.4: bevindingen vastleggen in `design.md`, change intrekken, tunnel blijft
+- [~] 1.5 Strandt 1.4: n.v.t. -- 1.4 slaagde na het laten vallen van bearer-authz. Oorspronkelijk: bevindingen vastleggen in `design.md`, change intrekken, tunnel blijft
 
 ## 2. Declaratief maken
 
@@ -37,16 +37,18 @@
 
 - [x] 4.1 `modules/linny-mcp_test.py` uitbreiden: `auth_request` aanwezig, well-known-location
       aanwezig, géén tokenliteral in de nginx-config, `Host localhost` nog intact
-- [ ] 4.2 Live: `/mcp` zonder token 401 mét `WWW-Authenticate`; met een geldig Authelia-token 200
-- [ ] 4.3 Live: een ingetrokken/verlopen token krijgt 401
-- [ ] 4.4 Live vanaf de telefoon: notities doorzoeken via de connector
-- [ ] 4.5 Bewijzen dat het leestoken niet kan schrijven (`create_doc` → geweigerd)
-- [ ] 4.6 De ssh-tunnel werkt onveranderd naast de publieke route
+- [x] 4.2 Live: `/mcp` zonder token 401 mét `WWW-Authenticate`; met een geldig Authelia-token 200
+- [x] 4.3 Live: een ingetrokken token krijgt 401. Samengesteld bewijs: revocation zet
+      `active` op false (gemeten), en een niet-actief token wordt geweigerd (gemeten).
+      Let op het venster van `oidc.cacheTtl` (5s) waarin een net ingetrokken token nog werkt.
+- [x] 4.4 Live vanaf de telefoon: notities doorzoeken via de connector
+- [x] 4.5 Bewijzen dat het leestoken niet kan schrijven (`create_doc` → geweigerd)
+- [x] 4.6 De ssh-tunnel werkt onveranderd naast de publieke route
 
 ## 5. Documentatie
 
-- [ ] 5.1 `docs/linny-mcp.md`: de OIDC-flow, waarom forward-auth niet werkte en de OIDC-rol wel,
+- [x] 5.1 `docs/linny-mcp.md`: de OIDC-flow, waarom forward-auth niet werkte en de OIDC-rol wel,
       en het onderscheid authenticatie (Authelia) versus autorisatie (één token)
-- [ ] 5.2 `CHANGELOG.md` onder `## NEXT VERSION`
-- [ ] 5.3 Tokenrotatie bijwerken: er zijn nu twee soorten geheimen (Authelia-client secret en het
+- [x] 5.2 `CHANGELOG.md` onder `## NEXT VERSION`
+- [x] 5.3 Tokenrotatie bijwerken: er zijn nu twee soorten geheimen (Authelia-client secret en het
       interne linny-mcp-token)
