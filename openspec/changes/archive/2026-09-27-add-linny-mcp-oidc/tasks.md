@@ -11,7 +11,9 @@
 - [x] 1.4 **Beslispunt:** connector toevoegen in Claude en de flow doorlopen. Komt de authorization
       code rond zonder dynamische clientregistratie? Noteer de werkelijke redirect-URI die de
       dialoog toont
-- [~] 1.5 Strandt 1.4: n.v.t. -- 1.4 slaagde na het laten vallen van bearer-authz. Oorspronkelijk: bevindingen vastleggen in `design.md`, change intrekken, tunnel blijft
+- [x] 1.5 Niet nodig: 1.4 slaagde alsnog, nadat de scope `authelia.bearer.authz` losgelaten
+      werd en de validatie naar een eigen dienst verhuisde. De bevindingen staan wél in
+      `design.md` -- de spike faalde immers eerst, en dat is het waard om te bewaren.
 
 ## 2. Declaratief maken
 
