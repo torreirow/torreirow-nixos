@@ -150,3 +150,48 @@ python3 modules/linny-web-frontmatter/check-frontmatter.py ~/data/git/torreirow/
 [ ] `linny.toorren.net` visueel checken: geen dubbele zijbalk-termen meer. (Handwerk.)
 
 Commit in torrlinny: `5f83581`. De controle geeft nu exitcode 0 op het hele corpus.
+
+## Zijbalk-controle 2026-09-28: geen duplicaten, maar wél een gat
+
+Counts in de zijbalk tegen het corpus geteld:
+
+    Customers (10)   10 unieke waarden   ✓
+    Projects  (17)   17                  ✓
+    Types      (8)    8                  ✓
+    Tags       (0)    5                  ✗
+
+Geen dubbele termen dus — de normalisatie heeft gewerkt. Maar de tags komen
+helemaal niet aan.
+
+**Oorzaak:** drie configuraties zijn het oneens over enkelvoud/meervoud.
+
+    config/_default/config.yaml   tag: "tag"     ← Linny-indexer
+    linny-mcp list_taxonomies     "tag"          ← wat de agent ziet
+    hugo-web.yaml                 tag: "tags"    ← de website
+    linny-web-theme               .Site.Taxonomies.tags (hardgecodeerd)
+
+Bij Hugo is de MEERVOUDSVORM de frontmatter-sleutel. De site keek dus naar een
+veld `tags:` dat in geen enkele notitie staat; alle vijf schrijven `tag:`.
+De notities volgen de indexer en hebben gelijk.
+
+**Poging tot herstel mislukt en teruggedraaid.** `hugo-web.yaml` op `tag: "tag"`
+gezet (commit 148f406) → de build faalde, want de theme codeert `tags` hard:
+
+    menu-filetree.html:95  <len .Site.Taxonomies.tags>
+    error calling len: reflect: call of reflect.Value.Type on zero Value
+
+De site bleef op de laatste goede build staan (keep-last-good deed zijn werk),
+maar pikte niets nieuws meer op tot de revert (2cb1bc9).
+
+**De echte fix hoort in linny-web-theme.** Regels 95, 98, 128 en 148 van
+`layouts/partials/menu-filetree.html`. De andere drie taxonomieën staan er
+enkelvoud in; `tags` is de enige die Hugo's standaard volgt in plaats van die
+van Linny. Een variant die beide verdraagt zou zijn:
+
+    {{ $tagTax := or (index .Site.Taxonomies "tag") (index .Site.Taxonomies "tags") }}
+
+Let op de reikwijdte: die theme is gedeeld, bedoeld voor álle Linny-notitieboeken.
+Een wijziging raakt dus meer dan torrlinny, en vereist een versie-bump plus
+`hugo mod get` in elk notitieboek dat meegaat.
+
+[ ] beslissen of en hoe linny-web-theme aangepast wordt
