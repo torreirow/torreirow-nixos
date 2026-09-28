@@ -107,6 +107,31 @@ def test_uitzonderingen(m):
     shutil.rmtree(root)
 
 
+def test_rand_witruimte(m):
+    """Gemeten in het echte corpus: `customer: torreirow ` met een spatie erachter.
+    Een YAML-lezer strijkt die weg, dus niemand merkte het -- maar dan staat er in
+    de bron iets anders dan in de index, en dat is precies wat deze controle moet
+    voorkomen."""
+    print("rand-witruimte")
+    root = corpus({"content/a.md": "---\ncustomer: technative \n---\n\nx\n"})
+    out = m.check_corpus(root)
+    check("spatie achter een scalar wordt gemeld", len(out) == 1, str(out))
+    check("met de waarde erbij, niet als termafwijking",
+          out and "witruimte" in out[0] and "technative" in out[0], str(out))
+    shutil.rmtree(root)
+
+    # In een inline lijst is de witruimte structureel, geen onderdeel van de waarde.
+    root = corpus({"content/a.md": fm(customer="acme", tags="[frontmatter,  refactor ]")})
+    out = m.check_corpus(root)
+    check("in een inline lijst is het GEEN afwijking", out == [], str(out))
+    shutil.rmtree(root)
+
+    root = corpus({"content/a.md": "---\ncustomer: acme\ntags:\n  - refactor \n---\n\nx\n"})
+    out = m.check_corpus(root)
+    check("in een block-lijst wél", len(out) == 1, str(out))
+    shutil.rmtree(root)
+
+
 def test_schoon(m):
     print("schoon corpus")
     root = corpus({"content/a.md": fm(customer="acme", project="dakkapel")})
@@ -131,7 +156,7 @@ def test_leest_alleen(m):
 def main():
     m = load()
     for test in (test_scalars, test_inline_lijst, test_block_lijst, test_geen_frontmatter,
-                 test_uitzonderingen, test_schoon, test_leest_alleen):
+                 test_uitzonderingen, test_rand_witruimte, test_schoon, test_leest_alleen):
         test(m)
     print()
     if all(RESULTS):

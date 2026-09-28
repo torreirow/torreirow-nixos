@@ -66,11 +66,34 @@ def is_exempt(relpath: str, patterns=EXEMPT_FROM_REQUIRED) -> bool:
     return False
 
 
-def strip_scalar(value: str) -> str:
-    return value.strip().strip("\"'").strip()
+def unquote(value: str) -> str:
+    """Alleen de omsluitende quotes weghalen."""
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        return value[1:-1]
+    return value
 
 
-def parse_fields(block: str) -> dict[str, list[str]]:
+def semantic(raw: str) -> str:
+    """De waarde zoals een YAML-lezer hem ziet: zonder quotes, zonder rand-witruimte."""
+    return unquote(raw.strip()).strip()
+
+
+def has_edge_space(raw: str) -> bool:
+    """Rand-witruimte op een scalar is een afwijking op zichzelf.
+
+    Een YAML-lezer strijkt hem weg, dus de betekenis verandert niet -- maar de
+    bron wordt er onnauwkeurig van, en je ziet het nergens terug. Gemeten in het
+    echte corpus: één `customer: torreirow ` met een spatie erachter, die geen
+    enkele controle opmerkte omdat iedereen hem stilzwijgend wegstreek.
+
+    LET OP: geldt alleen voor scalars en block-lijstelementen. In een inline
+    lijst (`[a, b]`) is de witruimte rond een element structureel en geen
+    onderdeel van de waarde, dus daar is het géén afwijking.
+    """
+    return raw != raw.strip()
+
+
+def parse_fields(block: str) -> dict[str, list[tuple[str, bool]]]:
     """Frontmatter ontleden zonder YAML-bibliotheek.
 
     Bewust met de hand: dit script moet juist óók werken op een corpus waarvan
@@ -88,7 +111,7 @@ def parse_fields(block: str) -> dict[str, list[str]]:
     Elk element telt afzonderlijk. Een lijst als één term behandelen is precies
     de fout die dit script moet vermijden.
     """
-    found: dict[str, list[str]] = {}
+    found: dict[str, list[tuple[str, bool]]] = {}
     lines = block.split("\n")
     index = 0
     while index < len(lines):
@@ -97,14 +120,16 @@ def parse_fields(block: str) -> dict[str, list[str]]:
         match = re.match(r"^([A-Za-z_][\w-]*)\s*:\s*(.*)$", line)
         if not match:
             continue
-        key, rest = match.group(1).lower(), match.group(2).strip()
+        key, raw_rest = match.group(1).lower(), match.group(2)
+        rest = raw_rest.strip()
         if key not in TAXONOMY_FIELDS:
             continue
 
         if rest.startswith("[") and rest.endswith("]"):
-            values = [strip_scalar(v) for v in rest[1:-1].split(",")]
+            # Inline lijst: witruimte rond een element is structureel.
+            values = [(semantic(v), False) for v in rest[1:-1].split(",")]
         elif rest:
-            values = [strip_scalar(rest)]
+            values = [(semantic(rest), has_edge_space(raw_rest))]
         else:
             # Blokvorm: de ingesprongen `- `-regels die hierop volgen.
             values = []
@@ -112,10 +137,11 @@ def parse_fields(block: str) -> dict[str, list[str]]:
                 item = re.match(r"^\s+-\s+(.*)$", lines[index])
                 if not item:
                     break
-                values.append(strip_scalar(item.group(1)))
+                raw = item.group(1)
+                values.append((semantic(raw), has_edge_space(raw)))
                 index += 1
 
-        values = [v for v in values if v]
+        values = [(v, sp) for v, sp in values if v]
         if values:
             found.setdefault(key, []).extend(values)
     return found
@@ -139,10 +165,15 @@ def check_file(path: Path, relpath: str) -> list[str]:
         findings.append(f"{relpath}: geen {REQUIRED_FIELD}")
 
     for key in sorted(fields):
-        for value in fields[key]:
+        for value, edge_space in fields[key]:
             canonical = normalise(value)
             if value != canonical:
                 findings.append(f"{relpath}: {key}: {value!r} -> {canonical!r}")
+            elif edge_space:
+                findings.append(
+                    f"{relpath}: {key}: {value!r} met witruimte eromheen -- "
+                    f"weghalen, anders staat er in de bron iets anders dan in de index"
+                )
     return findings
 
 

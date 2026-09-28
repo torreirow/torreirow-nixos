@@ -139,10 +139,14 @@ tests en een uitzonderingslijst. OpenSpec-change `add-frontmatter-guard`.
 python3 modules/linny-web-frontmatter/check-frontmatter.py ~/data/git/torreirow/torrlinny
 ```
 
-## Wat hier nog openstaat
+## Afgerond 2026-09-28
 
-Alleen de inhoudelijke keuze, niet het gereedschap:
+[x] `content/bedrock.md` en `content/to-do-wk52.md` kregen `customer: technative` (keuze van de
+    eigenaar; niet af te leiden uit de inhoud, dus niet geraden).
+[x] Eén geval van rand-witruimte hersteld: `customer: torreirow ` in
+    `content/alphacourse-2025_2026.md`. Dat was nooit eerder opgemerkt omdat élke lezer die spatie
+    stilzwijgend wegstreek — de controle meldt het nu, want anders staat er in de bron iets anders
+    dan je typt.
+[ ] `linny.toorren.net` visueel checken: geen dubbele zijbalk-termen meer. (Handwerk.)
 
-[ ] `content/bedrock.md` en `content/to-do-wk52.md` een `customer` geven, of een afgesproken
-    placeholder. Bewust niet geraden — de waarde is niet uit de inhoud af te leiden.
-[ ] `linny.toorren.net` visueel checken: geen dubbele zijbalk-termen meer.
+Commit in torrlinny: `5f83581`. De controle geeft nu exitcode 0 op het hele corpus.
