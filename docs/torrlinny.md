@@ -87,6 +87,43 @@ De wrapper-config staat in `modules/torrlinny.nix`; de generieke logica in de
 De theme bumpen (nieuwe versie): in de **torrlinny-repo** `hugo mod get -u github.com/torreirow/linny-web-theme`
 (werkt `go.mod`/`go.sum` bij), commit + push → de volgende malandro-build pikt het op.
 
+## Frontmatter: de canonieke termvorm
+
+De indexer van linny-mcp normaliseert elke taxonomie-term vóór het indexeren:
+
+```go
+strings.ReplaceAll(strings.ToLower(term), " ", "-")
+```
+
+**Wat je schrijft is dus niet per se wat je terugkrijgt.** `customer: Acme Corp` en
+`customer: acme-corp` vallen voor de MCP-server samen, maar op de Hugo-taxonomiezijbalk van
+`linny.toorren.net` verschijnen ze als twee regels met elk hun eigen telling. Canoniek is daarom:
+**alles kleine letters, spaties worden streepjes**.
+
+Erger is een notitie zónder frontmatter: die belandt helemaal niet in de index. Het bestand bestaat,
+de site toont het, maar de agent ziet het niet. Gemeten tijdens de epic: 117 records met een
+`WARN malformed front matter`, en die ene notitie op `SELECT count(*) = 0`.
+
+Controleren:
+
+```bash
+python3 modules/linny-web-frontmatter/check-frontmatter.py ~/data/git/torreirow/torrlinny
+python3 modules/linny-web-frontmatter/check_frontmatter_test.py   # het script zelf
+```
+
+Exitcode 1 bij afwijkingen. Het script **leest alleen** en hangt bewust niet aan
+`linny-web-build`: een notitieboek met een schoonheidsfoutje hoort gewoon gepubliceerd te worden.
+
+Twee dingen die het script goed doet en een naïeve variant niet. Een **lijstwaarde wordt per
+element getoetst** — `tags: [frontmatter, refactor]` is geldig en geen enkele term — in beide
+YAML-vormen, inline en block. En er is een **uitzonderingslijst** voor bestanden zonder eigen
+taxonomie (`**/_index.md`, `content/search.md`), zodat een schone run ook werkelijk leeg is. Die
+uitzondering geldt alleen voor het verplichte `customer`-veld; staat er tóch een term in zo'n
+bestand, dan moet die canoniek zijn.
+
+De regel is niet van ons. Wijkt linny-mcp ooit af, dan is `normalise()` bovenaan het script de plek
+die mee moet.
+
 ## Belangrijke lessen
 
 - **Hugo merget alleen `params` uit een theme.** taxonomies/menu/markup/frontmatter/

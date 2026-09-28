@@ -119,3 +119,30 @@ Niet ingevuld omdat een verkeerde klanttoewijzing in je eigen notities erger is 
 
 `content/search.md` is bewust overgeslagen: die heeft `type: "search"` en is een Hugo-zoekpagina,
 geen notitie. Daar hoort geen `customer` op.
+
+## Het detectiescript is vervangen (2026-09-28)
+
+Het fragment hierboven staat er nog voor de geschiedenis, maar gebruik het niet meer — het heeft
+twee defecten die samen voor veel ruis zorgden:
+
+- een YAML-lijst wordt als één string gelezen, dus `tags: [frontmatter, refactor]` werd gemeld als
+  variant `[frontmatter,-refactor]`;
+- er is geen uitzonderingslijst, dus zes bestanden die per definitie geen `customer` hebben
+  (vijf `_index.md` plus `content/search.md`) werden als gat gemeld.
+
+Op hetzelfde corpus: 9 meldingen waarvan 7 onterecht, tegen 2 echte met de vervanger.
+
+De opvolger staat in torreirow-nixos: `modules/linny-web-frontmatter/check-frontmatter.py`, met
+tests en een uitzonderingslijst. OpenSpec-change `add-frontmatter-guard`.
+
+```bash
+python3 modules/linny-web-frontmatter/check-frontmatter.py ~/data/git/torreirow/torrlinny
+```
+
+## Wat hier nog openstaat
+
+Alleen de inhoudelijke keuze, niet het gereedschap:
+
+[ ] `content/bedrock.md` en `content/to-do-wk52.md` een `customer` geven, of een afgesproken
+    placeholder. Bewust niet geraden — de waarde is niet uit de inhoud af te leiden.
+[ ] `linny.toorren.net` visueel checken: geen dubbele zijbalk-termen meer.
