@@ -121,6 +121,11 @@ taxonomie (`**/_index.md`, `content/search.md`), zodat een schone run ook werkel
 uitzondering geldt alleen voor het verplichte `customer`-veld; staat er tóch een term in zo'n
 bestand, dan moet die canoniek zijn.
 
+Er is nog een derde geval, en dat is het gemeenste: **witruimte rond een waarde**. `customer:
+torreirow ` met een spatie erachter leest elke YAML-lezer als `torreirow`, dus niemand merkt het —
+maar dan staat er in de bron iets anders dan je typt. Het script meldt het; in een inline lijst
+(`[a, b]`) niet, want daar is de witruimte structureel.
+
 De regel is niet van ons. Wijkt linny-mcp ooit af, dan is `normalise()` bovenaan het script de plek
 die mee moet.
 
