@@ -7,6 +7,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Controle op de frontmatter van het notitieboek** (`modules/linny-web-frontmatter/`): stelt vast of taxonomie-termen de canonieke vorm hebben die de indexer hanteert (kleine letters, streepjes in plaats van spaties), en of er notities zonder `customer` of zonder frontmatter zijn.
+  - Die laatste zijn geen schoonheidsfoutje: een notitie zonder frontmatter belandt niet in de index en is daarmee onvindbaar voor de agent, terwijl de site hem gewoon toont.
+  - Leest alleen en blokkeert de publicatie niet — een notitieboek met een afwijking hoort gewoon gebouwd te worden.
+  - Vervangt een eenmalig scriptje dat een YAML-lijst als één term las en geen uitzonderingen kende: op hetzelfde notitieboek gaf dat 9 meldingen waarvan 7 onterecht, tegen 2 echte nu.
 - **Notitieboek als schrijfbaar tweede brein voor Claude** (`modules/linny-mcp.nix`, malandro): dezelfde torrlinny-notities die op `linny.toorren.net` te lezen zijn, zijn nu ook via MCP te doorzoeken en aan te vullen vanuit Claude Online en Mobile, op `https://linny-mcp.toorren.net`.
   - **De agent kan je bestaande notities niet wijzigen.** Wat hij aanmaakt krijgt `status: agent-draft` en blijft zijn eigen terrein; promoveren doe je met de hand door die regel weg te halen, en daarna kan hij er niet meer bij. Dat is geen smaakkwestie maar een verdediging: de inhoud van een notitieboek is onvertrouwde invoer, en een notitie kan een agent aansturen — zeker zodra er vergadertranscripten in belanden.
   - **Een eigen werkmap, los van de Hugo-build.** Die build doet elke drie minuten `reset --hard` + `clean -fdx` op zíjn checkout; een net geschreven agent-notitie is daar een untracked bestand en zou stil gewist worden. Beide werkmappen praten via GitHub, waardoor een agent-notitie binnen ongeveer vier minuten ook op de website staat.
