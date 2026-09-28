@@ -1,11 +1,11 @@
 ---
 # nixos-zets
 title: torrlinny-frontmatter normaliseren (case-varianten + ontbrekende customer)
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-09-25T07:43:48Z
-updated_at: 2026-09-25T11:34:09Z
+updated_at: 2026-09-28T14:53:46Z
 parent: nixos-m0vn
 ---
 
@@ -194,4 +194,27 @@ Let op de reikwijdte: die theme is gedeeld, bedoeld voor álle Linny-notitieboek
 Een wijziging raakt dus meer dan torrlinny, en vereist een versie-bump plus
 `hugo mod get` in elk notitieboek dat meegaat.
 
-[ ] beslissen of en hoe linny-web-theme aangepast wordt
+[x] linny-web-theme aangepast en uitgerold.
+
+**Opgelost 2026-09-28.** De fix zit in de theme, niet in de notities — die hadden
+gelijk. `menu-filetree.html` verdraagt nu beide schrijfwijzen:
+
+    {{ $tagTax := or (index .Site.Taxonomies "tag") (index .Site.Taxonomies "tags") }}
+
+`index` in plaats van veldtoegang is het hele punt: `.Site.Taxonomies.tags` geeft
+bij een ontbrekende sleutel een ONGELDIGE Value en dan klapt `len`, terwijl
+`index` een lege Taxonomy teruggeeft waar `len` en `.Alphabetical` gewoon op
+werken. Ook beide sectienamen uitgesloten uit de platte paginalijsten.
+
+Uitgerold: linny-web-theme v0.1.6 (getagd + gepusht), torrlinny op die versie en
+`hugo-web.yaml` op `tag: "tag"` (commit 7ea9bb4).
+
+Ditmaal wél eerst een testbuild in een wegwerpkopie met een `replace`-directive
+naar de lokale theme-checkout, vóór het pushen. De eerste poging (148f406) ging
+er andersom en legde de sitebuild vier minuten stil.
+
+Zijbalk nu:
+
+    Customers (10)   Projects (17)   Types (8)   Tags (5)
+
+Alle vier kloppen tegen het corpus.
