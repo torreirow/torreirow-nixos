@@ -27,11 +27,12 @@
 
 ## 4. Uitrollen en meten
 
-- [ ] 4.1 Nulpunt vastleggen: aantal autorisatiecodes voor `claude-connector` en het aantal
-      sessiesleutels in redis
-- [ ] 4.2 Switch op malandro; `authelia-main` blijft actief
-- [ ] 4.3 Regressie: `auth`, `linny`, `status`, `grafana`, `homeassistant` reageren zoals voorheen
-- [ ] 4.4 Regressie: Wallos-login doorlopen — die client deelt de provider
+- [x] 4.1 Nulpunt 2026-09-29 22:08:48 — 7 autorisatiecodes, 9 toestemmingen, 1324 sessies in redis
+- [x] 4.2 Switch op malandro; `authelia-main` blijft actief
+- [x] 4.3 Regressie gemeten: auth 200, linny 302, status 302, grafana 302, homeassistant 200,
+      subscriptions 302 — alle zoals voorheen
+- [x] 4.4 Wallos-autorisatie geeft 303 naar de inlogpagina (geen fout), en erft het
+      lifespan-profiel niet. De login zélf doorlopen is handwerk voor de eigenaar
 - [ ] 4.5 Connector opnieuw koppelen; de eerste ronde toont nog een toestemmingsscherm
 - [ ] 4.6 **Na enkele dagen hertellen.** Bij dagelijks gebruik hoort het aantal autorisatiecodes
       niet te stijgen. Stijgt het wel, dan klopt de aanname over rotatie niet en hoort dat in
@@ -39,7 +40,7 @@
 
 ## 5. Documentatie
 
-- [ ] 5.1 `docs/linny-mcp.md`: de drie klokken (sessie-cookie, access-token, refresh-token), welke
+- [x] 5.1 `docs/linny-mcp.md`: de drie klokken (sessie-cookie, access-token, refresh-token), welke
       waarvan is, en waarom de sessie-cookie er bewust buiten blijft
-- [ ] 5.2 Vastleggen dat "onthoud mij" de juiste hefboom is voor de browsersessie
-- [ ] 5.3 `CHANGELOG.md` onder `## NEXT VERSION`
+- [x] 5.2 Vastleggen dat "onthoud mij" de juiste hefboom is voor de browsersessie
+- [x] 5.3 `CHANGELOG.md` onder `## NEXT VERSION`

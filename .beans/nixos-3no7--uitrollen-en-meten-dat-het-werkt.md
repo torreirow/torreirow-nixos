@@ -1,10 +1,11 @@
 ---
 # nixos-3no7
 title: Uitrollen en meten dat het werkt
-status: todo
+status: in-progress
 type: task
+priority: normal
 created_at: 2026-09-29T20:00:28Z
-updated_at: 2026-09-29T20:00:28Z
+updated_at: 2026-09-29T20:08:48Z
 parent: nixos-b25k
 ---
 

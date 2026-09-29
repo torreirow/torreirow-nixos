@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## NEXT VERSION
 
+### Changed
+- **De Claude-connector blijft gekoppeld.** Hij vroeg meerdere keren per dag om opnieuw te autoriseren — vijf keer op 29 september, tegen eens per twee weken voor de andere toepassing op dezelfde inlogserver. Twee instellingen veroorzaakten dat en geen van beide was ooit gekozen: de refresh-token stond op de standaard van 90 minuten, en het toestemmingsscherm was blijven staan uit een eerder ontwerp dat is losgelaten.
+  - De refresh-token gaat naar 30 dagen. Omdat die bij elk gebruik ververst wordt, is dat geen maximale sessieduur maar een maximale *stilteperiode*: bij dagelijks gebruik merk je er niets van.
+  - **De toegangstoken is bewust niet verlengd.** Dat is de enige die bij elk verzoek over de lijn gaat.
+  - Toestemming wordt een maand onthouden, en opnieuw gevraagd zodra de gevraagde rechten wijzigen — juist dan hoort het op te vallen.
+  - De browsersessie blijft ongemoeid; wie die te krap vindt gebruikt het "onthoud mij"-vinkje bij het inloggen.
+
 ### Added
 - **Controle op de frontmatter van het notitieboek** (`modules/linny-web-frontmatter/`): stelt vast of taxonomie-termen de canonieke vorm hebben die de indexer hanteert (kleine letters, streepjes in plaats van spaties), en of er notities zonder `customer` of zonder frontmatter zijn.
   - Die laatste zijn geen schoonheidsfoutje: een notitie zonder frontmatter belandt niet in de index en is daarmee onvindbaar voor de agent, terwijl de site hem gewoon toont.
