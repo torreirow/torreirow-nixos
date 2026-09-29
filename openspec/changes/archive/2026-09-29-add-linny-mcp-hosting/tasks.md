@@ -41,12 +41,20 @@
 - [x] 6.1 `nix eval` / `dry-build` van malandro slaagt
 - [x] 6.2 Modultest die de opgebouwde config toetst (bind-adres, paden, scheiding van de
       Hugo-checkout, geen Authelia op de vhost, ordening van de units)
-- [ ] 6.3 `nixos-rebuild switch` op malandro — **door de gebruiker**
-- [ ] 6.4 Live: `/healthz` 200 zonder auth, `/mcp` zonder token geweigerd
-- [ ] 6.5 Live: agent-write krijgt `status: agent-draft` en staat binnen ~1 min op GitHub
-- [ ] 6.6 Live: write op een bestaande notitie wordt geweigerd
-- [ ] 6.7 Live: elders bewerkte notitie wordt doorzoekbaar via MCP
-- [ ] 6.8 Live: connectors in Claude Online + Mobile
+- [x] 6.3 `nixos-rebuild switch` op malandro (2026-09-25; sindsdien meermaals)
+- [x] 6.4 Live 2026-09-25: `/healthz` 200 zonder auth, `/mcp` zonder token 401.
+      **Inmiddels achterhaald door `add-linny-mcp-oidc`:** de vhost staat nu achter Authelia,
+      dus ook `/healthz` geeft publiek 401. Het was waar toen het gemeten werd; de eis is
+      bewust vervangen, niet stilzwijgend gesneuveld.
+- [x] 6.5 Live: agent-write kreeg `status: agent-draft` en stond binnen een minuut op GitHub
+      (torrlinny commit 15d608d)
+- [x] 6.6 Live: geweigerd met "requires write:* (or write:inbox for a quarantined draft)".
+      De anker-tekst bestond niet eens in het doel en tóch ging de weigering over de scope:
+      de autorisatiecheck zit vóór de tekstvervanging.
+- [x] 6.7 Live: extern bewerkt, gepusht, en na de sync vindbaar via `search` (index 118 -> 119)
+- [x] 6.8 Live via `nixos-8ncn`, maar niet zoals hier voorzien: het one-time bearer-token
+      bleek geen begaanbare weg (de connector-dialoog heeft er geen veld voor en verwacht
+      OAuth). De route loopt nu via Authelia als OIDC-provider. Zie `add-linny-mcp-oidc`.
 
 ## 7. Documentatie
 
