@@ -1,28 +1,28 @@
 ## 1. Configuratie
 
-- [ ] 1.1 Lifespan-profiel `connector` onder `identity_providers.oidc.lifespans.custom`:
+- [x] 1.1 Lifespan-profiel `connector` onder `identity_providers.oidc.lifespans.custom`:
       `access_token: "1h"` (expliciet, zie design 2) en `refresh_token: "30d"`
-- [ ] 1.2 `claude-connector` verwijst met `lifespan = "connector"` naar dat profiel
-- [ ] 1.3 `consent_mode` van `explicit` naar `pre-configured` + `pre_configured_consent_duration`
-- [ ] 1.4 Het commentaar bij die client corrigeren: daar staat nu dat `explicit` een EIS is van
+- [x] 1.2 `claude-connector` verwijst met `lifespan = "connector"` naar dat profiel
+- [x] 1.3 `consent_mode` van `explicit` naar `pre-configured` + `pre_configured_consent_duration`
+- [x] 1.4 Het commentaar bij die client corrigeren: daar staat nu dat `explicit` een EIS is van
       Authelia. Dat gold alleen bij `authelia.bearer.authz` en is onjuist geworden
 
 ## 2. Valideren vóór de switch
 
-- [ ] 2.1 `authelia validate-config` op een minimale configuratie met de gewijzigde client, in
+- [x] 2.1 `authelia validate-config` op een minimale configuratie met de gewijzigde client, in
       isolatie op malandro — een ongeldige client laat Authelia niet starten
-- [ ] 2.2 `nix eval` van de malandro-config slaagt
+- [x] 2.2 `nix eval` van de malandro-config slaagt
 
 ## 3. Toets
 
-- [ ] 3.1 `modules/authelia_test.py` in de stijl van `modules/linny-mcp_test.py`
+- [x] 3.1 `modules/authelia_test.py` in de stijl van `modules/linny-mcp_test.py`
       (`nix eval --apply` op de opgebouwde config)
-- [ ] 3.2 `claude-connector` heeft `consent_mode = "pre-configured"` met een duur
-- [ ] 3.3 `claude-connector` verwijst naar het lifespan-profiel
-- [ ] 3.4 Het profiel heeft `access_token = "1h"` — borgt dat alleen de refresh-token verlengd is
-- [ ] 3.5 `wallos` gebruikt het profiel NIET en houdt zijn eigen consent-instellingen
-- [ ] 3.6 De sessie-cookie is ongewijzigd (`inactivity`, `expiration`)
-- [ ] 3.7 Het `legacy`-authz-endpoint bestaat nog naast `mcp` — dat verdween eerder en legde alle
+- [x] 3.2 `claude-connector` heeft `consent_mode = "pre-configured"` met een duur
+- [x] 3.3 `claude-connector` verwijst naar het lifespan-profiel
+- [x] 3.4 Het profiel heeft `access_token = "1h"` — borgt dat alleen de refresh-token verlengd is
+- [x] 3.5 `wallos` gebruikt het profiel NIET en houdt zijn eigen consent-instellingen
+- [x] 3.6 De sessie-cookie is ongewijzigd (`inactivity`, `expiration`)
+- [x] 3.7 Het `legacy`-authz-endpoint bestaat nog naast `mcp` — dat verdween eerder en legde alle
       vhosts plat
 
 ## 4. Uitrollen en meten
