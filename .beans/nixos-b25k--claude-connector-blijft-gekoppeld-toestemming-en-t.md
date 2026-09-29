@@ -1,10 +1,11 @@
 ---
 # nixos-b25k
 title: 'Claude-connector blijft gekoppeld: toestemming en tokenlevensduur afstemmen'
-status: todo
+status: in-progress
 type: epic
+priority: normal
 created_at: 2026-09-29T19:59:46Z
-updated_at: 2026-09-29T19:59:46Z
+updated_at: 2026-09-29T20:13:04Z
 ---
 
 De MCP-connector vraagt meerdere keren per dag om opnieuw te autoriseren. Twee
