@@ -378,7 +378,7 @@ security.pam.services.greetd.enableGnomeKeyring = true;
 
 nixpkgs.config.permittedInsecurePackages = [
     "qtwebkit-5.212.0-alpha"
-    "electron-39.8.10" # bitwarden-desktop, verwijderen zodra nixpkgs bitwarden upgradet naar nieuwere electron
+    "electron-41.9.1" # jitsi-meet-electron, verwijderen zodra nixpkgs jitsi-meet-electron upgradet naar nieuwere electron
   ];
 
 

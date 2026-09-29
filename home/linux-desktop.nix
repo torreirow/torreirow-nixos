@@ -104,6 +104,16 @@ services.meeting-record = {
   # whisperLanguage = "nl";
 };
 
+# Notitieboek als MCP-server, bereikbaar op 127.0.0.1:8096
+# (module: home/module/linny-mcp-tunnel). De server zelf draait op malandro en
+# staat niet publiek; ssh-toegang tot malandro is het toegangsbewijs.
+services.linny-mcp-tunnel = {
+  enable = true;
+  # host       = "malandro";  # default
+  # localPort  = 8096;        # default
+  # remotePort = 8096;        # default
+};
+
 services.remarkable-sync = {
   enable = true;
   # Een slapend/losgekoppeld apparaat is exit 0, dus dit vuurt alleen bij een
