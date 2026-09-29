@@ -289,6 +289,30 @@
           # Zie openspec/changes/add-linny-mcp-oidc/design.md.
           require_pushed_authorization_requests = false;
 
+          # Eigen levensduren voor de connector. Alléén deze client verwijst
+          # ernaar; wallos en linny-mcp-authz houden de globale standaarden.
+          #
+          # ACCESS_TOKEN STAAT HIER EXPLICIET OP 1h, gelijk aan de standaard, om
+          # vast te leggen dat dat een keuze is: dat is de enige credential die
+          # bij élk verzoek over de lijn gaat. Alleen de refresh-token is
+          # verlengd.
+          #
+          # Waarom 30 dagen: Authelia roteert refresh-tokens, dus deze waarde is
+          # geen maximale sessieduur maar een maximale STILTEPERIODE -- bij elke
+          # verversing schuift de klok mee. Met de standaard van 90 minuten moest
+          # de connector meermaals per dag opnieuw geautoriseerd worden (gemeten
+          # 2026-09-29: vijf volledige rondes op één dag, tegen wallos eens per
+          # twee weken). De beveiliging van een langlevende refresh-token zit in
+          # rotatie en intrekbaarheid, niet in een korte levensduur.
+          lifespans = {
+            custom = {
+              connector = {
+                access_token = "1h";
+                refresh_token = "30d";
+              };
+            };
+          };
+
           cors = {
             endpoints = [ "authorization" "token" "revocation" "introspection" ];
             allowed_origins_from_client_redirect_uris = true;
@@ -318,11 +342,14 @@
             # vraagt optioneel om een secret, maar dat is bij PKCE niet nodig.
             #
             # BEWUST GEEN `authelia.bearer.authz`. Die scope trekt een hele reeks
-            # eisen mee -- verplicht PAR, alleen form_post, geen andere scopes --
-            # en Claude doet geen PAR. Gemeten 2026-09-25, ook niet wanneer de
-            # discovery-metadata het als verplicht adverteert. Het token wordt nu
-            # gevalideerd door linny-mcp-authz via het introspection-endpoint, en
-            # daarvoor gelden die eisen niet.
+            # eisen mee -- verplicht PAR, alleen form_post, expliciete toestemming,
+            # geen andere scopes -- en Claude doet geen PAR. Gemeten 2026-09-25,
+            # ook niet wanneer de discovery-metadata het als verplicht adverteert.
+            # Het token wordt nu gevalideerd door linny-mcp-authz via het
+            # introspection-endpoint, en daarvoor gelden die eisen niet.
+            #
+            # `consent_mode = "explicit"` was óók zo'n eis en bleef na het laten
+            # vallen van die scope onterecht staan; hersteld 2026-09-29.
             {
               client_id = "claude-connector";
               client_name = "Claude MCP connector";
@@ -339,7 +366,20 @@
               grant_types = [ "authorization_code" "refresh_token" ];
               response_types = [ "code" ];
               response_modes = [ "query" "form_post" ];
-              consent_mode = "explicit";
+              lifespan = "connector";
+              # `pre-configured`, niet `explicit`. Dat laatste stond hier omdat
+              # Authelia het VERPLICHTTE bij de scope `authelia.bearer.authz` --
+              # en die is losgelaten toen bleek dat Claude geen PAR doet. De
+              # dwang bestaat dus niet meer; Authelia's eigen standaard (`auto`)
+              # kiest `pre-configured` zodra er een duur staat, en wallos staat
+              # daar al op.
+              #
+              # Dit is geen verzwakking: een onthouden toestemming vervalt zodra
+              # subject, client, scopes of audience afwijken van wat eerder is
+              # toegestaan. Vier identieke schermen per dag leidt er juist toe
+              # dat je stopt met lezen wat je goedkeurt.
+              consent_mode = "pre-configured";
+              pre_configured_consent_duration = "1M";
               token_endpoint_auth_method = "none";
               authorization_policy = "two_factor";
               # GEMETEN 2026-09-25 uit de authorization request in het
