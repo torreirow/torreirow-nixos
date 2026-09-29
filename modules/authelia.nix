@@ -72,6 +72,34 @@
 
       server = {
         address = "tcp://127.0.0.1:9091";
+
+        # LET OP -- dit blok VERVANGT de standaardset authz-endpoints; het vult
+        # hem niet aan. Alles wat je wilt houden moet hier staan.
+        #
+        # Gemeten op 2026-09-25: met alleen `mcp` hieronder gaf /api/verify een
+        # 404, en daarmee gaven ALLE bestaande vhosts (linny, status-page,
+        # pihole, hassio, ...) een 500 -- die gebruiken stuk voor stuk nog het
+        # legacy-endpoint. Haal `legacy` hier dus niet weg zonder eerst elke
+        # auth_request in modules/ om te bouwen.
+        endpoints.authz = {
+          # Waar de bestaande vhosts op wijzen: /api/verify
+          legacy.implementation = "Legacy";
+
+          # Eigen endpoint voor de MCP-server, op /api/authz/mcp. AuthRequest is
+          # de implementatie die bij nginx' auth_request-module hoort. Alleen het
+          # Bearer-schema: een MCP-client stuurt een token en volgt géén redirect
+          # naar een inlogpagina, dus CookieSession staat er bewust niet bij --
+          # die zou een 302 naar het portaal opleveren.
+          mcp = {
+            implementation = "AuthRequest";
+            authn_strategies = [
+              {
+                name = "HeaderAuthorization";
+                schemes = [ "Bearer" ];
+              }
+            ];
+          };
+        };
       };
 
       log = {
@@ -247,6 +275,20 @@
 
       identity_providers = {
         oidc = {
+          # SERVER-BREED, raakt dus ook de Wallos-client.
+          #
+          # Authelia eist PAR zodra een client de scope `authelia.bearer.authz`
+          # gebruikt -- gemeten 2026-09-25, validate-config weigert de client
+          # anders. Claude deed geen PAR en kreeg "Pushed Authorization Requests
+          # are required but this Authorization Request was not made as a Pushed
+          # Authorization Request".
+          #
+          # Deze vlag verschijnt letterlijk in de discovery-metadata. GEMETEN
+          # 2026-09-25: op `true` gebruikt Claude alsnog geen PAR -- dezelfde
+          # foutmelding -- en brak Wallos er wél op. Blijft dus uit.
+          # Zie openspec/changes/add-linny-mcp-oidc/design.md.
+          require_pushed_authorization_requests = false;
+
           cors = {
             endpoints = [ "authorization" "token" "revocation" "introspection" ];
             allowed_origins_from_client_redirect_uris = true;
@@ -270,6 +312,71 @@
               # Onthoud toestemming één maand (M = maand, m = minuut) i.p.v. bij elke login vragen
               consent_mode = "pre-configured";
               pre_configured_consent_duration = "1M";
+            }
+
+            # Claude's MCP-connector. Publieke client met PKCE; Claude's dialoog
+            # vraagt optioneel om een secret, maar dat is bij PKCE niet nodig.
+            #
+            # BEWUST GEEN `authelia.bearer.authz`. Die scope trekt een hele reeks
+            # eisen mee -- verplicht PAR, alleen form_post, geen andere scopes --
+            # en Claude doet geen PAR. Gemeten 2026-09-25, ook niet wanneer de
+            # discovery-metadata het als verplicht adverteert. Het token wordt nu
+            # gevalideerd door linny-mcp-authz via het introspection-endpoint, en
+            # daarvoor gelden die eisen niet.
+            {
+              client_id = "claude-connector";
+              client_name = "Claude MCP connector";
+              public = true;
+              require_pkce = true;
+              pkce_challenge_method = "S256";
+              scopes = [ "openid" "profile" "email" "offline_access" ];
+              # Claude stuurt `resource=https://linny-mcp.toorren.net` mee
+              # (RFC 8707) en Authelia vertaalt dat naar een audience. Zonder
+              # deze regel: "Requested audience has not been whitelisted by the
+              # OAuth 2.0 Client". Hoort niet bij bearer-authz -- het geldt ook
+              # voor een gewone client.
+              audience = [ "https://linny-mcp.toorren.net" ];
+              grant_types = [ "authorization_code" "refresh_token" ];
+              response_types = [ "code" ];
+              response_modes = [ "query" "form_post" ];
+              consent_mode = "explicit";
+              token_endpoint_auth_method = "none";
+              authorization_policy = "two_factor";
+              # GEMETEN 2026-09-25 uit de authorization request in het
+              # nginx-access.log. Niet gokken: documentatie en zoekresultaten
+              # noemden pivot.claude.ai/auth/gateway-callback, en dat is het niet.
+              redirect_uris = [ "https://claude.ai/api/mcp/auth_callback" ];
+            }
+
+            # De tokenvalidator. Praat alleen met het introspection-endpoint en
+            # doorloopt zelf nooit een gebruikersflow -- vandaar client_credentials
+            # en geen redirect_uris. Vertrouwelijke client: hij moet zich kunnen
+            # legitimeren bij introspection.
+            {
+              client_id = "linny-mcp-authz";
+              client_name = "linny-mcp tokenvalidator";
+              public = false;
+              # Argon2id-hash; het platte geheim staat in
+              # secrets/linny-mcp-authz-secret.age en gaat nergens anders heen.
+              #
+              # BEWUST GOEDKOPE PARAMETERS (m=8192,t=1,p=1 in plaats van de
+              # standaard m=65536,t=3,p=4). Gemeten op malandro: met de standaard
+              # kostte élke introspection 164 ms, waarvan 163 ms deze hash -- een
+              # verzoek zonder client-auth doet er 1 ms over. Die kosten bestaan
+              # om zwakke, door mensen gekozen wachtwoorden te beschermen tegen
+              # offline kraken. Dit geheim is 72 willekeurige tekens; daar helpt
+              # een dure hash niets extra tegen. Zo kan de cache in de validator
+              # kort, en blijft een ingetrokken token niet minutenlang bruikbaar.
+              client_secret = "$argon2id$v=19$m=8192,t=1,p=1$N8jjWMoAbL5ht7JDuISO9Q$ezP2zOsok/uxM/SRLQ0JAUm3FXLABF55k0J5WR/ItRQ";
+              authorization_policy = "one_factor";
+              grant_types = [ "client_credentials" ];
+              # Leeg, niet [ "openid" ]: Authelia weigert openid bij
+              # client_credentials -- er is geen gebruiker om een identiteit van
+              # te maken. Introspection vraagt alleen dat de client zich kan
+              # legitimeren, geen scope.
+              scopes = [ ];
+              response_types = [ ];
+              redirect_uris = [ ];
             }
           ];
         };

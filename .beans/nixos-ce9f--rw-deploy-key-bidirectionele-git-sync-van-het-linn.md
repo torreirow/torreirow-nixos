@@ -1,11 +1,11 @@
 ---
 # nixos-ce9f
 title: RW deploy key + bidirectionele git-sync van het linny-mcp-corpus
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-09-25T07:44:20Z
-updated_at: 2026-09-25T07:45:40Z
+updated_at: 2026-09-25T11:30:45Z
 parent: nixos-m0vn
 blocked_by:
     - nixos-dqs2
@@ -31,13 +31,20 @@ untracked tot ze gecommit worden).
 git-sync dat bestand mee te synchroniseren.
 
 ## Todo
-- [ ] ed25519-sleutel genereren; publieke helft als **read/write** deploy key op `torreirow/torrlinny`
-- [ ] `secrets/linny-mcp-deploy-key.age` + recipients in `secrets/secrets.nix`; owner = service-user, mode 0400
-- [ ] oneshot `linny-mcp-clone.service`: kloont torrlinny naar het corpus als `.git` ontbreekt,
+- [x] ed25519-sleutel genereren; publieke helft als **read/write** deploy key op `torreirow/torrlinny`
+- [x] `secrets/linny-mcp-deploy-key.age` + recipients in `secrets/secrets.nix`; owner = service-user, mode 0400
+- [x] oneshot `linny-mcp-clone.service`: kloont torrlinny naar het corpus als `.git` ontbreekt,
       `before = linny-mcp.service`, `RemainAfterExit = true`
-- [ ] `git-sync-linny-mcp.service` + timer (30 s), `WorkingDirectory` = corpus, `GIT_SSH_COMMAND`
+- [x] `git-sync-linny-mcp.service` + timer (30 s), `WorkingDirectory` = corpus, `GIT_SSH_COMMAND`
       met `IdentitiesOnly=yes` en een eigen `UserKnownHostsFile`
-- [ ] `user.name`/`user.email` in de unit zetten, anders faalt de commit
-- [ ] verifieer: bestand in het corpus -> staat binnen ~1 min op GitHub
-- [ ] verifieer: commit op GitHub -> staat binnen ~1 min in het corpus
-- [ ] verifieer: `/var/lib/torrlinny/checkout` is hierdoor niet veranderd
+- [x] `user.name`/`user.email` in de unit zetten, anders faalt de commit
+- [x] verifieer: bestand in het corpus -> staat binnen ~1 min op GitHub
+- [x] verifieer: commit op GitHub -> staat binnen ~1 min in het corpus
+- [x] verifieer: `/var/lib/torrlinny/checkout` is hierdoor niet veranderd
+
+## Summary of Changes
+
+`linny-mcp-clone.service` (oneshot bootstrap) + `linny-mcp-git-sync.service` met timer op 30 s,
+beide als de service-gebruiker. `GIT_SSH_COMMAND` met de RW deploy key, `IdentitiesOnly=yes` en een
+known_hosts BUITEN de working tree. `branch.main.sync` + `syncNewFiles` in de unit gezet.
+De scheiding van `/var/lib/torrlinny/checkout` is statisch getoetst in `modules/linny-mcp_test.py`.

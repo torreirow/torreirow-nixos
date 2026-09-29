@@ -93,6 +93,28 @@ in
   # Cap CAPTCHA: key-secret voor server-side siteverify vanuit de mailer
   "cap-mailer-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # linny-mcp (READ/WRITE deploy key voor torreirow/torrlinny -- git-sync pusht
+  # agent-notities terug). Bewust een tweede sleutel: torrlinny-deploy-key blijft
+  # read-only, want dat is de sleutel van linny-web-build en dat proces doet
+  # `reset --hard` + `clean -fdx` -- dat mag nooit kunnen pushen.
+  "linny-mcp-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
+  # linny-mcp bearer-tokens (gehashte records, JSON-lines). De one-time secrets
+  # zelf staan in Vaultwarden en in de Claude-connectors, nooit hier.
+  "linny-mcp-tokens.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
+  # nginx-snippet met de Authorization-header voor de upstream. Nginx zet het
+  # interne token pas NA een geslaagde auth_request bij Authelia; dit bestand is
+  # dus het gedeelde geheim tussen twee processen op dezelfde host, geen
+  # identiteit. Een snippet en geen kale waarde, zodat het niet als optie in de
+  # nix-store belandt.
+  "linny-mcp-nginx-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
+  # Client secret waarmee de tokenvalidator zich legitimeert bij Authelia's
+  # introspection-endpoint. De argon2-hash staat in modules/authelia.nix; dit is
+  # het platte geheim, dat alleen de validator leest.
+  "linny-mcp-authz-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;
