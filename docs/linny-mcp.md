@@ -174,6 +174,41 @@ En één die je pas ziet als je loopback gebruikt: Authelia leidt zijn *effectiv
 verzoek af en weigert met `invalid X-Forwarded-Proto header value 'http'`. De validator doet zich
 daarom voor als de reverse proxy — `Host`, `X-Forwarded-Proto` en `X-Forwarded-Host`.
 
+### Drie klokken, en welke waarvan is
+
+Het meest merkbare gedrag van de koppeling is hoe vaak je opnieuw moet inloggen. Daar zitten drie
+onafhankelijke timers achter, en ze horen bij verschillende dingen:
+
+| klok | waarde | beschermt | merkbaar als |
+|-----------------|--------|--------------------------------|------------------------------|
+| sessie-cookie | 5m / 1u | een openstaande browser | inlogscherm mét tweede factor |
+| access-token | 1u | het verzoek onderweg | niets — wordt stil ververst |
+| refresh-token | 30d | de koppeling zelf | toestemmingsscherm |
+
+**De refresh-token is een maximale stilteperiode, geen sessieduur.** Authelia roteert hem: bij elke
+verversing komt er een nieuwe met een nieuwe klok. Gebruik je de connector dagelijks, dan schuift
+die mee en zie je nooit iets. Alleen na een maand niets doen moet je opnieuw koppelen.
+
+Met Authelia's standaard van **90 minuten** was dat anders: gemeten op 2026-09-29 vroeg de connector
+vijf keer op één dag om opnieuw te autoriseren, tegen `wallos` eens per twee weken. In redis stonden
+1766 sessiesleutels, allemaal met minder dan een uur te gaan — de vingerafdruk van voortdurend
+opnieuw inloggen.
+
+**De access-token is bewust níét verlengd.** Dat is de enige credential die bij elk verzoek over de
+lijn gaat; die oprekken vergroot het venster waarin een onderschepte token bruikbaar is, en levert
+niets op — je merkt een verlopen access-token niet.
+
+**De sessie-cookie blijft met opzet op de standaard.** Die beschermt een openstaande browser, en
+staat los van de koppeling. Het globaal oprekken zou álle vhosts raken om een probleem bij de
+connector op te lossen. Vind je de vijf minuten te krap, gebruik dan het **"onthoud mij"-vinkje**
+bij het inloggen — dat is per keer en zelfgekozen, en Authelia's standaard daarvoor is een maand.
+Let op: dat vinkje staat op het *inlogformulier*, niet op het toestemmingsscherm.
+
+Toestemming wordt onthouden (`consent_mode: pre-configured`, een maand). Dat is geen verzwakking:
+zo'n toestemming vervalt zodra subject, client, scopes of audience afwijken van wat eerder is
+toegestaan. Vier identieke schermen per dag leidt er juist toe dat je stopt met lezen wat je
+goedkeurt — en dan valt een échte wijziging in de gevraagde rechten niet meer op.
+
 ### Waarom een IP-filter géén alternatief was
 
 Een eerdere poging was `allow 192.168.2.0/24` op de vhost. Dat kan in deze opstelling principieel
