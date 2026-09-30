@@ -106,6 +106,7 @@
       "wereldvanbegrip.nl" = "wereldvanbegrip@toorren.net";
       # LET OP: pas dit ontvangstadres aan indien gewenst.
       "cckafe.com" = "hello@cckafe.com";
+      "devos.dutchyland.net" = "dailydevo@dutchyland.net";
     };
     # Self-hosted Cap CAPTCHA i.p.v. Cloudflare Turnstile.
     capSiteKey = "eaa5abea30";
