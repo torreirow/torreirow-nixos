@@ -11,7 +11,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | 8082 | Infcloud | 127.0.0.1 | Docker | Web calendar interface |
 | 8083 | Erugo | 127.0.0.1 | Docker | Task management |
 | 8084 | Pi-hole FTL | 0.0.0.0 | Native | DNS and ad-blocking web interface |
-| 8085 | IT-Tools | 0.0.0.0 | Docker | Developer tools collection |
+| 8085 | IT-Tools | 127.0.0.1 | Docker | Developer tools (ghcr.io/torreirow/it-tools, sharevb-fork; ittools.toorren.net) |
 | 8086 | Zigbee2MQTT | 127.0.0.1 | Docker | Zigbee bridge web interface |
 | 8088 | Signal CLI | 127.0.0.1 | Docker | Signal messenger API for notifications |
 | 8090 | DocSeal | 127.0.0.1 | Docker | Open source document signing platform (docseal.toorren.net) |
