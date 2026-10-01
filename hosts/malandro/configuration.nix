@@ -519,7 +519,7 @@ services.authelia.users = [
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
     passwordHash = "***REMOVED***";
-    groups = [ "admins" "users" "monitoring" "network" ];
+    groups = [ "admins" "users" "monitoring" "network" "LinnyWouter" ];
     disabled = false;
   }
   {
@@ -527,7 +527,7 @@ services.authelia.users = [
     displayname = "WouteruseR van der Toorren";
     email = "wouteruser@toorren.net";
     passwordHash = "***REMOVED***";
-    groups = [ "users" "monitoring" ];
+    groups = [ "users" "monitoring" "LinnyWouter" ];
     disabled = false;
   }
 ];

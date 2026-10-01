@@ -70,6 +70,15 @@ configuration.nix`) → mobiel schrijven blijft. Het interne schrijf-record houd
 verspringt van `claude-connector` (leesstand) naar `nginx-write` (schrijfstand) — puur een
 verbindingslabel, komt NIET in de notitie-frontmatter.
 
+**Vervolg (zelfde dag): toegewijde groep `LinnyWouter`.** De `linny-mcp-write`-policy eist nu
+`group:LinnyWouter` i.p.v. `group:admins`, plus een `access_control`-regel voor `linny.toorren.net`
+op dezelfde groep — die groep ontsluit uitsluitend de Linny-diensten (web + MCP). Leden declaratief
+in `hosts/malandro/configuration.nix` (`services.authelia.users`): `wouter` + `wouteruser`. Let op:
+de users-db `/var/lib/authelia-main/users_database.yml` is een **store-symlink** (read-only) —
+groepen staan in Nix via `services.authelia.users`, niet runtime te bewerken. Gedeployed generation
+53, Authelia komt schoon op. Omdat de policy alléén `LinnyWouter` eist moest `wouter` die groep
+krijgen vóór de switch (anders connector-lockout).
+
 **Status:** ✅ Live en getest. Testbestand `schrijftest_claude_connector.md` mag nog opgeruimd worden.
 
 ### Sessie 2026-09-22 - Neerslag-indicator op Temp/Vocht-dashboard - GROTENDEELS OPGELOST
