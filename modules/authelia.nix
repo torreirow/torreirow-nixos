@@ -317,6 +317,26 @@
             endpoints = [ "authorization" "token" "revocation" "introspection" ];
             allowed_origins_from_client_redirect_uris = true;
           };
+
+          # Benoemde policy voor de MCP-connector. Een kale `two_factor` op de
+          # client geeft ELKE Authelia-gebruiker die 2FA haalt een token; deze
+          # policy eist bovendien lidmaatschap van `admins`. Met één gebruiker
+          # vandaag functioneel gelijk, maar het is de plek die een tweede
+          # gebruiker buiten `admins` tegenhoudt -- relevant zodra de publieke
+          # route mag schrijven (services.linny-mcp-host.publicWrite).
+          # Zie openspec/changes/add-linny-mcp-public-write.
+          authorization_policies = {
+            linny-mcp-write = {
+              default_policy = "deny";
+              rules = [
+                {
+                  policy = "two_factor";
+                  subject = [ "group:admins" ];
+                }
+              ];
+            };
+          };
+
           clients = [
             {
               client_id = "wallos";
@@ -381,7 +401,9 @@
               consent_mode = "pre-configured";
               pre_configured_consent_duration = "1M";
               token_endpoint_auth_method = "none";
-              authorization_policy = "two_factor";
+              # Niet kaal `two_factor` (= iedere 2FA-gebruiker), maar de benoemde
+              # policy hierboven die ook `group:admins` eist. Zie publicWrite.
+              authorization_policy = "linny-mcp-write";
               # GEMETEN 2026-09-25 uit de authorization request in het
               # nginx-access.log. Niet gokken: documentatie en zoekresultaten
               # noemden pivot.claude.ai/auth/gateway-callback, en dat is het niet.

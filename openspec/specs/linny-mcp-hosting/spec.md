@@ -72,26 +72,6 @@ opgeslagen, en SHALL NOT de bestaande read-only sleutel van de Hugo-build hergeb
 - **THEN** er SHALL een read-only sleutel voor de Hugo-build bestaan én een aparte read/write
   sleutel voor linny-mcp, en de private helft SHALL alleen als agenix-secret bestaan
 
-### Requirement: Agent-writes blijven begrensd tot hun eigen quarantaine
-
-De tokens SHALL de scope `read:*,write:inbox` dragen, zodat de agent nieuwe documenten kan maken
-en alleen zijn eigen nog-niet-gepromoveerde drafts kan wijzigen.
-
-#### Scenario: Nieuw document landt in quarantaine
-
-- **WHEN** de agent `create_doc` aanroept
-- **THEN** het document SHALL de term `status: agent-draft` dragen
-
-#### Scenario: Bestaande notitie is onaanraakbaar
-
-- **WHEN** de agent een bestaand document zonder quarantaine-term probeert te wijzigen
-- **THEN** de server SHALL dat weigeren
-
-#### Scenario: Promoveren sluit de agent buiten
-
-- **WHEN** de quarantaine-term met de hand van een document verwijderd is
-- **THEN** de agent SHALL dat document niet meer kunnen wijzigen
-
 ### Requirement: Bearer-tokens komen uit een versleuteld bestand
 
 Tokens SHALL alleen als bestandspad uit agenix aan de server gegeven worden; geen tokenwaarde
@@ -153,3 +133,26 @@ MCP-client alleen een bearer-token stuurt en geen loginredirect volgt.
 - **WHEN** het doorgezette verzoek de MCP streamable-HTTP-transport gebruikt
 - **THEN** de vhost SHALL proxy-buffering uitzetten, HTTP/1.1 gebruiken en een lange read-timeout
   hanteren, zodat langlopende streams niet stallen of afgekapt worden
+
+### Requirement: De tunnel-token draagt volledige schrijfrechten
+
+De tunnel-token (`claude-web`) SHALL de scope `read:*,write:*` dragen, zodat een client via de
+ssh-tunnel zowel nieuwe documenten kan maken als bestaande, met de hand geschreven notities kan
+wijzigen. De quarantaine-term SHALL nog steeds op nieuw door de agent aangemaakte documenten
+komen, maar SHALL NOT een voorwaarde zijn om met deze token te mogen schrijven.
+
+#### Scenario: Nieuw document krijgt nog steeds de quarantaine-term
+
+- **WHEN** de agent via de tunnel `create_doc` aanroept
+- **THEN** het document SHALL de term `status: agent-draft` dragen
+
+#### Scenario: Bestaande notitie is wijzigbaar via de tunnel
+
+- **WHEN** de agent via de tunnel een bestaand document zonder quarantaine-term probeert te wijzigen
+- **THEN** de server SHALL de wijziging uitvoeren
+
+#### Scenario: Tokenwaarde blijft buiten de nix-store
+
+- **WHEN** de gegenereerde configuratie en de nix-store worden geïnspecteerd
+- **THEN** de scope van de tunnel-token SHALL alleen uit het versleutelde tokens-bestand komen
+- **AND** geen tokenwaarde SHALL in een wereldleesbaar store-pad staan

@@ -7,6 +7,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Changed
+- **Claude Code op de laptop mag nu alle notities bewerken.** Via de ssh-tunnel kon de agent alleen eigen concepten maken en bijwerken; het token draagt nu volledige schrijfrechten, zodat hij ook bestaande, met de hand geschreven notities kan aanpassen. Geldt alleen voor de tunnel (laptop, thuis of via WireGuard op het werk), los van de publieke route.
 - **De Claude-connector blijft gekoppeld.** Hij vroeg meerdere keren per dag om opnieuw te autoriseren — vijf keer op 29 september, tegen eens per twee weken voor de andere toepassing op dezelfde inlogserver. Twee instellingen veroorzaakten dat en geen van beide was ooit gekozen: de refresh-token stond op de standaard van 90 minuten, en het toestemmingsscherm was blijven staan uit een eerder ontwerp dat is losgelaten.
   - De refresh-token gaat naar 30 dagen. Omdat die bij elk gebruik ververst wordt, is dat geen maximale sessieduur maar een maximale *stilteperiode*: bij dagelijks gebruik merk je er niets van.
   - **De toegangstoken is bewust niet verlengd.** Dat is de enige die bij elk verzoek over de lijn gaat.
@@ -14,6 +15,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - De browsersessie blijft ongemoeid; wie die te krap vindt gebruikt het "onthoud mij"-vinkje bij het inloggen.
 
 ### Added
+- **Schrijven vanaf Claude Mobile en Online** (`services.linny-mcp-host.publicWrite`): de publieke route naar het notitieboek kon alleen lezen; met deze schakelaar mag Claude via je telefoon of de webversie ook notities aanmaken en bestaande notities wijzigen. Op malandro staat hij aan.
+  - Het is een echte schakelaar, geen eenrichtingsdeur: nginx kiest op bouwtijd tussen een lees- en een schrijf-token, en terugzetten op `false` ontneemt de publieke route meteen weer alle schrijfrechten — het schrijf-token ligt dan niet eens meer op schijf.
+  - De route zit achter een scherper slot dan voorheen. Waar elk account met een tweede factor een token kreeg, moet je nu ook in de beheerdersgroep zitten (de benoemde Authelia-policy `linny-mcp-write`). Met één gebruiker vandaag geen verschil, maar het houdt een tweede account buiten.
+  - **Let op de keerzijde:** schrijven over de publieke route betekent dat Claude ook je met de hand geschreven notities kan aanpassen — de bescherming die agent-schrijfsels tot hun eigen concepten beperkte, vervalt op dat pad. Daarom staat de schakelaar standaard uit en zit de route achter een tweede factor én de beheerdersgroep.
 - **Controle op de frontmatter van het notitieboek** (`modules/linny-web-frontmatter/`): stelt vast of taxonomie-termen de canonieke vorm hebben die de indexer hanteert (kleine letters, streepjes in plaats van spaties), en of er notities zonder `customer` of zonder frontmatter zijn.
   - Die laatste zijn geen schoonheidsfoutje: een notitie zonder frontmatter belandt niet in de index en is daarmee onvindbaar voor de agent, terwijl de site hem gewoon toont.
   - Leest alleen en blokkeert de publicatie niet — een notitieboek met een afwijking hoort gewoon gebouwd te worden.

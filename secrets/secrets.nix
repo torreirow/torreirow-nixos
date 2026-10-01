@@ -110,6 +110,11 @@ in
   # nix-store belandt.
   "linny-mcp-nginx-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # Schrijf-variant van bovenstaand snippet: zelfde rol, maar het Bearer-token
+  # draagt read:*,write:*. Nginx includeert dit in plaats van het leestoken zodra
+  # `services.linny-mcp-host.publicWrite = true`. Zelfde recipients en regime.
+  "linny-mcp-nginx-write-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
   # Client secret waarmee de tokenvalidator zich legitimeert bij Authelia's
   # introspection-endpoint. De argon2-hash staat in modules/authelia.nix; dit is
   # het platte geheim, dat alleen de validator leest.

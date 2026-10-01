@@ -47,7 +47,17 @@ let
     modules = [ { services.linny-mcp-host = { publicEndpoint = true; oidc.enable = true; }; } ];
   }).config;
   oidcVhost = oidcCfg.services.nginx.virtualHosts."%s";
+
+  # En nog een keer met de publieke schrijfschakelaar aan. De `include` moet dan
+  # het schrijf-snippet kiezen, en het schrijf-secret moet gedecrypt worden.
+  writeCfg = (sys.extendModules {
+    modules = [ { services.linny-mcp-host = { publicEndpoint = true; oidc.enable = true; publicWrite = true; }; } ];
+  }).config;
+  writeVhost = writeCfg.services.nginx.virtualHosts."%s";
 in {
+  publicWriteDefault = cfg.services.linny-mcp-host.publicWrite;
+  writeRootExtra = writeVhost.locations."/".extraConfig;
+  writeSecretPad = toString writeCfg.age.secrets.linny-mcp-nginx-write-token.path;
   oidcLocaties   = builtins.attrNames oidcVhost.locations;
   oidcRootExtra  = oidcVhost.locations."/".extraConfig;
   oidcAuthzPass  = oidcVhost.locations."/authz-mcp".proxyPass;
@@ -100,7 +110,7 @@ in {
   # Bewijs dat de Hugo-build een ANDERE werkmap heeft.
   linnyWebStateDir = toString cfg.services.linny-web.stateDir;
 }
-""" % (DOMAIN, DOMAIN, DOMAIN)
+""" % (DOMAIN, DOMAIN, DOMAIN, DOMAIN)
 
 
 def load():
@@ -269,6 +279,30 @@ def main():
           c["oidcWellKnown"][:300])
     check("geen tokenliteral in de nginx-config",
           "Bearer " not in c["oidcRootExtra"], c["oidcRootExtra"][-200:])
+
+    print("publieke schrijfschakelaar")
+    # Default UIT: de publieke route hoort read-only te zijn tenzij expliciet aan.
+    check("publicWrite staat default uit",
+          c["publicWriteDefault"] is False, str(c["publicWriteDefault"]))
+    # Stand UIT (= oidcRootExtra): include wijst naar het LEES-snippet.
+    check("read-stand includeert het leestoken, niet het schrijftoken",
+          "include /run/agenix/linny-mcp-nginx-token*;" in c["oidcRootExtra"]
+          and "linny-mcp-nginx-write-token" not in c["oidcRootExtra"],
+          c["oidcRootExtra"][-300:])
+    # Stand AAN: include wijst naar het SCHRIJF-snippet, en precies dat ene.
+    check("write-stand includeert het schrijftoken",
+          "include /run/agenix/linny-mcp-nginx-write-token*;" in c["writeRootExtra"],
+          c["writeRootExtra"][-300:])
+    writeIncludes = [ln.strip() for ln in c["writeRootExtra"].splitlines()
+                     if ln.strip().startswith("include")]
+    check("write-stand heeft precies één include",
+          len(writeIncludes) == 1, str(writeIncludes))
+    check("write-stand lekt geen tokenliteral",
+          "Bearer " not in c["writeRootExtra"], c["writeRootExtra"][-200:])
+    # Het schrijf-secret wordt alleen onder die stand gedecrypt, op het juiste pad.
+    check("schrijf-secret op het write-snippet-pad",
+          c["writeSecretPad"] == "/run/agenix/linny-mcp-nginx-write-token",
+          c["writeSecretPad"])
     print("vhost")
     check("SSE: buffering uit", "proxy_buffering off" in c["vhostExtra"])
     check("SSE: lange read-timeout", "proxy_read_timeout 3600s" in c["vhostExtra"])

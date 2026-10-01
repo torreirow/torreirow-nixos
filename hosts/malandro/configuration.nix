@@ -87,6 +87,11 @@
     # ssh-tunnel naar 127.0.0.1 -- die route blijft onveranderd bestaan.
     publicEndpoint = true;
     oidc.enable = true;
+    # Publieke route schrijfbaar: Claude Mobile/Online mag bestaande notities
+    # wijzigen (nginx injecteert het schrijf-token read:*,write:*). Bewust aan;
+    # gegate achter Authelia 2FA + de policy linny-mcp-write (group:admins).
+    # Terugzetten op false + switch ontneemt de publieke route direct schrijven.
+    publicWrite = true;
   };
 
   services.magister-sync = {

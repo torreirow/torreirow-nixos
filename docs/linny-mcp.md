@@ -54,21 +54,51 @@ geen map. Dat doet pas iets samen met de **tokenscope**:
 // write:* always allows; write:inbox allows only quarantined (agent-draft) docs.
 ```
 
-De tokens dragen `read:*,write:inbox`. Daarmee:
+De scope hangt af van de route. `write:inbox` begrenst tot eigen drafts; `write:*` geeft volledige
+schrijfrechten en maakt de quarantaine-term tot niet meer dan een sticker die de agent zelf kan
+weghalen:
 
-| | |
-|---|---|
-| nieuw document maken | ✓ krijgt `status: agent-draft` |
-| eigen draft bijwerken | ✓ zolang de term erop staat |
-| **jouw bestaande notitie wijzigen** | **✗ geweigerd** |
-| na promotie er weer bij | ✗ nooit meer |
+| | `write:inbox` | `write:*` |
+|-------------------------------------|---------------|-----------|
+| nieuw document maken | ✓ krijgt `status: agent-draft` | ✓ krijgt `status: agent-draft` |
+| eigen draft bijwerken | ✓ | ✓ |
+| **jouw bestaande notitie wijzigen** | **✗ geweigerd** | ✓ |
+| na promotie er weer bij | ✗ nooit meer | ✓ |
 
-Upstream noemt dit `hostile-corpus-defenses`: *"The corpus is untrusted input (prompt injection);
-these reduce blast radius."* De aanval is niet een eigenwijze agent maar een notitie die de agent
-aanstuurt — relevant zodra er meetrec-transcripten in het notitieboek belanden.
+**Stand per 2026-10-01** (change `add-linny-mcp-public-write`): het tunnel-token `claude-web`
+draagt `read:*,write:*` — Claude Code/Desktop mag dus ook bestaande notities wijzigen. De publieke
+route blijft read-only tenzij de switch `publicWrite` aan staat (zie onder), en krijgt dan óók
+`read:*,write:*`.
+
+Upstream noemt de begrenzing `hostile-corpus-defenses`: *"The corpus is untrusted input (prompt
+injection); these reduce blast radius."* De aanval is niet een eigenwijze agent maar een notitie
+die de agent aanstuurt — relevant zodra er meetrec-transcripten in het notitieboek belanden. Met
+`write:*` vervalt die bescherming bewust; vandaar dat de publieke schrijfroute default uit staat en
+achter 2FA + `group:admins` zit.
 
 **Promoveren doe je met de hand**: haal de regel `status: agent-draft` uit de frontmatter. Er is
-(nog) geen promotie-tool; upstream houdt dat open. Daarna kan de agent er niet meer bij.
+(nog) geen promotie-tool; upstream houdt dat open. Met `write:inbox` kon de agent er daarna niet
+meer bij; met `write:*` is promotie geen slot meer.
+
+## De publieke schrijfschakelaar
+
+`services.linny-mcp-host.publicWrite` (bool, default `false`) bepaalt of de **publieke** route mag
+schrijven. De optie kiest welk agenix-snippet nginx in de `include` van `/mcp` zet:
+
+| stand | snippet | intern token | publieke route |
+|-------------|------------------------------------|---------------|----------------|
+| `false` | `linny-mcp-nginx-token.age` | `read:*` | read-only |
+| `true` | `linny-mcp-nginx-write-token.age` | `read:*,write:*` | read + write |
+
+Omzetten is `nixos-rebuild switch --flake .#malandro` en volledig omkeerbaar: terug op `false` +
+switch ontneemt de publieke route onmiddellijk alle schrijfrechten, zonder token-rotatie. Het
+schrijf-secret wordt alléén gedecrypt zolang de schakelaar aan staat (`mkIf (oidc.enable &&
+publicWrite)`), zodat lees- en schrijf-snippet nooit beide hetzelfde pad claimen.
+
+De route zit bovendien achter de benoemde Authelia-policy `linny-mcp-write` (`modules/authelia.nix`):
+`default_policy = deny`, met één regel `two_factor` voor `subject = group:admins`. Dat sluit het
+oude open punt dat élke Authelia-gebruiker met 2FA een connector-token kreeg — nú moet je ook in
+`admins` zitten. De policy staat er onvoorwaardelijk op, ook in de read-only-stand.
 
 ## Bestanden & paden
 
@@ -79,7 +109,8 @@ aanstuurt — relevant zodra er meetrec-transcripten in het notitieboek belanden
 | `home/module/linny-mcp-tunnel/` | Ssh-tunnel als home-manager user-service (lobos) |
 | `secrets/linny-mcp-deploy-key.age` | **Read/write** deploy key voor torrlinny |
 | `secrets/linny-mcp-tokens.age` | Gehashte bearer-records (JSON-lines) |
-| `secrets/linny-mcp-nginx-token.age` | Nginx-snippet met het interne leestoken |
+| `secrets/linny-mcp-nginx-token.age` | Nginx-snippet met het interne leestoken (`read:*`) |
+| `secrets/linny-mcp-nginx-write-token.age` | Nginx-snippet met het interne schrijftoken (`read:*,write:*`); alleen gebruikt bij `publicWrite = true` |
 | `secrets/linny-mcp-authz-secret.age` | Client secret van de validator bij Authelia |
 | `/var/lib/linny-mcp/corpus` | Git-werkmap die de agent beschrijft |
 | `/var/lib/linny-mcp/state` | Wegwerp-index (SQLite + JSON) |
@@ -110,15 +141,16 @@ telefoon / claude.ai                 │            │ auth_request    │
 ```
 
 | | tunnel | publieke route |
-|------------|---------------------------|-------------------------------|
-| slot | ssh-toegang tot malandro | Authelia-inlog met 2FA |
-| token | `read:*`, `write:inbox` | `read:*` |
-| schrijven | ja, als quarantaine-draft | **nee** |
+|------------|---------------------------|-----------------------------------------|
+| slot | ssh-toegang tot malandro | Authelia-inlog met 2FA + `group:admins` |
+| token | `read:*`, `write:*` | `read:*`, of `read:*,write:*` als de switch aan staat |
+| schrijven | ja, volledig | alleen als `publicWrite = true` |
 | clients | Claude Code, Desktop | Claude Mobile, Online |
 
-De schrijfbare route loopt dus uitsluitend via ssh. Wat er via je telefoon binnenkomt kan niets
-veranderen aan het notitieboek — dat is niet een instelling in Claude maar een eigenschap van het
-token dat nginx injecteert.
+De tunnel presenteert het `claude-web`-token rechtstreeks en is dus altijd schrijfbaar. De
+publieke route is standaard read-only doordat nginx het clienttoken **omwisselt** voor een vast
+intern token — van oudsher een leestoken (`read:*`). Dat is geen netwerk-eigenschap maar een
+nginx-token-swap, en precies daarom schakelbaar (zie onder).
 
 ### De tunnel
 
@@ -298,6 +330,7 @@ tokenbestand namelijk eenmalig bij start en herlaadt nooit.
 |---------------------------------|--------------------------------|------------------------|
 | `linny-mcp-tokens.age` | Vaultwarden + tunnel-clients | bij verlies of vertrek |
 | `linny-mcp-nginx-token.age` | nergens; nginx ↔ linny-mcp | vrij, genereer opnieuw |
+| `linny-mcp-nginx-write-token.age` | nergens; nginx ↔ linny-mcp (schrijf) | vrij, genereer opnieuw |
 | `linny-mcp-authz-secret.age` | nergens; validator ↔ Authelia | idem |
 
 De onderste twee gaan **nooit naar een client**. Ze hoeven dus niet in Vaultwarden, en roteren is
