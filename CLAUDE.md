@@ -28,7 +28,7 @@ poort- of ping-probe zegt ten onrechte "beschikbaar". Toets op inhoud (`status.p
 
 ## Huidige Status
 
-### Sessie 2026-10-02 - IT-Tools naar eigen image (sharevb-fork) - GEMERGED, DEPLOY VOLGT
+### Sessie 2026-10-02 - IT-Tools naar eigen image (sharevb-fork) - LIVE EN GETEST
 
 **Doel:** `ittools.toorren.net` van het stilgevallen `corentinth/it-tools` naar een eigen build.
 OpenSpec change `ittools-own-image`, PR #95.
@@ -54,6 +54,15 @@ zet tijdelijk `image = "ghcr.io/torreirow/it-tools:sha-<vorige>"` en switch.
 **Geverifieerd vóór de deploy:** de generatie op malandro was bit-voor-bit gelijk aan de build van
 `main` (`f9b1072`). `diff -rq` tussen main en de branch: alleen `docker-it-tools.service`, nginx en
 `status-page/configured.json` (image + poort).
+
+**Gedeployed:** `nixos-rebuild switch --flake .#malandro` op `5737dca`, generatie **564**. Daarbij
+werd alleen `nginx` herstart en `docker-it-tools` gestart. Live geverifieerd:
+- `docker ps`: `ghcr.io/torreirow/it-tools:latest  127.0.0.1:8085->8080/tcp`
+- `https://ittools.toorren.net/` → 302 naar `auth.toorren.net`
+- loopback `:8085` → 200, met `Cross-Origin-Embedder-Policy: require-corp`
+- vanaf de laptop op het LAN (`192.168.2.25`): `http://192.168.2.52:8085/` → timeout (`:443` wel bereikbaar)
+- via een ssh-tunnel met Playwright: de argon2-hash heeft het Authelia-formaat, ASCII-art wordt
+  getekend, en de fonts komen uit het image zelf (`/figlet-fonts/Standard.flf` 200), niet van unpkg
 
 ### Sessie 2026-10-01 - Authelia best-practice RBAC op malandro - LIVE EN GETEST
 
