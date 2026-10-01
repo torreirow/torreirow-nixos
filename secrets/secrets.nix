@@ -48,6 +48,11 @@ in
   "bookstack-appkey.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "bookstack-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "grafana-secret-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
+  # OIDC client-secret waarmee Grafana zich als generic_oauth-client bij Authelia
+  # legitimeert. Platte waarde (Grafana leest 'm via $__file{}); de argon2-hash
+  # ervan staat in modules/authelia.nix bij de grafana-client.
+  "grafana-oidc-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "ha-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "soltty.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
