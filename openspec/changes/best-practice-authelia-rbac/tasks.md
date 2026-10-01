@@ -63,7 +63,7 @@
 
 ## 7. Deploy en lockout-veilige live verificatie
 
-- [ ] 7.1 `sudo nixos-rebuild switch --flake .#malandro`. Authelia + nginx + grafana komen schoon op
+- [x] 7.1 `sudo nixos-rebuild switch --flake .#malandro`. Authelia + nginx + grafana komen schoon op
   (`systemctl is-active`, geen configfouten in de authelia-log).
 - [ ] 7.2 Per-domein live verifiëren uit de inventaris: `wouteradmin` komt bij de operations/
   monitoring/network-diensten; `wouter` wordt daar geweigerd maar komt wél bij office/linny/personal;
