@@ -62,6 +62,6 @@
 - [x] 6.1 `sudo nixos-rebuild switch --flake .#malandro` met `publicWrite = false`. Verifieer:
   publieke route nog read-only (`create_doc` via Authelia-token geweigerd), en de tunnel-token doet
   nu `write:*` (bestaande notitie wijzigbaar via Claude Code).
-- [ ] 6.2 Testvenster: `publicWrite = true` → `switch` → via Claude Mobile/Online een schrijfaanroep
+- [x] 6.2 Testvenster: `publicWrite = true` → `switch` → via Claude Mobile/Online een schrijfaanroep
   doen en bevestigen dat die slaagt → daarna `publicWrite = false` → `switch` → bevestigen dat
   schrijven weer geweigerd wordt. Observeer `journalctl -u linny-mcp` en `nginx-access.log`.

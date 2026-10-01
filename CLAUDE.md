@@ -28,7 +28,7 @@ poort- of ping-probe zegt ten onrechte "beschikbaar". Toets op inhoud (`status.p
 
 ## Huidige Status
 
-### Sessie 2026-10-01 - linny-mcp publieke schrijfroute achter een switch - CODE KLAAR, DEPLOY OPEN
+### Sessie 2026-10-01 - linny-mcp publieke schrijfroute achter een switch - LIVE EN GETEST
 
 **Doel:** Schrijven over de publieke Authelia-route van linny-mcp mogelijk maken, achter een
 omkeerbare schakelaar, plus hardening en volledige schrijfrechten voor de tunnel. OpenSpec change
@@ -57,11 +57,20 @@ maken, niet iets via wireguard. De read-only-ness van die route is geen netwerk-
 /etc/ssh < payload` (flag ná het bestand; stdin, nooit `$EDITOR`). Hash in een record = `sha256(token)`
 (geverifieerd). One-time tokens → Vaultwarden + de connector.
 
-**Nog open (groep 6, bewust niet autonoom gedaan):** `nixos-rebuild switch --flake .#malandro` met
-`publicWrite = false` (verifieer: publiek nog read-only, tunnel nu write:*), daarna het testvenster
-met `publicWrite = true` dat de user zelf wil draaien vanaf mobiel/Online.
+**Gedeployed + getest (groep 6):** `switch` op malandro (generation 52). Live geverifieerd:
+`claude-web` = `read:*,write:*`; met `publicWrite = true` includeert de live nginx-config
+(regel 831) `linny-mcp-nginx-write-token*` en staat het schrijf-secret op schijf. Claude Mobile
+heeft via de publieke route geschreven → `content/schrijftest_claude_connector.md` met
+`status: agent-draft`, gecommit door git-sync en gesynct. **Geen VPN nodig voor mobiel** (connector
+wordt server-side door Anthropic opgehaald; loopt altijd over het publieke endpoint).
 
-**Status:** ✅ Code + secrets + tests + docs klaar. ⏳ Live deploy + testvenster volgt.
+**Beslissingen user:** `publicWrite = true` blijft **permanent aan** (in `hosts/malandro/
+configuration.nix`) → mobiel schrijven blijft. Het interne schrijf-record houdt de naam `nginx-write`
+(niet hernoemd naar `claude-connector`); gevolg: de sessie-identiteit die de MCP-server teruggeeft
+verspringt van `claude-connector` (leesstand) naar `nginx-write` (schrijfstand) — puur een
+verbindingslabel, komt NIET in de notitie-frontmatter.
+
+**Status:** ✅ Live en getest. Testbestand `schrijftest_claude_connector.md` mag nog opgeruimd worden.
 
 ### Sessie 2026-09-22 - Neerslag-indicator op Temp/Vocht-dashboard - GROTENDEELS OPGELOST
 
