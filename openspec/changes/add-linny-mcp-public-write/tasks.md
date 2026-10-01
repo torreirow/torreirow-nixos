@@ -59,7 +59,7 @@
 
 ## 6. Deploy en verificatie
 
-- [ ] 6.1 `sudo nixos-rebuild switch --flake .#malandro` met `publicWrite = false`. Verifieer:
+- [x] 6.1 `sudo nixos-rebuild switch --flake .#malandro` met `publicWrite = false`. Verifieer:
   publieke route nog read-only (`create_doc` via Authelia-token geweigerd), en de tunnel-token doet
   nu `write:*` (bestaande notitie wijzigbaar via Claude Code).
 - [ ] 6.2 Testvenster: `publicWrite = true` → `switch` → via Claude Mobile/Online een schrijfaanroep
