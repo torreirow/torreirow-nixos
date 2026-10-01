@@ -514,12 +514,25 @@ services.formrelay = {
 };
 
 services.authelia.users = [
+  # Privileged admin-account, gescheiden van dagelijks gebruik. Komt bij de
+  # infra/ops/monitoring/netwerk-diensten + is Grafana-Admin (grafana-admins) +
+  # Paperless-superuser (runtime, DB). Zie openspec/changes/best-practice-authelia-rbac.
+  {
+    username = "wouteradmin";
+    displayname = "Wouter van der Toorren (admin)";
+    email = "wouteradmin@toorren.net";
+    passwordHash = "***REMOVED***";
+    groups = [ "monitoring" "network" "operations" "office" "grafana-admins" ];
+    disabled = false;
+  }
+  # Dagelijks account -- GEEN admin meer. Alleen de dagelijkse apps + Linny +
+  # persoonlijk; Grafana-Editor via grafana-editors (geen rauwe prometheus/alertmanager).
   {
     username = "wouter";
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
     passwordHash = "***REMOVED***";
-    groups = [ "admins" "users" "monitoring" "network" "LinnyWouter" ];
+    groups = [ "office" "linny" "personal-wouter" "grafana-editors" ];
     disabled = false;
   }
   {
@@ -527,7 +540,7 @@ services.authelia.users = [
     displayname = "WouteruseR van der Toorren";
     email = "wouteruser@toorren.net";
     passwordHash = "***REMOVED***";
-    groups = [ "users" "monitoring" "LinnyWouter" ];
+    groups = [ "office" "linny" ];
     disabled = false;
   }
 ];

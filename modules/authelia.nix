@@ -149,6 +149,12 @@
       access_control = {
         default_policy = "deny";
 
+        # EXPLICIETE per-domein toegang, deny-by-default, GEEN wildcard.
+        # Elke forward-auth-dienst heeft een eigen regel op een betekenisvolle
+        # groep. Een nieuwe vhost is standaard dicht tot je 'm hier toevoegt.
+        # Grafana staat hier bewust NIET: dat loopt via de OIDC-client (bereik +
+        # rol via grafana-admins/grafana-editors). Zie
+        # openspec/changes/archive/*best-practice-authelia-rbac.
         rules = [
           # Authelia zelf is altijd toegankelijk
           {
@@ -156,7 +162,7 @@
             policy = "bypass";
           }
 
-          # KPN Modem - bypass voor lokale netwerken, 2FA voor externe toegang
+          # KPN Modem - bypass lokaal, extern 2FA voor de operations-groep.
           {
             domain = "kpn.toorren.net";
             policy = "bypass";
@@ -170,71 +176,80 @@
           {
             domain = "kpn.toorren.net";
             policy = "two_factor";
-            subject = [ "group:users" ];
+            subject = [ "group:operations" ];
           }
 
-          # LinnyWouter: toegewijde groep die UITSLUITEND de Linny-diensten
-          # ontsluit. Deze regel dekt de webview; linny-mcp.toorren.net (de
-          # MCP-connector) wordt niet hier maar door de OIDC-policy
-          # `linny-mcp-write` geregeld, die dezelfde groep eist. Staat vóór de
-          # `*.toorren.net`-adminregel zodat een niet-admin lid hier matcht.
+          # monitoring: rauwe observability-UI's (Grafana loopt via OIDC).
           {
             domain = [
-              "linny.toorren.net"
-            ];
-            policy = "two_factor";
-            subject = [
-              "group:LinnyWouter"
-            ];
-          }
-
-          # Admin groep heeft toegang tot alles met 2FA
-          {
-            domain = "*.toorren.net";
-            policy = "two_factor";
-            subject = [
-              "group:admins"
-            ];
-          }
-
-          # Monitoring groep heeft toegang tot monitoring tools
-          {
-            domain = [
-              "grafana.toorren.net"
               "prometheus.toorren.net"
+              "alertmanager.toorren.net"
             ];
             policy = "two_factor";
-            subject = [
-              "group:monitoring"
-            ];
+            subject = [ "group:monitoring" ];
           }
 
-          # Users groep heeft toegang tot standaard applicaties
+          # network: VPN-beheer.
+          {
+            domain = [ "wg.toorren.net" ];
+            policy = "two_factor";
+            subject = [ "group:network" ];
+          }
+
+          # operations: sysadmin/infra-tools.
+          {
+            domain = [
+              "cockpit.toorren.net"
+              "fail2ban.toorren.net"
+              "status.toorren.net"
+              "zigbee2mqtt.toorren.net"
+              "pdftools.toorren.net"
+            ];
+            policy = "two_factor";
+            subject = [ "group:operations" ];
+          }
+          # Vaultwarden is publiek; alleen het /admin-paneel zit achter auth.
+          {
+            domain = [ "vw.toorren.net" ];
+            resources = [ "^/admin" ];
+            policy = "two_factor";
+            subject = [ "group:operations" ];
+          }
+
+          # office: dagelijkse applicaties.
           {
             domain = [
               "docs.toorren.net"
               "contacts.toorren.net"
+              "mmdl.toorren.net"
+              "ittools.toorren.net"
             ];
             policy = "two_factor";
-            subject = [
-              "group:users"
-            ];
+            subject = [ "group:office" ];
           }
 
-          # Network groep heeft toegang tot netwerk beheer tools
+          # linny: de notities-webview (de MCP-route loopt via de OIDC-policy
+          # linny-mcp-write, die dezelfde groep eist).
+          {
+            domain = [ "linny.toorren.net" ];
+            policy = "two_factor";
+            subject = [ "group:linny" ];
+          }
+
+          # personal-wouter: Wouters persoonlijke diensten.
           {
             domain = [
-              "wg.toorren.net"
+              "wouter.toorren.net"
+              "agenda.toorren.net"
             ];
             policy = "two_factor";
-            subject = [
-              "group:network"
-            ];
+            subject = [ "group:personal-wouter" ];
           }
 
-          # Publiek toegankelijke services (niet beschermd door Authelia):
-          # - vw.toorren.net (Vaultwarden - voor mobiele apps en browser extensies)
-          # - adresses.toorren.net (Baikal CalDAV/CardDAV - voor DAV clients)
+          # Diensten BUITEN forward-auth (eigen login/OIDC of publiek) hebben hier
+          # geen regel nodig: vw-app, adresses (Baikal DAV), homeassistant,
+          # nextcloud, vikunja, bookstack, wallos (eigen OIDC-client), erugo,
+          # chhoto, opsknight, en de publieke statische/redirect/API-sites.
         ];
       };
 
@@ -333,21 +348,44 @@
             allowed_origins_from_client_redirect_uris = true;
           };
 
-          # Benoemde policy voor de MCP-connector. Een kale `two_factor` op de
-          # client geeft ELKE Authelia-gebruiker die 2FA haalt een token; deze
-          # policy eist bovendien lidmaatschap van de toegewijde groep
-          # `LinnyWouter`. Die groep ontsluit UITSLUITEND de Linny-diensten
-          # (webview via access_control + deze MCP-route), zodat iemand Linny kan
-          # gebruiken zonder admin te zijn -- en admins die niet in LinnyWouter
-          # zitten komen hier juist NIET meer bij. Leden staan in de runtime
-          # users_database.yml op malandro.
+          # Benoemde policies voor de OIDC-clients.
+          #
+          # linny-mcp-write: de MCP-connector eist lidmaatschap van `linny`. Die
+          # groep ontsluit uitsluitend de Linny-diensten (webview via
+          # access_control + deze MCP-route), zodat iemand Linny kan gebruiken
+          # zonder admin te zijn.
+          #
+          # grafana: BEREIK tot Grafana. Lid van `grafana-admins` OF
+          # `grafana-editors` (in-app rol volgt uit role_attribute_path aan de
+          # Grafana-kant). LET OP de subject-vorm: de BUITENSTE lijst is OR, een
+          # BINNENSTE lijst zou AND zijn -- daarom twee losse single-element
+          # lijsten voor "admins of editors", niet een platte lijst.
+          # Grafana leest de rol uit het ID-TOKEN; Authelia zet `groups`
+          # standaard alleen in de userinfo. Zonder dit krijgt role_attribute_path
+          # geen groups in het id_token en valt iedereen op Viewer. Deze policy
+          # dwingt de groups (+ naam/username) ook in het id_token. Gemeten 2026-10-01.
+          claims_policies = {
+            grafana = {
+              id_token = [ "groups" "email" "email_verified" "preferred_username" "name" ];
+            };
+          };
+
           authorization_policies = {
             linny-mcp-write = {
               default_policy = "deny";
               rules = [
                 {
                   policy = "two_factor";
-                  subject = [ "group:LinnyWouter" ];
+                  subject = [ "group:linny" ];
+                }
+              ];
+            };
+            grafana = {
+              default_policy = "deny";
+              rules = [
+                {
+                  policy = "two_factor";
+                  subject = [ [ "group:grafana-admins" ] [ "group:grafana-editors" ] ];
                 }
               ];
             };
@@ -370,6 +408,34 @@
               token_endpoint_auth_method = "client_secret_post";
               userinfo_signed_response_alg = "none";
               # Onthoud toestemming één maand (M = maand, m = minuut) i.p.v. bij elke login vragen
+              consent_mode = "pre-configured";
+              pre_configured_consent_duration = "1M";
+            }
+
+            # Grafana als OIDC-client (vervangt de oude auth.proxy waarbij IEDEREEN
+            # org-Admin werd). Bereik via de benoemde policy `grafana`
+            # (grafana-admins OF grafana-editors); de in-app rol volgt uit
+            # Grafana's role_attribute_path op de `groups`-claim -- vandaar de
+            # extra scope `groups`. Vertrouwelijke client; het platte secret staat
+            # in secrets/grafana-oidc-secret.age, de hash hieronder.
+            {
+              client_id = "grafana";
+              client_name = "Grafana";
+              client_secret = "$argon2id$v=19$m=65536,t=3,p=4$rk3hnSdyF7dtZBwxB6EnCw$R75d7V99yFl2fsYktM+cnw7PbInepaXgQ1FIlkllNGk";
+              public = false;
+              authorization_policy = "grafana";
+              claims_policy = "grafana";
+              redirect_uris = [ "https://grafana.toorren.net/login/generic_oauth" ];
+              scopes = [ "openid" "profile" "email" "groups" ];
+              grant_types = [ "authorization_code" ];
+              response_types = [ "code" ];
+              response_modes = [ "form_post" "query" ];
+              # Grafana's generic_oauth stuurt de client-credentials via HTTP Basic
+              # (client_secret_basic); de client-registratie MOET dat matchen,
+              # anders faalt de token-exchange ("token is not in JWT format" aan de
+              # Grafana-kant, geen groups -> Viewer i.p.v. Admin). Gemeten 2026-10-01.
+              token_endpoint_auth_method = "client_secret_basic";
+              userinfo_signed_response_alg = "none";
               consent_mode = "pre-configured";
               pre_configured_consent_duration = "1M";
             }

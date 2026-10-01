@@ -74,7 +74,7 @@ Upstream noemt de begrenzing `hostile-corpus-defenses`: *"The corpus is untruste
 injection); these reduce blast radius."* De aanval is niet een eigenwijze agent maar een notitie
 die de agent aanstuurt — relevant zodra er meetrec-transcripten in het notitieboek belanden. Met
 `write:*` vervalt die bescherming bewust; vandaar dat de publieke schrijfroute default uit staat en
-achter 2FA + `group:LinnyWouter` zit.
+achter 2FA + `group:linny` zit.
 
 **Promoveren doe je met de hand**: haal de regel `status: agent-draft` uit de frontmatter. Er is
 (nog) geen promotie-tool; upstream houdt dat open. Met `write:inbox` kon de agent er daarna niet
@@ -96,18 +96,18 @@ schrijf-secret wordt alléén gedecrypt zolang de schakelaar aan staat (`mkIf (o
 publicWrite)`), zodat lees- en schrijf-snippet nooit beide hetzelfde pad claimen.
 
 De route zit bovendien achter de benoemde Authelia-policy `linny-mcp-write` (`modules/authelia.nix`):
-`default_policy = deny`, met één regel `two_factor` voor `subject = group:LinnyWouter`. Dat sluit het
+`default_policy = deny`, met één regel `two_factor` voor `subject = group:linny`. Dat sluit het
 oude open punt dat élke Authelia-gebruiker met 2FA een connector-token kreeg — nú moet je in de
-toegewijde groep `LinnyWouter` zitten. De policy staat er onvoorwaardelijk op, ook in de
+toegewijde groep `linny` zitten. De policy staat er onvoorwaardelijk op, ook in de
 read-only-stand.
 
-**De groep `LinnyWouter` ontsluit uitsluitend Linny.** Het is een toegewijde groep (los van
-`admins`) voor wie wél bij het notitieboek mag maar niet bij de rest. Twee plekken samen vormen het
-slot: de `access_control`-regel voor `linny.toorren.net` (de webview) en deze OIDC-policy voor
-`linny-mcp.toorren.net` (de MCP-route), beide op `group:LinnyWouter`. Leden staan declaratief in
+**De groep `linny` ontsluit uitsluitend Linny.** Het is een toegewijde toegangsgroep voor wie wél
+bij het notitieboek mag maar niet bij de rest (onderdeel van het bredere per-domein-groepsmodel; zie
+`openspec/changes/archive/*best-practice-authelia-rbac`). Twee plekken samen vormen het slot: de
+`access_control`-regel voor `linny.toorren.net` (de webview) en deze OIDC-policy voor
+`linny-mcp.toorren.net` (de MCP-route), beide op `group:linny`. Leden staan declaratief in
 `hosts/malandro/configuration.nix` (`services.authelia.users`); nu `wouter` en `wouteruser`. Let op:
-omdat de policy **alléén** `LinnyWouter` eist (niet `admins`), moet een admin die de connector
-gebruikt óók in `LinnyWouter` zitten.
+omdat de policy **alléén** `linny` eist, moet wie de connector gebruikt óók in `linny` zitten.
 
 ## Bestanden & paden
 
@@ -151,7 +151,7 @@ telefoon / claude.ai                 │            │ auth_request    │
 
 | | tunnel | publieke route |
 |------------|---------------------------|-----------------------------------------|
-| slot | ssh-toegang tot malandro | Authelia-inlog met 2FA + `group:LinnyWouter` |
+| slot | ssh-toegang tot malandro | Authelia-inlog met 2FA + `group:linny` |
 | token | `read:*`, `write:*` | `read:*`, of `read:*,write:*` als de switch aan staat |
 | schrijven | ja, volledig | alleen als `publicWrite = true` |
 | clients | Claude Code, Desktop | Claude Mobile, Online |
@@ -402,7 +402,7 @@ de validator zou elk geldig token op deze Authelia het notitieboek openen — oo
   token op de sha256 ervan (`oidc.cacheTtl`). Zonder cache kost elke aanroep een introspection van
   ~29 ms. Dat was ooit 164 ms; zie "Tokens roteren".
 - **Het slot is 2FA én groepslidmaatschap.** De benoemde policy `linny-mcp-write` eist
-  `group:LinnyWouter`; een gebruiker met alleen 2FA maar zonder die groep krijgt géén connector-token.
+  `group:linny`; een gebruiker met alleen 2FA maar zonder die groep krijgt géén connector-token.
   (Was eerder een open punt: toen bestond er geen custom `authorization_policies` en kreeg elke
   2FA-gebruiker een token.)
 - **Agent-drafts verschijnen gewoon op `linny.toorren.net`** — `status` is verder ongebruikt in
