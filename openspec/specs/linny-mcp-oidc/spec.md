@@ -95,9 +95,9 @@ staat SHALL het publieke pad elke schrijfaanroep weigeren.
 ### Requirement: De publieke route is beperkt tot een benoemde autorisatiepolicy
 
 De publieke OIDC-client SHALL alleen tokens krijgen voor gebruikers die een benoemde Authelia
-authorization policy halen — zowel een tweede factor als lidmaatschap van de daarvoor bestemde
-groep (`LinnyWouter`) — en SHALL NOT een token afgeven aan elke gebruiker die enkel een tweede
-factor doorloopt.
+authorization policy halen — zowel een tweede factor als lidmaatschap van de Linny-groep
+(`linny`) — en SHALL NOT een token afgeven aan elke gebruiker die enkel een tweede factor
+doorloopt.
 
 #### Scenario: Gebruiker buiten de Linny-groep krijgt geen token
 
