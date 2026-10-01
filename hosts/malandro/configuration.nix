@@ -519,7 +519,7 @@ services.authelia.users = [
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
     passwordHash = "$argon2id$v=19$m=65536,t=3,p=4$i3rOqBLo2Oy8OxfSWJB+pw$tcfwS0+IT8uV5Po9vSQqVxCHIeVfIKEm5uTVrIi8fwg";
-    groups = [ "admins" "users" "monitoring" "network" ];
+    groups = [ "admins" "users" "monitoring" "network" "LinnyWouter" ];
     disabled = false;
   }
   {
@@ -527,7 +527,7 @@ services.authelia.users = [
     displayname = "WouteruseR van der Toorren";
     email = "wouteruser@toorren.net";
     passwordHash = "$argon2id$v=19$m=65536,t=3,p=4$Oxgn7AcYA8ohlWlo95B8NA$dLu0SbAUI716/63BZaUi1APyyzIk0zKMPLxavfcXcX8";
-    groups = [ "users" "monitoring" ];
+    groups = [ "users" "monitoring" "LinnyWouter" ];
     disabled = false;
   }
 ];
