@@ -173,6 +173,21 @@
             subject = [ "group:users" ];
           }
 
+          # LinnyWouter: toegewijde groep die UITSLUITEND de Linny-diensten
+          # ontsluit. Deze regel dekt de webview; linny-mcp.toorren.net (de
+          # MCP-connector) wordt niet hier maar door de OIDC-policy
+          # `linny-mcp-write` geregeld, die dezelfde groep eist. Staat vóór de
+          # `*.toorren.net`-adminregel zodat een niet-admin lid hier matcht.
+          {
+            domain = [
+              "linny.toorren.net"
+            ];
+            policy = "two_factor";
+            subject = [
+              "group:LinnyWouter"
+            ];
+          }
+
           # Admin groep heeft toegang tot alles met 2FA
           {
             domain = "*.toorren.net";
@@ -320,18 +335,19 @@
 
           # Benoemde policy voor de MCP-connector. Een kale `two_factor` op de
           # client geeft ELKE Authelia-gebruiker die 2FA haalt een token; deze
-          # policy eist bovendien lidmaatschap van `admins`. Met één gebruiker
-          # vandaag functioneel gelijk, maar het is de plek die een tweede
-          # gebruiker buiten `admins` tegenhoudt -- relevant zodra de publieke
-          # route mag schrijven (services.linny-mcp-host.publicWrite).
-          # Zie openspec/changes/add-linny-mcp-public-write.
+          # policy eist bovendien lidmaatschap van de toegewijde groep
+          # `LinnyWouter`. Die groep ontsluit UITSLUITEND de Linny-diensten
+          # (webview via access_control + deze MCP-route), zodat iemand Linny kan
+          # gebruiken zonder admin te zijn -- en admins die niet in LinnyWouter
+          # zitten komen hier juist NIET meer bij. Leden staan in de runtime
+          # users_database.yml op malandro.
           authorization_policies = {
             linny-mcp-write = {
               default_policy = "deny";
               rules = [
                 {
                   policy = "two_factor";
-                  subject = [ "group:admins" ];
+                  subject = [ "group:LinnyWouter" ];
                 }
               ];
             };
