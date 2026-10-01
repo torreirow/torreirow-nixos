@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Changed
+- **Toegang tot de diensten is herzien naar een expliciet, multi-user-klaar model.** De oude opzet gaf één `admins`-groep via een `*.toorren.net`-wildcard toegang tot álles; een nieuwe subdomein was zo automatisch admin-bereikbaar.
+  - Elke dienst achter de inlog heeft nu een **eigen regel** op een betekenisvolle groep (`monitoring`, `network`, `operations`, `office`, `linny`, `personal-wouter`). Niets is meer impliciet open: een nieuwe dienst staat standaard dicht tot je 'm bewust toevoegt. Twee diensten die per ongeluk alleen via de wildcard bereikbaar waren (alertmanager, de agenda-feeds) zijn meteen goedgezet.
+  - **Een apart admin-account.** `wouteradmin` is nu de beheerder (infra, monitoring, netwerk); het dagelijkse account `wouter` kan daar niet meer bij. Zo gebruik je voor beheer een andere inlog dan voor alledaags werk.
+  - **Grafana kent nu rollen.** Voorheen werd iederéén die binnenkwam Grafana-beheerder. Nu logt Grafana zelf in via de inlogserver en volgt de rol uit je groep: beheerder, bewerker of alleen-lezen. `wouter` is bewerker, `wouteradmin` beheerder.
+  - De Linny-groep heet nu `linny` (was `LinnyWouter`).
 - **Claude Code op de laptop mag nu alle notities bewerken.** Via de ssh-tunnel kon de agent alleen eigen concepten maken en bijwerken; het token draagt nu volledige schrijfrechten, zodat hij ook bestaande, met de hand geschreven notities kan aanpassen. Geldt alleen voor de tunnel (laptop, thuis of via WireGuard op het werk), los van de publieke route.
 - **De Claude-connector blijft gekoppeld.** Hij vroeg meerdere keren per dag om opnieuw te autoriseren — vijf keer op 29 september, tegen eens per twee weken voor de andere toepassing op dezelfde inlogserver. Twee instellingen veroorzaakten dat en geen van beide was ooit gekozen: de refresh-token stond op de standaard van 90 minuten, en het toestemmingsscherm was blijven staan uit een eerder ontwerp dat is losgelaten.
   - De refresh-token gaat naar 30 dagen. Omdat die bij elk gebruik ververst wordt, is dat geen maximale sessieduur maar een maximale *stilteperiode*: bij dagelijks gebruik merk je er niets van.

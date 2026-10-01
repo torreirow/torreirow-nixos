@@ -28,6 +28,49 @@ poort- of ping-probe zegt ten onrechte "beschikbaar". Toets op inhoud (`status.p
 
 ## Huidige Status
 
+### Sessie 2026-10-01 - Authelia best-practice RBAC op malandro - LIVE, browsertest open
+
+**Doel:** Autorisatie multi-user-klaar maken. OpenSpec change `best-practice-authelia-rbac`.
+Aanleiding: twee audits deze sessie toonden dat (1) GEEN backend de `admins`-groep op een in-app
+adminrol mapt — `admins` deed enkel de `*.toorren.net`-wildcard; (2) Grafana iederéén die binnenkwam
+org-Admin gaf (auth.proxy + auto_assign_org_role=Admin).
+
+**Doorgevoerd (generation 54+, live):**
+- **access_control volledig expliciet** (`modules/authelia.nix`): wildcard + groep `admins` weg;
+  per-domein regels op groepen `monitoring` (prometheus, alertmanager), `network` (wg), `operations`
+  (cockpit, fail2ban, status, zigbee2mqtt, pdftools, vw`/admin`), `office` (docs, contacts, mmdl,
+  ittools), `linny` (webview), `personal-wouter` (wouter.toorren.net, agenda). kpn-extern → operations.
+  Gaten alertmanager/agenda gedicht. **LinnyWouter → linny** (policy + regel + spec).
+- **Gescheiden accounts** (`hosts/malandro/configuration.nix` → store-symlink users-db, declaratief):
+  nieuw **wouteradmin** (monitoring/network/operations/office/grafana-admins); **wouter** gedegradeerd
+  (office/linny/personal-wouter/grafana-editors, GEEN admin); **wouteruser** (office/linny).
+- **Grafana → OIDC** (`modules/monitoring/grafana/grafana.nix` + `default.nix`): auth.proxy +
+  auto_assign_org_role=Admin eruit; generic_oauth op Authelia met `role_attribute_path`
+  (grafana-admins→Admin, grafana-editors→Editor, anders Viewer); nieuwe Authelia-client `grafana` +
+  policy (grafana-admins OF grafana-editors, **nested lijst = OR**); `grafana-oidc-secret.age`;
+  ingebouwde admin-login als vangnet aan. root_url → publiek.
+
+**Twee valkuilen onderweg (opgelost):**
+- Grafana-settings-sectie moet een **quoted dotted key** zijn: `settings."auth.generic_oauth"`, niet
+  genest — anders "not of type INI atom".
+- **Dubbele Host-header → Grafana 400.** `recommendedProxySettings` zet al `Host $host`; mijn eigen
+  `proxy_set_header Host $host` erbovenop gaf twee Host-headers → Go weigert (400). Handmatige headers
+  op de grafana-vhost weggehaald. Loopback (één Host) gaf wél 302 — zo gevonden.
+
+**CLI-geverifieerd:** build OK; `nix eval` → geen wildcard, `admins` nergens, alle 17 forward-auth-
+domeinen gedekt, accounts/groepen correct; Authelia "loaded successfully"; Grafana `/`→302→/login met
+de Authelia-knop; alertmanager 302 (gated). **Secrets via stdin**, geen newline in het OIDC-secret
+(anders hash-mismatch).
+
+**NOG TE DOEN (browser/runtime, kan niet vanuit CLI):**
+- **7.2/7.3**: wouteradmin 1e login + **2FA-enrollment** (mail → wouteradmin@toorren.net), Grafana-
+  OIDC-login (→ Admin), per-domein toegang bevestigen (wouter géén admintools, wél office/linny).
+- **8 (Paperless, runtime)**: na wouteradmin's 1e Paperless-login → superuser verzetten van `wouter`
+  naar `wouteradmin`, `wouter` degraderen. Paperless draait buiten de repo.
+- Rollback = `nixos-rebuild switch` naar generation 53/555.
+
+**Status:** ⏳ Live en CLI-geverifieerd; browser-/Paperless-stappen + merge openstaand.
+
 ### Sessie 2026-10-01 - linny-mcp publieke schrijfroute achter een switch - LIVE EN GETEST
 
 **Doel:** Schrijven over de publieke Authelia-route van linny-mcp mogelijk maken, achter een

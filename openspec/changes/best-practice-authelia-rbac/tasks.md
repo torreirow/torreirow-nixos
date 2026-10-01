@@ -84,7 +84,7 @@
 
 ## 9. Documentatie
 
-- [ ] 9.1 `docs/linny-mcp.md`: `group:LinnyWouter` → `group:linny` overal; route-/slot-tabellen bij.
-- [ ] 9.2 `CHANGELOG.md` (NEXT VERSION) + `CLAUDE.md`-sessie-entry: het nieuwe autorisatiemodel
+- [x] 9.1 `docs/linny-mcp.md`: `group:LinnyWouter` → `group:linny` overal; route-/slot-tabellen bij.
+- [x] 9.2 `CHANGELOG.md` (NEXT VERSION) + `CLAUDE.md`-sessie-entry: het nieuwe autorisatiemodel
   (expliciete regels, groepen, wouteradmin-scheiding, Grafana-OIDC, Paperless-herkoppeling),
   inclusief de lockout-veilige migratie en de store-symlink-les van de users-db.
