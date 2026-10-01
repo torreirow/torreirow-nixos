@@ -98,6 +98,9 @@ in
       # Groter scrollback-buffer
       set -g history-limit 50000
 
+      # display-message 6s zichtbaar (sensible zet 4s)
+      set -g display-time 6000
+
       # Truecolor (24-bit) voor nvim/gruvbox e.d.
       set -ga terminal-features ",xterm-256color:RGB"
 
