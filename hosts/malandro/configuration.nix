@@ -514,12 +514,25 @@ services.formrelay = {
 };
 
 services.authelia.users = [
+  # Privileged admin-account, gescheiden van dagelijks gebruik. Komt bij de
+  # infra/ops/monitoring/netwerk-diensten + is Grafana-Admin (grafana-admins) +
+  # Paperless-superuser (runtime, DB). Zie openspec/changes/best-practice-authelia-rbac.
+  {
+    username = "wouteradmin";
+    displayname = "Wouter van der Toorren (admin)";
+    email = "wouteradmin@toorren.net";
+    passwordHash = "$argon2id$v=19$m=65536,t=3,p=4$B5lh/Ce4dodi6JQ2bDYpXQ$eQHET1AcgG0TBYQlVbYkeL2m9KyWcHucF62GfX0CFiQ";
+    groups = [ "monitoring" "network" "operations" "office" "grafana-admins" ];
+    disabled = false;
+  }
+  # Dagelijks account -- GEEN admin meer. Alleen de dagelijkse apps + Linny +
+  # persoonlijk; Grafana-Editor via grafana-editors (geen rauwe prometheus/alertmanager).
   {
     username = "wouter";
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
     passwordHash = "$argon2id$v=19$m=65536,t=3,p=4$i3rOqBLo2Oy8OxfSWJB+pw$tcfwS0+IT8uV5Po9vSQqVxCHIeVfIKEm5uTVrIi8fwg";
-    groups = [ "admins" "users" "monitoring" "network" "LinnyWouter" ];
+    groups = [ "office" "linny" "personal-wouter" "grafana-editors" ];
     disabled = false;
   }
   {
@@ -527,7 +540,7 @@ services.authelia.users = [
     displayname = "WouteruseR van der Toorren";
     email = "wouteruser@toorren.net";
     passwordHash = "$argon2id$v=19$m=65536,t=3,p=4$Oxgn7AcYA8ohlWlo95B8NA$dLu0SbAUI716/63BZaUi1APyyzIk0zKMPLxavfcXcX8";
-    groups = [ "users" "monitoring" "LinnyWouter" ];
+    groups = [ "office" "linny" ];
     disabled = false;
   }
 ];

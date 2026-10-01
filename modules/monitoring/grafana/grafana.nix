@@ -48,6 +48,14 @@ in
     mode = "0400";
   };
 
+  # OIDC client-secret (plat) waarmee Grafana zich bij Authelia legitimeert.
+  age.secrets.grafana-oidc-secret = {
+    file = ../../../secrets/grafana-oidc-secret.age;
+    path = "/run/secrets/grafana-oidc-secret";
+    owner = "grafana";
+    mode = "0400";
+  };
+
   users.users.grafana.extraGroups = [ "keys" ];
 
   services.grafana = {
@@ -57,24 +65,49 @@ in
 
     settings.server = {
       http_port = 3000;
-      domain = "toorren.net";
-      root_url = "http://192.168.2.52:3000";
+      domain = "grafana.toorren.net";
+      # Publieke URL: Grafana doet nu zelf de OIDC-redirect, dus de root_url moet
+      # het publieke adres zijn (anders klopt de redirect_uri niet).
+      root_url = "https://grafana.toorren.net";
     };
 
-    settings."auth.proxy" = {
+    # OIDC via Authelia vervangt de oude auth.proxy (waarbij IEDEREEN die binnenkwam
+    # org-Admin werd). De rol volgt nu uit de groep via role_attribute_path:
+    # grafana-admins -> Admin, grafana-editors -> Editor, anders Viewer.
+    settings."auth.generic_oauth" = {
       enabled = true;
-      header_name = "X-WEBAUTH-USER";
-      header_property = "username";
-      auto_sign_up = true;
-      whitelist = "127.0.0.1";
+      name = "Authelia";
+      icon = "signin";
+      client_id = "grafana";
+      client_secret = "$__file{/run/secrets/grafana-oidc-secret}";
+      scopes = "openid profile email groups";
+      empty_scopes = false;
+      auth_url = "https://auth.toorren.net/api/oidc/authorization";
+      token_url = "https://auth.toorren.net/api/oidc/token";
+      api_url = "https://auth.toorren.net/api/oidc/userinfo";
+      login_attribute_path = "preferred_username";
+      groups_attribute_path = "groups";
+      name_attribute_path = "name";
+      use_pkce = true;
+      # JMESPath: eerste match wint. role_attribute_strict blijft uit, zodat een
+      # gebruiker zonder match op Viewer valt i.p.v. geweigerd te worden.
+      # LET OP: `groups` is een PLATTE stringlijst, dus `contains(groups, ...)`
+      # ZONDER `[*]`. Met `groups[*]` wordt het een JMESPath-projectie en faalt
+      # `contains()` stil -> iedereen viel op Viewer. Gemeten 2026-10-01.
+      role_attribute_path = "contains(groups, 'grafana-admins') && 'Admin' || contains(groups, 'grafana-editors') && 'Editor' || 'Viewer'";
     };
 
-    settings.users = {
-      auto_assign_org_role = "Admin";
-    };
-
+    # Ingebouwde admin-loginvorm BEWUST aan laten als vangnet: als de OIDC-flow
+    # hapert kun je nog als Grafana-admin (DB) inloggen. auto_assign_org_role weg
+    # (geen automatische Admin meer); nieuwe OIDC-users krijgen hun rol uit de groep.
     settings.auth = {
-      disable_login_form = true;
+      disable_login_form = false;
+      oauth_auto_login = false;
+      # Koppel een OIDC-login aan een bestaande Grafana-user op e-mail als het
+      # subject niet (meer) matcht. Nodig om de oude auth.proxy-users en een
+      # gewijzigd OIDC-subject te verzoenen; veilig omdat Authelia de enige
+      # (vertrouwde) provider is en e-mails door de beheerder zijn vastgelegd.
+      oauth_allow_insecure_email_lookup = true;
     };
 
     provision = {

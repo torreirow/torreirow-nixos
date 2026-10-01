@@ -242,7 +242,7 @@ in
         heft de hostile-corpus-quarantaine op: de agent mag dan niet enkel eigen
         `agent-draft`s maar élk document wijzigen, en dat over een PUBLIEK pad.
         Daarom staat deze schakelaar default uit en zit de route achter 2FA én
-        de benoemde Authelia-policy `linny-mcp-write` (group:admins). Terugzetten
+        de benoemde Authelia-policy `linny-mcp-write` (group:linny). Terugzetten
         op `false` + `switch` ontneemt de publieke route onmiddellijk alle
         schrijfrechten. Zie openspec/changes/add-linny-mcp-public-write.
       '';
