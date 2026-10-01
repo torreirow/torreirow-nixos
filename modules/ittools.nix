@@ -7,11 +7,17 @@
     
     containers = {
       it-tools = {
-        image = "corentinth/it-tools:latest";
-        
-        # Port mapping: host:container
+        # Eigen build van de fork torreirow/it-tools (gebaseerd op sharevb/it-tools),
+        # gebouwd door GitHub Actions. Uitrollen van een nieuwe build:
+        #   systemctl restart docker-it-tools   (pull = "always" haalt dan :latest op)
+        image = "ghcr.io/torreirow/it-tools:latest";
+        pull = "always";
+
+        # Port mapping: host:container. Alleen loopback: Docker-poorten omzeilen de
+        # NixOS-firewall, en it-tools hoort alleen via nginx + Authelia bereikbaar te zijn.
+        # Het sharevb-image draait nginx-unprivileged en luistert op 8080.
         ports = [
-          "8085:80"
+          "127.0.0.1:8085:8080"
         ];
         
         # Optional: Add labels for better organization
@@ -32,35 +38,8 @@
     forceSSL = true;
     useACMEHost = "toorren.net";
 
-    # JS-bestanden: vervang de externe CDN-URL voor figlet-fonts met een lokaal pad
-    locations."~* ^/assets/.*\\.js$" = {
-      proxyPass = "http://127.0.0.1:8085";
-      extraConfig = ''
-        auth_request /authelia;
-        error_page 401 = @authelia_portal;
-
-        proxy_http_version 1.1;
-        proxy_set_header Connection "";
-        proxy_set_header Accept-Encoding "";
-
-        sub_filter '//unpkg.com/figlet@1.6.0/fonts/' '/figlet-fonts/';
-        sub_filter_once off;
-        sub_filter_types application/javascript;
-      '';
-    };
-
-    # Proxy figlet-fonts via onze nginx, browser hoeft niet naar unpkg.com
-    locations."/figlet-fonts/" = {
-      proxyPass = "https://unpkg.com/figlet@1.6.0/fonts/";
-      extraConfig = ''
-        proxy_ssl_server_name on;
-        proxy_set_header Host unpkg.com;
-        proxy_set_header Accept-Encoding "";
-        proxy_cache_valid 200 365d;
-        add_header Cache-Control "public, max-age=31536000, immutable";
-      '';
-    };
-
+    # Geen JS-herschrijving of font-proxy naar een CDN meer: het sharevb-image levert
+    # zijn ASCII-art-fonts zelf, en de COOP/COEP-headers van het image gaan ongewijzigd door.
     locations."/" = {
       proxyPass = "http://127.0.0.1:8085";
       proxyWebsockets = false;

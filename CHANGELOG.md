@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Changed
+- **IT-Tools draait nu vanuit een eigen, bijgehouden build** (`ghcr.io/torreirow/it-tools`). Het oude image van `corentinth/it-tools` werd sinds oktober 2024 niet meer bijgewerkt; de eigen fork is gebaseerd op de actieve community-fork `sharevb/it-tools`.
+  - Ongeveer 480 tools in plaats van 90, waaronder een **argon2-hasher die Authelia-wachtwoordhashes maakt én controleert**: standaard met precies de instellingen van `authelia crypto hash generate argon2`, zodat je zonder Authelia-CLI een hash voor `users_database.yml` hebt, en zonder dat het wachtwoord in je shell-history belandt.
+  - Een nieuwe build uitrollen: `systemctl restart docker-it-tools` — de container haalt bij elke start de nieuwste `latest` op.
+  - **Niet meer rechtstreeks bereikbaar op het LAN.** Poort 8085 stond open op alle netwerkkaarten, en Docker zet daar eigen firewallregels voor die om de NixOS-firewall heen gaan: wie op het thuisnetwerk `http://malandro:8085` opende, kwam er zonder inlog in. Hij luistert nu alleen nog lokaal; IT-Tools is alleen via `https://ittools.toorren.net` te gebruiken, achter de inlog (groep `office`).
+  - De omweg die de ASCII-art-fonts van unpkg.com haalde is weg: de nieuwe build levert ze zelf mee.
 - **Toegang tot de diensten is herzien naar een expliciet, multi-user-klaar model.** De oude opzet gaf één `admins`-groep via een `*.toorren.net`-wildcard toegang tot álles; een nieuwe subdomein was zo automatisch admin-bereikbaar.
   - Elke dienst achter de inlog heeft nu een **eigen regel** op een betekenisvolle groep (`monitoring`, `network`, `operations`, `office`, `linny`, `personal-wouter`). Niets is meer impliciet open: een nieuwe dienst staat standaard dicht tot je 'm bewust toevoegt. Twee diensten die per ongeluk alleen via de wildcard bereikbaar waren (alertmanager, de agenda-feeds) zijn meteen goedgezet.
   - **Een apart admin-account.** `wouteradmin` is nu de beheerder (infra, monitoring, netwerk); het dagelijkse account `wouter` kan daar niet meer bij. Zo gebruik je voor beheer een andere inlog dan voor alledaags werk.
