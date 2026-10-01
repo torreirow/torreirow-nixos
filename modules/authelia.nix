@@ -419,7 +419,11 @@
               grant_types = [ "authorization_code" ];
               response_types = [ "code" ];
               response_modes = [ "form_post" "query" ];
-              token_endpoint_auth_method = "client_secret_post";
+              # Grafana's generic_oauth stuurt de client-credentials via HTTP Basic
+              # (client_secret_basic); de client-registratie MOET dat matchen,
+              # anders faalt de token-exchange ("token is not in JWT format" aan de
+              # Grafana-kant, geen groups -> Viewer i.p.v. Admin). Gemeten 2026-10-01.
+              token_endpoint_auth_method = "client_secret_basic";
               userinfo_signed_response_alg = "none";
               consent_mode = "pre-configured";
               pre_configured_consent_duration = "1M";

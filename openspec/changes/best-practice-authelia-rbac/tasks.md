@@ -75,10 +75,10 @@
 
 ## 8. Paperless-rollen (runtime, buiten repo)
 
-- [ ] 8.1 `wouteradmin` één keer in Paperless laten inloggen (remote-user → user aangemaakt), daarna
+- [x] 8.1 `wouteradmin` één keer in Paperless laten inloggen (remote-user → user aangemaakt), daarna
   `is_superuser`/`is_staff` = true zetten (Paperless-container, django/admin). Verifieer dat
   `wouteradmin` superuser is.
-- [ ] 8.2 `wouter` in Paperless degraderen: `is_superuser`/`is_staff` = false; `wouteruser`
+- [x] 8.2 `wouter` in Paperless degraderen: `is_superuser`/`is_staff` = false; `wouteruser`
   ongewijzigd gewone gebruiker. Verifieer dat `wouter` geen superuser meer is en zijn documenten
   intact zijn.
 
