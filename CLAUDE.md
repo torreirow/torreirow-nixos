@@ -28,6 +28,41 @@ poort- of ping-probe zegt ten onrechte "beschikbaar". Toets op inhoud (`status.p
 
 ## Huidige Status
 
+### Sessie 2026-10-01 - linny-mcp publieke schrijfroute achter een switch - CODE KLAAR, DEPLOY OPEN
+
+**Doel:** Schrijven over de publieke Authelia-route van linny-mcp mogelijk maken, achter een
+omkeerbare schakelaar, plus hardening en volledige schrijfrechten voor de tunnel. OpenSpec change
+`add-linny-mcp-public-write` (geïmplementeerd t/m taak 4, docs bij; deploy = groep 6, nog te doen).
+
+**Kernpunt (misverstand rechtgezet):** Claude Mobile/Online kan NIET via VPN — een claude.ai-connector
+wordt server-side door Anthropic opgehaald. "Mobiel kan schrijven" = de **publieke** route schrijfbaar
+maken, niet iets via wireguard. De read-only-ness van die route is geen netwerk-eigenschap maar een
+**nginx-token-swap**: nginx vervangt het clienttoken door een vast intern token (`read:*`).
+
+**Doorgevoerd:**
+- **Switch** `services.linny-mcp-host.publicWrite` (bool, default `false`) in `modules/linny-mcp.nix`.
+  `false` → `include` het leestoken-snippet (`read:*`); `true` → het schrijf-snippet (`read:*,write:*`).
+  Nieuwe optie `oidc.writeTokenSnippet`; agenix-secret achter `mkIf (oidc.enable && publicWrite)`.
+- **Authelia** (`modules/authelia.nix`): benoemde policy `authorization_policies.linny-mcp-write`
+  (deny-default, `two_factor` + `subject = group:admins`), gezet op de `claude-connector`-client i.p.v.
+  kaal `two_factor`. Sluit het open punt dat iedere 2FA-gebruiker een token kreeg.
+- **Secrets**: `claude-web` → `read:*,write:*` (tunnel = volledig schrijfbaar); nieuw intern record
+  `nginx-write` (`read:*,write:*`); nieuw `secrets/linny-mcp-nginx-write-token.age`; recipient-regel in
+  `secrets/secrets.nix`. **Let op:** interne schrijf-token draagt óók `read:*` — op de publieke route
+  loopt álles via dat ene geïnjecteerde token, dus zonder read:* zou lezen breken.
+- **Tests**: `modules/linny-mcp_test.py` uitgebreid met een `publicWrite = true`-eval (include kiest
+  juiste snippet per stand, precies één include, geen tokenliteral) → 61/61. Authz-test 20/20.
+
+**Secrets-werkwijze (rbw was locked, geen TTY):** `cd secrets && sudo ragenx -e FILE.age --ssh-dir
+/etc/ssh < payload` (flag ná het bestand; stdin, nooit `$EDITOR`). Hash in een record = `sha256(token)`
+(geverifieerd). One-time tokens → Vaultwarden + de connector.
+
+**Nog open (groep 6, bewust niet autonoom gedaan):** `nixos-rebuild switch --flake .#malandro` met
+`publicWrite = false` (verifieer: publiek nog read-only, tunnel nu write:*), daarna het testvenster
+met `publicWrite = true` dat de user zelf wil draaien vanaf mobiel/Online.
+
+**Status:** ✅ Code + secrets + tests + docs klaar. ⏳ Live deploy + testvenster volgt.
+
 ### Sessie 2026-09-22 - Neerslag-indicator op Temp/Vocht-dashboard - GROTENDEELS OPGELOST
 
 **Doel:** Grafana-dashboard "Temperatuur & Luchtvochtigheid" uitbreiden met een neerslag-indicator.
