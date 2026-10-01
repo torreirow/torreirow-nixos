@@ -191,6 +191,17 @@ in
           nix-store belanden.
         '';
       };
+
+      writeTokenSnippet = mkOption {
+        type = types.str;
+        default = "/run/agenix/linny-mcp-nginx-write-token";
+        description = ''
+          Pad naar het nginx-snippet dat nginx includeert in plaats van
+          `tokenSnippet` zodra `publicWrite = true`. Zelfde rol, maar het
+          Bearer-token draagt `read:*,write:*` in plaats van alleen `read:*`.
+          Ook dit is een agenix-bestand, nooit een optie-waarde.
+        '';
+      };
     };
 
     publicEndpoint = mkOption {
@@ -209,6 +220,31 @@ in
         wijst naar het publieke adres, dus ook verkeer van het eigen netwerk gaat
         naar buiten en komt via de router terug; nginx ziet dan het WAN-adres.
         Er bestaat in deze opstelling simpelweg geen bronadres dat "LAN" betekent.
+      '';
+    };
+
+    publicWrite = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Of de PUBLIEKE Authelia-route mag schrijven. Alleen zinvol samen met
+        `publicEndpoint` + `oidc.enable`.
+
+        `false` (default): nginx injecteert het leestoken (`oidc.tokenSnippet`,
+        scope `read:*`) -- de publieke route kan alleen lezen, precies zoals de
+        tunnel-loze situatie bedoeld is.
+
+        `true`: nginx injecteert in plaats daarvan het schrijf-token
+        (`oidc.writeTokenSnippet`, scope `read:*,write:*`). Daarmee kan Claude
+        Mobile/Online ook bestaande, met de hand geschreven notities wijzigen.
+
+        LET OP -- dit is een bewuste verruiming op twee assen tegelijk. `write:*`
+        heft de hostile-corpus-quarantaine op: de agent mag dan niet enkel eigen
+        `agent-draft`s maar élk document wijzigen, en dat over een PUBLIEK pad.
+        Daarom staat deze schakelaar default uit en zit de route achter 2FA én
+        de benoemde Authelia-policy `linny-mcp-write` (group:admins). Terugzetten
+        op `false` + `switch` ontneemt de publieke route onmiddellijk alle
+        schrijfrechten. Zie openspec/changes/add-linny-mcp-public-write.
       '';
     };
 
@@ -265,6 +301,16 @@ in
     age.secrets.linny-mcp-nginx-token = mkIf cfg.oidc.enable {
       file = ../secrets/linny-mcp-nginx-token.age;
       path = cfg.oidc.tokenSnippet;
+      owner = "nginx";
+      mode = "0400";
+    };
+
+    # Schrijf-variant. Alleen gedecrypt zodra de publieke schrijfschakelaar aan
+    # staat; zo claimen het lees- en het schrijf-snippet nooit beide een pad, en
+    # ligt het schrijf-token niet op schijf wanneer het niet gebruikt wordt.
+    age.secrets.linny-mcp-nginx-write-token = mkIf (cfg.oidc.enable && cfg.publicWrite) {
+      file = ../secrets/linny-mcp-nginx-write-token.age;
+      path = cfg.oidc.writeTokenSnippet;
       owner = "nginx";
       mode = "0400";
     };
@@ -513,7 +559,9 @@ in
           # mask die niets matcht is geen fout; een ontbrekend letterlijk pad wel.
           # Ontbreekt het bestand op de host, dan gaat het verzoek zonder
           # Authorization door en antwoordt linny-mcp 401 -- het faalt dicht.
-          include ${cfg.oidc.tokenSnippet}*;
+          # publicWrite kiest het schrijf-snippet (read:*,write:*) in plaats van
+          # het leestoken (read:*). Precies één include in beide standen.
+          include ${if cfg.publicWrite then cfg.oidc.writeTokenSnippet else cfg.oidc.tokenSnippet}*;
 
           # Authelia antwoordt met `WWW-Authenticate: Basic`. Een MCP-client
           # heeft daar niets aan -- die zoekt een Bearer-uitdaging met een
