@@ -69,7 +69,7 @@
   monitoring/network-diensten; `wouter` wordt daar geweigerd maar komt wél bij office/linny/personal;
   `linny-mcp` schrijven werkt met `group:linny`. Bevestig dat geen enkel beoogd domein per ongeluk
   dichtviel. Houd de vorige generation als rollback bij de hand.
-- [ ] 7.3 Grafana-login via OIDC testen: `wouteradmin` → Admin; een `monitoring`-only testgebruiker
+- [x] 7.3 Grafana-login via OIDC testen: `wouteradmin` → Admin; een `monitoring`-only testgebruiker
   (of redenering) → Viewer; `wouter` (geen monitoring) → geen toegang. Bevestig dat de oude
   "iedereen = Admin" weg is.
 

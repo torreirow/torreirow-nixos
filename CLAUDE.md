@@ -28,7 +28,7 @@ poort- of ping-probe zegt ten onrechte "beschikbaar". Toets op inhoud (`status.p
 
 ## Huidige Status
 
-### Sessie 2026-10-01 - Authelia best-practice RBAC op malandro - LIVE, browsertest open
+### Sessie 2026-10-01 - Authelia best-practice RBAC op malandro - LIVE EN GETEST
 
 **Doel:** Autorisatie multi-user-klaar maken. OpenSpec change `best-practice-authelia-rbac`.
 Aanleiding: twee audits deze sessie toonden dat (1) GEEN backend de `admins`-groep op een in-app
@@ -62,14 +62,29 @@ domeinen gedekt, accounts/groepen correct; Authelia "loaded successfully"; Grafa
 de Authelia-knop; alertmanager 302 (gated). **Secrets via stdin**, geen newline in het OIDC-secret
 (anders hash-mismatch).
 
-**NOG TE DOEN (browser/runtime, kan niet vanuit CLI):**
-- **7.2/7.3**: wouteradmin 1e login + **2FA-enrollment** (mail → wouteradmin@toorren.net), Grafana-
-  OIDC-login (→ Admin), per-domein toegang bevestigen (wouter géén admintools, wél office/linny).
-- **8 (Paperless, runtime)**: na wouteradmin's 1e Paperless-login → superuser verzetten van `wouter`
-  naar `wouteradmin`, `wouter` degraderen. Paperless draait buiten de repo.
-- Rollback = `nixos-rebuild switch` naar generation 53/555.
+**Grafana-OIDC — vier valkuilen die ALLE vier "Viewer i.p.v. Admin" gaven (volgorde van ontdekken):**
+1. **client-auth-methode mismatch.** Grafana stuurt `client_secret_basic`; de Authelia-client stond op
+   `client_secret_post` → token-exchange faalt ("token is not in JWT format" aan Grafana-kant). Zet de
+   client op `client_secret_basic`.
+2. **JMESPath op een PLATTE lijst.** `contains(groups[*], 'x')` faalt stil op een platte stringlijst
+   (`groups[*]` = projectie). Gebruik `contains(groups, 'x')` ZONDER `[*]`. (Los getest met `jp`.)
+3. **Grafana leest de rol uit het ID-TOKEN, Authelia zet `groups` standaard alleen in de userinfo.**
+   Daardoor zag `role_attribute_path` geen groups in het id_token en gaf de `|| 'Viewer'`-fallback altijd
+   Viewer. Fix: Authelia **`claims_policies.grafana.id_token = [groups email ...]`** + `claims_policy =
+   "grafana"` op de client → groups in het id_token.
+4. **Oude users + gewijzigd subject.** De oude auth.proxy had al Grafana-users (zonder echt e-mailadres);
+   OIDC kon niet koppelen → "Failed to create user: user not found". Fix: `oauth_allow_insecure_email_
+   lookup = true` (één vertrouwde provider) + user2-email rechtgezet + verouderde oauth_generic_oauth-
+   koppeling uit grafana.db gewist. **Let op:** een **cached sessie** pakt de nieuwe rol NIET — volledig
+   uitloggen + verse OIDC-login nodig.
 
-**Status:** ⏳ Live en CLI-geverifieerd; browser-/Paperless-stappen + merge openstaand.
+**Getest (browser):** wouteradmin → **Grafana-Admin** (groups in id_token bevestigd); wouter geweigerd
+bij cockpit/prometheus (403), wél bij docs; wouter wordt Editor bij verse login. **Paperless (runtime):**
+wouteradmin = superuser; wouter gedegradeerd maar via object-rechten ziet die nog alle 63 docs
+(`guardian assign_perm documents.view_document`). Superusers nu: paperlessadmin, wvandertoorren,
+wouteradmin. Rollback = `nixos-rebuild switch` naar generation 53/555.
+
+**Status:** ✅ Live en getest. Alleen nog: change archiveren + PR/merge.
 
 ### Sessie 2026-10-01 - linny-mcp publieke schrijfroute achter een switch - LIVE EN GETEST
 

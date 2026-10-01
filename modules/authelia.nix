@@ -360,6 +360,16 @@
           # Grafana-kant). LET OP de subject-vorm: de BUITENSTE lijst is OR, een
           # BINNENSTE lijst zou AND zijn -- daarom twee losse single-element
           # lijsten voor "admins of editors", niet een platte lijst.
+          # Grafana leest de rol uit het ID-TOKEN; Authelia zet `groups`
+          # standaard alleen in de userinfo. Zonder dit krijgt role_attribute_path
+          # geen groups in het id_token en valt iedereen op Viewer. Deze policy
+          # dwingt de groups (+ naam/username) ook in het id_token. Gemeten 2026-10-01.
+          claims_policies = {
+            grafana = {
+              id_token = [ "groups" "email" "email_verified" "preferred_username" "name" ];
+            };
+          };
+
           authorization_policies = {
             linny-mcp-write = {
               default_policy = "deny";
@@ -414,6 +424,7 @@
               client_secret = "$argon2id$v=19$m=65536,t=3,p=4$rk3hnSdyF7dtZBwxB6EnCw$R75d7V99yFl2fsYktM+cnw7PbInepaXgQ1FIlkllNGk";
               public = false;
               authorization_policy = "grafana";
+              claims_policy = "grafana";
               redirect_uris = [ "https://grafana.toorren.net/login/generic_oauth" ];
               scopes = [ "openid" "profile" "email" "groups" ];
               grant_types = [ "authorization_code" ];

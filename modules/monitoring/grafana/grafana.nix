@@ -91,7 +91,10 @@ in
       use_pkce = true;
       # JMESPath: eerste match wint. role_attribute_strict blijft uit, zodat een
       # gebruiker zonder match op Viewer valt i.p.v. geweigerd te worden.
-      role_attribute_path = "contains(groups[*], 'grafana-admins') && 'Admin' || contains(groups[*], 'grafana-editors') && 'Editor' || 'Viewer'";
+      # LET OP: `groups` is een PLATTE stringlijst, dus `contains(groups, ...)`
+      # ZONDER `[*]`. Met `groups[*]` wordt het een JMESPath-projectie en faalt
+      # `contains()` stil -> iedereen viel op Viewer. Gemeten 2026-10-01.
+      role_attribute_path = "contains(groups, 'grafana-admins') && 'Admin' || contains(groups, 'grafana-editors') && 'Editor' || 'Viewer'";
     };
 
     # Ingebouwde admin-loginvorm BEWUST aan laten als vangnet: als de OIDC-flow
@@ -100,6 +103,11 @@ in
     settings.auth = {
       disable_login_form = false;
       oauth_auto_login = false;
+      # Koppel een OIDC-login aan een bestaande Grafana-user op e-mail als het
+      # subject niet (meer) matcht. Nodig om de oude auth.proxy-users en een
+      # gewijzigd OIDC-subject te verzoenen; veilig omdat Authelia de enige
+      # (vertrouwde) provider is en e-mails door de beheerder zijn vastgelegd.
+      oauth_allow_insecure_email_lookup = true;
     };
 
     provision = {
