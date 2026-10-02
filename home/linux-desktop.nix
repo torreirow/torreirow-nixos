@@ -52,6 +52,9 @@ services.notify-signal.enable = true;
 
 services.nextcloud-sync = {
   enable = true;
+  # Deze package levert ook de GUI-client. De wrapper laat maar één GUI-instantie
+  # toe; twee tegelijk vechten om de sync-journal en hersyncen alles.
+  package = pkgs.callPackage ./module/nextcloud-sync/single-instance.nix { };
   # BEWUST GEEN onFailure hier. De Nextcloud-server (bobadela1) gaat 's nachts uit
   # en wordt 's ochtends handmatig gewekt; een melding per mislukking gaf daardoor
   # elke ochtend loos alarm. De staleness-monitor hieronder neemt die rol over en
