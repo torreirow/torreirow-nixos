@@ -1,0 +1,100 @@
+diff -ru a/src/auth/Fingerprint.cpp b/src/auth/Fingerprint.cpp
+--- a/src/auth/Fingerprint.cpp	2026-10-02 11:08:05.753480547 +0200
++++ b/src/auth/Fingerprint.cpp	2026-10-02 11:08:51.359010305 +0200
+@@ -7,6 +7,7 @@
+ #include <unistd.h>
+ #include <pwd.h>
+ 
++#include <algorithm>
+ #include <cstring>
+ 
+ static const auto FPRINT        = sdbus::ServiceName{"net.reactivated.Fprint"};
+@@ -70,8 +71,24 @@
+     m_sDBUSState.login->uponSignal("PrepareForSleep").onInterface(LOGIN_MANAGER).call([this](bool start) {
+         Log::logger->log(Log::INFO, "fprint: PrepareForSleep (start: {})", start);
+         m_sDBUSState.sleeping = start;
+-        if (!m_sDBUSState.sleeping && !m_sDBUSState.verifying)
+-            startVerify();
++        if (m_sDBUSState.sleeping || m_sDBUSState.done)
++            return;
++
++        // Some readers power down during sleep and re-enumerate on resume, and
++        // fprintd may have exited or restarted, so the pre-sleep claim (and even
++        // the device object path) may be gone. Release whatever we held,
++        // ignoring failures, and rebuild the proxy so we claim again.
++        if (m_claimRetryTimer) {
++            m_claimRetryTimer->cancel();
++            m_claimRetryTimer.reset();
++        }
++        if (m_sDBUSState.device) {
++            stopVerify();
++            releaseDevice();
++            m_sDBUSState.device.reset();
++        }
++        m_sDBUSState.claimRetries = 0;
++        startVerify();
+     });
+ }
+ 
+@@ -207,15 +224,34 @@
+ void CFingerprint::claimDevice() {
+     const auto currentUser = ""; // Empty string means use the caller's id.
+     m_sDBUSState.device->callMethodAsync("Claim").onInterface(DEVICE).withArguments(currentUser).uponReplyInvoke([this](std::optional<sdbus::Error> e) {
+-        if (e)
++        if (e) {
+             Log::logger->log(Log::WARN, "fprint: could not claim device, {}", e->what());
+-        else {
++            // The device may still be held by a previous client while it closes
++            // (this can take over a minute), or fprintd may be shutting down.
++            // Retry with exponential backoff instead of giving up for the session.
++            if (m_sDBUSState.claimRetries >= 12 || m_sDBUSState.done || m_sDBUSState.sleeping)
++                return;
++            const auto delay = std::chrono::milliseconds(std::min(500 << m_sDBUSState.claimRetries, 30000));
++            m_sDBUSState.claimRetries++;
++            // Don't drop the proxy here: we are inside its own reply callback.
++            m_claimRetryTimer = g_pHyprlock->addTimer(delay,[](ASP<CTimer> self, void* data) { ((CFingerprint*)data)->retryClaim(); }, this);
++        } else {
+             Log::logger->log(Log::INFO, "fprint: claimed device");
++            m_sDBUSState.claimRetries = 0;
+             startVerify();
+         }
+     });
+ }
+ 
++void CFingerprint::retryClaim() {
++    m_claimRetryTimer.reset();
++    if (m_sDBUSState.done || m_sDBUSState.sleeping)
++        return;
++    Log::logger->log(Log::INFO, "fprint: retrying claim (attempt {})", m_sDBUSState.claimRetries);
++    m_sDBUSState.device.reset();
++    startVerify();
++}
++
+ void CFingerprint::startVerify(bool isRetry) {
+     m_sDBUSState.verifying = true;
+     if (!m_sDBUSState.device) {
+diff -ru a/src/auth/Fingerprint.hpp b/src/auth/Fingerprint.hpp
+--- a/src/auth/Fingerprint.hpp	2026-10-02 11:08:05.753541743 +0200
++++ b/src/auth/Fingerprint.hpp	2026-10-02 11:08:37.631927854 +0200
+@@ -33,6 +33,7 @@
+         bool                                abort     = false;
+         bool                                done      = false;
+         int                                 retries   = 0;
++        int                                 claimRetries = 0;
+         bool                                sleeping  = false;
+         bool                                verifying = false;
+     } m_sDBUSState;
+@@ -43,10 +44,13 @@
+     std::string m_sPrompt{""};
+     std::string m_sFailureReason{""};
+ 
++    ASP<CTimer> m_claimRetryTimer;
++
+     void        handleVerifyStatus(const std::string& result, const bool done);
+ 
+     bool        createDeviceProxy();
+     void        claimDevice();
++    void        retryClaim();
+     void        startVerify(bool isRetry = false);
+     bool        stopVerify();
+     bool        releaseDevice();

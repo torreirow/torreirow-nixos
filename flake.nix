@@ -84,6 +84,7 @@
             (final: prev: { rbw = inputs.rbw.packages.${system}.rbw; })
             (import ./overlays)
             (import ./overlays/cooklang.nix)
+            (import ./overlays/hyprlock.nix)
             (final: prev:
               let
                 pandoc-3_8_3 = prev.stdenv.mkDerivation {
@@ -297,7 +298,7 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [(final: prev: { rbw = inputs.rbw.packages.${system}.rbw; }) (import ./overlays) (import ./overlays/cooklang.nix) (import ./overlays/wayle.nix)];
+        overlays = [(final: prev: { rbw = inputs.rbw.packages.${system}.rbw; }) (import ./overlays) (import ./overlays/cooklang.nix) (import ./overlays/wayle.nix) (import ./overlays/hyprlock.nix)];
       };
 
       linux-defaults = {pkgs,config,homeage,...}: {
