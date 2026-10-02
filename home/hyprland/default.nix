@@ -29,7 +29,7 @@ in
         "$browser" = "uwsm app -- firefox";
 
         monitor = [
-          "eDP-1,preferred,auto,1.25"
+          (import ./laptop-monitor.nix)
           "HDMI-A-1,preferred,auto,1"
         ];
 
