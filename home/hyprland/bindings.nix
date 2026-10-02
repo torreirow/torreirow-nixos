@@ -1,6 +1,48 @@
 { pkgs, hyprquickframe-input, ... }:
 
 let
+  laptopMonitor = import ./laptop-monitor.nix;
+
+  # Schermstand-menu (SUPER+SHIFT+P): uitgebreid / klonen / alleen extern / alleen laptop.
+  # Runtime via hyprctl keyword; niet onthouden (reload = weer uitgebreid). Eerst het scherm áán dat
+  # blijft, dan pas het andere uit, zodat er nooit een moment zonder actieve output is.
+  display-mode = pkgs.writeShellApplication {
+    name = "hyprland-display-mode";
+    runtimeInputs = [ pkgs.hyprland pkgs.jq pkgs.fuzzel pkgs.libnotify ];
+    text = ''
+      ext=$(hyprctl monitors all -j \
+        | jq -r '[.[] | select(.name != "eDP-1" and (.name | test("^(HEADLESS|FALLBACK)") | not))] | first | .name // empty')
+
+      if [ -z "$ext" ]; then
+        notify-send -t 3000 "Schermstand" "Geen extern scherm aangesloten"
+        exit 0
+      fi
+
+      choice=$(printf '%s\n' "󰍹  Uitgebreid" "󰍺  Klonen" "󰶐  Alleen extern" "󰌢  Alleen laptop" \
+        | fuzzel --dmenu --prompt "Scherm ($ext): ") || exit 0
+
+      case "$choice" in
+        *Uitgebreid)
+          hyprctl keyword monitor "${laptopMonitor}"
+          hyprctl keyword monitor "$ext,preferred,auto,1"
+          ;;
+        *Klonen)
+          hyprctl keyword monitor "${laptopMonitor}"
+          hyprctl keyword monitor "$ext,preferred,auto,1,mirror,eDP-1"
+          ;;
+        *"Alleen extern")
+          hyprctl keyword monitor "$ext,preferred,auto,1"
+          hyprctl keyword monitor "eDP-1,disable"
+          ;;
+        *"Alleen laptop")
+          hyprctl keyword monitor "${laptopMonitor}"
+          hyprctl keyword monitor "$ext,disable"
+          ;;
+        *) exit 0 ;;
+      esac
+    '';
+  };
+
   smart-close = pkgs.writeShellScript "smart-close" ''
     class=$(hyprctl activewindow -j | ${pkgs.jq}/bin/jq -r '.class // ""')
     case "$class" in
@@ -64,6 +106,7 @@ let
     SUPER+CTRL + S             Venster naar special workspace
     ─── Monitor ──────────────────────────────────────────────
     SUPER+ALT + ←/→            Venster naar andere monitor
+    SUPER+SHIFT + P            Schermstand (uitgebreid/klonen/extern/laptop)
     ─── Venstergrootte ───────────────────────────────────────
     SUPER + - / =              100px smaller / breder
     SUPER+SHIFT + - / =        100px lager / hoger
@@ -111,6 +154,7 @@ in
 
       "SUPER, J, layoutmsg, togglesplit"
       "SUPER, P, pseudo,"
+      "SUPER SHIFT, P, exec, ${display-mode}/bin/hyprland-display-mode"
       "SUPER, V, togglefloating,"
       "SUPER, G, togglegroup,"
       "SUPER, Tab, changegroupactive, f"

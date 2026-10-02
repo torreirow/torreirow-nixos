@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 let
+  laptopMonitor = import ./laptop-monitor.nix;
+
   planify-badge = pkgs.writeShellScript "planify-badge" ''
     db="$HOME/.local/share/io.github.alainm23.planify/database.db"
     count=$(${pkgs.sqlite}/bin/sqlite3 "$db" \
@@ -33,11 +35,16 @@ let
 
   workspace-binder = pkgs.writeShellScript "hyprland-workspace-binder" ''
     bind_workspaces() {
-      local extern
-      extern=$(${pkgs.hyprland}/bin/hyprctl monitors -j 2>/dev/null \
-        | ${pkgs.jq}/bin/jq -r '[.[] | select(.name != "eDP-1")] | first | .name // empty')
+      local monitors extern laptop_active
+      monitors=$(${pkgs.hyprland}/bin/hyprctl monitors -j 2>/dev/null)
+      # Gemirrorde outputs (schermstand Klonen) tellen niet als apart extern scherm.
+      extern=$(echo "$monitors" \
+        | ${pkgs.jq}/bin/jq -r '[.[] | select(.name != "eDP-1" and .mirrorOf == "none")] | first | .name // empty')
+      laptop_active=$(echo "$monitors" | ${pkgs.jq}/bin/jq -r 'any(.[]; .name == "eDP-1")')
 
-      if [ -n "$extern" ]; then
+      # Alleen binden als beide schermen actief zijn. Staat er maar één aan (alleen extern / alleen
+      # laptop), dan zet Hyprland alle workspaces zelf op dat ene scherm.
+      if [ -n "$extern" ] && [ "$laptop_active" = true ]; then
         for ws in 1 4 6 8 10; do
           ${pkgs.hyprland}/bin/hyprctl dispatch wsbind "$ws" "$extern" >/dev/null
           ${pkgs.hyprland}/bin/hyprctl dispatch moveworkspacetomonitor "$ws" "$extern" >/dev/null
@@ -49,12 +56,28 @@ let
       fi
     }
 
+    # Vangnet voor schermstand "Alleen extern": verdwijnt het externe scherm terwijl eDP-1 uit staat,
+    # dan is er geen bruikbaar scherm meer (zwart laptopscherm, menu onbereikbaar). Zet eDP-1 dan aan.
+    restore_laptop() {
+      local real_active
+      real_active=$(${pkgs.hyprland}/bin/hyprctl monitors -j 2>/dev/null \
+        | ${pkgs.jq}/bin/jq -r '[.[] | select(.name | test("^(HEADLESS|FALLBACK)") | not)] | length')
+      if [ "''${real_active:-0}" = 0 ]; then
+        ${pkgs.hyprland}/bin/hyprctl keyword monitor "${laptopMonitor}" >/dev/null
+      fi
+    }
+
     bind_workspaces
 
     SOCKET="/run/user/$UID/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
     ${pkgs.socat}/bin/socat -u "UNIX-CONNECT:$SOCKET" - | while IFS= read -r event; do
       case "$event" in
-        monitoraddedv2*|monitorremoved*)
+        monitorremoved*)
+          sleep 1
+          restore_laptop
+          bind_workspaces
+          ;;
+        monitoraddedv2*)
           sleep 1
           bind_workspaces
           ;;
