@@ -62,6 +62,36 @@ Uitzetten/aanzetten van een output geeft naar verwachting `monitorremoved`/`moni
 binder al reageert. Taak 1 (spike) controleert dat. Komen de events niet, dan roept het script na het
 toepassen zelf de binding opnieuw aan (de binder wordt dan een losse functie die beide aanroepen).
 
+### 6. Menu op alle actieve schermen: één fuzzel per output, eigen runtime-dir
+*Toegevoegd na de tests, op verzoek van de user.* fuzzel 1.14 neemt een lock op
+`$XDG_RUNTIME_DIR/fuzzel-$WAYLAND_DISPLAY.lock` ("fuzzel already running?"), dus een tweede instantie
+start niet. Workaround: per output een tijdelijke runtime-dir met een symlink naar de echte
+Wayland-socket, en fuzzel daar met `--output=<naam>` starten. De temp-dir staat onder
+`$XDG_RUNTIME_DIR`: een Unix-socketpad mag max 108 bytes zijn, en een lange `$TMPDIR` brak dat. De eerste die eindigt (keuze of Escape)
+wint, de rest wordt gekilld. Gemirrorde outputs krijgen geen eigen menu, want ze tonen eDP-1 al.
+- **Valkuil (gevonden bij de test: geen menu met HDMI aangesloten):** een nieuwe fuzzel pakt de
+  toetsenbordfocus en de vorige sluit dan standaard af (rc 1, zonder melding). `wait -n` zag dat als
+  "klaar" en killde de andere, dus er bleef geen menu over. Fix: `--no-exit-on-keyboard-focus-loss`,
+  en het gefocuste scherm als laatste starten zodat dát het toetsenbord krijgt. Op het andere scherm
+  kies je met de muis.
+- *Risico:* het omzeilt een bewuste lock en kan breken bij een fuzzel-update. Faalt een instantie
+  meteen, dan sluit het hele menu (geen wijziging), dus het faalt veilig.
+- *Alternatief: alleen op het externe scherm.* Afgewezen door de user.
+
+### 7. Per-scherm-regels via een tabel, ook in het menu
+De TV "CTV CTV 0x00000001" is een 4K-paneel. Hij biedt 1920x1080@60 als preferred aan en 4K maximaal
+op 30 Hz (4K@60 niet aangeboden). Op 1080p ziet "Ongeschaald" er klein uit, en de andere TV-standen
+hebben overscan (de wayle-bar valt weg). Oorzaak bleek de TV-instelling **EDID 1.4**. Met **EDID 2.0**
+biedt de TV 3840x2160@60 als preferred (zelfde beschrijving). Keuze: **3840x2160@60, schaal 2**. Valt
+de TV ooit terug op EDID 1.4, dan kiest Hyprland voor een niet-aangeboden mode de dichtstbijzijnde.
+- `home/hyprland/external-monitors.nix`: lijst `{ desc, mode, scale }`. `default.nix` maakt er
+  `desc:<desc>,<mode>,auto,<scale>`-regels van, plus een vangregel `,preferred,auto,1`. De naamregel
+  `HDMI-A-1,preferred,auto,1` vervalt: die zou poort-gebonden zijn en is gelijk aan de vangregel.
+- Het script krijgt dezelfde tabel als JSON en bouwt de regel voor het externe scherm op basis van
+  `.description`. Zo overschrijft een stand de TV-regel niet met `preferred,auto,1` (de eerdere fout
+  in decision 1). Uitgebreid blijft expliciet toepassen, geen `hyprctl reload`: een reload zet ook
+  andere runtime-state terug.
+
 ## Risks / Trade-offs
 
 - [Alleen extern op een scherm dat niets toont → beide zwart] → Geaccepteerd. Kabel eruit = laptop

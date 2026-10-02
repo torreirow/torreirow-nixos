@@ -30,8 +30,10 @@ in
 
         monitor = [
           (import ./laptop-monitor.nix)
-          "HDMI-A-1,preferred,auto,1"
-        ];
+        ]
+        ++ map (m: "desc:${m.desc},${m.mode},auto,${toString m.scale}") (import ./external-monitors.nix)
+        # Vangregel voor onbekende externe schermen (poort maakt niet uit: HDMI, DP, DisplayLink).
+        ++ [ ",preferred,auto,1" ];
 
         workspace = [
           "1, default:true, persistent:true"
