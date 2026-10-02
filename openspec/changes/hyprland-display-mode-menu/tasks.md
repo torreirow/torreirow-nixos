@@ -28,3 +28,9 @@
 ## 5. Afronding
 
 - [ ] 5.1 Werk CHANGELOG (`## NEXT VERSION` → Added) en CLAUDE.md (sessie-entry) bij; verifieer dat beide SUPER+SHIFT+P en het vangnet noemen
+
+## 6. Na de tests: menu op beide schermen + per-scherm-regels (scope-wijziging)
+
+- [x] 6.1 Maak `home/hyprland/external-monitors.nix` (TV `CTV CTV 0x00000001` → `3840x2160@60`, schaal 2), gebruik het in `default.nix` (desc-regels + vangregel, HDMI-A-1-naamregel weg) en in het script; verifieer dat `hyprland.conf` `monitor=desc:CTV CTV 0x00000001,3840x2160@60,auto,2` en `monitor=,preferred,auto,1` bevat
+- [x] 6.2 Script: één fuzzel per actief, niet-gemirrord scherm (eigen runtime-dir + socket-symlink), eerste resultaat wint, rest gekilld; verifieer dat de HM-build slaagt (shellcheck)
+- [ ] 6.3 User: SUPER+SHIFT+P met TV in Uitgebreid; verifieer menu op beide schermen, keuze op één sluit beide, en dat de TV 4K@60 schaal 2 draait (wayle-bar zichtbaar met TV op "Ongeschaald")

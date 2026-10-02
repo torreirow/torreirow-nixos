@@ -12,9 +12,17 @@ SUPER+SHIFT+P SHALL een menu openen met de vier standen Uitgebreid, Klonen, Alle
 laptop. Een gekozen stand SHALL direct worden toegepast. Sluiten van het menu zonder keuze SHALL niets
 veranderen.
 
+Het menu SHALL op elk actief, niet-gemirrord scherm tegelijk verschijnen. Een keuze of Escape op één
+scherm SHALL het menu op alle schermen sluiten.
+
 #### Scenario: Menu openen en annuleren
 - **WHEN** een extern scherm is aangesloten, de gebruiker SUPER+SHIFT+P drukt en het menu sluit met Escape
 - **THEN** blijft de schermopstelling ongewijzigd
+
+#### Scenario: Menu op beide schermen
+- **WHEN** beide schermen actief zijn (Uitgebreid) en de gebruiker SUPER+SHIFT+P drukt
+- **THEN** verschijnt het menu op het laptopscherm én op het externe scherm, en een keuze op één van
+  beide sluit het menu op het andere
 
 ### Requirement: Uitgebreid
 De stand Uitgebreid SHALL zowel het laptopscherm als het externe scherm aanzetten als afzonderlijke
@@ -53,6 +61,19 @@ Als extern scherm SHALL de eerste output gelden die niet het laptopscherm is, on
 #### Scenario: USB-C-scherm
 - **WHEN** het externe scherm via USB-C (DP-output) is aangesloten en de gebruiker een stand kiest
 - **THEN** wordt die stand op dat scherm toegepast
+
+### Requirement: Eigen instellingen per bekend extern scherm
+Voor een bekend extern scherm (herkend aan zijn EDID-beschrijving, niet aan de poort) SHALL zowel de
+standaardopstelling als elke stand uit het menu de vastgelegde resolutie en schaal van dat scherm
+gebruiken. Een onbekend extern scherm SHALL de voorkeursresolutie met schaal 1 krijgen.
+
+#### Scenario: 4K-TV
+- **WHEN** de TV "CTV CTV 0x00000001" wordt aangesloten of een stand wordt gekozen waarin die aan staat
+- **THEN** draait de TV op 3840x2160@60 met schaal 2
+
+#### Scenario: Onbekend scherm
+- **WHEN** een ander extern scherm wordt aangesloten
+- **THEN** draait het op zijn voorkeursresolutie met schaal 1
 
 ### Requirement: Geen extern scherm
 Zonder aangesloten extern scherm SHALL het menu een korte melding geven en niets veranderen.
