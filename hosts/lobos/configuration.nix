@@ -513,6 +513,13 @@ networking.wg-quick.interfaces.toorren = {
 
 ## Fingerprint
 services.fprintd.enable = true;
+# fprintd stopt normaal na ~30s ongebruikt. Die idle-timer loopt bij s2idle stil en vuurt direct na
+# resume, precies wanneer hyprlock de sensor opnieuw claimt -> fingerprint dood op het lockscreen.
+# Altijd laten draaien (~5 MB). Zie openspec change hyprlock-fingerprint-unlock.
+systemd.services.fprintd.serviceConfig.ExecStart = [
+  ""
+  "${config.services.fprintd.package}/libexec/fprintd --no-timeout"
+];
 systemd.services.sshd.serviceConfig = {
   ProtectSystem = "strict";
   ProtectHome = "read-only";

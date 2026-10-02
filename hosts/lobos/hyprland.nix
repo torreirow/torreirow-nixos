@@ -8,7 +8,9 @@
   # UWSM beheert de Hyprland sessie via systemd; units moeten beschikbaar zijn in /etc/systemd/user/
   systemd.packages = [ pkgs.uwsm ];
 
-  # Hyprlock PAM service: alleen wachtwoord, geen vingerafdruk (fprintd veroorzaakt lange wachttijd)
+  # Hyprlock PAM service: alleen wachtwoord. Vingerafdruk loopt via hyprlock's eigen D-Bus-pad
+  # (auth.fingerprint in home/hyprland/hyprlock.nix), parallel aan PAM. pam_fprintd hier blijft
+  # bewust uit: dat blokkeert sequentieel tot vinger of timeout (~30s) vóór het wachtwoord telt.
   security.pam.services.hyprlock = {
     fprintAuth = false;
   };
