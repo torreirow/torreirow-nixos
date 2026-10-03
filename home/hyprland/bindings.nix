@@ -170,6 +170,12 @@ in
 {
   wayland.windowManager.hyprland.settings = {
     bind = [
+      # Losse Super niet doorgeven aan apps. Mono (Subtitle Edit) vertaalt Super_L naar Keys.None, en
+      # dat matcht elke lege SE-sneltoets: met de waveform open splitste Super de geselecteerde regel.
+      # Combinaties (SUPER+x) blijven werken; de modifier-stand houdt Hyprland zelf bij.
+      "SUPER, Super_L, exec, true"
+      "SUPER, Super_R, exec, true"
+
       "SUPER, Return, exec, $terminal"
       "SUPER, E, exec, uwsm app -- nautilus"
       "SUPER, B, exec, $browser"
