@@ -29,9 +29,11 @@ in
         "$browser" = "uwsm app -- firefox";
 
         monitor = [
-          "eDP-1,preferred,auto,1.25"
-          "HDMI-A-1,preferred,auto,1"
-        ];
+          (import ./laptop-monitor.nix)
+        ]
+        ++ map (m: "desc:${m.desc},${m.mode},auto,${toString m.scale}") (import ./external-monitors.nix)
+        # Vangregel voor onbekende externe schermen (poort maakt niet uit: HDMI, DP, DisplayLink).
+        ++ [ ",preferred,auto,1" ];
 
         workspace = [
           "1, default:true, persistent:true"
