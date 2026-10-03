@@ -12,6 +12,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | 8083 | Erugo | 127.0.0.1 | Docker | Task management |
 | 8084 | Pi-hole FTL | 0.0.0.0 | Native | DNS and ad-blocking web interface |
 | 8085 | IT-Tools | 127.0.0.1 | Docker | Developer tools (ghcr.io/torreirow/it-tools, sharevb-fork; ittools.toorren.net) |
+| 8087 | blocky-ui | 127.0.0.1 | Docker | Beheer-UI voor blocky DNS (ghcr.io/gabeduartem/blocky-ui; blocky.toorren.net) |
 | 8086 | Zigbee2MQTT | 127.0.0.1 | Docker | Zigbee bridge web interface |
 | 8088 | Signal CLI | 127.0.0.1 | Docker | Signal messenger API for notifications |
 | 8090 | DocSeal | 127.0.0.1 | Docker | Open source document signing platform (docseal.toorren.net) |
@@ -44,6 +45,8 @@ This document provides an overview of all ports in use on the Malandro server.
 | Port | Service | Protocol | Description |
 |------|---------|----------|-------------|
 | 1883 | Mosquitto | TCP | MQTT broker |
+| 53 | blocky DNS | UDP/TCP | DNS + ad-blocking, **127.0.0.1 only** (local, geen LAN-opening) |
+| 4000 | blocky API | TCP | blocky REST-API, 0.0.0.0 maar firewall-dicht (host + docker-bridge only) |
 | 51820 | WireGuard | UDP | VPN service |
 | 51821 | wg-easy | TCP | WireGuard management web interface |
 

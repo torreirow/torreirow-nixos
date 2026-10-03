@@ -125,6 +125,12 @@ in
   # het platte geheim, dat alleen de validator leest.
   "linny-mcp-authz-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # blocky query-log naar MariaDB. Blocky (native) leest de volledige Go-driver-DSN
+  # via LoadCredential; blocky-ui (container) krijgt alleen het platte wachtwoord
+  # (object-vorm in blocky-ui.yml, password-veld via file:) read-only gemount.
+  "blocky-querylog-dsn-host.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "blocky-db-password-ui.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 # Monitoring
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;

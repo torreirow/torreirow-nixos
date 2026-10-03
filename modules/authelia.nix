@@ -204,6 +204,7 @@
               "status.toorren.net"
               "zigbee2mqtt.toorren.net"
               "pdftools.toorren.net"
+              "blocky.toorren.net"
             ];
             policy = "two_factor";
             subject = [ "group:operations" ];
