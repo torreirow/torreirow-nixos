@@ -2,7 +2,9 @@
 
 ## Purpose
 TBD - created by archiving change add-rustic-s3-backup. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Dagelijkse backup via systemd timer
 Het systeem SHALL dagelijks om 03:00 een rustic-backup draaien via `rustic-backup.timer` met `Persistent=true`, zodat een gemiste run na downtime wordt ingehaald.
 
@@ -110,3 +112,11 @@ opnemen (voorkomt S3→S3-recursie).
 - **WHEN** de backup-bronnen (het manifest) worden geïnspecteerd
 - **THEN** staat de JuiceFS-mount NIET in de bronnen, zodat de in S3 opgeslagen JuiceFS-data niet nogmaals naar S3 wordt geback-upt
 
+### Requirement: Blocky-overlays worden geback-upt
+De rustic-manifest SHALL `/data/external/blocky` als bron bevatten, zodat de mutabel bewerkte
+denylist-/allowlist-overlays een restore overleven. (De baseline-lijsten zitten al in git en vallen
+buiten de scope van deze backup.)
+
+#### Scenario: Overlay in de backup
+- **WHEN** de rustic-backup draait
+- **THEN** SHALL `/data/external/blocky` onderdeel zijn van de geback-upte bronnen

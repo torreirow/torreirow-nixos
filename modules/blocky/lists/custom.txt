@@ -1,0 +1,5 @@
+# Eigen, met de hand beheerde blokkades voor de groep "ads" (hosts-formaat).
+# Eén domein per regel; regels met # zijn commentaar. In git versiebeheerd.
+# Wijziging hier vereist een `nixos-rebuild switch`. Voor snelle/tijdelijke
+# blokkades: zet een bestand in /data/external/blocky/denylists.d/ads/ en draai
+# `blocky-refresh` (geen rebuild nodig).
