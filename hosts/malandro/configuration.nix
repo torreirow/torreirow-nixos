@@ -39,6 +39,7 @@
  ../../modules/nginx.nix
  ../../modules/cckafe.nix
  ../../modules/nextcloud-proxy.nix
+ ../../modules/blocky
  ../../modules/opsknight.nix
  ../../modules/paperless.nix
  # ../../modules/pihole.nix

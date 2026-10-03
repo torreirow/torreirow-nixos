@@ -1,0 +1,10 @@
+# Blokkades voor groep "Boaz" — youtube + tiktok (incl. subdomeinen).
+# Alleen actief op werkdagen 12:00-18:00 (zie schedules/listSchedules in blocking.nix),
+# en alleen voor de IP's in clientGroupsBlock. Wijziging hier = nixos-rebuild switch;
+# voor snel/tijdelijk: /data/external/blocky/denylists.d/Boaz.txt + blocky-refresh.
+youtube.com
+*.youtube.com
+youtu.be
+*.youtu.be
+tiktok.com
+*.tiktok.com

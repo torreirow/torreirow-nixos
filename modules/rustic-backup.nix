@@ -54,6 +54,7 @@ let
     "/data/external/castopod"
     "/data/external/dockerlibs/volumes"
     "/data/external/tmp/paperless"
+    "/data/external/blocky"              # blocky mutabele deny-/allowlist-overlays
   ];
 
   # rustic: !pattern = EXCLUDE (getest). Al het overige wordt default meegenomen.

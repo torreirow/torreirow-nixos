@@ -25,6 +25,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - De browsersessie blijft ongemoeid; wie die te krap vindt gebruikt het "onthoud mij"-vinkje bij het inloggen.
 
 ### Added
+- **Blocky als DNS-adblocker met een eigen beheer-dashboard** (`blocky.toorren.net`). Een snelle DNS-proxy die advertentie- en tracking-domeinen wegfiltert (StevenBlack, AdGuard, KADhosts), met Cloudflare/Google als upstreams.
+  - Een **beheer-UI** ([blocky-ui](https://github.com/GabeDuarteM/blocky-ui)) achter de inlog (groep `operations`, tweede factor): live overzichtskaarten (queries, geblokkeerd, cache-hitrate), blocking aan/uit, en een **historische query-log** uit een gedeelde database. Blocky zelf heeft geen dashboard — de UI is het publieke gezicht; blocky's eigen API en statistieken blijven intern en zijn nergens van buitenaf te bereiken.
+  - Draait op blocky 0.35 (uit de unstable-kanaal), omdat de statistieken-API voor die overzichtskaarten pas vanaf 0.30 bestaat.
+- **Blocky-lijsten als bestanden, met een snelle overlay.** De blocky-configuratie is opgesplitst (`modules/blocky/`: service los van beleid) en domeinlijsten staan nu als platte tekst in git in plaats van als inline blokken.
+  - Per groep gelden twee bronnen die blocky samenvoegt: een **baseline** in git (`modules/blocky/lists/`) én een **overlay-bestand** op `/data/external/blocky` dat je met `sudo` bewerkt. Met `blocky-refresh` is een wijziging meteen actief — geen rebuild of herstart. Er is ook een allowlist-overlay om een domein juist live vrij te geven.
+  - De overlays staan op de externe schijf en gaan mee in de rustic-backup; de baseline zit al in git en kan nooit kwijt.
+  - **Voorzichtig opgezet:** de DNS luistert voorlopig alleen lokaal op de server (poort 53 op loopback, geen opening naar het thuisnetwerk). Het thuisnetwerk blijft dus zijn huidige DNS gebruiken tot je blocky bewust als resolver aanzet — een omkeerbare, latere stap zonder risico voor de rest van het netwerk.
+  - Het database-wachtwoord staat **niet in de nix-store**: blocky krijgt zijn verbindingsgegevens bij het starten aangereikt via een systemd-credential, de UI leest alleen het wachtwoord uit een apart, read-only aangekoppeld bestand.
 - **Lockscreen ontgrendelen met vingerafdruk** (lobos, hyprlock): leg een geregistreerde vinger op de sensor, of typ gewoon je wachtwoord. Beide werken tegelijk en het wachtwoord wacht nooit op de sensor.
   - Loopt via hyprlock's eigen koppeling met fprintd, niet via PAM. `pam_fprintd` blijft bewust uit: dat blokkeerde het wachtwoord tot ~30s, en dat was de reden dat vingerafdruk eerder helemaal uit stond.
   - Een vingerafdruk-icoon onder het invoerveld als hint, zonder statustekst.
