@@ -74,13 +74,14 @@ boot.binfmt.preferStaticEmulators = true;
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   networking.hostName = "lobos"; # Define your hostname.
-  networking.nameservers = [ "192.168.0.1" "1.1.1.1" "8.8.8.8" ];
   networking.search = [ "home" ];
   networking.domain = "toorren.net";
   networking.networkmanager = {
     enable = true;
     dhcp = "internal";
     wifi.powersave = false;
+    # DNS komt van DHCP (thuis: KPN-router 192.168.2.254); 1.1.1.1 als vangnet.
+    appendNameservers = [ "1.1.1.1" ];
     plugins = [
       pkgs.networkmanager-openvpn
     ];
