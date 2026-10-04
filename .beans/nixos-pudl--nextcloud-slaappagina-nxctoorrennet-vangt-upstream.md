@@ -5,7 +5,7 @@ status: completed
 type: epic
 priority: normal
 created_at: 2026-10-04T20:57:57Z
-updated_at: 2026-10-04T21:10:19Z
+updated_at: 2026-10-04T21:13:54Z
 ---
 
 # Nextcloud slaappagina
@@ -49,4 +49,4 @@ Volgt het OpenSpec-patroon: change `catch-nextcloud-sleeping`.
 
 
 ## Summary of Changes
-Epic afgerond. `modules/nextcloud-proxy.nix`: snelle connect-timeout (3s) + `error_page 502 503 504 =503 @sleeping` + interne @sleeping-location die een tijdbewuste onderhoudspagina als HTTP 503 serveert (Retry-After, no-store), gescoped op alleen nxc. Static HTML via environment.etc + tmpfiles-symlink. OpenSpec-change catch-nextcloud-sleeping gemaakt, geimplementeerd, functioneel getest en gearchiveerd; capability-spec nextcloud-proxy toegevoegd. Alle 5 child-beans completed. Nog open: productie-deploy (nixos-rebuild switch op malandro).
+Epic afgerond. `modules/nextcloud-proxy.nix`: snelle connect-timeout (3s) + `error_page 502 503 504 =503 @sleeping` + interne @sleeping-location die een tijdbewuste onderhoudspagina als HTTP 503 serveert (Retry-After, no-store), gescoped op alleen nxc. Static HTML via environment.etc + tmpfiles-symlink. OpenSpec-change catch-nextcloud-sleeping gemaakt, geimplementeerd, functioneel getest en gearchiveerd; capability-spec nextcloud-proxy toegevoegd. Alle 5 child-beans completed. Live uitgerold (generatie 72) en in productie geverifieerd: bij een echt uitgeschakelde bobadela1 geeft nxc.toorren.net binnen ~3s een 503 met de slaappagina (retry-after + no-store).
