@@ -88,6 +88,9 @@
   services.grainwork = {
     enable = true;          # CNAME staat sinds 2026-10-05
     pocketId.enable = true; # DB-secret staat; setupLock (standaard aan) tot de admin bestaat
+    # Thuisverkeer naar id.dutchyland.net komt via hairpin-NAT binnen met het eigen publieke IP,
+    # niet met 192.168.2.x; dat adres hoort dus ook bij "thuis".
+    pocketId.allowedNetworks = [ "127.0.0.1" "192.168.2.0/24" "10.8.0.0/24" "82.170.93.180" ];
     site.enable = false;
   };
 
