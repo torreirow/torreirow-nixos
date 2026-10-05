@@ -67,7 +67,7 @@ Het systeem SHALL na elke backup `rustic forget --keep-daily 7 --keep-weekly 4 -
 - **THEN** verwijdert `forget --prune` de snapshots buiten het retentiebeleid en geeft de S3-opslag vrij
 
 ### Requirement: Faal-notificatie via Signal
-Het systeem SHALL bij het falen van een dump- of backup-service een Signal-melding sturen via `OnFailure=` via de lokale signal-cli REST API (afzender ***REMOVED***, ontvanger ***REMOVED***).
+Het systeem SHALL bij het falen van een dump- of backup-service een Signal-melding sturen via `OnFailure=` via de lokale signal-cli REST API (afzender <signal-afzender>, ontvanger <signal-ontvanger>).
 
 #### Scenario: Melding bij fout
 - **WHEN** een van de vier services faalt

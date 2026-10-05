@@ -74,17 +74,16 @@ let
 
   # Faal-notificatie via de lokale signal-cli REST API (zelfde afzender/ontvanger
   # als Home Assistant's signal_maria). Best-effort: faalt de Signal-API, dan
-  # blokkeert dat de OnFailure-handler niet (|| true).
+  # blokkeert dat de OnFailure-handler niet (|| true). De nummers komen als
+  # SIGNAL_SENDER/SIGNAL_RECIPIENT uit modules/signal-numbers.nix.
   signalApi = "http://127.0.0.1:8088/v2/send";
-  signalSender = "***REMOVED***";      # geregistreerd account op de server
-  signalRecipient = "***REMOVED***";   # zelfde ontvanger als HA signal_maria
   notifyScript = pkgs.writeShellScript "rustic-notify-failure" ''
     set -u
     unit="''${1:-onbekend}"
     host="$(${pkgs.nettools}/bin/hostname)"
     msg="⚠️ Backup-fout op ''${host}: unit ''${unit} gefaald. Zie: journalctl -u ''${unit}"
     ${pkgs.jq}/bin/jq -nc \
-      --arg m "$msg" --arg n "${signalSender}" --arg r "${signalRecipient}" \
+      --arg m "$msg" --arg n "$SIGNAL_SENDER" --arg r "$SIGNAL_RECIPIENT" \
       '{message: $m, number: $n, recipients: [$r]}' \
       | ${pkgs.curl}/bin/curl -s --max-time 30 -X POST "${signalApi}" \
           -H 'Content-Type: application/json' --data @- >/dev/null || true
@@ -169,6 +168,8 @@ let
   };
 in
 {
+  imports = [ ./signal-numbers.nix ];
+
   ###### Secrets ######
   age.secrets.rustic-s3-env = {
     file = ../secrets/rustic-s3-env.age;
@@ -193,6 +194,7 @@ in
     description = "Telegram-notificatie bij backup-fout (%i)";
     serviceConfig = {
       Type = "oneshot";
+      EnvironmentFile = config.age.secrets.signal-numbers.path;
       ExecStart = "${notifyScript} %i";
     };
   };

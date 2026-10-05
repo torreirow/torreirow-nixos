@@ -27,7 +27,7 @@ Kopieer de hele string (vanaf `$argon2id$...`)
 
 ## 2. Voeg gebruikers toe aan je configuratie
 
-Voeg dit toe aan je `hosts/malandro/configuration.nix`:
+Gebruiker en groepen staan leesbaar in `hosts/malandro/configuration.nix`, **zonder** wachtwoord:
 
 ```nix
 services.authelia.users = [
@@ -35,12 +35,26 @@ services.authelia.users = [
     username = "wouter";
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
-    passwordHash = "***REMOVED***";
-    groups = [ "admins" "users" "monitoring" ];
+    groups = [ "office" "linny" ];
     disabled = false;
   }
 ];
 ```
+
+De hash hoort in `secrets/authelia-password-hashes.age`: een JSON-object met per
+username de argon2id-hash.
+
+```bash
+cd secrets && sudo ragenx -e authelia-password-hashes.age --ssh-dir /etc/ssh
+```
+
+```json
+{ "wouter": "$argon2id$v=19$m=65536,t=3,p=4$..." }
+```
+
+Bij de start van `authelia-main` voegt `modules/authelia-users.nix` beide samen tot
+`/var/lib/authelia-main/users_database.yml` (0600). Heeft een gebruiker geen hash, dan
+start Authelia niet.
 
 ## 3. Rebuild je systeem
 

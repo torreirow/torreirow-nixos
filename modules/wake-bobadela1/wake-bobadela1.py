@@ -13,6 +13,7 @@ Exitcodes: 0 = gezond, 1 = host kwam niet op, 2 = host op maar Nextcloud niet ge
 """
 import argparse
 import json
+import os
 import socket
 import subprocess
 import sys
@@ -26,10 +27,11 @@ HOST = "192.168.2.67"
 PORTS = (7, 9)
 NEXTCLOUD_PORT = 11000  # AIO apache; status.php volgt het --host-adres
 
-# Zelfde afzender/ontvanger als rustic-notify@ en HA signal_maria.
+# Zelfde afzender/ontvanger als rustic-notify@ en HA signal_maria; de systeem-service
+# zet ze via EnvironmentFile (modules/signal-numbers.nix).
 SIGNAL_API = "http://127.0.0.1:8088/v2/send"
-SIGNAL_SENDER = "***REMOVED***"
-SIGNAL_RECIPIENT = "***REMOVED***"
+SIGNAL_SENDER = os.environ.get("SIGNAL_SENDER")
+SIGNAL_RECIPIENT = os.environ.get("SIGNAL_RECIPIENT")
 
 POLL_INTERVAL = 5  # seconden tussen ping/health-checks
 
@@ -70,6 +72,9 @@ def nextcloud_healthy(url):
 
 def signal_send(message):
     """Best-effort Signal-melding; faalt stil zodat de exitcode ongewijzigd blijft."""
+    if not (SIGNAL_SENDER and SIGNAL_RECIPIENT):
+        print("geen SIGNAL_SENDER/SIGNAL_RECIPIENT, melding overgeslagen", file=sys.stderr)
+        return
     payload = json.dumps(
         {"message": message, "number": SIGNAL_SENDER, "recipients": [SIGNAL_RECIPIENT]}
     ).encode()

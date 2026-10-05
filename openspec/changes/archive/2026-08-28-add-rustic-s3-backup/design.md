@@ -52,7 +52,7 @@ secrets/rustic-repo-password.age → /run/agenix/rustic-repo-password  (password
 
 Het profiel `/etc/rustic/malandro.toml` staat plain in de nix-store maar bevat alleen `${AWS_…}`-placeholders. De echte keys komen op runtime uit de EnvironmentFile en worden door `--profile-substitute-env` gesubstitueerd → nooit in nix-store, unit-file of `ps`.
 
-Signal-notificatie gaat via de lokale signal-cli REST API (`http://127.0.0.1:8088/v2/send`, jq bouwt de JSON) naar ***REMOVED***. Geen agenix-secret nodig: de Signal-nummers zijn niet geheim en staan plain in de module (net als in de HA-config).
+Signal-notificatie gaat via de lokale signal-cli REST API (`http://127.0.0.1:8088/v2/send`, jq bouwt de JSON) naar <signal-ontvanger>. Geen agenix-secret nodig: de Signal-nummers zijn niet geheim en staan plain in de module (net als in de HA-config).
 
 ### Kip-en-ei
 Het `rustic-repo-password` moet OOK buiten deze backup bewaard blijven (password-manager + offline). Niet uitsluitend in Vaultwarden — dat wordt door rustic geback-upt (circulair). Bij verlies is de repo onherstelbaar.

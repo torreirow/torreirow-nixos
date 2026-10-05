@@ -25,5 +25,5 @@ Bij falen van een dump- of backup-service een melding sturen.
 
 ## Bijgewerkt 2026-08-28 — Signal i.p.v. Telegram
 Notificatie gaat via de lokale signal-cli REST API (`http://127.0.0.1:8088/v2/send`, jq bouwt de JSON),
-afzender `***REMOVED***` → ontvanger `***REMOVED***` (zelfde als HA signal_maria). De twee agenix
+afzender `<signal-afzender>` → ontvanger `<signal-ontvanger>` (zelfde als HA signal_maria). De twee agenix
 Telegram-secrets vervallen; Signal-nummers zijn niet geheim en staan plain in de module. Getest: HTTP 201 + ontvangen.

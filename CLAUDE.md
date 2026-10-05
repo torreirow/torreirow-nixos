@@ -446,7 +446,7 @@ Beans-epic `nixos-sd4i`.
   `rustic forget --filter-host malandro --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --prune`.
 - **`rustic-backup.timer`** — dagelijks 03:00, `Persistent=true`.
 - **Faal-notificatie**: template-unit `rustic-notify@` → **Signal** via de lokale signal-cli REST API
-  (`http://127.0.0.1:8088/v2/send`, jq bouwt de JSON). Afzender `***REMOVED***`, ontvanger `***REMOVED***`
+  (`http://127.0.0.1:8088/v2/send`, jq bouwt de JSON). Afzender `<signal-afzender>`, ontvanger `<signal-ontvanger>`
   (zelfde als HA `signal_maria`). Op `OnFailure=` van alle vier services. Best-effort (`|| true`); geen
   agenix-secret nodig (nummers zijn niet geheim, staan plain in de module — net als in de HA-config).
 - **Manifest (twee roots!):** `/var/lib/{homeassistant,vaultwarden,zigbee2mqtt,signal-cli,wg-easy,baikal,

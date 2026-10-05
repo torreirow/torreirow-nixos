@@ -3,28 +3,43 @@
 with lib;
 
 let
-  cfg = config.services.authelia.instances.main;
-
-  # Formatteer gebruikers voor YAML
-  formatUsers = users:
-    builtins.listToAttrs (map (user: {
+  # Gebruikers zonder wachtwoord: dit deel staat leesbaar in Nix (en de store).
+  # De argon2id-hashes komen uit agenix en worden bij de start van Authelia erin gezet,
+  # zodat ze niet in de publieke repo of de world-readable nix-store staan.
+  usersSkeleton = pkgs.writeText "authelia-users-skeleton.json" (builtins.toJSON {
+    users = builtins.listToAttrs (map (user: {
       name = user.username;
       value = {
-        disabled = user.disabled or false;
+        disabled = user.disabled;
         displayname = user.displayname;
-        password = user.passwordHash;
         email = user.email;
-        groups = user.groups or [];
+        groups = user.groups;
       };
-    }) users);
+    }) config.services.authelia.users);
+  });
 
-  # Genereer de users_database.yml
-  usersConfig = {
-    users = formatUsers config.services.authelia.users;
-  };
+  usersDb = "/var/lib/authelia-main/users_database.yml";
 
-  usersFile = pkgs.writeText "users_database.yml" (builtins.toJSON usersConfig);
-
+  # Hashes-bestand: JSON-object { "<username>": "$argon2id$..." }.
+  # Breekt af als een gebruiker geen argon2-hash heeft: liever geen start dan een
+  # gebruikersdatabase met een leeg wachtwoord.
+  mergeUsers = ''
+    hashes=${config.age.secrets.authelia-password-hashes.path}
+    missing=$(${pkgs.jq}/bin/jq -r --slurpfile h "$hashes" \
+      '.users | keys[] | select(($h[0][.] // "") | startswith("$argon2") | not)' \
+      ${usersSkeleton})
+    if [ -n "$missing" ]; then
+      echo "authelia-users: geen argon2-hash voor: $missing" >&2
+      exit 1
+    fi
+    tmp=$(mktemp ${usersDb}.XXXXXX)
+    ${pkgs.jq}/bin/jq --slurpfile h "$hashes" \
+      '.users |= with_entries(.value.password = $h[0][.key])' ${usersSkeleton} \
+      | ${pkgs.yq}/bin/yq -y '.' > "$tmp"
+    chmod 0600 "$tmp"
+    # mv vervangt ook de oude store-symlink door een echt bestand
+    mv -f "$tmp" ${usersDb}
+  '';
 in
 {
   options.services.authelia.users = mkOption {
@@ -45,14 +60,6 @@ in
           description = "Email adres voor notificaties en password resets";
         };
 
-        passwordHash = mkOption {
-          type = types.str;
-          description = ''
-            Argon2id password hash. Genereer met:
-            authelia crypto hash generate argon2 --password 'jouwwachtwoord'
-          '';
-        };
-
         groups = mkOption {
           type = types.listOf types.str;
           default = [];
@@ -67,24 +74,30 @@ in
       };
     });
     default = [];
-    description = "Lijst van Authelia gebruikers";
+    description = ''
+      Lijst van Authelia gebruikers. De wachtwoord-hashes staan per username in
+      secrets/authelia-password-hashes.age. Hash genereren met:
+      authelia crypto hash generate argon2 --password 'jouwwachtwoord'
+    '';
   };
 
   config = mkIf (config.services.authelia.users != []) {
-    # Maak de users database file aan met systemd tmpfiles
+    age.secrets.authelia-password-hashes = {
+      file = ../secrets/authelia-password-hashes.age;
+      path = "/run/agenix/authelia-password-hashes";
+      mode = "0400";
+      owner = "authelia-main";
+      group = "authelia-main";
+    };
+
     systemd.tmpfiles.rules = [
       "d /var/lib/authelia-main 0750 authelia-main authelia-main -"
-      "L+ /var/lib/authelia-main/users_database.yml - - - - ${pkgs.runCommand "users_database.yml" {
-        buildInputs = [ pkgs.yq ];
-      } ''
-        # Converteer JSON naar YAML voor betere leesbaarheid
-        echo '${builtins.toJSON usersConfig}' | yq -y '.' > $out
-      ''}"
     ];
 
-    # Zorg dat de file wordt herladen als de configuratie verandert
+    # Vóór de validate-config van de NixOS-module, die het bestand al nodig heeft
     systemd.services.authelia-main = {
-      restartTriggers = [ usersFile ];
+      preStart = mkBefore mergeUsers;
+      restartTriggers = [ usersSkeleton config.age.secrets.authelia-password-hashes.file ];
     };
   };
 }

@@ -20,35 +20,33 @@ let
     ) zoneDef.records)}
   '';
 
-  # TSIG secret (1x bron)
-  tsigSecret =
-  lib.removeSuffix "\n"
-    (builtins.readFile config.age.secrets.rfc2136.path);
-
 in
 {
   #### Secrets ####
+  # TSIG-key voor ACME, als knot-config-snippet. Wordt via keyFiles (include:) pas
+  # door knot zelf gelezen; builtins.readFile zou de key in de nix-store zetten.
+  #   key:
+  #     - id: acme-key
+  #       algorithm: hmac-sha256
+  #       secret: <base64>
   age.secrets.rfc2136 = {
-    file = ../secrets/rfc2136.age;
-    owner = "root";
+    file = ../../secrets/rfc2136.age;
+    owner = "knot";
     mode = "0400";
   };
+  # agenix-paden lopen via /run/keys (0750 root:keys)
+  users.users.knot.extraGroups = [ "keys" ];
 
   #### Knot DNS ####
   services.knot = {
     enable = true;
+    keyFiles = [ config.age.secrets.rfc2136.path ];
 
     settings = {
       server.listen = [
         "0.0.0.0@53"
         "::@53"
       ];
-
-      # TSIG key voor ACME
-      key."acme-key" = {
-        algorithm = "hmac-sha256";
-        secret = tsigSecret;
-      };
 
       # ACL die updates toestaat
       acl."acme-update" = {

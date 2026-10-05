@@ -64,7 +64,7 @@ Dat patroon is niet zomaar over te nemen: de signal-cli REST API op malandro lui
   `home/linux-desktop.nix`, `flake.nix` (module-import), `CHANGELOG.md`.
 - **Meer journal-volume:** `nextcloudcmd` logt nu per run. Dat is de bedoeling; wie er last van
   heeft zet `quiet = true`, maar verliest dan weer het zicht op fouten.
-- **Meldingen gaan naar `***REMOVED***`**, hetzelfde nummer als de rustic-backupmeldingen van
-  malandro. Afzender is het signal-cli-account `***REMOVED***`.
+- **Meldingen gaan naar `<signal-ontvanger>`**, hetzelfde nummer als de rustic-backupmeldingen van
+  malandro. Afzender is het signal-cli-account `<signal-afzender>`.
 - **Buiten scope:** hetzelfde vangnet op malandro (daar bestaat al een eigen mechanisme), en
   meldingen voor system-units in plaats van user-units.

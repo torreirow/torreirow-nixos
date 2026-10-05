@@ -506,7 +506,6 @@ services.authelia.users = [
     username = "wouteradmin";
     displayname = "Wouter van der Toorren (admin)";
     email = "wouteradmin@toorren.net";
-    passwordHash = "***REMOVED***";
     groups = [ "monitoring" "network" "operations" "office" "grafana-admins" ];
     disabled = false;
   }
@@ -516,7 +515,6 @@ services.authelia.users = [
     username = "wouter";
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
-    passwordHash = "***REMOVED***";
     groups = [ "office" "linny" "personal-wouter" "grafana-editors" ];
     disabled = false;
   }
@@ -524,7 +522,6 @@ services.authelia.users = [
     username = "wouteruser";
     displayname = "WouteruseR van der Toorren";
     email = "wouteruser@toorren.net";
-    passwordHash = "***REMOVED***";
     groups = [ "office" "linny" ];
     disabled = false;
   }
