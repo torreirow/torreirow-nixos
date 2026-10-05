@@ -86,8 +86,8 @@
   #   site.enable      ← Pocket ID-setup in de GUI + secrets/grainwork-oauth2-proxy-client.age;
   #                      daarna pocketId.setupLock = false
   services.grainwork = {
-    enable = false;
-    pocketId.enable = false;
+    enable = true;          # CNAME staat sinds 2026-10-05
+    pocketId.enable = true; # DB-secret staat; setupLock (standaard aan) tot de admin bestaat
     site.enable = false;
   };
 
