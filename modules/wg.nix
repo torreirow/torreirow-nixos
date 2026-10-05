@@ -36,7 +36,7 @@
       image = "ghcr.io/wg-easy/wg-easy:latest";
       ports = [
         "51820:51820/udp"
-        "51821:51821/tcp"
+        "127.0.0.1:51821:51821/tcp"  
       ];
       volumes = [ "/var/lib/wg-easy:/etc/wireguard" ];
       environmentFiles = [ config.age.secrets.wg-easy-env.path ];
