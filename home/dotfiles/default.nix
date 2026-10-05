@@ -40,8 +40,5 @@
       source = ./.config/openvpn;
       recursive = true;
     };
-#    ".aws/managed_service_accounts.json" = {
-#     text = builtins.toJSON (import ./managed_service_accounts.nix);
-#    };
   };
 }

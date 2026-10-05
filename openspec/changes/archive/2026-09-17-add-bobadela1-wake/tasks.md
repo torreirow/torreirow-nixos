@@ -3,7 +3,7 @@
 - [x] 1.1 Bevestigen: bobadela1 MAC `b8:ac:6f:c7:20:c6`, IP `192.168.2.67`, broadcast `192.168.2.255`, WoL-poorten 7/9
 - [x] 1.2 Bevestigen: Nextcloud status-endpoint `http://192.168.2.67:11000/status.php` geeft 200 + `installed:true`, `maintenance:false`
 - [x] 1.3 Bevestigen: malandro (192.168.2.52) en bobadela1 in hetzelfde L2-broadcastdomein; uitgaand UDP-broadcast werkt zonder open firewall-poort
-- [x] 1.4 Signal-constanten overnemen uit `modules/rustic-backup.nix` (api `127.0.0.1:8088/v2/send`, afzender `***REMOVED***`, ontvanger `***REMOVED***`)
+- [x] 1.4 Signal-constanten overnemen uit `modules/rustic-backup.nix` (api `127.0.0.1:8088/v2/send`, afzender `<signal-afzender>`, ontvanger `<signal-ontvanger>`)
 
 ## 2. Gedeelde wake-derivation
 

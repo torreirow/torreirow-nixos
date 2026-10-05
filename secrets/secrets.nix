@@ -66,6 +66,7 @@ in
   "ssh-hosts-customer-prod.json.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "postfix-sasl-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "homeassistant-prometheus-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "signal-numbers.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "hcaptcha-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "turnstile-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "mmdl-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];

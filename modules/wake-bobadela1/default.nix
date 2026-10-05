@@ -18,6 +18,8 @@ let
   '';
 in
 {
+  imports = [ ../signal-numbers.nix ];
+
   systemd.services.wake-bobadela1 = {
     description = "Wek bobadela1 via Wake-on-LAN tot Nextcloud gezond is (Signal bij falen)";
     # network-online zodat de broadcast + status.php-check kunnen; best-effort.
@@ -25,6 +27,7 @@ in
     wants = [ "network-online.target" ];
     serviceConfig = {
       Type = "oneshot";
+      EnvironmentFile = config.age.secrets.signal-numbers.path;
       # 30 min proberen, WoL-burst elke 5 min, Nextcloud-check als succescriterium,
       # Signal-melding bij falen.
       ExecStart = "${wake}/bin/wake-bobadela1 --wait 1800 --burst 300 --check-nextcloud --notify";

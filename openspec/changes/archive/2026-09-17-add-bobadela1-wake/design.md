@@ -70,7 +70,7 @@ Eén binary, twee modi:
 Er bestaat nog geen generieke Signal-notifier; de enige is `rustic-notify@` (tekst hardcoded
 "Backup-fout"). Omdat we twee verschillende teksten nodig hebben, stuurt het script zelf de melding via een
 kleine helper met dezelfde constanten als `rustic-backup.nix`:
-`api=http://127.0.0.1:8088/v2/send`, afzender `***REMOVED***`, ontvanger `***REMOVED***`. Best-effort
+`api=http://127.0.0.1:8088/v2/send`, afzender `<signal-afzender>`, ontvanger `<signal-ontvanger>`. Best-effort
 (`--max-time` + faal-tolerant), zodat een falende Signal-API de service-exitcode niet verandert. De service
 krijgt daarnaast een `OnFailure=` naar een minimale notify als vangnet voor onverwachte crashes vóór het
 script zelf kon melden.
