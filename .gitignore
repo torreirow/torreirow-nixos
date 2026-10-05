@@ -22,3 +22,8 @@ build/
 *.log
 http_cache.sqlite
 __pycache__/
+
+# secrets/: alleen versleutelde .age-bestanden en de recipient-regels horen in git
+secrets/*
+!secrets/*.age
+!secrets/secrets.nix

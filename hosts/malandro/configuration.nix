@@ -471,22 +471,6 @@ services.xscreensaver = {
 #  };
 #};
 
-#networking.wg-quick.interfaces.wg0 = {
-#    address = [
-#      "172.27.66.3/24"
-#    ];
-#    peers = [
-#      {
-#        allowedIPs = [
-#          "0.0.0.0/0"
-#        ];
-#        endpoint = "homeassistant.toorren.net:51820";
-#        publicKey = "8TLZ86+PygfP3GzrBUiBtXOleSSO9ODnQPxzXZtQNHk=";
-#      }
-#    ];
-#    privateKey = "***REMOVED***";
-#  };
-
 services.formrelay = {
   enable = true;
   forms = {

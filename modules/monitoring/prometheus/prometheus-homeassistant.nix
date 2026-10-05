@@ -1,22 +1,25 @@
-{ lib, pkgs, ... }:
+{ config, lib, ... }:
 
-let
-  # Home Assistant bearer token
-  # TODO: Move to agenix for better security
-  homeassistantToken = "***REMOVED***";
-
-  # Don't include "Bearer " prefix - Prometheus adds it automatically
-  tokenFile = pkgs.writeText "homeassistant-bearer-token" homeassistantToken;
-in
 {
+  # Home Assistant long-lived access token (zonder "Bearer "-prefix; Prometheus zet dat zelf)
+  age.secrets.homeassistant-prometheus-token = {
+    file = ../../../secrets/homeassistant-prometheus-token.age;
+    path = "/run/agenix/homeassistant-prometheus-token";
+    owner = "prometheus";
+    mode = "0400";
+  };
+
+  # promtool draait in de build-sandbox en ziet het tokenbestand niet; volledige check
+  # zou falen op een ontbrekend bearer_token_file.
+  services.prometheus.checkConfig = "syntax-only";
+
   services.prometheus.scrapeConfigs = lib.mkAfter [
     {
       job_name = "homeassistant";
       scrape_interval = "60s";
       metrics_path = "/api/prometheus";
 
-      # Use bearer token authentication
-      bearer_token_file = toString tokenFile;
+      bearer_token_file = config.age.secrets.homeassistant-prometheus-token.path;
 
       static_configs = [{
         targets = [ "localhost:8123" ];

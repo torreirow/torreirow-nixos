@@ -14,7 +14,6 @@
 #    ../../modules/printer-thuis.nix
     ./lobos-secrets.nix
     ../../modules/claude.nix
-    ./mail.nix
     ./midi.nix
     ./security-hardening.nix
     ./suspend-wakeup.nix
