@@ -380,5 +380,13 @@
       });
   #### LINUX SERVER HOMEMANAGER END
 
+  # VM-tests: nix build .#checks.x86_64-linux.<naam> -L
+  checks.x86_64-linux.grainwork =
+    nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
+      imports = [ ./modules/grainwork_vmtest.nix ];
+      # De module declareert age.secrets (ook als agenix = false); de optie moet bestaan.
+      defaults.imports = [ agenix.nixosModules.default ];
+    };
+
   };
 }

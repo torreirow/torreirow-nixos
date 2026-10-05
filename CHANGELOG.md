@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **GrainWork-hosting klaar om in fasen aan te zetten** (`grainwork.dutchyland.net`, `id.dutchyland.net`). Nieuwe module `modules/grainwork.nix` voor de besloten bijbelstudiesite, met **Pocket ID** als eigen inlogserver: deelnemers loggen in met een passkey of een inlogcode per mail, en accounts beheer je in een GUI in plaats van in Nix. Authelia en de homelab-accounts blijven daar helemaal los van.
+  - Drie schakelaars, elk na een handmatige stap: het wildcard-certificaat `*.dutchyland.net` (na de CNAME bij OpenProvider), Pocket ID (na het DB-secret) en de site achter oauth2-proxy (na het aanmaken van de OIDC-client).
+  - **Setup-slot:** zolang er nog geen beheerder is, is `id.dutchyland.net` alleen vanaf thuis en WireGuard bereikbaar, zodat niemand anders via `/setup` beheerder kan worden.
+  - Alleen leden van de Pocket ID-groep `grainwork` komen op de site; `/welkom/` (uitleg over inloggen) en de opmaak zijn zonder inlog bereikbaar.
+  - Getest met een VM-test (`nix build .#checks.x86_64-linux.grainwork -L`) en `modules/grainwork_test.py`; met alle schakelaars uit is de malandro-build identiek aan die zonder module.
 - **Nextcloud toont een nette slaappagina als de server uit staat** (`nxc.toorren.net`). De Nextcloud-host (bobadela1) gaat elke avond 23:00 bewust uit en wordt 09:00 weer gewekt; daartussen was de cloud onbereikbaar met een kale nginx-foutmelding.
   - In plaats daarvan verschijnt nu een vriendelijke pagina die **weet hoe laat het is**: tussen 23:00 en 09:00 meldt hij dat de cloud slaapt en rond 09:00 terugkomt, daarbuiten dat de cloud onverwacht onbereikbaar is.
   - De pagina verschijnt **vrijwel direct** (binnen ~3 seconden) in plaats van tot een uur te blijven hangen: de verbindings-timeout naar de uitgeschakelde host is kort gezet, terwijl de lange timeouts voor grote uploads ongewijzigd blijven.

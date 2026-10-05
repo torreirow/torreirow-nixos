@@ -23,6 +23,8 @@ This document provides an overview of all ports in use on the Malandro server.
 | 8095 | Wallos | 127.0.0.1 | Docker | Self-hosted subscription tracker (subscriptions.toorren.net) |
 | 8096 | linny-mcp | 127.0.0.1 | Native | MCP-server op het torrlinny-notitieboek (linny-mcp.toorren.net; Authelia als OIDC-provider, GEEN forward-auth) |
 | 8097 | linny-mcp-authz | 127.0.0.1 | Native | Tokenvalidator voor nginx' auth_request; toetst bij Authelia's introspection-endpoint |
+| 8098 | Pocket ID | 127.0.0.1 | Native | OIDC-provider met passkeys voor GrainWork (id.dutchyland.net) |
+| 8099 | oauth2-proxy | 127.0.0.1 | Native | Forward-auth voor grainwork.dutchyland.net (OIDC naar Pocket ID, groep grainwork) |
 | 8123 | Home Assistant | 0.0.0.0 | Docker | Home automation platform |
 | 8181 | Paperless | 0.0.0.0 | Docker | Document management system |
 
