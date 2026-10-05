@@ -1,7 +1,7 @@
 ## 1. AWS S3 + IAM voorbereiden
 
-- [x] 1.1 IAM-policy `juicefs-nextcloud-s3` aangemaakt in account 760178553019: `s3:GetObject/PutObject/DeleteObject` op `wto-s3-bucket/juicefs/*` + `s3:ListBucket` met prefix-conditie `juicefs/*`
-- [x] 1.2 Dedicated IAM-user `juicefs-nextcloud` + access-key aangemaakt (AccessKeyId `AKIA3B7RMGC5THN23WWQ`), policy attached (níet `hassio` hergebruikt)
+- [x] 1.1 IAM-policy `juicefs-nextcloud-s3` aangemaakt in het persoonlijke AWS-account: `s3:GetObject/PutObject/DeleteObject` op `wto-s3-bucket/juicefs/*` + `s3:ListBucket` met prefix-conditie `juicefs/*`
+- [x] 1.2 Dedicated IAM-user `juicefs-nextcloud` + access-key aangemaakt, policy attached (níet `hassio` hergebruikt)
 - [~] 1.3 Versioning OVERGESLAGEN — S3-versioning is bucket-breed (niet per-prefix); aanzetten zou de rustic-prune-economie breken (noncurrent versions blijven ruimte kosten). Vertrouwelijkheid/herstel wordt gedekt door JuiceFS client-side encryptie (4.x) + `juicefs dump` in rustic (8.x)
 - [x] 1.4 Geverifieerd: schrijf-isolatie KLOPT (PUT buiten `juicefs/` en op rustic-prefix → AccessDenied). ⚠️ BEVINDING: bucket-policy `DirectReads` geeft `s3:GetObject` aan `Principal:*` + Block-Public-Access staat UIT → bucket is publiek leesbaar. Mitigatie: JuiceFS client-side encryptie (zie 4.2). Pre-existing publieke-bucket-exposure apart aan user gemeld
 
