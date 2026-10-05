@@ -3,8 +3,8 @@
 
     python3 modules/grainwork_test.py
 
-Evalueert malandro drie keer: zoals hij nu staat (alles uit), met alleen fase 1 (cert +
-Pocket ID) en met alle fasen aan. De echte gedragstest (nginx, Pocket ID en oauth2-proxy
+Evalueert malandro met de schakelaars geforceerd: alles uit, alleen fase 1 (cert +
+Pocket ID) en alle fasen aan; onafhankelijk van wat hosts/malandro zelf aanzet. De echte gedragstest (nginx, Pocket ID en oauth2-proxy
 opgestart) is de VM-test: nix build .#checks.x86_64-linux.grainwork -L
 
 Duurt ongeveer een minuut: één evaluatie, daarna alleen assertions.
@@ -65,10 +65,10 @@ let
       tmpfiles = builtins.filter (r: builtins.match ".*grainwork.*" r != null) c.systemd.tmpfiles.rules;
     };
 in {
-  current = view sys.config;
+  off = view (phase { enable = false; pocketId.enable = false; site.enable = false; });
   phase1 = view (phase { enable = true; pocketId.enable = true; });
   full = view (phase { enable = true; pocketId.enable = true; pocketId.setupLock = false; site.enable = true; });
-  siteWithoutPocketId = view (phase { enable = true; site.enable = true;
+  siteWithoutPocketId = view (phase { enable = true; pocketId.enable = false; site.enable = true;
     site.clientEnvFile = "/dev/null"; site.cookieSecretFile = "/dev/null"; });
 }
 """
@@ -101,8 +101,8 @@ def load():
 def main():
     r = load()
 
-    print("huidige malandro-config (alle schakelaars uit)")
-    cur = r["current"]
+    print("alle schakelaars uit")
+    cur = r["off"]
     check("geen dutchyland-cert", cur["cert"] is None, str(cur["cert"]))
     check("geen Pocket ID", not cur["pocketId"])
     check("geen oauth2-proxy", not cur["oauth2"])
