@@ -22,7 +22,6 @@
       displayname = "Wouter van der Toorren";
       email = "wouter@toorren.net";
       # Vervang met je eigen argon2id hash!
-      passwordHash = "***REMOVED***";
       groups = [ "admins" "users" "monitoring" ];
       disabled = false;
     }
@@ -32,7 +31,6 @@
     #   username = "monitoring";
     #   displayname = "Monitoring User";
     #   email = "monitoring@toorren.net";
-    #   passwordHash = "***REMOVED***";
     #   groups = [ "monitoring" ];
     #   disabled = false;
     # }
@@ -42,7 +40,6 @@
     #   username = "user";
     #   displayname = "Regular User";
     #   email = "user@toorren.net";
-    #   passwordHash = "***REMOVED***";
     #   groups = [ "users" ];
     #   disabled = false;
     # }
