@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Blokkeert een commit als de gestagede wijzigingen een secret bevatten.
+# Aangeroepen door de globale pre-commit in ~/.config/git/hooks.
+# Vals positief? Zet `gitleaks:allow` als commentaar op die regel.
+set -euo pipefail
+
+args=(git --pre-commit --staged --redact --no-banner --verbose)
+
+if command -v gitleaks >/dev/null 2>&1; then
+  exec gitleaks "${args[@]}"
+fi
+exec nix run nixpkgs#gitleaks -- "${args[@]}"
