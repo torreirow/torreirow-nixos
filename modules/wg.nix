@@ -21,6 +21,14 @@
     internalInterfaces = [ "docker0" ];
   };
 
+  # PASSWORD_HASH (bcrypt) voor de wg-easy-webinterface, als docker env-file.
+  # Waarde zonder quotes: --env-file neemt alles letterlijk over.
+  age.secrets.wg-easy-env = {
+    file = ../secrets/wg-easy-env.age;
+    path = "/run/agenix/wg-easy-env";
+    mode = "0400";
+  };
+
   # wg-easy DOCKER container (GEEN host networking)
   virtualisation.oci-containers = {
     backend = "docker";
@@ -31,9 +39,9 @@
         "51821:51821/tcp"
       ];
       volumes = [ "/var/lib/wg-easy:/etc/wireguard" ];
+      environmentFiles = [ config.age.secrets.wg-easy-env.path ];
       environment = {
         WG_HOST = "wg.toorren.net";
-        PASSWORD_HASH = "$2a$12$2kO66Q7Xg4JI/n2QzXW9ROTZ0O2yJA/NJCuYMDl.YU9g8PS.ZYJsi";
         WG_DEFAULT_DNS = "1.1.1.1";
         WG_ALLOWED_IPS = "0.0.0.0/0";
         # Gebruik iptables-nft i.p.v. iptables-legacy (kernel 6.x heeft geen iptable_nat module)
