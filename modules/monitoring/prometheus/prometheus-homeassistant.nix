@@ -8,6 +8,8 @@
     owner = "prometheus";
     mode = "0400";
   };
+  # /run/agenix/* wijst via /run/keys (0750 root:keys) naar het secret
+  users.users.prometheus.extraGroups = [ "keys" ];
 
   # promtool draait in de build-sandbox en ziet het tokenbestand niet; volledige check
   # zou falen op een ontbrekend bearer_token_file.
