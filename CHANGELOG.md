@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## NEXT VERSION
 
+### Added
+- **Nextcloud toont een nette slaappagina als de server uit staat** (`nxc.toorren.net`). De Nextcloud-host (bobadela1) gaat elke avond 23:00 bewust uit en wordt 09:00 weer gewekt; daartussen was de cloud onbereikbaar met een kale nginx-foutmelding.
+  - In plaats daarvan verschijnt nu een vriendelijke pagina die **weet hoe laat het is**: tussen 23:00 en 09:00 meldt hij dat de cloud slaapt en rond 09:00 terugkomt, daarbuiten dat de cloud onverwacht onbereikbaar is.
+  - De pagina verschijnt **vrijwel direct** (binnen ~3 seconden) in plaats van tot een uur te blijven hangen: de verbindings-timeout naar de uitgeschakelde host is kort gezet, terwijl de lange timeouts voor grote uploads ongewijzigd blijven.
+  - Technisch een HTTP 503 met een `Retry-After`-hint, zodat Nextcloud-sync-apps netjes afbacken en het later opnieuw proberen. De afvang geldt alleen voor Nextcloud; andere diensten houden hun eigen foutgedrag.
+
 ### Changed
 - **IT-Tools draait nu vanuit een eigen, bijgehouden build** (`ghcr.io/torreirow/it-tools`). Het oude image van `corentinth/it-tools` werd sinds oktober 2024 niet meer bijgewerkt; de eigen fork is gebaseerd op de actieve community-fork `sharevb/it-tools`.
   - Ongeveer 480 tools in plaats van 90, waaronder een **argon2-hasher die Authelia-wachtwoordhashes maakt én controleert**: standaard met precies de instellingen van `authelia crypto hash generate argon2`, zodat je zonder Authelia-CLI een hash voor `users_database.yml` hebt, en zonder dat het wachtwoord in je shell-history belandt.
