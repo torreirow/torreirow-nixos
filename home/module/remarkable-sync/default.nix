@@ -58,10 +58,18 @@ let
 
     if ! probe 80 && ! probe 22; then
       echo "remarkable-sync: 10.11.99.1 antwoordt niet -- apparaat slaapt of is losgekoppeld."
+      rm -f "$STATE_DIR/connected"
       exit 0
     fi
 
+    # Eerste run sinds het apparaat (weer) verscheen? Dan straks één melding.
+    # Het markeerbestand verdwijnt zodra de probe faalt, dus elke nieuwe
+    # aansluiting (of wake) geeft precies één melding, niet één per run.
+    first_run=0
+    [ -e "$STATE_DIR/connected" ] || first_run=1
+
     rc=0
+    webui=1
 
     ${optionalString cfg.backup.enable ''
       # --- Ruwe backup over SSH ----------------------------------------------
@@ -99,8 +107,30 @@ let
           --host "$HOST" \
           --target "$TARGET/documenten" \
           --state "$STATE_DIR/exported.json" || rc=1
+      else
+        # Het apparaat is wakker (anders waren we hierboven al gestopt), maar
+        # poort 80 is dicht: de USB-webinterface staat uit op de tablet.
+        echo "remarkable-sync: PDF-export overgeslagen -- USB-webinterface staat uit (Instellingen -> Opslag)."
+        webui=0
       fi
     ''}
+
+    ${optionalString cfg.notify.enable ''
+      # --- Melding bij een nieuwe verbinding --------------------------------
+      # Alleen na een geslaagde run: bij rc=1 vuurt OnFailure al. Het
+      # markeerbestand wordt dan ook niet gezet, zodat de volgende geslaagde
+      # run alsnog meldt.
+      if [ "$first_run" = 1 ] && [ "$rc" = 0 ]; then
+        if [ "$webui" = 1 ]; then
+          body="Backup en PDF-export bijgewerkt in ${cfg.targetDir}."
+        else
+          body="Backup bijgewerkt, maar de USB-webinterface staat uit: geen PDF-export (Instellingen -> Opslag)."
+        fi
+        ${pkgs.libnotify}/bin/notify-send -a reMarkable -i document-save \
+          "reMarkable verbonden" "$body" || true
+      fi
+    ''}
+    [ "$rc" = 0 ] && touch "$STATE_DIR/connected"
 
     exit $rc
   '';
@@ -168,6 +198,16 @@ in
       type = types.bool;
       default = true;
       description = "PDF per document via de USB-webinterface (het gemak: leesbaar op elk apparaat).";
+    };
+
+    notify.enable = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Bureaubladmelding (notify-send) bij de eerste geslaagde sync na het
+        aansluiten of wakker worden van het apparaat. Eén per verbinding, niet
+        één per run.
+      '';
     };
 
     onFailure = mkOption {
