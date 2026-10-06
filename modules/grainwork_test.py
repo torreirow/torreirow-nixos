@@ -66,7 +66,7 @@ let
     };
 in {
   off = view (phase { enable = false; pocketId.enable = false; site.enable = false; });
-  phase1 = view (phase { enable = true; pocketId.enable = true; });
+  phase1 = view (phase { enable = true; pocketId.enable = true; pocketId.setupLock = true; site.enable = false; });
   full = view (phase { enable = true; pocketId.enable = true; pocketId.setupLock = false; site.enable = true; });
   siteWithoutPocketId = view (phase { enable = true; pocketId.enable = false; site.enable = true;
     site.clientEnvFile = "/dev/null"; site.cookieSecretFile = "/dev/null"; });
