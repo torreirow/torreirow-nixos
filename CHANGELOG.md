@@ -14,6 +14,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Getest met een VM-test (`nix build .#checks.x86_64-linux.grainwork -L`) en `modules/grainwork_test.py`; met alle schakelaars uit is de malandro-build identiek aan die zonder module.
   - **Toegang intrekken werkt binnen een uur.** De inlog op de site wordt elk uur stilletjes bij Pocket ID ververst; wie uit de groep `grainwork` is gehaald of wiens account uit staat, komt daarna niet meer binnen. Deelnemers blijven gewoon 30 dagen ingelogd.
   - Pocket ID vraagt maar één keer om toestemming, en uitloggen op de site logt ook bij Pocket ID uit.
+  - **Herstel als je je passkey kwijt bent:** `sudo grainwork-login-link <gebruiker>` op malandro maakt een eenmalige inloglink.
 - **Nextcloud toont een nette slaappagina als de server uit staat** (`nxc.toorren.net`). De Nextcloud-host (bobadela1) gaat elke avond 23:00 bewust uit en wordt 09:00 weer gewekt; daartussen was de cloud onbereikbaar met een kale nginx-foutmelding.
   - In plaats daarvan verschijnt nu een vriendelijke pagina die **weet hoe laat het is**: tussen 23:00 en 09:00 meldt hij dat de cloud slaapt en rond 09:00 terugkomt, daarbuiten dat de cloud onverwacht onbereikbaar is.
   - De pagina verschijnt **vrijwel direct** (binnen ~3 seconden) in plaats van tot een uur te blijven hangen: de verbindings-timeout naar de uitgeschakelde host is kort gezet, terwijl de lange timeouts voor grote uploads ongewijzigd blijven.

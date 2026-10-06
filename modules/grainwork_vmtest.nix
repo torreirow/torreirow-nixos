@@ -86,6 +86,11 @@ in
         assert "127.0.0.1:8098" in listeners, listeners
         assert "*:8098" not in listeners and "0.0.0.0:8098" not in listeners, listeners
 
+    with subtest("herstelcommando bereikt de database"):
+        out = server.fail("grainwork-login-link bestaat-niet@example.invalid 2>&1")
+        assert "user not found" in out, out
+        server.fail("grainwork-login-link")  # zonder argument: gebruiksmelding
+
     with subtest("Pocket ID werkt via nginx vanaf de server zelf"):
         assert status(server, "http://id.dutchyland.net/") == "200"
         server.succeed("curl -sf http://id.dutchyland.net/.well-known/openid-configuration | grep -q '\"issuer\":\"http://id.dutchyland.net\"'")

@@ -192,6 +192,26 @@ in
         };
       };
 
+      # Herstel: eenmalige inloglink voor een gebruiker (bijv. passkey kwijt). Gebruik:
+      #   sudo grainwork-login-link <gebruikersnaam of e-mail>
+      environment.systemPackages = [
+        (pkgs.writeShellScriptBin "grainwork-login-link" ''
+          set -euo pipefail
+          if [ "$#" -ne 1 ]; then
+            echo "Gebruik: sudo grainwork-login-link <gebruikersnaam of e-mail>" >&2
+            exit 2
+          fi
+          ${lib.optionalString (cfg.pocketId.dbConnectionFile != null) ''
+            DB_CONNECTION_STRING="$(cat ${toString cfg.pocketId.dbConnectionFile})"
+            export DB_CONNECTION_STRING
+          ''}
+          ENCRYPTION_KEY="$(cat ${toString cfg.pocketId.encryptionKeyFile})"
+          export ENCRYPTION_KEY APP_URL=${lib.escapeShellArg "${scheme}://${cfg.idDomain}"}
+          cd ${config.services.pocket-id.dataDir}
+          exec ${lib.getExe config.services.pocket-id.package} one-time-access-token "$1"
+        '')
+      ];
+
       services.nginx.virtualHosts.${cfg.idDomain} = {
         forceSSL = tls;
         useACMEHost = cfg.acmeHost;

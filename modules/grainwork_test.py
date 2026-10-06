@@ -63,6 +63,7 @@ let
         locations = builtins.mapAttrs (_: l: { extraConfig = l.extraConfig; proxyPass = l.proxyPass; }) site.locations;
       };
       secretsDir = c.age.secretsDir;
+      loginLink = builtins.any (p: (p.name or "") == "grainwork-login-link") c.environment.systemPackages;
       tmpfiles = builtins.filter (r: builtins.match ".*grainwork.*" r != null) c.systemd.tmpfiles.rules;
     };
 in {
@@ -130,6 +131,7 @@ def main():
     check("setup-slot: LAN, WireGuard en loopback toegestaan, rest geweigerd",
           all(f"allow {n};" in lock for n in ("127.0.0.1", "192.168.2.0/24", "10.8.0.0/24"))
           and lock.rstrip().endswith("deny all;"), lock)
+    check("herstelcommando grainwork-login-link geïnstalleerd", p1["loginLink"])
     check("geen fouten in assertions", not p1["failedAssertions"], str(p1["failedAssertions"]))
 
     print("alle fasen aan")
