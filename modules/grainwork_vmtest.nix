@@ -124,5 +124,17 @@ in
         assert "client_id=grainwork-test" in target, target
         assert "groups" in target, target
         assert "code_challenge_method=S256" in target, target
+        assert "offline_access" in target, target
+        assert "approval_prompt=auto" in target, target
+
+    with subtest("uitloggen: cookie gewist en door naar Pocket ID"):
+        headers = client.succeed(
+            "curl -s -D - -o /dev/null --cookie '_grainwork=oud' "
+            "'http://grainwork.dutchyland.net/oauth2/sign_out?rd=http%3A%2F%2Fid.dutchyland.net%2Fapi%2Foidc%2Fend-session'")
+        assert "location: http://id.dutchyland.net/api/oidc/end-session" in headers.lower(), headers
+        assert "set-cookie: _grainwork=;" in headers.lower(), headers
+        # Een ander domein blijft geweigerd (geen open redirect).
+        other = location(client, "'http://grainwork.dutchyland.net/oauth2/sign_out?rd=https%3A%2F%2Fevil.example%2F'")
+        assert "evil.example" not in other, other
   '';
 }

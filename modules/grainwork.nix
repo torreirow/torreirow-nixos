@@ -227,13 +227,17 @@ in
           secretFile = cfg.site.cookieSecretFile;
           name = "_grainwork";
           expire = "720h0m0s"; # 30 dagen ingelogd blijven
+          # Elk uur verversen bij Pocket ID: uitgezette accounts en leden die uit de groep zijn
+          # gehaald verliezen zo binnen een uur hun toegang (vereist offline_access).
+          refresh = "1h0m0s";
           secure = tls;
         };
         httpAddress = "http://127.0.0.1:${toString cfg.site.proxyPort}";
         redirectURL = "${scheme}://${cfg.domain}/oauth2/callback";
         upstream = [ "static://202" ];
         email.domains = [ "*" ];
-        scope = "openid email profile groups";
+        scope = "openid email profile groups offline_access";
+        approvalPrompt = "auto"; # toestemmingsscherm alleen de eerste keer
         setXauthrequest = true;
         reverseProxy = true;
         trustedProxyIP = [ "127.0.0.1" ];
@@ -241,6 +245,8 @@ in
           skip-provider-button = true;
           code-challenge-method = "S256";
           oidc-groups-claim = "groups";
+          # /oauth2/sign_out?rd=https://<idDomain>/api/oidc/end-session: ook bij Pocket ID uitloggen.
+          whitelist-domain = cfg.idDomain;
         };
         nginx = {
           domain = cfg.domain;

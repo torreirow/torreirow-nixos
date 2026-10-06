@@ -44,12 +44,13 @@ let
         then builtins.mapAttrs (_: toString) c.services.pocket-id.credentials else null;
       oauth2 = c.services.oauth2-proxy.enable;
       oauth2Settings = if c.services.oauth2-proxy.enable then {
-        inherit (c.services.oauth2-proxy) provider oidcIssuerUrl scope redirectURL httpAddress
+        inherit (c.services.oauth2-proxy) provider oidcIssuerUrl scope redirectURL httpAddress approvalPrompt
           setXauthrequest reverseProxy trustedProxyIP extraConfig;
         keyFile = toString c.services.oauth2-proxy.keyFile;
         cookieSecretFile = toString c.services.oauth2-proxy.cookie.secretFile;
         cookieExpire = c.services.oauth2-proxy.cookie.expire;
         cookieSecure = c.services.oauth2-proxy.cookie.secure;
+        cookieRefresh = c.services.oauth2-proxy.cookie.refresh;
       } else null;
       idVhost = if id == null then null else {
         inherit (id) forceSSL useACMEHost;
@@ -138,7 +139,11 @@ def main():
     check("oauth2-proxy aan", full["oauth2"])
     check("OIDC naar Pocket ID", o["provider"] == "oidc" and o["oidcIssuerUrl"] == "https://id.dutchyland.net",
           f"{o['provider']} {o['oidcIssuerUrl']}")
-    check("scope met groups", o["scope"] == "openid email profile groups", o["scope"])
+    check("scope met groups en offline_access", o["scope"] == "openid email profile groups offline_access", o["scope"])
+    check("sessie elk uur ververst (intrekken werkt binnen een uur)", o["cookieRefresh"] == "1h0m0s", o["cookieRefresh"])
+    check("toestemming alleen de eerste keer", o["approvalPrompt"] == "auto", o["approvalPrompt"])
+    check("uitloggen mag door naar Pocket ID", o["extraConfig"].get("whitelist-domain") == "id.dutchyland.net",
+          str(o["extraConfig"]))
     check("PKCE S256", o["extraConfig"].get("code-challenge-method") == "S256", str(o["extraConfig"]))
     check("callback op de site", o["redirectURL"] == "https://grainwork.dutchyland.net/oauth2/callback",
           o["redirectURL"])

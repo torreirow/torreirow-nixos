@@ -45,11 +45,11 @@ Met `site.enable` SHALL `grainwork.dutchyland.net` de bestanden uit `/var/www/gr
 - **THEN** krijgt hij de welkomstpagina met opmaak (HTTP 200)
 
 ### Requirement: OIDC naar Pocket ID
-oauth2-proxy SHALL Pocket ID op `id.dutchyland.net` als OIDC-provider gebruiken, met de scopes `openid email profile groups`, PKCE (S256), client-id en -secret uit een agenix-env-bestand, en een sessiecookie die 30 dagen geldig is.
+oauth2-proxy SHALL Pocket ID op `id.dutchyland.net` als OIDC-provider gebruiken, met de scopes `openid email profile groups offline_access`, PKCE (S256), client-id en -secret uit een agenix-env-bestand, en een sessiecookie die 30 dagen geldig is. Het toestemmingsscherm SHALL alleen verschijnen als er nog geen toestemming is gegeven.
 
 #### Scenario: Inloggen starten
 - **WHEN** een bezoeker `/oauth2/start` opent
-- **THEN** wordt hij doorgestuurd naar `https://id.dutchyland.net/authorize` met de client-id van GrainWork, scope `groups` en `code_challenge_method=S256`
+- **THEN** wordt hij doorgestuurd naar `https://id.dutchyland.net/authorize` met de client-id van GrainWork, scope `groups` en `offline_access`, `code_challenge_method=S256` en zonder geforceerde toestemming
 
 ### Requirement: Uitrollen in fasen
 Pocket ID en de site SHALL elk een eigen schakelaar hebben; de site SHALL NOT aan kunnen zonder Pocket ID, en de module SHALL zonder Pocket ID of site alleen het certificaat toevoegen.
@@ -57,3 +57,17 @@ Pocket ID en de site SHALL elk een eigen schakelaar hebben; de site SHALL NOT aa
 #### Scenario: Site zonder Pocket ID
 - **WHEN** `site.enable` aan staat en `pocketId.enable` niet
 - **THEN** weigert de evaluatie met een duidelijke melding
+
+### Requirement: Ingetrokken toegang binnen een uur
+oauth2-proxy SHALL een sessie die ouder is dan een uur bij het volgende verzoek verversen bij Pocket ID en daarbij de groep opnieuw toetsen. Een uitgezet account of een deelnemer die uit de groep `grainwork` is gehaald, SHALL daarna geen toegang meer hebben.
+
+#### Scenario: Uit de groep gehaald
+- **WHEN** de beheerder een deelnemer uit de groep `grainwork` haalt en er meer dan een uur verstrijkt
+- **THEN** krijgt die deelnemer bij zijn volgende bezoek geen toegang meer
+
+### Requirement: Uitloggen
+`/oauth2/sign_out` SHALL de sessiecookie van de site wissen en, als `rd` naar `id.dutchyland.net` wijst, daarheen doorsturen zodat ook de Pocket ID-sessie eindigt. Doorsturen naar andere domeinen SHALL geweigerd blijven.
+
+#### Scenario: Uitlog-link
+- **WHEN** een deelnemer `/oauth2/sign_out?rd=https://id.dutchyland.net/api/oidc/end-session` opent
+- **THEN** is de cookie `_grainwork` gewist en komt hij bij het uitlogscherm van Pocket ID
