@@ -41,8 +41,35 @@ def log(msg):
 
 
 def fetch_listing(host):
-    """Haal de documentenlijst op. Geeft None als het apparaat er niet is."""
-    url = f"http://{host}/documents/"
+    """Haal de complete documentenlijst op, inclusief de inhoud van mappen.
+
+    `/documents/` geeft alleen het hoogste niveau; de inhoud van een map komt
+    pas met `/documents/<map-ID>`. Mappen worden dus één voor één afgelopen --
+    sequentieel, net als de downloads. Geeft None als het apparaat er niet is
+    of als een map niet opgehaald kon worden (een halve lijst zou prune()
+    PDF's laten wissen die gewoon nog op het apparaat staan).
+    """
+    items = fetch_folder(host, "")
+    if items is None:
+        return None
+    seen = set()
+    queue = [i["ID"] for i in items if i.get("Type") == "CollectionType"]
+    while queue:
+        fid = queue.pop(0)
+        if fid in seen:  # kringverwijzing: niet verder aflopen
+            continue
+        seen.add(fid)
+        children = fetch_folder(host, fid)
+        if children is None:
+            return None
+        items += children
+        queue += [i["ID"] for i in children if i.get("Type") == "CollectionType"]
+    return items
+
+
+def fetch_folder(host, folder_id):
+    """Haal één niveau op (folder_id "" = het hoogste niveau)."""
+    url = f"http://{host}/documents/{folder_id}"
     try:
         with urllib.request.urlopen(url, timeout=LISTING_TIMEOUT) as r:
             if r.status != 200:
