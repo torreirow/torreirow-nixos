@@ -62,6 +62,7 @@
  ../../modules/juicefs-nextcloud-mount.nix
  ../../modules/torrlinny.nix
  ../../modules/linny-mcp.nix
+ ../../modules/grainwork.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
@@ -77,6 +78,22 @@
   }];
 
   services.torrlinny.enable = true;
+
+  # GrainWork (modules/grainwork.nix): besloten studiesite achter Pocket ID. Elke schakelaar
+  # gaat pas aan na de handmatige stap ervoor (zie de module-header):
+  #   enable           ← CNAME _acme-challenge.dutchyland.net bij OpenProvider
+  #   pocketId.enable  ← secrets/grainwork-pocket-id-db.age (agenix -e)
+  #   site.enable      ← Pocket ID-setup in de GUI + secrets/grainwork-oauth2-proxy-client.age;
+  #                      daarna pocketId.setupLock = false
+  services.grainwork = {
+    enable = true;          # CNAME staat sinds 2026-10-05
+    pocketId.enable = true;
+    # Admin bestaat sinds 2026-10-05 (Pocket ID schakelt /setup dan zelf uit); deelnemers moeten
+    # van buitenaf kunnen inloggen. Opnieuw aanzetten kan; thuisverkeer komt via hairpin-NAT binnen
+    # met het eigen publieke IP, dus zet dat dan in pocketId.allowedNetworks.
+    pocketId.setupLock = false;
+    site.enable = true;     # OIDC-client "GrainWork" + groep grainwork staan in Pocket ID
+  };
 
   # linny-mcp: hetzelfde notitieboek, maar schrijfbaar voor Claude via MCP.
   # Eigen corpus-clone -- NIET de checkout van torrlinny, die wordt periodiek

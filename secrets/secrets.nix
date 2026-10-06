@@ -138,4 +138,10 @@ in
   "module-monitoring-slack_webhook.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_bot_token.age".publicKeys = users ++ systems;
   "module-monitoring-telegram_chat_id.age".publicKeys = users ++ systems;
+
+  # GrainWork (modules/grainwork.nix). db en client maakt de beheerder zelf met agenix -e.
+  "grainwork-pocket-id-db.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "grainwork-pocket-id-encryption-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "grainwork-oauth2-proxy-client.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "grainwork-oauth2-proxy-cookie.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 }
