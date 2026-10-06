@@ -87,11 +87,12 @@
   #                      daarna pocketId.setupLock = false
   services.grainwork = {
     enable = true;          # CNAME staat sinds 2026-10-05
-    pocketId.enable = true; # DB-secret staat; setupLock (standaard aan) tot de admin bestaat
-    # Thuisverkeer naar id.dutchyland.net komt via hairpin-NAT binnen met het eigen publieke IP,
-    # niet met 192.168.2.x; dat adres hoort dus ook bij "thuis".
-    pocketId.allowedNetworks = [ "127.0.0.1" "192.168.2.0/24" "10.8.0.0/24" "82.170.93.180" ];
-    site.enable = false;
+    pocketId.enable = true;
+    # Admin bestaat sinds 2026-10-05 (Pocket ID schakelt /setup dan zelf uit); deelnemers moeten
+    # van buitenaf kunnen inloggen. Opnieuw aanzetten kan; thuisverkeer komt via hairpin-NAT binnen
+    # met het eigen publieke IP, dus zet dat dan in pocketId.allowedNetworks.
+    pocketId.setupLock = false;
+    site.enable = true;     # OIDC-client "GrainWork" + groep grainwork staan in Pocket ID
   };
 
   # linny-mcp: hetzelfde notitieboek, maar schrijfbaar voor Claude via MCP.
