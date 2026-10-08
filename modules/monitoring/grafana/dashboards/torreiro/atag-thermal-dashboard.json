@@ -35,7 +35,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Temperatuur (°C)",
+            "axisLabel": "Temperatuur (\u00b0C)",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -84,7 +84,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 10],
+                  "dash": [
+                    10,
+                    10
+                  ],
                   "fill": "dash"
                 }
               },
@@ -127,7 +130,10 @@
       "id": 1,
       "options": {
         "legend": {
-          "calcs": ["last", "mean"],
+          "calcs": [
+            "last",
+            "mean"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -161,12 +167,12 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"}",
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"} > -40",
           "refId": "C",
           "legendFormat": "Buiten"
         }
       ],
-      "title": "🌡️ Temperatuur Tracking (24u)",
+      "title": "\ud83c\udf21\ufe0f Temperatuur Tracking",
       "type": "timeseries"
     },
     {
@@ -235,7 +241,7 @@
           "refId": "A"
         }
       ],
-      "title": "🔥 Heating Rate (huidige)",
+      "title": "\ud83d\udd25 Heating Rate (huidige)",
       "type": "gauge"
     },
     {
@@ -300,7 +306,7 @@
           "refId": "A"
         }
       ],
-      "title": "❄️ Cooling Rate (huidige)",
+      "title": "\u2744\ufe0f Cooling Rate (huidige)",
       "type": "gauge"
     },
     {
@@ -361,12 +367,12 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "(sum_over_time((homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} >= 19.5 and homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} <= 21)[24h:5m]) / count_over_time(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"}[24h])) * 100",
+          "expr": "(sum_over_time((homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} >= 19.5 and homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} <= 21)[$__range:5m]) / count_over_time(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"}[$__range])) * 100",
           "refId": "A"
         }
       ],
-      "title": "😊 Comfort Score (24u)",
-      "description": "Percentage tijd binnen comfort range (19.5-21°C)",
+      "title": "\ud83d\ude0a Comfort Score",
+      "description": "Percentage tijd binnen comfort range (19.5-21\u00b0C)",
       "type": "gauge"
     },
     {
@@ -427,12 +433,12 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "avg_over_time(abs(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} - on() homeassistant_climate_target_temperature_celsius{entity=\"climate.atag_one\"})[24h:5m])",
+          "expr": "avg_over_time(abs(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} - on() homeassistant_climate_target_temperature_celsius{entity=\"climate.atag_one\"})[$__range:5m])",
           "refId": "A"
         }
       ],
-      "title": "🎯 Accuracy Score (24u)",
-      "description": "Gemiddelde afwijking van setpoint over 24u",
+      "title": "\ud83c\udfaf Accuracy Score",
+      "description": "Gemiddelde afwijking van setpoint over de gekozen periode",
       "type": "gauge"
     },
     {
@@ -493,11 +499,11 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "stddev_over_time(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"}[24h:5m])",
+          "expr": "stddev_over_time(homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"}[$__range:5m])",
           "refId": "A"
         }
       ],
-      "title": "📏 Stability Score (24u)",
+      "title": "\ud83d\udccf Stability Score",
       "description": "Standaarddeviatie temperatuur (oscillatie/overshoot)",
       "type": "gauge"
     },
@@ -514,7 +520,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "°C/uur",
+            "axisLabel": "\u00b0C/uur",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "bars",
@@ -564,7 +570,10 @@
       "id": 5,
       "options": {
         "legend": {
-          "calcs": ["mean", "max"],
+          "calcs": [
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -585,7 +594,7 @@
           "legendFormat": "Temp Change Rate"
         }
       ],
-      "title": "📈 Temperature Change Rate (15min windows)",
+      "title": "\ud83d\udcc8 Temperature Change Rate (15min windows)",
       "type": "timeseries"
     },
     {
@@ -601,103 +610,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Starts/uur",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "line"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 6
-              },
-              {
-                "color": "red",
-                "value": 10
-              }
-            ]
-          },
-          "unit": "cpm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 22
-      },
-      "id": 6,
-      "options": {
-        "legend": {
-          "calcs": ["mean", "max"],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "expr": "increase(homeassistant_sensor_state{entity=\"sensor.atag_one_lumc_brander_starts\"}[1h])",
-          "refId": "A",
-          "legendFormat": "Brander Starts"
-        }
-      ],
-      "title": "🔥 Brander Cycling Efficiency",
-      "description": "< 6 starts/uur = goed, >10 = inefficiënt",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Delta (°C)",
+            "axisLabel": "Delta (\u00b0C)",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -755,7 +668,10 @@
       "id": 7,
       "options": {
         "legend": {
-          "calcs": ["mean", "max"],
+          "calcs": [
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -776,14 +692,19 @@
           "legendFormat": "Target Delta"
         }
       ],
-      "title": "🎯 Target Tracking (verschil tussen actual en target)",
-      "description": "< 1°C = goed, > 2°C = te traag opwarmen",
+      "title": "\ud83c\udfaf Target Tracking (verschil tussen actual en target)",
+      "description": "< 1\u00b0C = goed, > 2\u00b0C = te traag opwarmen",
       "type": "timeseries"
     }
   ],
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["atag", "thermal", "heating", "optimization"],
+  "tags": [
+    "atag",
+    "thermal",
+    "heating",
+    "optimization"
+  ],
   "templating": {
     "list": []
   },

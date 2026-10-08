@@ -37,18 +37,6 @@ groups:
           summary: "ATAG CV waterdruk te hoog"
           description: "CV waterdruk is {{ $value | humanize }} bar (boven 2.5 bar). Risico op veiligheidsklep openen. Optimaal: 1.2-1.5 bar."
 
-      # Alert: Brander te vaak starten (inefficiënt)
-      - alert: ATAGBurnerCyclingExcessive
-        expr: increase(homeassistant_sensor_state{entity="sensor.atag_one_lumc_brander_starts"}[1h]) > 10
-        for: 30m
-        labels:
-          severity: warning
-          component: heating
-          service: atag
-        annotations:
-          summary: "ATAG brander cyclet te vaak"
-          description: "Brander start >10x per uur. Dit is inefficiënt en verhoogt slijtage. Check CV instellingen (modulatie, setpoint)."
-
       # Alert: CV water temperatuur kritiek hoog
       - alert: ATAGWaterTemperatureCritical
         expr: homeassistant_sensor_temperature_celsius{entity="sensor.atag_one_cv_water_temp"} > 85
@@ -120,3 +108,15 @@ groups:
         annotations:
           summary: "ATAG tapwater temperatuur te laag"
           description: "Tapwater temperatuur is {{ $value | humanize }}°C tijdens gebruik (flow rate actief). Mogelijk onvoldoende capaciteit."
+
+      # Alert: CV-retour boven condensatiegrens (ketel condenseert niet meer)
+      - alert: ATAGReturnTempNotCondensing
+        expr: homeassistant_sensor_temperature_celsius{entity="sensor.atag_one_cv_retour_temp"} > 55
+        for: 30m
+        labels:
+          severity: warning
+          component: heating
+          service: atag
+        annotations:
+          summary: "ATAG CV-retour boven condensatiegrens"
+          description: "CV-retourtemperatuur is {{ $value | humanize }}°C (boven 55°C). De ketel condenseert dan niet meer. Overweeg de stooklijn of max. aanvoertemperatuur te verlagen."

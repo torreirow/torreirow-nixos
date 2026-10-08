@@ -6,7 +6,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## NEXT VERSION
 
+### Fixed
+- **ATAG One-dashboards kloppen weer** (Grafana + Prometheus). De gas-, temperatuur- en
+  rendementsgrafieken van de CV-ketel toonden onzin; dat is rechtgezet op basis van 14 dagen
+  live-data.
+  - **Gasverbruik**: de grafieken draaiden op de ketel-eigen gasschatting, die ~11× te laag was
+    (1 m³ in 2 weken terwijl de echte meter 11,5 m³ telde). Ze gebruiken nu de slimme meter (P1).
+  - **Buitentemperatuur**: een bogus meting van −100 °C haalde gemiddelden en minimums onderuit;
+    elke buitentemp-grafiek filtert nu waarden onder −40 °C weg.
+  - **Dode panelen weg**: panelen voor sensoren die de ketel niet levert (branderstarts,
+    opwarmtijd, warmwaterdoorstroming) zijn verwijderd, net als een alert die nooit kon afgaan.
+  - **Rendement** wordt nu uitsluitend aan de CV-retourtemperatuur afgemeten (lagere retour =
+    beter condenseren); de verwarrende aanvoer-minus-retour-indicator is weg.
+  - **Periode-keuze**: de "(24u)"-panelen op het Thermal-dashboard volgen nu de gekozen tijdsperiode
+    en zijn dus ook over meerdere weken te bekijken.
+
 ### Added
+- **ATAG One: extra inzicht-panelen en condensatie-alert**.
+  - **Warmhoud-paneel**: toont de warmtewisselaartemperatuur (comfort/eco-stand), die de korte
+    warmhoud-brandjes verklaart — ook zonder dat er iemand doucht.
+  - **CV-aanvoersetpoint** in de temperatuurgrafiek: zie of de aanvoer condensatie-vriendelijk laag
+    (~40 °C) blijft.
+  - **Kalibratiepaneel** (kamer − buitensensor): volg de afwijking terwijl de buitensensor nog
+    binnen hangt.
+  - **Condensatie-alert**: waarschuwt wanneer de CV-retour langdurig boven 55 °C komt en de ketel
+    dus niet meer condenseert.
 - **GrainWork-hosting klaar om in fasen aan te zetten** (`grainwork.dutchyland.net`, `id.dutchyland.net`). Nieuwe module `modules/grainwork.nix` voor de besloten bijbelstudiesite, met **Pocket ID** als eigen inlogserver: deelnemers loggen in met een passkey of een inlogcode per mail, en accounts beheer je in een GUI in plaats van in Nix. Authelia en de homelab-accounts blijven daar helemaal los van.
   - Drie schakelaars, elk na een handmatige stap: het wildcard-certificaat `*.dutchyland.net` (na de CNAME bij OpenProvider), Pocket ID (na het DB-secret) en de site achter oauth2-proxy (na het aanmaken van de OIDC-client).
   - **Setup-slot:** zolang er nog geen beheerder is, is `id.dutchyland.net` alleen vanaf thuis en WireGuard bereikbaar, zodat niemand anders via `/setup` beheerder kan worden.
