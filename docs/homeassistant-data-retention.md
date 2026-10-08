@@ -110,12 +110,40 @@ sensor.electricity_meter_energieproductie_tarief_2: 1095 dagen
 - `sensor.*plug*energy` - Smart plug energie verbruik
 - `sensor.*plug*power` - Smart plug vermogen
 
+### Neerslag/regen (Buienradar + indicator) - 1 jaar (365 dagen)
+
+**Waarom bewaren?** Historie van de neerslag-indicator en de Buienradar-nowcast volgen.
+
+**Entity patterns:**
+- `sensor.neerslag*` - dekt `sensor.neerslagintensiteit` (mm/h, heeft `state_class` →
+  ook long-term statistics), `sensor.neerslagverwachting_gemiddeld`,
+  `sensor.neerslagverwachting_totaal` en de template `sensor.neerslag_indicator`
+
+> **Let op — `include` sluit de rest uit.** Zodra `recorder.include` bestaat, worden entities
+> die er NIET in staan niet opgeslagen (ook al is `purge_keep_days` 365). Daardoor hadden de
+> neerslag-sensoren geen state-historie: `sensor.neerslagintensiteit` kreeg wél hourly
+> long-term statistics (via `state_class`), maar nul detail-states. Opgelost door
+> `sensor.neerslag*` aan `include.entity_globs` toe te voegen (2026-10-08). Een recorder-
+> wijziging werkt pas na een **HA-herstart**.
+
+### Plantwater-sensor - 1 jaar (365 dagen)
+
+**Waarom bewaren?** Bodemvocht-/klimaathistorie van de plant volgen.
+
+**Entity patterns:**
+- `sensor.plantwater_*` - bodemvocht (`_soil_moisture`), luchtvochtigheid (`_humidity`),
+  temperatuur (`_temperature`), accu (`_battery`)
+- `binary_sensor.plantwater_dry` - droog-melding (triggert de Signal-automatie
+  "Plantwater droog - Signal melding" → `notify.signal_maria`)
+
 ## Database Statistieken
 
-**Database grootte:** ~133 MB (maart 2026)
-- `home-assistant_v2.db`: 133 MB
-- `home-assistant_v2.db-wal`: 4.1 MB (Write-Ahead Log)
-- `home-assistant_v2.db-shm`: 32 KB (Shared Memory)
+**Database grootte:** ~598 MB (2026-10-08, na opruimen van System Monitor)
+- Was opgelopen tot **1,4 GB** (73 % System Monitor); na het uit de recorder halen +
+  `recorder.purge` (`apply_filter` + `repack`) terug naar ~598 MB.
+- `home-assistant_v2.db`: ~598 MB
+- `home-assistant_v2.db-wal`: Write-Ahead Log (groeit tijdelijk sterk tijdens een VACUUM/repack)
+- `home-assistant_v2.db-shm`: Shared Memory
 
 ## Bewaartermijn Aanpassen
 
@@ -129,15 +157,27 @@ recorder:
       - sensor.new_sensor_*
 ```
 
-### Per Individuele Sensor
+### Per individuele sensor — LET OP: bestaat niet
 
-Voeg toe aan `homeassistant.customize`:
-```yaml
-homeassistant:
-  customize:
-    sensor.nieuwe_sensor:
-      recorder_purge_keep_days: 365
-```
+> **Misvatting:** HA-recorder kent **geen** bewaartermijn-per-entity. `recorder.include`
+> bepaalt alléén **óf** iets wordt opgeslagen, niet **hoe lang** — en `recorder_purge_keep_days`
+> via `homeassistant.customize` is **geen bestaande HA-optie**. Alle opgeslagen entities vallen onder
+> de globale `purge_keep_days: 365`. De comments "30 dagen bewaren" bij diverse include-globs
+> (System Monitor, Speedtest, Stookwijzer) zijn dus **niet afgedwongen** — die werden gewoon een jaar
+> bewaard.
+>
+> Wil je een hoog-frequente sensor écht korter bewaren, dan is de enige weg hem **uit `include`** te
+> halen (stopt opslag) en zijn historie te purgen met `recorder.purge_entities`, of periodiek
+> `recorder.purge_entities` via een automation te draaien.
+
+### System Monitor — uit de recorder gehaald (2026-10-08)
+
+De `sensor.system_monitor_*`-sensoren (CPU/geheugen/temp) veranderen elke ~10-15 s en vormden
+**~4,6 miljoen rijen ≈ 73 %** van de DB (die was opgelopen tot **1,4 GB**). Ze zijn uit de
+`recorder.include` gehaald en hun historie is gepurged + gerepackt. De data blijft beschikbaar in
+**Prometheus/Grafana** (de `server-health`-dashboards), waar systeem-observability thuishoort — de
+Prometheus-exporter-filter (`prometheus.filter.include_entity_globs`) houdt `sensor.system_monitor_*`
+dus wél.
 
 ## Database Maintenance
 
