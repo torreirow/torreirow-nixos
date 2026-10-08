@@ -22,6 +22,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **Home Assistant-commando's werken nu ook via Signal** (naast Telegram). Dezelfde commando's
+  (`/wto`, `/werk`, `/hitte`, `/afvalack`, `/adventkerst`, `/aircraft`, `/wazewtotooffice`,
+  `/start`) kun je nu als Signal-bericht naar het bot-nummer sturen en krijgen een Signal-antwoord.
+  - Onder water één **gedeelde commando-router** (`script.command_router`) die beide kanalen bedient,
+    zodat een commando maar op één plek gedefinieerd staat; de Telegram-handler is daarop afgeslankt.
+  - Signal heeft geen inkomend event zoals Telegram, dus HA **pollt** zelf de signal-cli-ontvangst
+    (~elke 30s) en filtert op een afzender-whitelist; alleen jouw nummer kan commando's geven.
+    Antwoorden lopen via het bestaande `notify.signal_maria`.
 - **ATAG One: extra inzicht-panelen en condensatie-alert**.
   - **Warmhoud-paneel**: toont de warmtewisselaartemperatuur (comfort/eco-stand), die de korte
     warmhoud-brandjes verklaart — ook zonder dat er iemand doucht.
