@@ -145,7 +145,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"}",
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"} > -40",
           "refId": "A"
         }
       ],
@@ -340,121 +340,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "celsius"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Temperatuurverschil (Aanvoer - Retour)"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 20
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 9
-      },
-      "id": 21,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "min",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_cv_water_temp\"} - ignoring(entity, friendly_name) homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_cv_retour_temp\"}",
-          "legendFormat": "Temperatuurverschil (Aanvoer - Retour)",
-          "refId": "A"
-        }
-      ],
-      "title": "CV Temperatuur Delta (Efficiency Indicator)",
-      "type": "timeseries",
-      "description": "Hoger verschil = betere warmteafgifte. Ideaal: 15-20\u00b0C"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+              "mode": "line"
             }
           },
           "mappings": [],
@@ -467,7 +353,7 @@
               },
               {
                 "color": "red",
-                "value": 50
+                "value": 55
               }
             ]
           },
@@ -661,7 +547,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"}",
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"} > -40",
           "legendFormat": "Buitentemperatuur",
           "refId": "A"
         },
@@ -670,7 +556,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "increase(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.atag_one_gas\"}[1h])",
+          "expr": "increase(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.gas_meter_gasverbruik\"}[1h])",
           "legendFormat": "Gasverbruik",
           "refId": "B"
         }
@@ -873,193 +759,6 @@
       "title": "Totaal Branduren (Cumulatief)",
       "type": "stat",
       "description": "Totale branduren / aantal cycli. Ideaal: 10-60 minuten per cyclus."
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "m"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 17
-      },
-      "id": 27,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "min",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "expr": "homeassistant_sensor_state{entity=\"sensor.atag_one_cv_tijd_naar_temp\"}",
-          "refId": "A",
-          "legendFormat": "Tijd naar doeltemperatuur"
-        }
-      ],
-      "title": "Opwarmtijd Kamer",
-      "type": "timeseries",
-      "description": "Tijd (in minuten) die de ketel nodig heeft om de kamer naar de doeltemperatuur te brengen. Nuttig voor stooklijn tuning."
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "Lmin"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 25
-      },
-      "id": 28,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "expr": "homeassistant_sensor_state{entity=\"sensor.atag_one_dhw_flow_rate\"}",
-          "refId": "A",
-          "legendFormat": "Warm Water Flow"
-        }
-      ],
-      "title": "Warm Water Flow Rate",
-      "type": "timeseries",
-      "description": "Debiet van warm water (L/min). Hoog debiet bij kort gebruik = ineffici\u00ebnt."
     },
     {
       "datasource": {
@@ -1314,6 +1013,31 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CV-aanvoersetpoint"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    8,
+                    6
+                  ]
+                }
+              }
+            ]
           }
         ]
       },
@@ -1355,7 +1079,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"}",
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"} > -40",
           "legendFormat": "Buitentemperatuur",
           "refId": "B"
         },
@@ -1376,6 +1100,15 @@
           "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_dhw_water_temp\"}",
           "legendFormat": "DHW Water",
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_setpoint_hotwater\"}",
+          "legendFormat": "CV-aanvoersetpoint",
+          "refId": "E"
         }
       ],
       "title": "Temperatuur Verloop",
@@ -1478,7 +1211,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "rate(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.atag_one_gas\"}[5m]) * 300",
+          "expr": "rate(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.gas_meter_gasverbruik\"}[5m]) * 300",
           "legendFormat": "Gas Verbruik per uur",
           "refId": "A"
         }
@@ -1761,7 +1494,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_gemiddelde_buiten_temp\"}",
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_gemiddelde_buiten_temp\"} > -40",
           "refId": "A"
         }
       ],
@@ -1844,65 +1577,6 @@
               {
                 "color": "green",
                 "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 8,
-        "y": 85
-      },
-      "id": 12,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "expr": "homeassistant_sensor_state{entity=\"sensor.atag_one_lumc_brander_starts\"}",
-          "refId": "A"
-        }
-      ],
-      "title": "Brander Starts",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
               },
               {
                 "color": "yellow",
@@ -1952,6 +1626,194 @@
       ],
       "title": "WiFi Signaalsterkte",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 93
+      },
+      "id": 40,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_boiler_retour_temp\"}",
+          "legendFormat": "Warmtewisselaar",
+          "refId": "A"
+        }
+      ],
+      "title": "Warmhoud (warmtewisselaar)",
+      "type": "timeseries",
+      "description": "Warmhoud-/warmtewisselaartemperatuur (comfort/eco-stand). NIET de CV-retour: volgt het warm water. Zaagtand ~47-55 C door korte warmhoud-brandjes."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 93
+      },
+      "id": 41,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_kamer_temp\"} - ignoring(entity, friendly_name) (homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_buiten_temp\"} > -40)",
+          "legendFormat": "Verschil kamer - buiten",
+          "refId": "A"
+        }
+      ],
+      "title": "Kalibratie buitensensor (kamer - buiten)",
+      "type": "timeseries",
+      "description": "Verschil tussen kamertemperatuur en de ATAG-buitensensor, zolang die binnen hangt voor kalibratie. Stabiel verschil = offset; richting 0 = gelijke omgeving."
     }
   ],
   "refresh": "30s",
