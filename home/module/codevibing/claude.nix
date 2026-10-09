@@ -24,55 +24,9 @@
       # Terraform - TechNative
       - In TechNative repositories, always run terraform with `AWS_PROFILE=technative`, e.g. `AWS_PROFILE=technative terraform plan`. Does not apply to other clients' infrastructure — check which account a repository targets before assuming.
 
-      # OpenSpec - Archiving
-      - Always archive in small, discrete steps. Large agent operations that try to do everything at once run out of memory (OOM).
-      - Required order:
-        1. Sync delta specs first (if any exist)
-        2. Create the archive directory structure
-        3. Move the change directory into the archive
-      - Use individual bash commands or small focused operations — never one sweeping agent call.
-
-      # OpenSpec - CHANGELOG
-      - After an `/opsx:apply` completes (all tasks done), immediately update the CHANGELOG, before archiving the change.
-      - Add entries under `## NEXT VERSION` (create the section if it is missing). `release.sh` replaces that heading with the actual version and date.
-      - Use Keep a Changelog format with `### Added`, `### Changed`, `### Fixed` sections.
-      - Describe features from the change's `design.md` and `proposal.md`, user-focused, with the feature name in bold:
-
-        ```markdown
-        ## NEXT VERSION
-
-        ### Added
-        - **Feature name**: Brief description
-          - Sub-bullet with details
-        ```
-
-      # RTK - Rust Token Killer
-
-      **Usage**: Token-optimized CLI proxy (60-90% savings on dev operations)
-
-      ## Meta Commands (always use rtk directly)
-
-      ```bash
-      rtk gain              # Show token savings analytics
-      rtk gain --history    # Show command usage history with savings
-      rtk discover          # Analyze Claude Code history for missed opportunities
-      rtk proxy <cmd>       # Execute raw command without filtering (for debugging)
-      ```
-
-      ## Installation Verification
-
-      ```bash
-      rtk --version         # Should show: rtk X.Y.Z
-      rtk gain              # Should work (not "command not found")
-      which rtk             # Verify correct binary
-      ```
-
-      ⚠️ **Name collision**: If `rtk gain` fails, you may have reachingforthejack/rtk (Rust Type Kit) installed instead.
-
-      ## Hook-Based Usage
-
-      All other commands are automatically rewritten by the Claude Code hook.
-      Example: `git status` → `rtk git status` (transparent, 0 tokens overhead)
+      # Context on-demand (bespaart tokens — lees het bestand pas wanneer het onderwerp speelt)
+      - Archiveren van een OpenSpec change, of de CHANGELOG bijwerken na een afgeronde `/opsx:apply` → lees `~/.claude/docs/openspec-workflow.md`
+      - Vragen of problemen rond rtk (`rtk gain`, token-besparing, `rtk: command not found`, naam-collisie met Rust Type Kit, hook-gedrag) → lees `~/.claude/docs/rtk.md`
     '';
 
     settings = {
@@ -126,4 +80,10 @@
       };
     };
   };
+
+  # Context-docs die de globale CLAUDE.md on-demand inleest (zie de "Context on-demand"-
+  # pointers in de context-string hierboven). Bewust buiten die string gehouden zodat ze
+  # NIET elke sessie meeladen; Claude leest ze alleen wanneer het onderwerp speelt.
+  home.file.".claude/docs/openspec-workflow.md".source = ./claude-context/openspec-workflow.md;
+  home.file.".claude/docs/rtk.md".source = ./claude-context/rtk.md;
 }
