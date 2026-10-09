@@ -407,3 +407,62 @@ de validator zou elk geldig token op deze Authelia het notitieboek openen — oo
   2FA-gebruiker een token.)
 - **Agent-drafts verschijnen gewoon op `linny.toorren.net`** — `status` is verder ongebruikt in
   torrlinny, dus Hugo toont ze mee. Filteren kan, is nog niet besloten.
+
+---
+
+## Sessie 2026-10-01 - publieke schrijfroute achter een switch (LIVE EN GETEST)
+
+_Verplaatst uit CLAUDE.md (Huidige Status)._
+
+### Sessie 2026-10-01 - linny-mcp publieke schrijfroute achter een switch - LIVE EN GETEST
+
+**Doel:** Schrijven over de publieke Authelia-route van linny-mcp mogelijk maken, achter een
+omkeerbare schakelaar, plus hardening en volledige schrijfrechten voor de tunnel. OpenSpec change
+`add-linny-mcp-public-write` (geïmplementeerd t/m taak 4, docs bij; deploy = groep 6, nog te doen).
+
+**Kernpunt (misverstand rechtgezet):** Claude Mobile/Online kan NIET via VPN — een claude.ai-connector
+wordt server-side door Anthropic opgehaald. "Mobiel kan schrijven" = de **publieke** route schrijfbaar
+maken, niet iets via wireguard. De read-only-ness van die route is geen netwerk-eigenschap maar een
+**nginx-token-swap**: nginx vervangt het clienttoken door een vast intern token (`read:*`).
+
+**Doorgevoerd:**
+- **Switch** `services.linny-mcp-host.publicWrite` (bool, default `false`) in `modules/linny-mcp.nix`.
+  `false` → `include` het leestoken-snippet (`read:*`); `true` → het schrijf-snippet (`read:*,write:*`).
+  Nieuwe optie `oidc.writeTokenSnippet`; agenix-secret achter `mkIf (oidc.enable && publicWrite)`.
+- **Authelia** (`modules/authelia.nix`): benoemde policy `authorization_policies.linny-mcp-write`
+  (deny-default, `two_factor` + `subject = group:admins`), gezet op de `claude-connector`-client i.p.v.
+  kaal `two_factor`. Sluit het open punt dat iedere 2FA-gebruiker een token kreeg.
+- **Secrets**: `claude-web` → `read:*,write:*` (tunnel = volledig schrijfbaar); nieuw intern record
+  `nginx-write` (`read:*,write:*`); nieuw `secrets/linny-mcp-nginx-write-token.age`; recipient-regel in
+  `secrets/secrets.nix`. **Let op:** interne schrijf-token draagt óók `read:*` — op de publieke route
+  loopt álles via dat ene geïnjecteerde token, dus zonder read:* zou lezen breken.
+- **Tests**: `modules/linny-mcp_test.py` uitgebreid met een `publicWrite = true`-eval (include kiest
+  juiste snippet per stand, precies één include, geen tokenliteral) → 61/61. Authz-test 20/20.
+
+**Secrets-werkwijze (rbw was locked, geen TTY):** `cd secrets && sudo ragenx -e FILE.age --ssh-dir
+/etc/ssh < payload` (flag ná het bestand; stdin, nooit `$EDITOR`). Hash in een record = `sha256(token)`
+(geverifieerd). One-time tokens → Vaultwarden + de connector.
+
+**Gedeployed + getest (groep 6):** `switch` op malandro (generation 52). Live geverifieerd:
+`claude-web` = `read:*,write:*`; met `publicWrite = true` includeert de live nginx-config
+(regel 831) `linny-mcp-nginx-write-token*` en staat het schrijf-secret op schijf. Claude Mobile
+heeft via de publieke route geschreven → `content/schrijftest_claude_connector.md` met
+`status: agent-draft`, gecommit door git-sync en gesynct. **Geen VPN nodig voor mobiel** (connector
+wordt server-side door Anthropic opgehaald; loopt altijd over het publieke endpoint).
+
+**Beslissingen user:** `publicWrite = true` blijft **permanent aan** (in `hosts/malandro/
+configuration.nix`) → mobiel schrijven blijft. Het interne schrijf-record houdt de naam `nginx-write`
+(niet hernoemd naar `claude-connector`); gevolg: de sessie-identiteit die de MCP-server teruggeeft
+verspringt van `claude-connector` (leesstand) naar `nginx-write` (schrijfstand) — puur een
+verbindingslabel, komt NIET in de notitie-frontmatter.
+
+**Vervolg (zelfde dag): toegewijde groep `LinnyWouter`.** De `linny-mcp-write`-policy eist nu
+`group:LinnyWouter` i.p.v. `group:admins`, plus een `access_control`-regel voor `linny.toorren.net`
+op dezelfde groep — die groep ontsluit uitsluitend de Linny-diensten (web + MCP). Leden declaratief
+in `hosts/malandro/configuration.nix` (`services.authelia.users`): `wouter` + `wouteruser`. Let op:
+de users-db `/var/lib/authelia-main/users_database.yml` is een **store-symlink** (read-only) —
+groepen staan in Nix via `services.authelia.users`, niet runtime te bewerken. Gedeployed generation
+53, Authelia komt schoon op. Omdat de policy alléén `LinnyWouter` eist moest `wouter` die groep
+krijgen vóór de switch (anders connector-lockout).
+
+**Status:** ✅ Live en getest. Testbestand `schrijftest_claude_connector.md` mag nog opgeruimd worden.
