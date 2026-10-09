@@ -28,5 +28,11 @@
 
 ## 6. Afstellen en documenteren
 
-- [ ] 6.1 Na enkele dagen data de drempels in `sensor.neerslag_indicator` (en de stat-kleurdrempels) empirisch bijstellen aan de hand van waargenomen regen/mist-situaties
+- [x] 6.1 Na enkele dagen data de drempels in `sensor.neerslag_indicator` (en de stat-kleurdrempels) empirisch bijstellen aan de hand van waargenomen regen/mist-situaties
 - [x] 6.2 Backups en de doorgevoerde HA-runtime-wijzigingen kort documenteren in CLAUDE.md (welke sensoren, welke bestanden, welke backup-namen)
+
+## 7. Lokale regendetector (HA-runtime) - uitbreiding 2026-10-09
+
+- [x] 7.1 De HOBEIAN-regendetector (`sensor.regensensor_rainwater`) in `sensor.neerslag_indicator` verwerken: "Regent" zodra de lokale sensor `raining` is of de radar > 0.1 mm/h; robuust tegen `unknown`/`unavailable`.
+- [x] 7.2 `sensor.regensensor_*` aan de recorder-include toevoegen; geverifieerd dat de entities in `states_meta` staan (radar-vs-lokaal vergelijking opbouwen).
+- [x] 7.3 Drempel-tuning 6.1 datagedreven: `Verzadigd` van spread <= 1 naar <= 2 (spread kwam in 14d nooit onder 1,6, dus <= 1 vuurde nooit); `Regent`-drempel 0.1 mm/h bevestigd (~3,4% regentijd, piek 28,8 mm/h).

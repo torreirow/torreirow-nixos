@@ -96,3 +96,20 @@ Luchtvochtigheid", zonder wijziging aan de Prometheus-export.
 
 - **WHEN** de nieuwe neerslag- en dauwpuntsensoren in Home Assistant bestaan
 - **THEN** SHALL Prometheus ze scrapen zonder aanpassing van de include-filters
+
+### Requirement: Lokale regendetector als ground-truth
+
+Het systeem SHALL een lokale regendetector (nat/droog) meenemen in de samengestelde indicator als
+ground-truth voor actuele neerslag ter plaatse, zodat lokale buien die de regionale radar-nowcast
+mist toch tot de toestand `Regent` leiden. De lokale detector SHALL ook in de recorder bewaard
+worden zodat radar-versus-lokaal over tijd vergeleken kan worden.
+
+#### Scenario: Lokale sensor detecteert regen die de radar mist
+
+- **WHEN** de lokale regendetector `raining` meldt terwijl de radar-nowcast onder de "regent"-drempel ligt
+- **THEN** SHALL de indicator de toestand `Regent` tonen
+
+#### Scenario: Lokale sensor onbeschikbaar
+
+- **WHEN** de lokale regendetector `unknown` of `unavailable` is
+- **THEN** SHALL de indicator terugvallen op de radar-nowcast zonder fout
