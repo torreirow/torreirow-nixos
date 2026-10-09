@@ -22,6 +22,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **Neerslag-indicator afgerond met lokale regensensor**. De HA-indicator `sensor.neerslag_indicator`
+  combineert nu de Buienradar-nowcast én je fysieke HOBEIAN-regensensor: "Regent" verschijnt ook bij
+  een lokale bui die de regionale radar mist (Buienradar heeft geen station dicht bij Ermelo).
+  - De mist-/verzadigingsdrempel is datagedreven versoepeld (dauwpunt-spread ≤ 2 °C i.p.v. ≤ 1 °C,
+    want ≤ 1 vuurde in 14 dagen nooit); de "Regent"-drempel (0,1 mm/h) is bevestigd.
+  - De regensensor wordt nu bewaard, zodat radar-versus-lokaal over tijd te vergelijken is.
 - **Home Assistant-commando's werken nu ook via Signal** (naast Telegram). Dezelfde commando's
   (`/wto`, `/werk`, `/hitte`, `/afvalack`, `/adventkerst`, `/aircraft`, `/wazewtotooffice`,
   `/start`) kun je nu als Signal-bericht naar het bot-nummer sturen en krijgen een Signal-antwoord.
