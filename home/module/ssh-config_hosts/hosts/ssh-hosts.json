@@ -21,6 +21,13 @@
     "port": 22
   },
   {
+    "host": "lobos",
+    "hostname": "192.168.2.25",
+    "user": "wtoorren",
+    "identity_file": "~/.ssh/ssh-my-server.pub",
+    "port": 22
+  },
+  {
     "host": "kar01 192.168.2.37",
     "hostname": "192.168.2.37",
     "user": "wtoorren",
