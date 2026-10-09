@@ -30,6 +30,7 @@
     ragenx.inputs.nixpkgs.follows = "nixpkgs";
     rbw.url = "github:torreirow/rbw";
     rme.url = "github:mipmip/rme";
+    huphop.url = "github:mipmip/huphop";
     solidtime-waybar.url = "github:torreirow/solidtime-waybar";
     hyprquickframe = {
       url = "path:/home/wtoorren/data/git/torreirow/HyprQuickFrame";
@@ -49,7 +50,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp, huphop}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -136,6 +137,7 @@
         extraPkgs
         agenix.nixosModules.default
         ./hosts/lobos/configuration.nix
+        { environment.systemPackages = [ huphop.packages.${system}.default ]; }
         ./modules/tnaws.nix
         ./modules/general-desktop.nix
         ./modules/jiratui.nix

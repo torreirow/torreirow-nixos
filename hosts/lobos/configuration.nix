@@ -43,6 +43,7 @@
   nix.daemonIOSchedClass = "idle";
   nix.settings.max-jobs = 6;
   nix.settings.cores = 3;
+  nix.settings.auto-optimise-store = true;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
