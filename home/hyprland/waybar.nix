@@ -1,7 +1,7 @@
 { pkgs, solidtime-waybar-input, ... }:
 
 let
-  solidtime-waybar-pkg = solidtime-waybar-input.packages.${pkgs.system}.default;
+  solidtime-waybar-pkg = solidtime-waybar-input.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
   solidtime-timer = pkgs.writeShellScript "solidtime-timer" ''
     SOLIDTIME_BASE_URL="https://solidtime.tools.technative.cloud" \

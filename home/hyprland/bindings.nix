@@ -86,7 +86,7 @@ let
     esac
   '';
 
-  hqf = hyprquickframe-input.packages.${pkgs.system}.default;
+  hqf = hyprquickframe-input.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
   font-scale = pkgs.writeShellScript "font-scale" ''
     current=$(${pkgs.glib}/bin/gsettings get org.gnome.desktop.interface text-scaling-factor)
