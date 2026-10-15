@@ -142,6 +142,16 @@ in
       "f ${overlayBase}/allowlists.d/${g}.txt 0644 root root -"
     ]) blockingDef.overlayGroups;
 
+  #### Prometheus: scrape + alerts ####
+  # blocky's /metrics op :4000 (loopback-bereikbaar, firewall-dicht).
+  services.prometheus.scrapeConfigs = [
+    {
+      job_name = "blocky";
+      static_configs = [{ targets = [ "localhost:4000" ]; }];
+    }
+  ];
+  services.prometheus.ruleFiles = [ ./blocky-alerts.yml ];
+
   #### Refresh-helper ####
   environment.systemPackages = [ blockyRefresh ];
 
