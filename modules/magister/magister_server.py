@@ -5,6 +5,7 @@ Dit script draait zonder GUI en gebruikt alleen magister_session.json
 """
 
 import time
+import base64
 import random
 import os
 import glob
@@ -47,6 +48,38 @@ class SessionInvalid(Exception):
 LOG_FILE = "/var/log/magister/magister.log"
 ERROR_EMAIL = "wvdtoorren@gmail.com"
 HEARTBEAT_FILE = "/var/lib/prometheus-node-exporter-textfiles/magister_heartbeat.prom"
+
+def _jwt_claims(token):
+    """Payload van een JWT als dict, of None. Alleen voor weergave: geen handtekeningcontrole."""
+    try:
+        payload = token.split(".")[1]
+        claims = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+    except (AttributeError, IndexError, ValueError):
+        return None
+    return claims if isinstance(claims, dict) else None
+
+
+def _timestamp(value):
+    """Unix-tijd als float, of None voor alles wat geen getal is (ook bool)."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return value
+
+
+def session_status(tokens, token_mtime=None):
+    """Sessiestatus uit token.json: wanneer ingelogd (auth_time) en laatste refresh.
+
+    Het refresh-token is opaque, dus het verloop is niet te bepalen. auth_time (moment van de
+    passkey-login) reist mee in elk access-token. Onbekend = None, nooit een exceptie.
+    """
+    tokens = tokens if isinstance(tokens, dict) else {}
+    claims = _jwt_claims(tokens.get("access_token")) or {}
+    last_refresh = _timestamp(tokens.get("last_refresh"))
+    if last_refresh is None:
+        # Oud token.json zonder last_refresh: het bestand wordt alleen bij een refresh herschreven.
+        last_refresh = _timestamp(token_mtime)
+    return {"auth_time": _timestamp(claims.get("auth_time")), "last_refresh": last_refresh}
+
 
 # Logging configuratie
 def setup_logging():
@@ -110,14 +143,27 @@ def send_error_email(subject, body):
         return False
 
 
-def write_heartbeat():
-    """Schrijf heartbeat metric voor Prometheus monitoring"""
+def write_heartbeat(session=None):
+    """Schrijf heartbeat metric voor Prometheus monitoring.
+
+    Met session (zie session_status) ook auth_time en laatste refresh; een onbekende waarde
+    wordt weggelaten i.p.v. als 0 (= 1970) geëxporteerd.
+    """
+    session = session or {}
     try:
         timestamp = time.time()
         with open(HEARTBEAT_FILE + ".tmp", "w") as f:
             f.write(f"# HELP magister_sync_heartbeat_timestamp Unix timestamp van laatste heartbeat\n")
             f.write(f"# TYPE magister_sync_heartbeat_timestamp gauge\n")
             f.write(f"magister_sync_heartbeat_timestamp {timestamp}\n")
+            for metric, key, help_text in (
+                ("magister_auth_time_seconds", "auth_time", "Unix timestamp van de passkey-login (auth_time van de sessie)"),
+                ("magister_last_refresh_seconds", "last_refresh", "Unix timestamp van de laatste geslaagde token-refresh"),
+            ):
+                if session.get(key) is not None:
+                    f.write(f"# HELP {metric} {help_text}\n")
+                    f.write(f"# TYPE {metric} gauge\n")
+                    f.write(f"{metric} {session[key]}\n")
 
         # Atomic rename
         os.rename(HEARTBEAT_FILE + ".tmp", HEARTBEAT_FILE)
@@ -174,8 +220,25 @@ def send_success_email(kinderen_count, calendars):
         return False
 
 
-def generate_index_html(domain="agenda.toorren.net"):
-    """Genereer index.html met lijst van beschikbare calendars"""
+def _format_session_footer(session):
+    """Footer-regels over de sessie: ingelogd sinds, laatste refresh, verloop onbekend."""
+    session = session or {}
+    auth_time = session.get("auth_time")
+    last_refresh = session.get("last_refresh")
+    if auth_time is not None:
+        dagen = int((time.time() - auth_time) // 86400)
+        ingelogd = f"{datetime.fromtimestamp(auth_time):%Y-%m-%d %H:%M} ({dagen} {'dag' if dagen == 1 else 'dagen'})"
+    else:
+        ingelogd = "onbekend"
+    refresh = f"{datetime.fromtimestamp(last_refresh):%Y-%m-%d %H:%M}" if last_refresh is not None else "onbekend"
+    return f"""    <p><strong>Ingelogd sinds:</strong> {ingelogd}</p>
+    <p><strong>Laatste refresh:</strong> {refresh}</p>
+    <p><strong>Token-verloop:</strong> onbekend (Magister geeft dit niet prijs)</p>
+"""
+
+
+def generate_index_html(domain="agenda.toorren.net", session=None):
+    """Genereer index.html met lijst van beschikbare calendars (+ sessiestatus in de footer)"""
     try:
         # Zoek alle magister_*.ics bestanden
         ics_files = sorted(Path(".").glob("magister_*.ics"))
@@ -239,7 +302,7 @@ def generate_index_html(domain="agenda.toorren.net"):
         html += f"""  <div class="footer">
     <p><strong>Updates:</strong> elke ~{KEEP_ALIVE_INTERVAL//60} min ({WINDOW_START_HOUR:02d}:00-{WINDOW_END_HOUR:02d}:00u)</p>
     <p><strong>Laatste update:</strong> {update_timestamp}</p>
-  </div>
+{_format_session_footer(session)}  </div>
 </body>
 </html>
 """
@@ -315,9 +378,20 @@ class MagisterServerClient:
         merged["refresh_token"] = new.get("refresh_token", refresh)
         merged["access_token"] = new["access_token"]
         merged["access_expires"] = time.time() + int(new.get("expires_in", 3600)) - 60
+        merged["last_refresh"] = time.time()
         self._save_tokens(merged)
         logger.info("✓ Access-token vernieuwd (refresh-token geroteerd)")
         return merged["access_token"]
+
+    def session_status(self):
+        """Sessiestatus (auth_time, last_refresh) uit token.json; leest vers van schijf."""
+        try:
+            with open(self.token_file, encoding="utf-8") as f:
+                tokens = json.load(f)
+            mtime = os.path.getmtime(self.token_file)
+        except (OSError, ValueError):
+            return session_status(None)
+        return session_status(tokens, mtime)
 
     def get_access_token(self):
         """Geef een geldige access-token; ververs via refresh indien (bijna) verlopen."""
@@ -731,14 +805,14 @@ def main():
 
     # Genereer index.html met lijst van calendars
     logger.info("\n=== Index genereren ===")
-    generate_index_html()
+    generate_index_html(session=client.session_status())
 
     # Stuur succes notificatie email
     logger.info("\n=== Succes notificatie ===")
     send_success_email(len(kinderen), kind_data)
 
     # Schrijf initiële heartbeat
-    write_heartbeat()
+    write_heartbeat(client.session_status())
 
     # Keep-alive loop
     logger.info(f"\n=== Keep-alive gestart (~{KEEP_ALIVE_INTERVAL//60} min ±{KEEP_ALIVE_JITTER//60}, venster {WINDOW_START_HOUR:02d}:00-{WINDOW_END_HOUR:02d}:00u) ===")
@@ -821,10 +895,11 @@ def main():
 
             # Update index.html na het updaten van alle calendars
             logger.info("  → index.html...")
-            generate_index_html()
+            session = client.session_status()
+            generate_index_html(session=session)
 
             # Update heartbeat
-            write_heartbeat()
+            write_heartbeat(session)
 
     except KeyboardInterrupt:
         logger.info("\n\n✓ Server gestopt door gebruiker")

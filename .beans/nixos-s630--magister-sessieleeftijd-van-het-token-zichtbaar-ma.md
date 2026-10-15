@@ -1,10 +1,11 @@
 ---
 # nixos-s630
 title: 'Magister: sessieleeftijd van het token zichtbaar maken'
-status: todo
+status: in-progress
 type: epic
+priority: normal
 created_at: 2026-10-15T13:54:11Z
-updated_at: 2026-10-15T13:54:11Z
+updated_at: 2026-10-15T13:57:35Z
 ---
 
 De index op agenda.toorren.net toont alleen "Laatste update:". Of de Magister-sessie
