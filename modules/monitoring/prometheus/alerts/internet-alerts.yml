@@ -1,8 +1,8 @@
 groups:
   - name: Internet Connectivity
     rules:
-      # Speedtest draait ~1x/uur (speedtestdotnet-integratie in de HA-container op
-      # malandro). Losse metingen zijn ruisgevoelig: ~20-40% leest los <80 Mbit/s
+      # Speedtest draait 1x/uur op het hele uur (Ookla-integratie `ookla_speedtest`
+      # via HACS in de HA-container op malandro, zie docs/speedtest.md). Losse metingen zijn ruisgevoelig: ~20-40% leest los <80 Mbit/s
       # terwijl de mediaan ~184 Mbit/s is (download <-> upload zakken in 79% samen ->
       # momentane contentie/host-load, niet de lijn). Daarom alerten we op de MEDIAAN
       # over 3u i.p.v. min_over_time over 65m: een enkele rotmeting of mislukte test
@@ -55,4 +55,4 @@ groups:
           service: speedtest
         annotations:
           summary: "Speedtest data verouderd"
-          description: "Laatste speedtest is {{ $value | humanizeDuration }} geleden. Speedtest add-on mogelijk niet actief."
+          description: "Laatste speedtest is {{ $value | humanizeDuration }} geleden. Ookla-speedtestintegratie in HA mogelijk niet actief."
