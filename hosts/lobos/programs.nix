@@ -52,6 +52,9 @@ programs.firefox = {
 
 environment.systemPackages = with pkgs; [
     audacity
+    calf
+    airwindows-lv2
+    lsp-plugins
     planify
     wineWow64Packages.stable
     # masterpdfeditor  # TEMP disabled: upstream 5.9.98 tarball 404s in pinned nixpkgs (re-enable after nixpkgs bump)
@@ -300,6 +303,11 @@ programs.nix-ld = {
     flake = "/home/wtoorren/data/git/torreirow/torreirow-nixos"; # sets NH_OS_FLAKE variable for you
   };
 
+  environment.variables = {
+    LV2_PATH    = "/run/current-system/sw/lib/lv2";
+    LADSPA_PATH = "/run/current-system/sw/lib/ladspa";
+    VST3_PATH   = "/run/current-system/sw/lib/vst3";
+  };
 
 
 
