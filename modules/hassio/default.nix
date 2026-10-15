@@ -132,9 +132,17 @@
   '';
 
 
-  networking.firewall = {
-    allowedTCPPorts = [ 8123 8086 ];
-  };
+  # 8123 (HA) en 8086 (InfluxDB) alleen vanaf het LAN-subnet en Docker-bridges.
+  # Van buiten loopt HA via nginx (homeassistant.toorren.net); een router-forward
+  # op deze poorten mag nooit rechtstreeks doorkomen. docker0 is al trusted (wg.nix).
+  networking.firewall.extraCommands = ''
+    iptables -I nixos-fw 1 -i enp3s0 -s 192.168.2.0/24 -p tcp -m multiport --dports 8123,8086 -j nixos-fw-accept
+    iptables -I nixos-fw 1 -i br+ -p tcp -m multiport --dports 8123,8086 -j nixos-fw-accept
+  '';
+  networking.firewall.extraStopCommands = ''
+    iptables -D nixos-fw -i enp3s0 -s 192.168.2.0/24 -p tcp -m multiport --dports 8123,8086 -j nixos-fw-accept || true
+    iptables -D nixos-fw -i br+ -p tcp -m multiport --dports 8123,8086 -j nixos-fw-accept || true
+  '';
 
   services.nginx.virtualHosts."homeassistant.toorren.net" = {
     useACMEHost = "toorren.net";
