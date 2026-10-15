@@ -32,6 +32,10 @@ let
 
     blocking = blockingDef.settings;
 
+    # ANY-queries leeg beantwoorden: geen legitiem gebruik meer (RFC 8482), wel
+    # hét amplificatie-vehikel. Vangnet naast de firewall-beperking hieronder.
+    filtering.queryTypes = [ "ANY" ];
+
     # Intern (op :4000, firewall-dicht). Nooit publiek ontsloten.
     prometheus.enable = true;
     # Statistieken-API voor de overzichtskaarten van blocky-ui (vanaf blocky 0.30+;
@@ -141,12 +145,21 @@ in
   #### Refresh-helper ####
   environment.systemPackages = [ blockyRefresh ];
 
-  #### LAN-cutover: DNS (53) alleen op de LAN-interface open ####
+  #### LAN-cutover: DNS (53) alleen vanaf het LAN-subnet open ####
   # Blocky luistert op 0.0.0.0:53 (zie ports.dns); de firewall opent 53 uitsluitend
-  # op enp3s0 (het thuisnetwerk), niet breder. Omkeerbaar: deze regels + ports.dns
-  # terug naar 127.0.0.1 = weer local-only.
-  networking.firewall.interfaces.enp3s0.allowedUDPPorts = [ 53 ];
-  networking.firewall.interfaces.enp3s0.allowedTCPPorts = [ 53 ];
+  # voor bronadressen uit 192.168.2.0/24 op enp3s0. NIET per interface openzetten:
+  # verkeer dat de router van buiten doorstuurt komt óók binnen op enp3s0, en op
+  # 2026-10-15 werd blocky zo als open resolver misbruikt voor DNS-amplificatie
+  # (ANY-queries met gespoofte afzenders, abuse-melding van de provider).
+  # Omkeerbaar: deze regels + ports.dns terug naar 127.0.0.1 = weer local-only.
+  networking.firewall.extraCommands = ''
+    iptables -I nixos-fw 1 -i enp3s0 -s 192.168.2.0/24 -p udp --dport 53 -j nixos-fw-accept
+    iptables -I nixos-fw 1 -i enp3s0 -s 192.168.2.0/24 -p tcp --dport 53 -j nixos-fw-accept
+  '';
+  networking.firewall.extraStopCommands = ''
+    iptables -D nixos-fw -i enp3s0 -s 192.168.2.0/24 -p udp --dport 53 -j nixos-fw-accept || true
+    iptables -D nixos-fw -i enp3s0 -s 192.168.2.0/24 -p tcp --dport 53 -j nixos-fw-accept || true
+  '';
 
   #### Blocky (native DNS + ad-blocker) ####
   services.blocky = {
