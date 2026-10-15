@@ -281,6 +281,9 @@ in {
               # Authelia authentication
               ${autheliaHelpers.autheliaAuthConfig}
 
+              # Charset in de Content-Type header, anders valt de browser terug op windows-1252
+              charset utf-8;
+
               # Serve index.html als die bestaat
               try_files /index.html =404;
             '';

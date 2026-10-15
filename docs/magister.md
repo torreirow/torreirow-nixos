@@ -33,10 +33,11 @@ access_token (Bearer, 1u)  →  groevenbeek.magister.net/api/...  →  afspraken
 | `modules/magister/verify_pkce.py` | **Bootstrap/re-login** op de laptop (passkey) → refresh-token |
 | `modules/magister/refresh_test.py` | Diagnose: refresh + rotatie + API-acceptatie testen |
 | `modules/magister/probe_api.py` | Diagnose: JWT-claims + endpoint-ontdekking |
+| `modules/magister/magister_server_test.py` | Unit-tests: sessiestatus, footer, heartbeat |
 | `modules/magister/README.md` | ⚠️ Legacy (beschrijft de oude cookie-flow) |
-| `/var/lib/magister/token.json` | **State** (0600): `{refresh_token, access_token, access_expires}` |
+| `/var/lib/magister/token.json` | **State** (0600): `{refresh_token, access_token, access_expires, last_refresh}` |
 | `/var/lib/magister/magister_<naam>.ics` | Gegenereerde agenda-feeds (owner `magister:nginx`) |
-| `/var/lib/magister/index.html` | Overzichtspagina |
+| `/var/lib/magister/index.html` | Overzichtspagina, gegenereerd bij elke run (staat niet in de repo) |
 | `/var/log/magister/magister.log` | Logs (ook via `journalctl -u magister-sync`) |
 
 `token.json` en `magister_pkce_result.json` staan in `.gitignore` (secrets).
@@ -104,6 +105,31 @@ Om niet als bot op te vallen in Magisters logs:
   `test_session()` beschouwt de sessie als geldig zolang refresh lukt. Even later vanzelf goed.
 - Prometheus-heartbeat: `/var/lib/prometheus-node-exporter-textfiles/magister_heartbeat.prom`.
 
+## Sessieleeftijd en token-verloop
+
+Hoe lang de sessie nog meegaat, is **niet uit te lezen**. Het refresh-token is een opaque
+reference-token (43 tekens, geen JWT) zonder verloopdatum. De regels (absolute levensduur,
+idle-venster) staan alleen bij Magister.
+
+Wat we wél weten:
+
+- **Ingelogd sinds:** de claim `auth_time` in het access-token (JWT) is het moment van de
+  passkey-login en blijft bij elke refresh gelijk. Die wordt gelezen zonder handtekeningcontrole,
+  want hij dient alleen voor weergave.
+- **Laatste refresh:** `last_refresh` in `token.json`, atomair meegeschreven bij elke geslaagde
+  refresh. Bij oude bestanden zonder dat veld wordt de mtime van `token.json` gebruikt. Dit is het
+  tijdstip dat telt voor het idle-venster.
+- **Gemeten:** login 2026-09-01 09:49, op 2026-10-15 nog geldig. De absolute grens is dus
+  **langer dan 44 dagen**; het is niet de IdentityServer-standaard van 30 dagen.
+
+Zichtbaar op twee plekken:
+
+- De footer van `agenda.toorren.net` toont "Ingelogd sinds" (+ dagen), "Laatste refresh" en
+  "Token-verloop: onbekend".
+- De heartbeat (`magister_heartbeat.prom`) exporteert `magister_auth_time_seconds` en
+  `magister_last_refresh_seconds` (unix-tijd). Een onbekende waarde wordt weggelaten, niet als 0
+  geëxporteerd. Er is **bewust geen alert** op de leeftijd, want de grens is onbekend.
+
 ## Re-login runbook (alleen bij `invalid_grant` — verwacht: maanden)
 
 1. **lobos:** `python3 modules/magister/verify_pkce.py` → login met **passkey** → `magister_pkce_result.json`.
@@ -130,6 +156,13 @@ sudo systemctl restart magister-sync.service
 
 # Token-state bekijken (geen waarden lekken)
 sudo python3 -c "import json,time;d=json.load(open('/var/lib/magister/token.json'));print('keys',list(d.keys()),'access nog %.0f min'%((d.get('access_expires',0)-time.time())/60))"
+
+# Sessieleeftijd (auth_time) en laatste refresh, zonder tokenwaarden te tonen
+sudo python3 -c "import json,base64,time,os;f='/var/lib/magister/token.json';d=json.load(open(f));p=d['access_token'].split('.')[1];c=json.loads(base64.urlsafe_b64decode(p+'='*(-len(p)%4)));print('ingelogd sinds',time.strftime('%F %T',time.localtime(c['auth_time'])),'(%d dagen)'%((time.time()-c['auth_time'])//86400));print('laatste refresh',time.strftime('%F %T',time.localtime(d.get('last_refresh',os.path.getmtime(f)))))"
+grep -E 'auth_time|last_refresh' /var/lib/prometheus-node-exporter-textfiles/magister_heartbeat.prom
+
+# Unit-tests
+nix-shell -p 'python3.withPackages (p: [p.python-dateutil p.beautifulsoup4])' --run 'python3 modules/magister/magister_server_test.py'
 
 # Diagnose op lobos (met token in magister_pkce_result.json)
 python3 modules/magister/refresh_test.py   # refresh + rotatie + /api/account
