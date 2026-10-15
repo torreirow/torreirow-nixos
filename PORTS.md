@@ -47,7 +47,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | Port | Service | Protocol | Description |
 |------|---------|----------|-------------|
 | 1883 | Mosquitto | TCP | MQTT broker |
-| 53 | blocky DNS | UDP/TCP | DNS + ad-blocking, **127.0.0.1 only** (local, geen LAN-opening) |
+| 53 | blocky DNS | UDP/TCP | DNS + ad-blocking, LAN-resolver: firewall alleen open vanaf 192.168.2.0/24 op enp3s0 |
 | 4000 | blocky API | TCP | blocky REST-API, 0.0.0.0 maar firewall-dicht (host + docker-bridge only) |
 | 51820 | WireGuard | UDP | VPN service |
 | 51821 | wg-easy | TCP | WireGuard management web interface |

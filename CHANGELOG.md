@@ -22,6 +22,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **Prometheus-alerts voor blocky DNS**. Prometheus scrapet nu blocky's metrics (`:4000`) en
+  waarschuwt bij overmatig DNS-gebruik.
+  - Totaal >50 queries/s of één client >20 queries/s, beide 10 min aanhoudend (voorlopige
+    drempels; bijstellen zodra er een baseline is).
+  - Kritiek bij queries van een adres buiten het LAN: vangt een terugkeer van het
+    open-resolver/amplificatie-lek van 2026-10-15. Daarnaast een alert op ANY-queries en op
+    blocky die niet meer te scrapen is.
+
+### Removed
+- **Device-tracker-alerts voor de A059-telefoon** (stale, batterij, afwezig, netwerk, herstart).
+  De Waze-sensoralert blijft.
+
 - **Neerslag-indicator afgerond met lokale regensensor**. De HA-indicator `sensor.neerslag_indicator`
   combineert nu de Buienradar-nowcast én je fysieke HOBEIAN-regensensor: "Regent" verschijnt ook bij
   een lokale bui die de regionale radar mist (Buienradar heeft geen station dicht bij Ermelo).

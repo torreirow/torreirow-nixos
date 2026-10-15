@@ -1,0 +1,65 @@
+groups:
+  - name: Blocky DNS
+    rules:
+      - alert: BlockyDown
+        expr: up{job="blocky"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: dns
+          service: blocky
+        annotations:
+          summary: "Blocky DNS niet bereikbaar"
+          description: "Prometheus kan blocky ({{ $labels.instance }}) al 5 minuten niet scrapen. DNS op het LAN ligt mogelijk plat."
+
+      # Totaalvolume. Drempel ruim boven normaal thuisverkeer; bijstellen zodra er
+      # een baseline in Prometheus staat.
+      - alert: BlockyExcessiveQueries
+        expr: sum(rate(blocky_query_total[5m])) > 50
+        for: 10m
+        labels:
+          severity: warning
+          component: dns
+          service: blocky
+        annotations:
+          summary: "Overmatig DNS-verkeer op blocky"
+          description: "Blocky verwerkt al 10 minuten {{ $value | printf \"%.1f\" }} queries/s (drempel 50/s)."
+
+      # Eén client die het verkeer domineert: losgeslagen apparaat of malware.
+      - alert: BlockyClientExcessiveQueries
+        expr: sum by (client) (rate(blocky_query_total[5m])) > 20
+        for: 10m
+        labels:
+          severity: warning
+          component: dns
+          service: blocky
+        annotations:
+          summary: "Client {{ $labels.client }} stuurt overmatig veel DNS-queries"
+          description: "{{ $labels.client }} doet al 10 minuten {{ $value | printf \"%.1f\" }} queries/s (drempel 20/s)."
+
+      # Queries van buiten het LAN/host/docker mogen er niet zijn (firewall laat 53
+      # alleen vanaf 192.168.2.0/24 toe). Vangt een regressie van de open-resolver-fix
+      # van 2026-10-15 (DNS-amplificatie).
+      - alert: BlockyExternalClient
+        expr: sum by (client) (increase(blocky_query_total{client!~"192\\.168\\.2\\..+|127\\..+|::1|172\\..+"}[5m])) > 0
+        for: 2m
+        labels:
+          severity: critical
+          component: dns
+          service: blocky
+        annotations:
+          summary: "Blocky beantwoordt queries van extern adres {{ $labels.client }}"
+          description: "Blocky kreeg queries van {{ $labels.client }}, buiten het LAN. Mogelijk weer open resolver / amplificatie-misbruik — controleer de firewall op poort 53."
+
+      # ANY-queries worden leeg beantwoord (filtering.queryTypes), maar een stroom
+      # ervan wijst op een amplificatiepoging.
+      - alert: BlockyAnyQueries
+        expr: sum by (client) (rate(blocky_query_total{type="ANY"}[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: dns
+          service: blocky
+        annotations:
+          summary: "ANY-queries van {{ $labels.client }}"
+          description: "{{ $labels.client }} stuurt {{ $value | printf \"%.2f\" }} ANY-queries/s. Typisch voor DNS-amplificatie."
