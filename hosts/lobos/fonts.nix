@@ -14,6 +14,7 @@ let
     inter
     lato
     liberation_ttf
+    liberation-sans-narrow # metrisch gelijk aan Arial Narrow (ondertitels inbranden + Subtitle Edit)
     meslo-lg
     noto-fonts
     noto-fonts-color-emoji
