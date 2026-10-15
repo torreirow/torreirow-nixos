@@ -18,6 +18,7 @@
     ./security-hardening.nix
     ./suspend-wakeup.nix
     ./remarkable-network.nix
+    ./wifi-cable-switch.nix
 #   ../../modules/monitoring
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
