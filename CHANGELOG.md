@@ -7,6 +7,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Fixed
+- **Magister-overzichtspagina toont tekens weer goed**. Op `agenda.toorren.net` stond
+  "Toevoegen â†’ Via URL" in plaats van "Toevoegen → Via URL". De pagina meldt nu dat ze UTF-8
+  is, zowel in de HTML als in de nginx-header.
 - **ATAG One-dashboards kloppen weer** (Grafana + Prometheus). De gas-, temperatuur- en
   rendementsgrafieken van de CV-ketel toonden onzin; dat is rechtgezet op basis van 14 dagen
   live-data.
@@ -22,6 +25,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **Magister: sessieleeftijd zichtbaar**. De overzichtspagina op `agenda.toorren.net` laat nu zien
+  hoe gezond de Magister-login is, in plaats van alleen "Laatste update".
+  - "Ingelogd sinds" (met het aantal dagen) en "Laatste refresh". Het moment van inloggen komt uit
+    het access-token zelf.
+  - "Token-verloop: onbekend". Magister geeft niet prijs wanneer de login verloopt, dus de pagina
+    verzint ook geen datum.
+  - Dezelfde gegevens als Prometheus-metrics (`magister_auth_time_seconds`,
+    `magister_last_refresh_seconds`), zonder alert zolang de grens onbekend is.
 - **Prometheus-alerts voor blocky DNS**. Prometheus scrapet nu blocky's metrics (`:4000`) en
   waarschuwt bij overmatig DNS-gebruik.
   - Totaal >50 queries/s of één client >20 queries/s, beide 10 min aanhoudend (voorlopige

@@ -21,8 +21,8 @@
 
 ## 5. Integratie (bean nixos-cdus)
 
-- [ ] 5.1 `sudo nixos-rebuild switch --flake .#malandro` en herstart van magister-sync. Verificatie: de service draait, en `journalctl` toont geen tracebacks
-- [ ] 5.2 Live controle: `/var/lib/magister/index.html` toont "Ingelogd sinds 2026-09-01 …", en de heartbeat bevat beide nieuwe metrics, ook via `curl localhost:9090` (Prometheus-query). Verificatie: output van die commando's
+- [x] 5.1 `sudo nixos-rebuild switch --flake .#malandro` en herstart van magister-sync. Verificatie: de service draait, en `journalctl` toont geen tracebacks
+- [x] 5.2 Live controle: `/var/lib/magister/index.html` toont "Ingelogd sinds 2026-09-01 …", en de heartbeat bevat beide nieuwe metrics, ook via `curl localhost:9090` (Prometheus-query). Verificatie: output van die commando's
 
 ## Workflow follow-up
 
