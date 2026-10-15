@@ -73,6 +73,8 @@ programs.fzf = {
     # waar /run/current-system/sw/bin/pinentry-tty niet bestaat. Op NixOS staat
     # pinentry-tty in de system packages; deze regel schaadt daar niet.
     pinentry-tty
+    # node voor Claude Code plugin-hooks (bijv. i-have-adhd SessionStart roept `node -e` aan)
+    nodejs_22
   ];
 
 home.sessionVariables = {
