@@ -296,7 +296,7 @@ programs.nix-ld = {
  programs.nh = {
     enable = true;
     clean.enable = true;
-    clean.extraArgs = "--keep-since 7d --keep 5";
+    clean.extraArgs = "--keep-since 7d --keep 4";
     flake = "/home/wtoorren/data/git/torreirow/torreirow-nixos"; # sets NH_OS_FLAKE variable for you
   };
 

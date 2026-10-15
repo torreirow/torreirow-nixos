@@ -18,6 +18,7 @@
     ./security-hardening.nix
     ./suspend-wakeup.nix
     ./remarkable-network.nix
+    ./wifi-cable-switch.nix
 #   ../../modules/monitoring
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
@@ -43,6 +44,7 @@
   nix.daemonIOSchedClass = "idle";
   nix.settings.max-jobs = 6;
   nix.settings.cores = 3;
+  nix.settings.auto-optimise-store = true;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
