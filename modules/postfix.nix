@@ -40,8 +40,10 @@ in
       mydestination = ""; # Lege string = geen lokale delivery
       local_recipient_maps = ""; # Disable lokale recipient checks
 
-      # Vertrouw lokale Docker container subnets voor relay
-      mynetworks = [ "127.0.0.0/8" "[::1]/128" "172.17.0.0/16" "172.18.0.0/16" "172.19.0.0/16" "192.168.2.67/32" ];
+      # Vertrouw lokale Docker container subnets voor relay (containers die via
+      # host.docker.internal mailen). 172.16.0.0/12 dekt Docker's standaard
+      # address pool, dus ook nieuwe user-defined netwerken (cap-net e.d.).
+      mynetworks = [ "127.0.0.0/8" "[::1]/128" "172.16.0.0/12" "192.168.2.67/32" ];
 
 
       # AWS SES relay configuratie (host:port formaat met brackets voor SASL)
@@ -157,11 +159,15 @@ in
     ];
   };
 
-  # Sta SMTP-relay toe vanaf bobadela1 (Nextcloud AIO) - alleen die ene host
+  # Sta SMTP-relay toe vanaf bobadela1 (Nextcloud AIO) - alleen die ene host -
+  # en vanaf Docker containers op user-defined bridges (br-*) via
+  # host.docker.internal. docker0 is al trusted (zie wg.nix).
   networking.firewall.extraCommands = ''
     iptables -I nixos-fw 1 -p tcp -s 192.168.2.67 --dport 25 -j nixos-fw-accept
+    iptables -I nixos-fw 1 -i br+ -p tcp --dport 25 -j nixos-fw-accept
   '';
   networking.firewall.extraStopCommands = ''
     iptables -D nixos-fw -p tcp -s 192.168.2.67 --dport 25 -j nixos-fw-accept || true
+    iptables -D nixos-fw -i br+ -p tcp --dport 25 -j nixos-fw-accept || true
   '';
 }
