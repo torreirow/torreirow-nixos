@@ -187,6 +187,7 @@ def generate_index_html(domain="agenda.toorren.net"):
         html = """<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <title>Magister Agenda Feeds</title>
   <style>
     body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
@@ -244,7 +245,7 @@ def generate_index_html(domain="agenda.toorren.net"):
 """
 
         # Schrijf naar bestand
-        with open("index.html", "w") as f:
+        with open("index.html", "w", encoding="utf-8") as f:
             f.write(html)
 
         logger.info(f"✓ index.html gegenereerd met {len(ics_files)} calendar(s)")
