@@ -19,7 +19,6 @@ in
   "togglwtoorren.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "loboskey.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "spotifywto.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "update_laptop.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "atticwto.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "kar01-lobos-ovpn.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "improvement-ovpn.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];

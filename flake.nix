@@ -328,6 +328,7 @@
          ./home/module/jitsi-open-in-app
          ./home/module/meeting-record
          ./home/module/linny-mcp-tunnel
+         ./home/module/update-system
          ./home/module/clipbridge
          ./home/sshkeys.nix
          ./home/module/opencode.nix
