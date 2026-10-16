@@ -67,7 +67,7 @@ sudo bash -c 'cd /etc/rustic && set -a && . /run/agenix/rustic-s3-env && set +a 
 **Restore-test (herhaalbaar):** `~/bin/vaultwarden-restoretest.sh` (bron: `home/module/vaultwarden-restore-test/`,
 via home-manager; OpenSpec change `add-vaultwarden-restore-test`). Non-destructief:
 ```bash
-vaultwarden-restoretest.sh                # basis: restore→reassemble→wegwerp-container :8099→/alive+counts
+vaultwarden-restoretest.sh                # basis: restore→reassemble→wegwerp-container :8199→/alive+counts
 vaultwarden-restoretest.sh --rbw          # + geïsoleerde rbw-login (master-pw + TOTP) → bewijst decrypt
 vaultwarden-restoretest.sh --snapshot ID  # specifieke backup
 vaultwarden-restoretest.sh --keep         # container laten staan om te snuffelen
