@@ -5,7 +5,7 @@ let
   # hoofdletterongevoelig matcht; `name` is wat de melding toont. Hieruit komen zowel de
   # windowrules als de notifier.
   silentApps = [
-    { workspace = 3; class = "slack"; name = "Slack"; }
+    { workspace = 2; class = "slack"; name = "Slack"; }
     { workspace = 3; class = "teams-for-linux"; name = "Teams"; }
     { workspace = 4; class = "firefox"; name = "Firefox"; }
     { workspace = 10; class = "signal"; name = "Signal"; }
