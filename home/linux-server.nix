@@ -11,6 +11,7 @@
   ./module/clipbridge
   ./module/vaultwarden-restore-test
   ./module/wake-bobadela1
+  ./module/update-system
   ./sshkeys.nix
  ];
 

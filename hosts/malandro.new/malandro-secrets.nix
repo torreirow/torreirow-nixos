@@ -32,13 +32,6 @@
         group = "nogroup";
         mode = "0400";
       };
-     update_latop = {
-        file = ../../secrets/update_laptop.age;
-        path = "/data/scripts/update_laptop.sh";
-        owner = "root";
-        group = "root";
-        mode = "0400";
-      };
 };
   };
 

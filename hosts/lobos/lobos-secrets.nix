@@ -37,13 +37,6 @@ aider = {
   group = "nogroup";
   mode = "0500";
 };
-update_latop = {
-  file = ../../secrets/update_laptop.age;
-  path = "/data/scripts/update_laptop.sh";
-  owner = "wtoorren";
-  group = "root";
-  mode = "0550";
-};
 # Long-lived access token voor Home Assistant (malandro). Gebruikt door de
 # home-manager-module notify-signal om faalmeldingen via notify.signal_maria te
 # versturen. Expliciet `path` opgeven is vereist: zonder dat legt agenix de
