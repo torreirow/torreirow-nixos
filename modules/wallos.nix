@@ -42,16 +42,7 @@
     ];
   };
 
-  # MariaDB: wallos database en gebruiker
-  services.mysql.ensureDatabases = lib.mkAfter [ "wallos" ];
-  services.mysql.ensureUsers = lib.mkAfter [
-    {
-      name = "wallos";
-      ensurePermissions = {
-        "wallos.*" = "ALL PRIVILEGES";
-      };
-    }
-  ];
+  # Geen MariaDB: Wallos ondersteunt alleen SQLite (db/wallos.db), zie upstream #219.
 
   # Data directories (www-data in container is UID/GID 82 in Alpine)
   systemd.tmpfiles.rules = [
