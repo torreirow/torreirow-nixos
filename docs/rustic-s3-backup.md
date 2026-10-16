@@ -27,7 +27,7 @@ Beans-epic `nixos-sd4i`.
   (zelfde als HA `signal_maria`). Op `OnFailure=` van alle vier services. Best-effort (`|| true`); geen
   agenix-secret nodig (nummers zijn niet geheim, staan plain in de module — net als in de HA-config).
 - **Manifest (twee roots!):** `/var/lib/{homeassistant,vaultwarden,zigbee2mqtt,signal-cli,wg-easy,baikal,
-  mmdl,mosquitto}` + `/data/external/{docseal,erugo,wallos,invoiceplane-docker,pihole,castopod,
+  mosquitto}` + `/data/external/{docseal,erugo,wallos,invoiceplane-docker,pihole,castopod,
   dockerlibs/volumes,tmp/paperless}` + `/var/backup/db`. Excludes via `!`-globs: live VW-sqlite
   (`db.sqlite3{,-wal,-shm}`), caches, paperless consume/export. Overige /data/external-dirs
   (postgresql/prometheus/crowdsec/nextcloud/registry-mirror/dockerlib) staan simpelweg niet in de sources.

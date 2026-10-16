@@ -14,7 +14,7 @@ org-Admin gaf (auth.proxy + auto_assign_org_role=Admin).
 **Doorgevoerd (generation 54+, live):**
 - **access_control volledig expliciet** (`modules/authelia.nix`): wildcard + groep `admins` weg;
   per-domein regels op groepen `monitoring` (prometheus, alertmanager), `network` (wg), `operations`
-  (cockpit, fail2ban, status, zigbee2mqtt, pdftools, vw`/admin`), `office` (docs, contacts, mmdl,
+  (cockpit, fail2ban, status, zigbee2mqtt, pdftools, vw`/admin`), `office` (docs, contacts,
   ittools), `linny` (webview), `personal-wouter` (wouter.toorren.net, agenda). kpn-extern → operations.
   Gaten alertmanager/agenda gedicht. **LinnyWouter → linny** (policy + regel + spec).
 - **Gescheiden accounts** (`hosts/malandro/configuration.nix` → store-symlink users-db, declaratief):

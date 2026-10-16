@@ -70,7 +70,6 @@ in
   "authelia-password-hashes.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "hcaptcha-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "turnstile-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "mmdl-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "wallos-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # WireGuard client secrets (lobos)

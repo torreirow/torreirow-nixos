@@ -43,7 +43,6 @@ let
     "/var/lib/signal-cli"
     "/var/lib/wg-easy"
     "/var/lib/baikal"
-    "/var/lib/mmdl"
     "/var/lib/mosquitto"
     # gecureerd /data/external
     "/data/external/docseal"

@@ -234,7 +234,6 @@
             domain = [
               "docs.toorren.net"
               "contacts.toorren.net"
-              "mmdl.toorren.net"
               "ittools.toorren.net"
             ];
             policy = "two_factor";
