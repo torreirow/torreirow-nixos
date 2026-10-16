@@ -185,7 +185,7 @@ Instellingen + mailtemplates 1 en 3 gebruiken `WereldVanBegrip`; herinnering hou
 1. Gabbaya-PR van de wekelijkse check mergen → nieuwe digest uit ghcr.
 2. Testen tegen een DB-kopie (testcontainer op een losse poort, SMTP in de kopie onschadelijk maken).
 3. Backup (DB-dump + `invoiceplane-docker`), digest in `modules/invoiceplane-docker.nix`.
-4. Tijdelijk `SETUP_COMPLETED = "false"` in `environment`, rebuild, `/setup` doorlopen, regel weg, rebuild.
+4. Tijdelijk `DISABLE_SETUP = "false"` en `SETUP_COMPLETED = "false"` in `environment`, rebuild, `/setup` doorlopen, terugzetten, rebuild. (Beide `true` = geen "Security Warning" in 1.7.2.)
 
 **Terugdraaien:** digest terug naar `funktionslust/invoiceplane@sha256:8fa4726e…` (1.7.1) **én** de DB
 terugzetten uit `/data/external/invoiceplane-backup-20261016/invoiceplane-db-pre-1.7.2.sql` (schema is nu 043).

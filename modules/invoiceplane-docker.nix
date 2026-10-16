@@ -31,8 +31,11 @@
       CUSTOM_INVOICE_TEMPLATES_PUBLIC = "WereldVanBegrip_Web";
       CUSTOM_QUOTE_TEMPLATES_PDF = "WereldVanBegrip";
       CUSTOM_QUOTE_TEMPLATES_PUBLIC = "WereldVanBegrip_Web";
-      # DB-update na een upgrade: tijdelijk SETUP_COMPLETED = "false" hier toevoegen,
-      # rebuild, /setup doorlopen (achter Authelia), regel weer weg en rebuild.
+      # Setup-wizard dubbel op slot (1.7.2 toont anders een "Security Warning"); het
+      # env-file heeft nog DISABLE_SETUP=false, deze waarde gaat daar vóór.
+      # DB-update na een upgrade: tijdelijk DISABLE_SETUP = "false" en
+      # SETUP_COMPLETED = "false", rebuild, /setup doorlopen (achter Authelia), terug en rebuild.
+      DISABLE_SETUP = "true";
     };
     ports = [
       "127.0.0.1:8092:80"  # InvoicePlane web interface
