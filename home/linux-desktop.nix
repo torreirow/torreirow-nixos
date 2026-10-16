@@ -117,6 +117,14 @@ services.linny-mcp-tunnel = {
   # remotePort = 8096;        # default
 };
 
+# Clipboard-afbeeldingen naar Claude Code op malandro (module: home/module/clipbridge).
+# Alleen image/*; malandro heeft services.clipbridge.shim via linux-server.nix.
+services.clipbridge.serve = {
+  enable = true;
+  # host         = "malandro";                              # default
+  # remoteSocket = "/home/wtoorren/.cache/clipbridge.sock"; # default
+};
+
 services.remarkable-sync = {
   enable = true;
   # Een slapend/losgekoppeld apparaat is exit 0, dus dit vuurt alleen bij een
