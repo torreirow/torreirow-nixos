@@ -151,3 +151,41 @@ SQLi, IDOR op gast-offertes) en stond sinds de verhuizing naar wereldvanbegrip.n
 
 Geverifieerd: `/` en `/settings` → 302 naar `auth.wereldvanbegrip.nl`; gastlink, logo, favicon → 200.
 Open: upgrade naar 1.7.2 zodra funktionslust een image publiceert (nu alleen `1.7.2-rc-1`).
+
+### 2026-10-16 - Upgrade naar 1.7.2 via eigen image Gabbaya (LIVE)
+
+**Image:** `ghcr.io/torreirow/gabbaya` (repo https://github.com/torreirow/gabbaya), afgesplitst van
+funktionslust/invoiceplane-docker (sinds feb. stil, geen 1.7.2-image). Bouwt de officiële release-zip
+(`UPSTREAM_VERSION` + `UPSTREAM_SHA256`) en past `patches/series` toe. Wekelijkse CI opent een PR bij
+een nieuwe InvoicePlane-release; een patch die upstream is opgenomen laat de build falen → verwijderen.
+
+**Patches (1.7.2):**
+- `0001-session-empty-save-path`: lege `SESS_SAVE_PATH` uit `ipconfig.php.example` breekt sessies →
+  setup/login blijft hangen (InvoicePlane#1690). Backport van #1699 (opgelost in 1.8).
+- `0002-custom-public-templates`: eigen web-templates onbruikbaar (pad-check negeert
+  `CUSTOM_TEMPLATES_FOLDER` → 500; eigen bestanden zonder `$this`). Nog niet upstream gemeld.
+- Entrypoint installeert `.htaccess` bij `REMOVE_INDEXPHP=true` → `ExecStartPost`-workaround weg.
+
+**Nieuwe indeling op malandro:**
+
+| Pad                                   | In container         | Wat                                        |
+| ------------------------------------- | -------------------- | ------------------------------------------ |
+| `/data/external/invoiceplane-docker`  | `uploads/`           | uploads, logo's, css, favicon (ongewijzigd) |
+| `/data/external/invoiceplane-config`  | `/config`            | `ipconfig.php` (blijvend)                   |
+| `/data/external/invoiceplane-templates` | `/custom-templates` (ro) | `WereldVanBegrip` (pdf) en `WereldVanBegrip_Web` (web), factuur + offerte |
+
+Templates staan in de `CUSTOM_*`-allowlist (Nix `environment`, geen geheim). Sinds 1.7.2 scant
+InvoicePlane de templatemap niet meer (RCE-fix); de oude overmounts van `views/*_templates` zijn weg.
+Instellingen + mailtemplates 1 en 3 gebruiken `WereldVanBegrip`; herinnering houdt `InvoicePlane - overdue`.
+
+**Belangrijk:** `SETUP_COMPLETED` en `ENCRYPTION_KEY` komen uit het agenix-env-file en gaan vóór
+`ipconfig.php`. mPDF haalt CSS op via de publieke `IP_URL` → `/assets/` moet publiek blijven in nginx.
+
+**Upgrade-procedure (volgende keer):**
+1. Gabbaya-PR van de wekelijkse check mergen → nieuwe digest uit ghcr.
+2. Testen tegen een DB-kopie (testcontainer op een losse poort, SMTP in de kopie onschadelijk maken).
+3. Backup (DB-dump + `invoiceplane-docker`), digest in `modules/invoiceplane-docker.nix`.
+4. Tijdelijk `SETUP_COMPLETED = "false"` in `environment`, rebuild, `/setup` doorlopen, regel weg, rebuild.
+
+**Terugdraaien:** digest terug naar `funktionslust/invoiceplane@sha256:8fa4726e…` (1.7.1) **én** de DB
+terugzetten uit `/data/external/invoiceplane-backup-20261016/invoiceplane-db-pre-1.7.2.sql` (schema is nu 043).

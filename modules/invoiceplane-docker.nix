@@ -8,19 +8,32 @@
     mode = "0400";
   };
 
-  # InvoicePlane - Open source invoicing platform
+  # InvoicePlane via Gabbaya: eigen build van de officiële release + patches
+  # (https://github.com/torreirow/gabbaya). Vastgepind op digest; upgraden = nieuwe
+  # digest kiezen, testen tegen een DB-kopie, dan de DB-update via /setup.
   virtualisation.oci-containers.containers.invoiceplane = {
-    # Vastgepind op digest (2026-10-16): eigen templates/mounts zijn tegen deze versie getest.
-    # Upgraden = bewust nieuwe digest kiezen en templates/settings-pagina nalopen.
-    image = "funktionslust/invoiceplane@sha256:8fa4726ee8941da5e7376bd33e50cc1587e6f7951ddec81f181c7eeba0ae7283";
+    image = "ghcr.io/torreirow/gabbaya@sha256:623bd34388271193c20400130bcfef387efb934a04c27a2cd6290a6edb9e6ded"; # 1.7.2
     volumes = [
       "/data/external/invoiceplane-docker:/var/www/html/uploads"
-      "/data/external/invoiceplane-docker/templates:/var/www/html/application/views/invoice_templates"
-      "/data/external/invoiceplane-docker/quote_templates:/var/www/html/application/views/quote_templates"
+      # ipconfig.php blijvend (Gabbaya linkt het vanuit /config de webroot in)
+      "/data/external/invoiceplane-config:/config"
+      # Eigen templates (WereldVanBegrip), alleen-lezen: sinds 1.7.2 worden templates
+      # niet meer van schijf gescand maar via de CUSTOM_*-allowlist hieronder toegelaten.
+      "/data/external/invoiceplane-templates:/custom-templates:ro"
       "/data/external/invoiceplane-docker/css/custom-pdf.css:/var/www/html/assets/core/css/custom-pdf.css"
       # Wereld van Begrip-favicon i.p.v. het InvoicePlane-icoon uit het image
       "/data/external/invoiceplane-docker/branding/favicon.png:/var/www/html/assets/core/img/favicon.png:ro"
     ];
+    # Geen geheimen; die staan in het env-file. Waarden met -e gaan vóór het env-file.
+    environment = {
+      CUSTOM_TEMPLATES_FOLDER = "/custom-templates";
+      CUSTOM_INVOICE_TEMPLATES_PDF = "WereldVanBegrip";
+      CUSTOM_INVOICE_TEMPLATES_PUBLIC = "WereldVanBegrip_Web";
+      CUSTOM_QUOTE_TEMPLATES_PDF = "WereldVanBegrip";
+      CUSTOM_QUOTE_TEMPLATES_PUBLIC = "WereldVanBegrip_Web";
+      # DB-update na een upgrade: tijdelijk SETUP_COMPLETED = "false" hier toevoegen,
+      # rebuild, /setup doorlopen (achter Authelia), regel weer weg en rebuild.
+    };
     ports = [
       "127.0.0.1:8092:80"  # InvoicePlane web interface
     ];
@@ -30,27 +43,15 @@
     ];
   };
 
-
-  # Create invoiceplane data directory
-  # www-data in container is UID/GID 33, needs write access
+  # www-data in de container is UID/GID 33. De .htaccess-workaround (ExecStartPost) is
+  # niet meer nodig: het Gabbaya-entrypoint installeert .htaccess bij REMOVE_INDEXPHP=true.
   systemd.tmpfiles.rules = [
     "d /data/external/invoiceplane-docker 0775 33 33 -"
-    "d /data/external/invoiceplane-docker/templates 0775 33 33 -"
-    "d /data/external/invoiceplane-docker/quote_templates 0775 33 33 -"
-    # De bind-mounts verbergen de pdf/ en public/ submappen uit het image; ontbreken ze,
-    # dan crasht /settings (directory_map geeft false i.p.v. een array)
-    "d /data/external/invoiceplane-docker/templates/pdf 0775 33 33 -"
-    "d /data/external/invoiceplane-docker/templates/public 0775 33 33 -"
-    "d /data/external/invoiceplane-docker/quote_templates/pdf 0775 33 33 -"
-    "d /data/external/invoiceplane-docker/quote_templates/public 0775 33 33 -"
+    "d /data/external/invoiceplane-config 0750 33 33 -"
+    "d /data/external/invoiceplane-templates 0755 root root -"
     "d /data/external/invoiceplane-docker/css 0755 root root -"
     "d /data/external/invoiceplane-docker/branding 0755 root root -"
   ];
-
-  # Fix for Docker image: copy htaccess to .htaccess after container starts
-  # The REMOVE_INDEXPHP=true env var doesn't work properly in this image
-  systemd.services.docker-invoiceplane.serviceConfig.ExecStartPost =
-    "${pkgs.bash}/bin/bash -c 'sleep 3 && ${pkgs.docker}/bin/docker exec invoiceplane cp /var/www/html/htaccess /var/www/html/.htaccess || true'";
 
   # Nginx reverse proxy. Beheer achter Authelia (groep invoiceplane, zie modules/authelia.nix);
   # alleen wat klanten nodig hebben is publiek: de gastweergave van facturen/offertes, de
