@@ -25,6 +25,7 @@
  ../../modules/ittools.nix
  ../../modules/kpn.nix
  ../../modules/mails-redirect.nix
+ ../../modules/stichtingwittevelden-redirect.nix
  ../../modules/magister/magister-service.nix
  ../../modules/wake-bobadela1
  ../../modules/monitoring
