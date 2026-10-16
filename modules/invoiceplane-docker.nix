@@ -8,6 +8,14 @@
     mode = "0400";
   };
 
+  # Client secret voor single sign-on (OIDC_CLIENT_SECRET=...); de hash staat bij de
+  # Authelia-client "invoiceplane" in modules/authelia.nix.
+  age.secrets.invoiceplane-oidc = {
+    file = ../secrets/invoiceplane-oidc.age;
+    path = "/run/agenix/invoiceplane-oidc";
+    mode = "0400";
+  };
+
   # InvoicePlane via Gabbaya: eigen build van de officiële release + patches
   # (https://github.com/torreirow/gabbaya). Vastgepind op digest; upgraden = nieuwe
   # digest kiezen, testen tegen een DB-kopie, dan de DB-update via /setup.
@@ -36,6 +44,11 @@
       # DB-update na een upgrade: tijdelijk DISABLE_SETUP = "false" en
       # SETUP_COMPLETED = "false", rebuild, /setup doorlopen (achter Authelia), terug en rebuild.
       DISABLE_SETUP = "true";
+      # Single sign-on via Authelia (Gabbaya patch 0004-oidc-sso). Overige opties
+      # (auto-redirect, lokaal inloggen als noodroute) staan in Instellingen > Single sign-on.
+      OIDC_ENABLED = "true";
+      OIDC_PROVIDER_URL = "https://auth.wereldvanbegrip.nl";
+      OIDC_CLIENT_ID = "invoiceplane";
     };
     ports = [
       "127.0.0.1:8092:80"  # InvoicePlane web interface
@@ -43,6 +56,7 @@
     extraOptions = [
       "--add-host=host.docker.internal:host-gateway"  # Allow container to reach host MariaDB
       "--env-file=${config.age.secrets.invoiceplane-env.path}"  # Load secrets from agenix
+      "--env-file=${config.age.secrets.invoiceplane-oidc.path}"  # OIDC_CLIENT_SECRET
     ];
   };
 

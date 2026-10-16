@@ -42,6 +42,7 @@ in
   "docseal-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "invoiceplane-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "invoiceplane-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "invoiceplane-oidc.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "vikunja-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "bookstack-appkey.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "bookstack-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];

@@ -74,3 +74,7 @@ wouteradmin. Rollback = `nixos-rebuild switch` naar generation 53/555.
   de pre-start → `authelia-main` start niet → ALLE forward-auth-diensten plat. Na bewerken altijd
   `sudo ragenx -d authelia-password-hashes.age --ssh-dir /etc/ssh | jq keys`.
 - `secrets/authelia-users.age` verwijderd (ongebruikt sinds commit 9c92835).
+- OIDC-client **`invoiceplane`** (2026-10-16): single sign-on voor InvoicePlane op het
+  wereldvanbegrip.nl-portal (issuer `https://auth.wereldvanbegrip.nl`), beleid `invoiceplane`
+  (groep invoiceplane, two_factor), PKCE S256, client_secret_basic, consent pre-configured.
+  Secret: hash in authelia.nix, plaintext in `secrets/invoiceplane-oidc.age`. Zie docs/invoiceplane.md.

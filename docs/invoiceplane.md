@@ -192,3 +192,42 @@ Instellingen + mailtemplates 1 en 3 gebruiken `WereldVanBegrip`; herinnering hou
 
 **Terugdraaien:** digest terug naar `funktionslust/invoiceplane@sha256:8fa4726e…` (1.7.1) **én** de DB
 terugzetten uit `/data/external/invoiceplane-backup-20261016/invoiceplane-db-pre-1.7.2.sql` (schema is nu 043).
+
+### 2026-10-16 - Single sign-on (OIDC) via Authelia (Gabbaya patch 0004)
+
+**Doel:** één Authelia-login (wachtwoord + 2FA) en direct in InvoicePlane, zonder tweede login.
+
+**Flow:**
+```
+browser → invoices.wereldvanbegrip.nl → nginx forward-auth → Authelia (1× inloggen)
+        → /sessions/login → (auto-redirect) /sessions/oidc_login
+        → auth.wereldvanbegrip.nl/api/oidc/authorization (sessie bestaat, consent pre-configured)
+        → /sessions/oidc_callback → dashboard
+```
+
+**Onderdelen:**
+- Code: Gabbaya patch `0004-oidc-sso` (jumbojett/openid-connect-php, PKCE S256), herbouwd uit
+  InvoicePlane#1448; fork-branch `feature/oidc-sso`. Migratie `043a_1.7.2.sql`
+  (`user_password` nullable, `user_auth_provider`, unieke `user_oidc_sub`).
+- Authelia: client `invoiceplane` + beleid `invoiceplane` (groep invoiceplane, two_factor) in
+  `modules/authelia.nix`; alleen de argon2-hash van het secret staat daar.
+- Secret: `secrets/invoiceplane-oidc.age` (`OIDC_CLIENT_SECRET=…`), als tweede `--env-file`.
+- Env (Nix `environment`): `OIDC_ENABLED`, `OIDC_PROVIDER_URL=https://auth.wereldvanbegrip.nl`,
+  `OIDC_CLIENT_ID=invoiceplane`. De issuer moet exact gelijk zijn aan `OIDC_PROVIDER_URL`.
+- Instellingen (DB, Instellingen → Single sign-on): `oidc_auto_redirect_login=1`,
+  `oidc_allow_local_login=1`, `oidc_auto_create_users=0`, `oidc_require_email_verified=1`.
+
+**Account-koppeling:** eerst op `user_oidc_sub`; anders één keer op geverifieerde e-mail die precies
+één account matcht. E-mail in Authelia moet dus gelijk zijn aan die in InvoicePlane:
+`wouter@toorren.net`, `maaike@wereldvanbegrip.nl`. Nieuwe gebruiker: eerst in Authelia (groep
+`invoiceplane`), dan in InvoicePlane met hetzelfde e-mailadres aanmaken.
+
+**Noodroutes:**
+1. OIDC faalt (secret, client, claim): `https://invoices.wereldvanbegrip.nl/sessions/login?local=1`
+   → lokaal wachtwoord (bewaar het wachtwoord van `wouter@toorren.net`). Na een SSO-fout wordt
+   niet opnieuw doorgestuurd; uitloggen gaat ook naar `?local=1`.
+2. Authelia helemaal plat: forward-auth blokkeert óók `?local=1`. Dan buiten nginx om:
+   `ssh -L 8092:127.0.0.1:8092 malandro` → `http://localhost:8092/sessions/login?local=1`.
+   Klantlinks (`/guest/`) werken gewoon door (staan buiten Authelia).
+
+**Tests:** `tests/oidc-e2e/run.sh` in Gabbaya (18 scenario's tegen een mock-OIDC-provider, ook in CI).
