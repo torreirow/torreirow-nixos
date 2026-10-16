@@ -128,7 +128,7 @@ zodra de body HTML bevat, dus regeleinden in de HTML zijn veilig. Backup van de 
 | 2  | Herinnering verlopen factuur | `email_invoice_template_overdue` | InvoicePlane - overdue |
 | 3  | Offerte                      | `email_quote_template`           | InvoicePlane           |
 
-De **Voorbeeld**-pane in InvoicePlane toont HTML-mails altijd als ruwe code: `update_email_template_preview()`
+De **Voorbeeld**-pane toonde HTML-mails als ruwe code (opgelost met Gabbaya-patch 0003): `update_email_template_preview()`
 in `assets/core/js/scripts.js` haalt de body eerst door `encodeHtml()` en strip daarna `style` en `<img>`.
 Bug in InvoicePlane zelf; de verstuurde mail is wél opgemaakt. Controleer via een testmail of de
 `preview-*.html` uit het script.
@@ -162,6 +162,9 @@ een nieuwe InvoicePlane-release; een patch die upstream is opgenomen laat de bui
 **Patches (1.7.2):**
 - `0001-session-empty-save-path`: lege `SESS_SAVE_PATH` uit `ipconfig.php.example` breekt sessies →
   setup/login blijft hangen (InvoicePlane#1690). Backport van #1699 (opgelost in 1.8).
+- `0003-email-template-preview` (2026-10-16): preview van mailtemplates rendert de mail i.p.v. de
+  HTML-bron (backport upstream f20b9c9e, InvoicePlane#1432; opgelost in 1.8). `srcdoc` in een
+  `sandbox=""`-iframe, ook in de twee verzendschermen. Browser-cache legen als de oude preview blijft.
 - `0002-custom-public-templates`: eigen web-templates onbruikbaar (pad-check negeert
   `CUSTOM_TEMPLATES_FOLDER` → 500; eigen bestanden zonder `$this`). Nog niet upstream gemeld.
 - Entrypoint installeert `.htaccess` bij `REMOVE_INDEXPHP=true` → `ExecStartPost`-workaround weg.

@@ -12,7 +12,7 @@
   # (https://github.com/torreirow/gabbaya). Vastgepind op digest; upgraden = nieuwe
   # digest kiezen, testen tegen een DB-kopie, dan de DB-update via /setup.
   virtualisation.oci-containers.containers.invoiceplane = {
-    image = "ghcr.io/torreirow/gabbaya@sha256:623bd34388271193c20400130bcfef387efb934a04c27a2cd6290a6edb9e6ded"; # 1.7.2
+    image = "ghcr.io/torreirow/gabbaya@sha256:dc9430e8893c8862454796d230a47940baf31feef36bb68f7844080cf607c651"; # 1.7.2 + patches 0001-0003
     volumes = [
       "/data/external/invoiceplane-docker:/var/www/html/uploads"
       # ipconfig.php blijvend (Gabbaya linkt het vanuit /config de webroot in)
