@@ -16,8 +16,8 @@ REPO="$USER_HOME/data/git/torreirow/torreirow-nixos"
 HOST=$(hostname -s)
 
 case "$HOST" in
-    lobos)    HM_CONFIG="wtoorren@linuxdesktop"; HM_EXTRA=(--impure) ;;
-    malandro) HM_CONFIG="wtoorren@linuxserver";  HM_EXTRA=() ;;
+    lobos)    HM_CONFIG="wtoorren@linuxdesktop" ;;
+    malandro) HM_CONFIG="wtoorren@linuxserver" ;;
     *)        echo "Onbekende host '$HOST' (alleen lobos en malandro)"; exit 1 ;;
 esac
 
@@ -82,8 +82,9 @@ cmd_update() {
 
     echo ""
     echo "==> Home-manager switchen (.#$HM_CONFIG)..."
+    # --impure: home/awsconf.nix leest ~/.aws/managed_service_accounts.json.
     (cd "$REPO" && as_user home-manager switch --flake ".#$HM_CONFIG" \
-        --extra-experimental-features nix-command "${HM_EXTRA[@]}" -b "backup-$(date +%s)") \
+        --extra-experimental-features nix-command --impure -b "backup-$(date +%s)") \
         || { echo "home-manager switch mislukt, stop."; exit 1; }
 
     # Tegenhanger van apt autoremove: zonder dit loopt /nix/store vol
