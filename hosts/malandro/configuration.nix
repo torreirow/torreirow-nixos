@@ -533,7 +533,7 @@ services.authelia.users = [
     username = "wouter";
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
-    groups = [ "office" "linny" "personal-wouter" "grafana-editors" ];
+    groups = [ "office" "linny" "personal-wouter" "grafana-editors" "invoiceplane" ];
     disabled = false;
   }
   {
@@ -541,6 +541,14 @@ services.authelia.users = [
     displayname = "WouteruseR van der Toorren";
     email = "wouteruser@toorren.net";
     groups = [ "office" "linny" ];
+    disabled = false;
+  }
+  # Wereld van Begrip: alleen InvoicePlane (invoices.wereldvanbegrip.nl)
+  {
+    username = "maaike";
+    displayname = "Maaike van der Toorren";
+    email = "maaike@wereldvanbegrip.nl";
+    groups = [ "invoiceplane" ];
     disabled = false;
   }
 ];

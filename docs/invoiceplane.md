@@ -56,3 +56,98 @@ OCI-container op poort 8092, host-MariaDB, de .htaccess-workaround en proxy-head
 - ✅ Docker image bugs kunnen workarounds vereisen (zoals ExecStartPost voor .htaccess setup)
 
 **Status:** ✅ InvoicePlane live op https://invoices.toorren.net
+
+### Sessie 2026-10-16 - 500 op /settings (invoices.wereldvanbegrip.nl) - OPGELOST
+
+**Symptoom:** `https://invoices.wereldvanbegrip.nl/settings` gaf 500 Internal Server Error.
+
+**Diagnose:** app-log in de container (`/var/www/html/application/logs/log-<datum>.php`):
+```
+Mdl_Templates::remove_extension(): Argument #1 ($files) must be of type array, bool given
+```
+De bind-mount `/data/external/invoiceplane-docker/quote_templates` → `application/views/quote_templates`
+was leeg. De mount verbergt de `pdf/`- en `public/`-submappen uit het image; `directory_map()` op een
+niet-bestaande map geeft `false` en de settings-pagina crasht.
+
+**Oplossing:**
+- Standaard quote-templates uit het image naar de hostmap gekopieerd:
+  ```bash
+  cid=$(sudo docker create funktionslust/invoiceplane:latest)
+  sudo docker cp "$cid":/var/www/html/application/views/quote_templates/. /data/external/invoiceplane-docker/quote_templates/
+  sudo docker rm "$cid"; sudo chown -R 33:33 /data/external/invoiceplane-docker/quote_templates
+  ```
+- tmpfiles-regels in `modules/invoiceplane-docker.nix` voor `pdf/` en `public/` onder zowel
+  `templates/` als `quote_templates/`, zodat een lege mount nooit meer tot een crash leidt.
+  Let op: een lege map voorkomt de crash, maar dan staan er geen templates in de keuzelijst; vul
+  'm dan met bovenstaande `docker cp` (voor `invoice_templates` analoog).
+
+**Open punt:** in Settings staat PDF-factuurtemplate `WereldVanBegrip` ingesteld, maar
+`templates/pdf/WereldVanBegrip.php` bestaat niet → InvoicePlane valt terug op het default template
+(`Invalid PDF invoice template from settings: WereldVanBegrip, using default`).
+
+**Les:** bind-mount je een map over een image-map, dan verdwijnt de image-inhoud. Seed de hostmap
+eerst vanuit het image.
+
+**Logo op de webfactuur (`/guest/view/invoice/...`) te groot:** `InvoicePlane_Web.php` echoot het
+logo (`wvb-klein-logo2.png`, 488×727) zonder maat. In
+`/data/external/invoiceplane-docker/templates/public/InvoicePlane_Web.php` is de `<img>` nu begrensd
+op `max-height:120px` (backup: `InvoicePlane_Web.php.bak-20261016`). Het bestand staat op de
+hostmap, dus de wijziging blijft bewaard als het image wordt bijgewerkt.
+
+**Nieuw factuurlogo (2026-10-16):** `wvb-logo-transparant.png` (270×400, 112 KB), gemaakt uit de
+2000×2000-bron met `magick ... -trim +repage -resize x400 -strip` + `oxipng -o 4`. Ingesteld via
+`ip_settings.invoice_logo`; het oude `wvb-klein-logo2.png` staat er nog.
+
+**Logo's op de overige plekken (2026-10-16):**
+
+| Plek                          | Bron                                    | Maat                                       |
+| ----------------------------- | --------------------------------------- | ------------------------------------------ |
+| Factuur/offerte PDF           | `invoice_logo` → `wvb-logo-transparant` | CSS `#invoice-logo{max-height:125px}`      |
+| Factuur/offerte webweergave   | `invoice_logo`                          | `max-height:120px` in `*_templates/public` |
+| Inlogscherm                   | `login_logo` → `wvb-login-logo.png`     | 122×180                                    |
+| Favicon                       | `branding/favicon.png` (bind-mount)     | 64×64                                      |
+| Gast-betaalpagina             | `invoice_logo`, view in image           | niet begrensd (zelden gebruikt)            |
+
+Logo's maken: `magick /data/external/invoiceplane-docker/branding/logo-wvb-bron-2000.png -trim +repage -resize x<hoogte> -strip <uit>`
+(favicon: `-resize 64x64 -background none -gravity center -extent 64x64`), daarna `oxipng -o 4`.
+
+**HTML-mailtemplate (2026-10-16):** `ip_email_templates` id 1 ("Factuur Maandelijks") is nu opgemaakte
+HTML (inline styles, tabel-layout, logo via absolute URL, knop naar `{{{invoice_guest_url}}}`) en
+staat als standaard ingesteld (`ip_settings.email_invoice_template = 1`). PDF-template van de mail
+van het niet-bestaande `WereldVanBegrip` naar `InvoicePlane` gezet. Mailer.php slaat `nl2br` over
+zodra de body HTML bevat, dus regeleinden in de HTML zijn veilig. Backup van de oude tabel:
+`/data/external/invoiceplane-docker/branding/ip_email_templates-backup-20261016.sql`.
+
+**Mailtemplates bijgewerkt (2026-10-16, later):** drie HTML-templates, alle drie gegenereerd door
+`/data/external/invoiceplane-docker/branding/gen_mails.py <uitmap>` (schrijft `mail-templates.sql` +
+`preview-*.html`; toepassen met `sudo mariadb invoiceplane < mail-templates.sql`, idempotent op titel):
+
+| Id | Titel                        | Instelling                       | PDF-template           |
+| -- | ---------------------------- | -------------------------------- | ---------------------- |
+| 1  | Factuur Maandelijks          | `email_invoice_template`         | InvoicePlane           |
+| 2  | Herinnering verlopen factuur | `email_invoice_template_overdue` | InvoicePlane - overdue |
+| 3  | Offerte                      | `email_quote_template`           | InvoicePlane           |
+
+De **Voorbeeld**-pane in InvoicePlane toont HTML-mails altijd als ruwe code: `update_email_template_preview()`
+in `assets/core/js/scripts.js` haalt de body eerst door `encodeHtml()` en strip daarna `style` en `<img>`.
+Bug in InvoicePlane zelf; de verstuurde mail is wél opgemaakt. Controleer via een testmail of de
+`preview-*.html` uit het script.
+
+**Image vastgepind (2026-10-16):** `funktionslust/invoiceplane@sha256:8fa4726e…` (= de `latest` die op dat
+moment draaide). Bij upgraden: settings-pagina, templates en `.htaccess`-workaround opnieuw controleren.
+
+### 2026-10-16 - Beheer weer achter Authelia (LIVE)
+
+Aanleiding: 1.7.1 heeft bekende critical/high lekken (RCE via templates, niet-verlopende reset-tokens,
+SQLi, IDOR op gast-offertes) en stond sinds de verhuizing naar wereldvanbegrip.nl zonder Authelia publiek.
+
+- `invoices.wereldvanbegrip.nl/` → Authelia `two_factor`, groep **`invoiceplane`** (`wouter` zit erin).
+- Publiek (geen `auth_request` in nginx): `/guest/`, `/assets/`, `~ ^/uploads/[^/]+\.(png|jpe?g)$`
+  (logo's voor de mails). `/uploads/archive/` e.d. zitten achter Authelia.
+- **Eigen cookie-domein:** een Authelia-cookie van `toorren.net` geldt niet op `wereldvanbegrip.nl`,
+  dus tweede `session.cookies`-entry + portal-vhost **`auth.wereldvanbegrip.nl`** (DNS A → 82.170.93.180,
+  wildcard-cert `*.wereldvanbegrip.nl`). Zelfde Authelia, zelfde users/2FA; je logt per domein één keer in.
+- Backup vóór de wijziging: `/data/external/invoiceplane-backup-20261016` (bestanden + DB-dump + ipconfig.php).
+
+Geverifieerd: `/` en `/settings` → 302 naar `auth.wereldvanbegrip.nl`; gastlink, logo, favicon → 200.
+Open: upgrade naar 1.7.2 zodra funktionslust een image publiceert (nu alleen `1.7.2-rc-1`).

@@ -161,6 +161,18 @@
             domain = "auth.toorren.net";
             policy = "bypass";
           }
+          {
+            domain = "auth.wereldvanbegrip.nl";
+            policy = "bypass";
+          }
+
+          # InvoicePlane-beheer. De klantroutes (/guest/, /assets/, logo's in /uploads/)
+          # slaan nginx' auth_request al over; zie modules/invoiceplane-docker.nix.
+          {
+            domain = [ "invoices.wereldvanbegrip.nl" ];
+            policy = "two_factor";
+            subject = [ "group:invoiceplane" ];
+          }
 
           # KPN Modem - bypass lokaal, extern 2FA voor de operations-groep.
           {
@@ -262,6 +274,17 @@
             domain = "toorren.net";
             authelia_url = "https://auth.toorren.net";
             default_redirection_url = "https://toorren.net";
+            name = "authelia_session";
+            same_site = "lax";
+            expiration = "1h";
+            inactivity = "5m";
+          }
+          # Eigen cookie-domein voor InvoicePlane (invoices.wereldvanbegrip.nl): een cookie
+          # van toorren.net geldt daar niet, dus ook een eigen portal op dat domein.
+          {
+            domain = "wereldvanbegrip.nl";
+            authelia_url = "https://auth.wereldvanbegrip.nl";
+            default_redirection_url = "https://invoices.wereldvanbegrip.nl";
             name = "authelia_session";
             same_site = "lax";
             expiration = "1h";
@@ -543,6 +566,20 @@
       forceSSL = true;
       enableACME = true;
       
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:9091";
+        proxyWebsockets = true;
+        extraConfig = ''
+          proxy_set_header X-Forwarded-Host $http_host;
+        '';
+      };
+    };
+
+    # Portal voor het wereldvanbegrip.nl-cookiedomein (InvoicePlane)
+    virtualHosts."auth.wereldvanbegrip.nl" = {
+      forceSSL = true;
+      useACMEHost = "wereldvanbegrip.nl";
+
       locations."/" = {
         proxyPass = "http://127.0.0.1:9091";
         proxyWebsockets = true;

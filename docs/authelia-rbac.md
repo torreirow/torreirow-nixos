@@ -61,3 +61,16 @@ wouteradmin = superuser; wouter gedegradeerd maar via object-rechten ziet die no
 wouteradmin. Rollback = `nixos-rebuild switch` naar generation 53/555.
 
 **Status:** ✅ Live en getest. Alleen nog: change archiveren + PR/merge.
+
+### 2026-10-16 - Tweede cookie-domein wereldvanbegrip.nl (InvoicePlane)
+
+- Groep **`invoiceplane`** (wouter, maaike) → `invoices.wereldvanbegrip.nl`, two_factor. Portal
+  `auth.wereldvanbegrip.nl` met eigen `session.cookies`-entry (cookie van toorren.net geldt daar niet).
+  Details: `docs/invoiceplane.md`.
+- **WebAuthn/security keys zijn per domein (RP ID).** Een key geregistreerd op `auth.toorren.net` werkt
+  niet op `auth.wereldvanbegrip.nl` ("Found no credentials"). TOTP werkt wél op beide → kies daar
+  METHODS → One-Time Password, of registreer de key opnieuw op het tweede portal.
+- **Valkuil hashes-secret:** een ontbrekende komma in `authelia-password-hashes.age` → `jq: Bad JSON` in
+  de pre-start → `authelia-main` start niet → ALLE forward-auth-diensten plat. Na bewerken altijd
+  `sudo ragenx -d authelia-password-hashes.age --ssh-dir /etc/ssh | jq keys`.
+- `secrets/authelia-users.age` verwijderd (ongebruikt sinds commit 9c92835).
