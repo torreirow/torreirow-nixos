@@ -11,9 +11,12 @@
   # Sta Docker containers toe MariaDB te bereiken via host.docker.internal
   networking.firewall.extraCommands = ''
     iptables -I nixos-fw 1 -i br+ -p tcp --dport 3306 -j nixos-fw-accept
+    # En vanuit het interne netwerk (LAN)
+    iptables -A nixos-fw -s 192.168.2.0/24 -p tcp --dport 3306 -j nixos-fw-accept
   '';
   networking.firewall.extraStopCommands = ''
     iptables -D nixos-fw -i br+ -p tcp --dport 3306 -j nixos-fw-accept || true
+    iptables -D nixos-fw -s 192.168.2.0/24 -p tcp --dport 3306 -j nixos-fw-accept || true
   '';
 
   ### PHP-FPM ###
