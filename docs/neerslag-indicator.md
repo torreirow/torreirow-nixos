@@ -55,3 +55,23 @@ in het grafana-journal zijn pre-existing kapotte dashboards `torreiro-monitoring
 
 **Status:** ✅ Live en geverifieerd (HA + Prometheus + Grafana). Alleen drempel-tuning (6.1) volgt na
 enkele dagen data.
+
+## Buienradar-sensoren `unknown` / bevroren (2026-10-17) — lokale library-patch
+
+**Symptoom:** `sensor.neerslagintensiteit` en `neerslagverwachting_*` op `unknown` (na herstart) of
+bevroren op de laatste waarde; `weather.buienradar` werkt wel. Ook een reload helpt niet.
+
+**Oorzaak:** Buienradar zet sinds 2026-10-12 een `Z` achter station-timestamps
+(`2026-10-17T09:40:00Z`), terwijl de tijd nog steeds **lokaal** is. `buienradar` 1.0.9
+(`__to_localdatetime`, formaat `%Y-%m-%dT%H:%M:%S`) faalt daarop → `measured = None`. HA's
+`BrSensor._load_data` slaat elke update over als `measured` niet verandert, en `None == None`.
+Upstream: home-assistant/core#186072, mjj4791/python-buienradar#28 (beide open op 2026-10-17).
+
+**Fix (runtime, buiten de repo):** gepatchte kopie van de library in
+`/var/lib/homeassistant/deps/lib/python3.14/site-packages/buienradar/` (strip de trailing `Z`).
+HA zet dát pad (de *user-site* van `/config/deps`, níet `/config/deps` zelf) vooraan op
+`sys.path`, dus de patch wint van de image-versie en overleeft container-recreate.
+
+**⚠️ Opruimen** zodra HA een buienradar-versie met fix meelevert: verwijder
+`deps/lib/python3.14/site-packages/buienradar*` en herstart HA — anders schaduwt deze kopie
+toekomstige versies.
