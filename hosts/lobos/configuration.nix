@@ -99,10 +99,6 @@ boot.binfmt.preferStaticEmulators = true;
   # networking.firewall.allowedUDPPorts = [ ... ];
    networking.firewall.enable = true;
 
-  ## Spotify discovery devices
-  networking.firewall.allowedUDPPorts = [ 111 2049 5353 ]; # Spotify Connect
-  networking.firewall.allowedTCPPorts = [ 111 2049 57621 ]; # Sync local tracks
-
 
 
   ## Security
@@ -137,57 +133,29 @@ boot.binfmt.preferStaticEmulators = true;
       "nl_NL.UTF-8/UTF-8"
     ];
     extraLocaleSettings = {
+      LC_ADDRESS = "nl_NL.UTF-8";
+      LC_IDENTIFICATION = "nl_NL.UTF-8";
+      LC_MEASUREMENT = "nl_NL.UTF-8";
+      LC_MONETARY = "nl_NL.UTF-8";
+      LC_NAME = "nl_NL.UTF-8";
+      LC_NUMERIC = "nl_NL.UTF-8";
+      LC_PAPER = "nl_NL.UTF-8";
+      LC_TELEPHONE = "nl_NL.UTF-8";
       LC_TIME = "nl_NL.UTF-8";
     };
   };
 
   environment = {
     sessionVariables = {
-      LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
       SAL_USE_VCLPLUGIN = "gtk3";
       FONTCONFIG_PATH = "/etc/fonts";
     };
   };
 
-   environment.variables = {
-    #LANG = "en_US.UTF-8";
-    LC_ALL = "";
-    LC_ADDRESS = "nl_NL.UTF-8";
-    LC_IDENTIFICATION = "nl_NL.UTF-8";
-    LC_MEASUREMENT = "nl_NL.UTF-8";
-    LC_MONETARY = "nl_NL.UTF-8";
-    LC_NAME = "nl_NL.UTF-8";
-    LC_NUMERIC = "nl_NL.UTF-8";
-    LC_PAPER = "nl_NL.UTF-8";
-    LC_TELEPHONE = "nl_NL.UTF-8";
-    LC_TIME = "nl_NL.UTF-8";
-  };
 
 
 environment.variables.EDITOR = "vim";
 
-
-#  i18n.extraLocaleSettings = {
-#    LANG = "nl_NL.UTF-8";
-#    LANGUAGE = "en_US.utf8";
-#    LC_ADDRESS = "nl_NL.UTF-8";
-#    LC_ALL = "en_US.utf8";
-#    LC_IDENTIFICATION = "nl_NL.UTF-8";
-#    LC_MEASUREMENT = "nl_NL.UTF-8";
-#    LC_MONETARY = "nl_NL.UTF-8";
-#    LC_NAME = "nl_NL.UTF-8";
-#    LC_NUMERIC = "nl_NL.UTF-8";
-#    LC_PAPER = "nl_NL.UTF-8";
-#    LC_TELEPHONE = "nl_NL.UTF-8";
-#    LC_TIME = "nl_NL.UTF-8";
-#
-#  };
-#
-  # Enable the X11 windowing system.
-  services.mysql = {
-    enable = true;
-    package = pkgs.mariadb;
-  };
 
   # GNOME Desktop configuratie staat in gnome-wayland.nix
 
@@ -340,6 +308,11 @@ security.pam.services.greetd.enableGnomeKeyring = true;
   programs.zsh.enable = true;
 
   virtualisation.docker.enable = true;
+  # Geen autostart: docker.socket start de daemon bij het eerste `docker`-commando.
+  virtualisation.docker.enableOnBoot = false;
+
+  # TeamViewer niet bij boot starten; handmatig: `sudo systemctl start teamviewerd`.
+  systemd.services.teamviewerd.wantedBy = lib.mkForce [ ];
 
   programs.gnupg.agent = {
   enable = true;
@@ -401,6 +374,11 @@ services.samba = {
       "hosts deny" = "0.0.0.0/0";
       "guest account" = "nobody";
       "map to guest" = "bad user";
+      # Niet meedingen naar master browser: 192.168.2.52 doet dat al, anders logt nmbd
+      # elke 5 min "Multiple (2) responses ... WORKGROUP<1d>".
+      "local master" = "no";
+      "preferred master" = "no";
+      "domain master" = "no";
     };
     "private" = {
     "path" = "/tmp/tmp";
@@ -528,27 +506,10 @@ systemd.services.sshd.serviceConfig = {
   PrivateTmp = true;
 };
 
-services.nfs.server.enable = true;
-environment.etc."exports-dir".source = "/data";
-services.nfs.server.exports = ''
-          /data 192.168.2.0/24(rw,sync,no_subtree_check)
-    '';
-services.nfs.settings = {
-      nfsd.udp = false;
-      nfsd.vers3 = false;
-      nfsd.vers4 = true;
-      nfsd."vers4.0" = false;
-      nfsd."vers4.1" = false;
-      nfsd."vers4.2" = true;
-    };
 
 
 
 # XDG portals en Wayland environment variables staan in gnome-wayland.nix
 
-#Chrome crash fix
-environment.variables = {
-  CHROME_FLAGS = "--disable-gpu --disable-software-rasterizer";
-};
 
 }
