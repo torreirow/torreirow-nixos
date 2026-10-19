@@ -22,6 +22,23 @@ modules/fail2ban.nix, de jails en de NixOS 25.11-opties die NIET op top-level be
 - ✅ Deze opties werken WEL binnen jail configuraties
 - ✅ `ignoreIP`, `banaction`, `banaction-allports` werken op top-level
 
+#### 3. Jail `nginx-scanner` (2026-10-19)
+Aanleiding: scanner 45.61.187.50 probeerde op 8 sep, 16 sep en 18 okt Joomla-exploits (JCE, SP Page
+Builder). De bestaande nginx-jails zagen niets: die matchen auth-/limit-fouten uit de journal
+(`error_log stderr`), geen 404-scans in het access-log.
+
+- **Bron:** `/var/log/nginx/access.log` als bestand → `backend = auto` in de jail (de rest staat
+  op `systemd`, het access-log komt niet in de journal).
+- **Filter:** 4xx op `.php`, `wp-`, `xmlrpc`, `/administrator/`, `com_`, `/.env`, `/.git/`, ... plus
+  elke `POST /index.php?option=com_jce|sppagebuilder|...`. 5 hits in 10 min → ban van 1 dag.
+- **Valkuil (getoetst op 5 maanden log):** de eigen Nextcloud-client krijgt legitiem 404's op
+  `/ocs/v2.php/apps/terms_of_service/...`. Daarom tellen alleen requests zonder ingelogde gebruiker
+  (`- - [`) en zijn `/ocs`, `/remote.php`, `/index.php/`, `/status.php`, `/public.php`, `/apps/`
+  uitgezonderd.
+- **Logformaat:** nginx logt sinds dezelfde wijziging `combined` + `host=$host` **aan het eind** van
+  de regel (`modules/nginx.nix`). Zet de host nooit vooraan: dan breken de `^<HOST>`-regexen.
+- **Testen:** `fail2ban-regex /var/log/nginx/access.log /etc/fail2ban/filter.d/nginx-scanner.conf`
+
 ## Commandos
 
 ### Fail2ban (malandro)

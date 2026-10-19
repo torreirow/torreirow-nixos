@@ -1,0 +1,39 @@
+groups:
+  - name: Plantwater
+    rules:
+      # Bodemvocht onder de droog-drempel (vrouwentong: number.plantwater_soil_warning = 20%).
+      # De sensor zelf zet binary_sensor.plantwater_dry; HA stuurt daarnaast een Signal-melding.
+      - alert: PlantwaterDroog
+        expr: homeassistant_binary_sensor_state{entity="binary_sensor.plantwater_dry"} == 1 or homeassistant_sensor_moisture_percent{entity="sensor.plantwater_soil_moisture"} < 20
+        for: 1h
+        labels:
+          severity: warning
+          component: smart-home
+          service: plant
+        annotations:
+          summary: "Plant heeft water nodig (vrouwentong)"
+          description: 'Bodemvocht is {{ with query "homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}" }}{{ . | first | value }}{{ end }}% (drempel 20%), al minstens een uur. Tijd om water te geven.'
+
+      # Accu bijna leeg
+      - alert: PlantwaterBatterijLaag
+        expr: homeassistant_sensor_battery_percent{entity="sensor.plantwater_battery"} < 15
+        for: 6h
+        labels:
+          severity: info
+          component: smart-home
+          service: plant
+        annotations:
+          summary: "Plantwater-sensor batterij laag"
+          description: "Batterij van de plantwater-sensor is {{ $value }}%."
+
+      # Sensor onbereikbaar (Zigbee weg / accu leeg)
+      - alert: PlantwaterSensorOffline
+        expr: homeassistant_entity_available{entity="sensor.plantwater_soil_moisture"} == 0
+        for: 6h
+        labels:
+          severity: warning
+          component: smart-home
+          service: plant
+        annotations:
+          summary: "Plantwater-sensor onbereikbaar"
+          description: "sensor.plantwater_soil_moisture is al 6 uur unavailable. Zigbee-verbinding of batterij controleren."
