@@ -170,13 +170,30 @@ environment.variables = {
 - `~/.config/Clementine/clementine.db`: Hersteld vanuit backup
 - Internetradio's toegevoegd aan Strawberry database (6 streams)
 
-**Radio streams in Strawberry:**
-1. SevenFM - https://25583.live.streamtheworld.com/SEVENFMAAC.aac
-2. Bright FM - https://brightfm.hdsserver.net/stream
-3. Christian Regular - http://stream-14.aiir.com/o8yaycnysb6tv
-4. RFM Portugal - http://27793.live.streamtheworld.com/RFMAAC.aac
-5. UCB 2 - https://listen-ucb.sharp-stream.com/55_ucb_2_48_aac
-6. Bright FM Plus - http://brightplus.hdsserver.net/stream
+**Radio streams in Strawberry:** inmiddels declaratief beheerd. De lijst staat in
+`home/dotfiles/strawberry-radio-streams.nix`; `home/dotfiles/strawberry.nix` vult bij elke
+`home-manager switch` (via `home.activation`) de playlist "Radio Streams" in `strawberry.db`.
+Streams toevoegen/wijzigen = dat bestand aanpassen, niet handmatig in de db.
+
+### Bright FM: "Internal data stream error … reason not-linked" (2026-10-19)
+
+- **Symptoom:** Bright FM (`brightfmaacplus.streamserver.net`) start niet; Strawberry probeert
+  steeds opnieuw met `GstSoupHTTPSrc … streaming stopped, reason not-linked (-1)` en
+  `Could not detect an audio stream`.
+- **Oorzaak:** met `[Backend] http2=false` zet Strawberry `SOUP_FORCE_HTTP1=1`. Cloudflare stuurt
+  de stream dan als HTTP/1.1 in kleine chunks. `icydemux` doet typefind op dat eerste blokje
+  (~256 bytes) en accepteert een gok met lage zekerheid: **`video/x-cdg`** (karaoke-graphics)
+  i.p.v. AAC. Strawberry speelt alleen audio af, er is geen sink voor video → not-linked.
+  Vanaf ~1 KB data herkent typefind het altijd correct als `audio/mpeg`.
+- **Niet de oorzaak** (uitgesloten): ontbrekende plugins, playbin3, User-Agent, de stream zelf.
+- **Fix:** `http2=true`. Wordt gezet door het activation-script in `home/dotfiles/strawberry.nix`
+  (`crudini --set … Backend http2 true`, alleen die ene sleutel). Strawberry pakt het op na een
+  herstart.
+- **Reproduceren buiten Strawberry:**
+  `SOUP_FORCE_HTTP1=1 GST_DEBUG=decodebin:5 gst-launch-1.0 playbin uri=<stream> audio-sink=fakesink`
+  en zoek naar `icydemux…:src … caps video/x-cdg` (± 3 op 8 pogingen; zonder de env-var 0 op 8).
+- **Upstream:** eigenlijk een GStreamer-gebrek (`icydemux` negeert `Content-Type: audio/aacp` en
+  accepteert lage-probability typefind op weinig data).
 
 ## Config: gnome-wayland.nix + programs.nix
 
@@ -211,9 +228,12 @@ strawberry
 # Config locatie
 ~/.config/strawberry/strawberry.conf
 
-# Radio streams toevoegen (SQL)
-sqlite3 ~/.local/share/strawberry/strawberry/strawberry.db \
-  "INSERT INTO radio_channels (source, name, url) VALUES (0, 'Name', 'http://url');"
+# Radio streams toevoegen: home/dotfiles/strawberry-radio-streams.nix aanpassen,
+# daarna home-manager switch (vult de playlist "Radio Streams")
+
+# GStreamer-debug bij stream-problemen (Strawberry eerst afsluiten)
+GST_DEBUG=2,decodebin:5,typefind:5 strawberry \
+  --log-levels '*:3,GstEngine:4,GstEnginePipeline:4' 2> ~/strawberry-gst.log
 ```
 
 ## Commandos: Qt/Wayland testing
