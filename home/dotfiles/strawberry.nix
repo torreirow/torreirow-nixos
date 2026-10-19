@@ -49,6 +49,14 @@ let
   updateStreamsScript = pkgs.writeShellScript "update-strawberry-streams.sh" ''
     DB_DIR="$HOME/.local/share/strawberry/strawberry"
     DB_FILE="$DB_DIR/strawberry.db"
+    CONF_FILE="$HOME/.config/strawberry/strawberry.conf"
+
+    # Force HTTP/2 for streaming. With http2=false Strawberry sets SOUP_FORCE_HTTP1,
+    # Cloudflare then sends small chunked blocks and icydemux typefinds the first
+    # few hundred bytes of an AAC stream (Bright FM) as video/x-cdg -> "not-linked".
+    # Only this one key is set; Strawberry keeps managing the rest of the file.
+    mkdir -p "$(dirname "$CONF_FILE")"
+    ${pkgs.crudini}/bin/crudini --set "$CONF_FILE" Backend http2 true
 
     # Create directory if it doesn't exist
     mkdir -p "$DB_DIR"
