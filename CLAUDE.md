@@ -31,6 +31,7 @@
 - **Vragen over HA-automations die buiten de repo leven (aircraft-monitor/`/aircraft`, geurhal/WC, centrale afzuiging), timer `restore: true` of de `.storage` stop-edit-start-werkwijze** → lees `docs/ha-automations.md`
 - **Vragen over msmtp, mail versturen via SES, of waarom een agenix-secret niet op `/run/secrets/<naam>` verschijnt (`path` vereist)** → lees `docs/msmtp-agenix.md`
 - **Vragen over de speedtest, `ookla_speedtest`, `sensor.speedtest_*`, `SpeedtestStale`/`InternetKapot` of waarom de speedtest-metrics een device_class-customize nodig hebben** → lees `docs/speedtest.md`
+- **Vragen over de plantwater-sensor (vrouwentong), `sensor.plantwater_*`, de droog-drempel, de Helpers-view/achterdeurkaart in HA, het Grafana-dashboard `plantwater` of de `Plantwater*`-alerts** → lees `docs/plantwater.md`
 - **Vragen over InvoicePlane, `invoices.toorren.net`, de OCI-container op poort 8092 of de `.htaccess`-workaround** → lees `docs/invoiceplane.md`
 - **Vragen over suspend/standby op lobos, S0ix/s2idle vs S3, `power-management.nix`, de resume-services of de ath11k_pci-wifi-hack** → lees `docs/power-management-lobos.md`
 - **Vragen over Qt/Wayland/GNOME op lobos, `QT_QPA_PLATFORM`, Electron op Wayland, `gnome-wayland.nix`, de Super+L-keybinding, MuseScore of Strawberry (muziekspeler/radiostreams)** → lees `docs/qt-wayland-gnome.md`
