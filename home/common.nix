@@ -79,9 +79,13 @@ programs.fzf = {
 
 home.sessionVariables = {
     LANG= "en_US.UTF-8";
-    LC_ALL= "en_US.UTF-8";
+    # Geen LC_ALL: die overschrijft alle LC_* (o.a. nl_NL voor tijd/getallen uit i18n.extraLocaleSettings).
     SSH_ASKPASS = "${pkgs.seahorse}/libexec/seahorse-ssh-askpass";
     SSH_ASKPASS_REQUIRE = "prefer";
+    # uv gebruikt zijn eigen python-build-standalone (draait via nix-ld) i.p.v. een Nix-python:
+    # pip-wheels vinden dan libstdc++ zonder globale LD_LIBRARY_PATH, en de venv breekt niet
+    # als de garbage collector de Nix-python opruimt.
+    UV_PYTHON_PREFERENCE = "only-managed";
   };
 
 #  home.file.".togglrcnew".source = "/tmp/toggl.txt";

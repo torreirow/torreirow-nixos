@@ -1,6 +1,6 @@
 # Claude Code Werkdocument - torreirow-nixos
 
-**Laatst bijgewerkt:** 2026-10-09
+**Laatst bijgewerkt:** 2026-10-16
 
 > Dit bestand wordt elke sessie volledig geladen en blijft daarom bewust kort. De details per
 > onderwerp staan in `docs/` en worden **on-demand** gelezen zodra je over dat onderwerp nadenkt
@@ -32,7 +32,7 @@
 - **Vragen over msmtp, mail versturen via SES, of waarom een agenix-secret niet op `/run/secrets/<naam>` verschijnt (`path` vereist)** → lees `docs/msmtp-agenix.md`
 - **Vragen over de speedtest, `ookla_speedtest`, `sensor.speedtest_*`, `SpeedtestStale`/`InternetKapot` of waarom de speedtest-metrics een device_class-customize nodig hebben** → lees `docs/speedtest.md`
 - **Vragen over InvoicePlane, `invoices.toorren.net`, de OCI-container op poort 8092 of de `.htaccess`-workaround** → lees `docs/invoiceplane.md`
-- **Vragen over suspend/standby op lobos, S0ix/s2idle vs S3, `power-management.nix`, de resume-services of de ath11k_pci-wifi-hack** → lees `docs/power-management-lobos.md`
+- **Vragen over suspend/standby op lobos, S0ix/s2idle vs S3, de (verwijderde) `power-management.nix`, de resume-services of de ath11k_pci-wifi-hack** → lees `docs/power-management-lobos.md`
 - **Vragen over Qt/Wayland/GNOME op lobos, `QT_QPA_PLATFORM`, Electron op Wayland, `gnome-wayland.nix`, de Super+L-keybinding, MuseScore of Strawberry (muziekspeler/radiostreams)** → lees `docs/qt-wayland-gnome.md`
 - **Vragen over fail2ban op malandro, `modules/fail2ban.nix`, de jails of de NixOS 25.11-opties die niet op top-level bestaan** → lees `docs/fail2ban.md`
 
@@ -52,14 +52,14 @@ poort- of ping-probe zegt ten onrechte "beschikbaar". Toets op inhoud (`status.p
 ## Systeem Informatie
 
 ### Lobos (ThinkPad, AMD Ryzen 7 PRO 7840U)
-- **OS:** NixOS 25.11
+- **OS:** NixOS 26.05
 - **Desktop:** Hyprland (voorheen GNOME 49.2 Wayland — zie `docs/qt-wayland-gnome.md` voor die historie)
 - **Display:** Dual monitor (eDP-1 1920x1200 + DVI-I-1 1920x1080)
 - **Muziekspeler:** Strawberry
 - **Suspend:** ALLEEN S0ix/s2idle (geen S3 deep sleep) — zie `docs/power-management-lobos.md`
 
 ### Malandro (Server)
-- **OS:** NixOS 25.11
+- **OS:** NixOS 26.05
 - **Services:** Nginx, Home Assistant, Grafana, Paperless, Vaultwarden, Gitea, Authelia, fail2ban
 
 ## Veelgebruikte commando's
@@ -90,7 +90,6 @@ git log --oneline -10
 - **Lobos:** `hosts/lobos/`
   - `configuration.nix` - Main config
   - `gnome-wayland.nix` - GNOME/Wayland settings (historie, zie `docs/qt-wayland-gnome.md`)
-  - `power-management.nix` - Power management & suspend fixes (zie `docs/power-management-lobos.md`)
   - `programs.nix` - Packages (GEBRUIKT)
 - **Malandro:** `hosts/malandro/`
   - `configuration.nix` - Main config

@@ -2,6 +2,14 @@
 
 Laptop kan ALLEEN S0ix/s2idle (geen S3). power-management.nix met resume-services en de ath11k_pci-hack.
 
+> **Status 2026-10-16: `power-management.nix` is verwijderd.** Het bestand werd al een tijd niet
+> meer geïmporteerd (units `not-found`). Meting over 14 dagen zonder het bestand: 30× resume, wifi
+> (ath11k) telkens binnen 9-15s vanzelf verbonden; laadlimiet (80%) onthoudt de ThinkPad-firmware
+> zelf. Weggegooid omdat `acpi_osi=Linux`, `usbcore.autosuspend=-1` en `powertop` accu/stabiliteit
+> kosten en `network-resume`/`wifi-resume` onnodig waren (en VPN verbreken). Mocht wifi na resume
+> weer wegvallen: haal `wifi-resume` los terug uit git (`git log -- hosts/lobos/power-management.nix`).
+> De historie hieronder is ter referentie.
+
 > Verplaatst uit CLAUDE.md (Huidige Status) om de sessie-context slank te houden.
 
 ### Sessie 2026-04-09 - Suspend/Standby probleem - OPGELOST

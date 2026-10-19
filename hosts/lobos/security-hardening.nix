@@ -99,9 +99,9 @@
     #
     # "kernel.modules_disabled" = 1;
     #   Blokkeert het laden EN ontladen van kernelmodules tot de volgende
-    #   reboot. hosts/lobos/power-management.nix doet na resume expliciet
-    #   `modprobe -r ath11k_pci && modprobe ath11k_pci` om WiFi te herstellen;
-    #   dat zou stukgaan. Ook `nixos-rebuild switch` kan modules nodig hebben.
+    #   reboot. Een eventuele ath11k_pci-reload na resume (de oude, inmiddels
+    #   verwijderde power-management.nix) zou stukgaan, en ook
+    #   `nixos-rebuild switch` kan modules nodig hebben.
     #
     # "net.ipv4.conf.all.forwarding" = 0;
     #   Breekt Docker-containernetwerk. De huidige waarde 1 is niet per
