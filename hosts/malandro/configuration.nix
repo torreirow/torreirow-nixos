@@ -557,13 +557,13 @@ services.authelia.users = [
     groups = [ "monitoring" "network" "operations" "office" "grafana-admins" ];
     disabled = false;
   }
-  # Dagelijks account -- GEEN admin meer. Alleen de dagelijkse apps + Linny +
-  # persoonlijk; Grafana-Editor via grafana-editors (geen rauwe prometheus/alertmanager).
+  # Dagelijks account -- sinds 2026-10-20 weer met dezelfde admin-groepen als
+  # wouteradmin (monitoring/network/operations/grafana-admins).
   {
     username = "wouter";
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
-    groups = [ "office" "linny" "personal-wouter" "grafana-editors" "invoiceplane" ];
+    groups = [ "monitoring" "network" "operations" "office" "linny" "personal-wouter" "grafana-admins" "invoiceplane" ];
     disabled = false;
   }
   {

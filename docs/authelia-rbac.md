@@ -78,3 +78,9 @@ wouteradmin. Rollback = `nixos-rebuild switch` naar generation 53/555.
   wereldvanbegrip.nl-portal (issuer `https://auth.wereldvanbegrip.nl`), beleid `invoiceplane`
   (groep invoiceplane, two_factor), PKCE S256, client_secret_basic, consent pre-configured.
   Secret: hash in authelia.nix, plaintext in `secrets/invoiceplane-oidc.age`. Zie docs/invoiceplane.md.
+
+### 2026-10-20 - wouter weer admin
+
+- **wouter** heeft weer alle admin-groepen van wouteradmin: monitoring/network/operations +
+  `grafana-admins` (i.p.v. `grafana-editors`). De scheiding van 2026-10-01 is daarmee voor dit
+  account teruggedraaid; wouteradmin bestaat nog. Grafana-Admin pas na volledig uitloggen + verse login.
