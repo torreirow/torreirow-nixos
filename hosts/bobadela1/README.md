@@ -65,7 +65,21 @@ ssh bobadela1 'sudo systemctl disable --now nightly-shutdown.timer'  # tijdelijk
 
 AIO's ingebouwde "daily backup + automatic updates" plant **altijd in UTC** en hangt aan een
 borg-backuplocatie. Daarom een eigen timer op bobadela1 (Europe/Amsterdam, schuift mee met
-zomer-/wintertijd), alleen updates, géén borg-backup (data zit al in JuiceFS/S3 + metadata-replicatie).
+zomer-/wintertijd), alleen updates, géén borg-backup.
+
+**Bewust geen backup van de Nextcloud-DB/`config.php`** (besluit 2026-10-22): Nextcloud dient alleen
+als bestands-backup voor 3 users. De bestanden staan op JuiceFS (S3) en de JuiceFS-metadata is
+4-voudig gedekt; accounts/shares zijn bij verlies met de hand opnieuw te maken en de bestanden
+daarna opnieuw te scannen (`occ files:scan --all`). Verwijderde bestanden zijn terug te halen via
+Nextcloud's eigen prullenbak/versies (`files_trashbin`/`files_versions`, staan ook op JuiceFS).
+
+**Restrisico:** alles met schrijfrechten op de live data (gecompromitteerde Nextcloud-container,
+root op bobadela1, de AWS-keys) kan óók prullenbak/versies wissen. Dan is alleen de JuiceFS-trash
+het vangnet, en die staat op `trash-days=1`. Kandidaat-maatregelen: `trash-days` → 30, S3-versioning
++ lifecycle, read-only IAM-key voor malandro (samen < € 2/jaar).
+
+Omvang 2026-10-22 (uit `juicefs_meta_replica`): **~47 GB / 16.103 bestanden** — mtoorren 22 GB,
+wtoorren 18 GB, hjtoorren 5,5 GB; prullenbak + versies samen < 15 MB.
 
 - `nextcloud-aio-update.timer` (`OnCalendar=*-*-* 12:00:00`, `Persistent=false`, zelfde reden als de
   shutdown) → `nextcloud-aio-update.service` → `/usr/local/sbin/nextcloud-aio-update`
