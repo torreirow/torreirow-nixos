@@ -35,6 +35,7 @@
 - **Vragen over InvoicePlane, `invoices.toorren.net`, de OCI-container op poort 8092 of de `.htaccess`-workaround** → lees `docs/invoiceplane.md`
 - **Vragen over suspend/standby op lobos, S0ix/s2idle vs S3, `power-management.nix`, de resume-services of de ath11k_pci-wifi-hack** → lees `docs/power-management-lobos.md`
 - **Vragen over Qt/Wayland/GNOME op lobos, `QT_QPA_PLATFORM`, Electron op Wayland, `gnome-wayland.nix`, de Super+L-keybinding, MuseScore of Strawberry (muziekspeler/radiostreams)** → lees `docs/qt-wayland-gnome.md`
+- **Vragen over de ATAG One-ketel, pendelen/branderstarts, `climate.atag_one`, `temperatuurinvloed`, nachtverlaging of het `atag-boiler`-dashboard** → lees `docs/atag-ketel.md`
 - **Vragen over fail2ban op malandro, `modules/fail2ban.nix`, de jails of de NixOS 25.11-opties die niet op top-level bestaan** → lees `docs/fail2ban.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
