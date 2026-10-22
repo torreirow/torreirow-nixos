@@ -1,0 +1,10 @@
+[Unit]
+Description=Trigger dagelijkse Nextcloud AIO-update om 12:00 (lokale tijd)
+
+[Timer]
+OnCalendar=*-*-* 12:00:00
+Persistent=false
+Unit=nextcloud-aio-update.service
+
+[Install]
+WantedBy=timers.target

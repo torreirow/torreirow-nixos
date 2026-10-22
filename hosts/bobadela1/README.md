@@ -61,6 +61,34 @@ ssh bobadela1 'systemctl list-timers nightly-shutdown.timer'     # volgende run
 ssh bobadela1 'sudo systemctl disable --now nightly-shutdown.timer'  # tijdelijk uit
 ```
 
+## Dagelijkse AIO-update 12:00 (lokale tijd)
+
+AIO's ingebouwde "daily backup + automatic updates" plant **altijd in UTC** en hangt aan een
+borg-backuplocatie. Daarom een eigen timer op bobadela1 (Europe/Amsterdam, schuift mee met
+zomer-/wintertijd), alleen updates, géén borg-backup (data zit al in JuiceFS/S3 + metadata-replicatie).
+
+- `nextcloud-aio-update.timer` (`OnCalendar=*-*-* 12:00:00`, `Persistent=false`, zelfde reden als de
+  shutdown) → `nextcloud-aio-update.service` → `/usr/local/sbin/nextcloud-aio-update`
+  (bron: `nextcloud-aio-update.sh`).
+- Het script draait `docker exec --env AUTOMATIC_UPDATES=1 --env DAILY_BACKUP=0
+  nextcloud-aio-mastercontainer /daily-backup.sh`. Werkt dat de mastercontainer bij, dan sneuvelt de
+  exec; het script ziet een gewijzigde `StartedAt`, wacht op healthy en draait een tweede keer (zoals
+  AIO voorschrijft). Zonder mastercontainer-update: één run → één stop/start (~2–5 min downtime).
+- Aanleiding: PHP2Shell (CVE-2026-109618/9, 21 okt 2026) — de images bleken sinds 6 aug niet
+  bijgewerkt. Eerste testrun 2026-10-22: geslaagd, Nextcloud 34.0.5 / PHP 8.4.27.
+
+```bash
+# uitrollen / bijwerken:
+scp hosts/bobadela1/nextcloud-aio-update.{sh,service,timer} bobadela1:/tmp/
+ssh bobadela1 'sudo install -m0755 /tmp/nextcloud-aio-update.sh /usr/local/sbin/nextcloud-aio-update && \
+  sudo mv /tmp/nextcloud-aio-update.{service,timer} /etc/systemd/system/ && \
+  sudo systemctl daemon-reload && sudo systemctl enable --now nextcloud-aio-update.timer'
+
+# bediening:
+ssh bobadela1 'sudo systemctl start nextcloud-aio-update.service'          # nu updaten
+ssh bobadela1 'journalctl -u nextcloud-aio-update.service -n 30'           # log laatste run
+```
+
 ## Dagelijkse ochtend-wake 09:00 (vanaf malandro)
 
 Complement van de 23:00-shutdown: malandro wekt bobadela1 elke ochtend 09:00 via **Wake-on-LAN**.
