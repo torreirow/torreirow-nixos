@@ -4,6 +4,7 @@
     "user": "admin",
     "identity_file": "Technative-Devops.pem.pub",
     "extra_options": [
+      "IdentityFile /home/wtoorren/.ssh/improvement_it-awsaccount-workload-iit-key",
       "IdentityAgent $SSH_AUTH_SOCK",
       "StrictHostKeyChecking no",
       "UserKnownHostsFile /dev/null",

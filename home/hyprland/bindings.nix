@@ -146,9 +146,9 @@ let
     SUPER+SHIFT + L            Vergrendelen + slaapstand
     SUPER+SHIFT + Escape       Hyprland afsluiten
     ─── Screenshots ──────────────────────────────────────────
-    SUPER+SHIFT + S            Screenshot (kies edit/save/copy)
+    SUPER+SHIFT + S            Screenshot → klembord (temp)
     SUPER+SHIFT + W            Screenshot venster
-    SUPER+SHIFT + C            Screenshot → klembord
+    SUPER+SHIFT + C            Screenshot → bestand + klembord
     SUPER + Print              Kleurpicker
     ─── Tekstgrootte ─────────────────────────────────────────
     SUPER+CTRL+SHIFT + =       Tekst groter (+0.1)
@@ -248,9 +248,9 @@ in
       "SUPER, S, togglespecialworkspace, magic"
       "SUPER CTRL, S, movetoworkspace, special:magic"
 
-      "SUPER SHIFT, S, exec, ${hqf}/bin/hyprquickframe"
+      "SUPER SHIFT, S, exec, env HQF_ACTION=temp ${hqf}/bin/hyprquickframe"
       "SUPER SHIFT, W, exec, env HQF_MODE=window ${hqf}/bin/hyprquickframe"
-      "SUPER SHIFT, C, exec, env HQF_ACTION=temp ${hqf}/bin/hyprquickframe"
+      "SUPER SHIFT, C, exec, ${hqf}/bin/hyprquickframe"
 
       "SUPER, PRINT, exec, hyprpicker -a"
 

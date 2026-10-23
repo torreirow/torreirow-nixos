@@ -14,13 +14,7 @@
               baseURL = "https://api.anthropic.com/v1";
             };
           };
-          amazon-bedrock = {
-            options = {
-              region = "eu-central-1";
-              profile = "TEC-playground-student1";
-            };
-          };
-        };
+       };
       };
       tui = {
         theme = "opencode";
