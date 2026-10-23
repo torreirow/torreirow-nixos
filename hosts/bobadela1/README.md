@@ -85,7 +85,11 @@ root op bobadela1, de AWS-keys) kan óók prullenbak/versies wissen. Vangnetten 
   kan dus alleen delete-markers zetten; de oude versies blijven terug te halen.
   Meting 2026-10-23: 15,1 GB / 4.472 noncurrent versies + 4.473 delete-markers, vrijwel
   allemaal eenmalig door de migratie OneDrive → Nextcloud (sept/okt); groei daarna verwacht laag.
-- Open: lifecycle (noncurrent na N dagen weg) en een aparte read-only key voor malandro.
+- Lifecycle `juicefs-noncurrent-180d` (2026-10-23, admin-profiel): prefix `juicefs/`, noncurrent
+  versies weg na **180 dagen**, lege delete-markers opgeruimd. Totaal vangnet na wissen ≈ 8 mnd
+  (Nextcloud-prullenbak ~30 d → JuiceFS-trash 30 d → S3 180 d).
+- Open: aparte read-only key voor malandro (lage prioriteit: de gedeelde key kan niets
+  onherstelbaar wissen).
 
 Omvang 2026-10-22 (uit `juicefs_meta_replica`): **~47 GB / 16.103 bestanden** — mtoorren 22 GB,
 wtoorren 18 GB, hjtoorren 5,5 GB; prullenbak + versies samen < 15 MB.
