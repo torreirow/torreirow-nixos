@@ -75,6 +75,13 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 |-------|-----------|---------------|-----------------------------------|
 | 2026-10-22 21:52 | `temperatuurinvloed` → `average` (aanbeveling 2) | `room_regulation` (nooit eerder gewijzigd) | meten vanaf 23 okt t/m ~28 okt |
 
+### Observaties `average`
+
+- **2026-10-23 ochtend (04:00–07:30):** kamer 04:00 al 19,4 °C (22 okt: 20,6), voorverwarmen
+  start 06:16 (22 okt: 06:39), eerste run 23 min, daarna 4 runs van 2–14 min (gem. ~10 min over
+  5 starts). CV-water piekt 54–55 °C (22 okt: 47 °C). Kamer **20,5 °C om 07:30** (22 okt: 20,9) →
+  comfort net gehaald, nog niet terug naar `room_regulation`; weekevaluatie 28 okt beslist.
+
 ## Opnieuw meten
 
 Op malandro. Pas de datums aan; schrijft per dag starts, stookminuten en buitentemperatuur.

@@ -74,9 +74,18 @@ daarna opnieuw te scannen (`occ files:scan --all`). Verwijderde bestanden zijn t
 Nextcloud's eigen prullenbak/versies (`files_trashbin`/`files_versions`, staan ook op JuiceFS).
 
 **Restrisico:** alles met schrijfrechten op de live data (gecompromitteerde Nextcloud-container,
-root op bobadela1, de AWS-keys) kan óók prullenbak/versies wissen. Dan is alleen de JuiceFS-trash
-het vangnet, en die staat op `trash-days=1`. Kandidaat-maatregelen: `trash-days` → 30, S3-versioning
-+ lifecycle, read-only IAM-key voor malandro (samen < € 2/jaar).
+root op bobadela1, de AWS-keys) kan óók prullenbak/versies wissen. Vangnetten daaronder (stand
+2026-10-23):
+
+- JuiceFS-trash: `trash-days` 1 → **30** (2026-10-23, `juicefs config … --trash-days 30`).
+- S3-versioning op `wto-s3-bucket`: **Enabled**, **geen lifecycle** → oude versies blijven
+  onbeperkt staan. IAM-user `juicefs-nextcloud` (policy `juicefs-nextcloud-s3`, gedeeld door
+  bobadela1 én malandro) mag alleen `Get/Put/DeleteObject` + `ListBucket` op `juicefs/*`: géén
+  `DeleteObjectVersion`, `PutBucketVersioning` of `PutLifecycleConfiguration`. Een gelekte key
+  kan dus alleen delete-markers zetten; de oude versies blijven terug te halen.
+  Meting 2026-10-23: 15,1 GB / 4.472 noncurrent versies + 4.473 delete-markers, vrijwel
+  allemaal eenmalig door de migratie OneDrive → Nextcloud (sept/okt); groei daarna verwacht laag.
+- Open: lifecycle (noncurrent na N dagen weg) en een aparte read-only key voor malandro.
 
 Omvang 2026-10-22 (uit `juicefs_meta_replica`): **~47 GB / 16.103 bestanden** — mtoorren 22 GB,
 wtoorren 18 GB, hjtoorren 5,5 GB; prullenbak + versies samen < 15 MB.
