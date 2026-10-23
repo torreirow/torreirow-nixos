@@ -88,22 +88,10 @@
         '';
       };
 
-      # Publiek: klantlinks uit de mails. Alleen GET/HEAD: het image draait PHP 8.1 (mod_php),
-      # dat geen fix krijgt voor PHP2Shell (CVE-2026-109618/109619, multipart-POST). Ook
-      # /assets/ en /uploads/: niet-bestaande paden routeert .htaccess naar index.php.
-      # Weghalen zodra Gabbaya op PHP >= 8.2.35 draait (zie docs/invoiceplane.md).
-      "/guest/" = {
-        proxyPass = "http://127.0.0.1:8092";
-        extraConfig = "limit_except GET { deny all; }";
-      };
-      "/assets/" = {
-        proxyPass = "http://127.0.0.1:8092";
-        extraConfig = "limit_except GET { deny all; }";
-      };
-      "~ ^/uploads/[^/]+\\.(png|jpe?g)$" = {
-        proxyPass = "http://127.0.0.1:8092";
-        extraConfig = "limit_except GET { deny all; }";
-      };
+      # Publiek: klantlinks uit de mails
+      "/guest/".proxyPass = "http://127.0.0.1:8092";
+      "/assets/".proxyPass = "http://127.0.0.1:8092";
+      "~ ^/uploads/[^/]+\\.(png|jpe?g)$".proxyPass = "http://127.0.0.1:8092";
 
       "@authelia_portal".extraConfig = ''
         return 302 https://auth.wereldvanbegrip.nl/?rd=$scheme://$http_host$request_uri;

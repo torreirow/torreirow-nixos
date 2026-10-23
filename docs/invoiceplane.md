@@ -246,5 +246,12 @@ draait op `php:8.1-apache-bookworm` (PHP 8.1.34, mod_php); 8.1 krijgt van het PH
 Apache aan (`docker logs invoiceplane`). Gevolg: een POST op de gastpagina (online betalen) werkt
 niet meer — zelden gebruikt.
 
-**Echte fix (open):** Gabbaya ombouwen naar `php:8.3-apache-bookworm` (of 8.2), CI, testen tegen een
-DB-kopie, digest bijwerken. Daarna de `limit_except`-regels weer weghalen.
+**Echte fix (2026-10-23, zelfde dag):** Gabbaya `06cba7c` bouwt op `php:8.3-apache-bookworm`
+(PHP 8.3.36); de CI-smoketest faalt bij PHP < `PHP_MIN` (8.3.36). Getest: OIDC-e2e 18/18 en een
+kopie van de productie-DB (16 pagina's incl. PDF en `/guest/`, geen PHP-fouten). Live als
+`ghcr.io/torreirow/gabbaya@sha256:d47ebd35…` (tag `1.7.2-06cba7c`); de `limit_except`-regels zijn
+weer weg (POST op `/guest/` bereikt de container weer). Gabbaya-epic `gabbaya-vsq9`, OpenSpec-change
+`upgrade-php-8-3`.
+
+**Terugdraaien:** digest `b9b234d8…` (PHP 8.1) **én** de `limit_except`-mitigatie terug (commit
+`bf1bac2`). Schema ongewijzigd; backup in `/data/external/invoiceplane-backup-20261023/`.
