@@ -8,40 +8,72 @@
     mode = "0400";
   };
 
-  # InvoicePlane - Open source invoicing platform
+  # Client secret voor single sign-on (OIDC_CLIENT_SECRET=...); de hash staat bij de
+  # Authelia-client "invoiceplane" in modules/authelia.nix.
+  age.secrets.invoiceplane-oidc = {
+    file = ../secrets/invoiceplane-oidc.age;
+    path = "/run/agenix/invoiceplane-oidc";
+    mode = "0400";
+  };
+
+  # InvoicePlane via Gabbaya: eigen build van de officiële release + patches
+  # (https://github.com/torreirow/gabbaya). Vastgepind op digest; upgraden = nieuwe
+  # digest kiezen, testen tegen een DB-kopie, dan de DB-update via /setup.
   virtualisation.oci-containers.containers.invoiceplane = {
-    image = "funktionslust/invoiceplane:latest";
+    image = "ghcr.io/torreirow/gabbaya@sha256:d47ebd357b74957017460b712a6955b39850ffb9b375b66ae18ef8f9083dc853"; # 1.7.2 + patches 0001-0004, PHP 8.3.36
     volumes = [
       "/data/external/invoiceplane-docker:/var/www/html/uploads"
-      "/data/external/invoiceplane-docker/templates:/var/www/html/application/views/invoice_templates"
-      "/data/external/invoiceplane-docker/quote_templates:/var/www/html/application/views/quote_templates"
+      # ipconfig.php blijvend (Gabbaya linkt het vanuit /config de webroot in)
+      "/data/external/invoiceplane-config:/config"
+      # Eigen templates (WereldVanBegrip), alleen-lezen: sinds 1.7.2 worden templates
+      # niet meer van schijf gescand maar via de CUSTOM_*-allowlist hieronder toegelaten.
+      "/data/external/invoiceplane-templates:/custom-templates:ro"
       "/data/external/invoiceplane-docker/css/custom-pdf.css:/var/www/html/assets/core/css/custom-pdf.css"
+      # Wereld van Begrip-favicon i.p.v. het InvoicePlane-icoon uit het image
+      "/data/external/invoiceplane-docker/branding/favicon.png:/var/www/html/assets/core/img/favicon.png:ro"
     ];
+    # Geen geheimen; die staan in het env-file. Waarden met -e gaan vóór het env-file.
+    environment = {
+      CUSTOM_TEMPLATES_FOLDER = "/custom-templates";
+      CUSTOM_INVOICE_TEMPLATES_PDF = "WereldVanBegrip";
+      CUSTOM_INVOICE_TEMPLATES_PUBLIC = "WereldVanBegrip_Web";
+      CUSTOM_QUOTE_TEMPLATES_PDF = "WereldVanBegrip";
+      CUSTOM_QUOTE_TEMPLATES_PUBLIC = "WereldVanBegrip_Web";
+      # Setup-wizard dubbel op slot (1.7.2 toont anders een "Security Warning"); het
+      # env-file heeft nog DISABLE_SETUP=false, deze waarde gaat daar vóór.
+      # DB-update na een upgrade: tijdelijk DISABLE_SETUP = "false" en
+      # SETUP_COMPLETED = "false", rebuild, /setup doorlopen (achter Authelia), terug en rebuild.
+      DISABLE_SETUP = "true";
+      # Single sign-on via Authelia (Gabbaya patch 0004-oidc-sso). Overige opties
+      # (auto-redirect, lokaal inloggen als noodroute) staan in Instellingen > Single sign-on.
+      OIDC_ENABLED = "true";
+      OIDC_PROVIDER_URL = "https://auth.wereldvanbegrip.nl";
+      OIDC_CLIENT_ID = "invoiceplane";
+    };
     ports = [
       "127.0.0.1:8092:80"  # InvoicePlane web interface
     ];
     extraOptions = [
       "--add-host=host.docker.internal:host-gateway"  # Allow container to reach host MariaDB
       "--env-file=${config.age.secrets.invoiceplane-env.path}"  # Load secrets from agenix
+      "--env-file=${config.age.secrets.invoiceplane-oidc.path}"  # OIDC_CLIENT_SECRET
     ];
   };
 
-
-  # Create invoiceplane data directory
-  # www-data in container is UID/GID 33, needs write access
+  # www-data in de container is UID/GID 33. De .htaccess-workaround (ExecStartPost) is
+  # niet meer nodig: het Gabbaya-entrypoint installeert .htaccess bij REMOVE_INDEXPHP=true.
   systemd.tmpfiles.rules = [
     "d /data/external/invoiceplane-docker 0775 33 33 -"
-    "d /data/external/invoiceplane-docker/templates 0775 33 33 -"
-    "d /data/external/invoiceplane-docker/quote_templates 0775 33 33 -"
+    "d /data/external/invoiceplane-config 0750 33 33 -"
+    "d /data/external/invoiceplane-templates 0755 root root -"
     "d /data/external/invoiceplane-docker/css 0755 root root -"
+    "d /data/external/invoiceplane-docker/branding 0755 root root -"
   ];
 
-  # Fix for Docker image: copy htaccess to .htaccess after container starts
-  # The REMOVE_INDEXPHP=true env var doesn't work properly in this image
-  systemd.services.docker-invoiceplane.serviceConfig.ExecStartPost =
-    "${pkgs.bash}/bin/bash -c 'sleep 3 && ${pkgs.docker}/bin/docker exec invoiceplane cp /var/www/html/htaccess /var/www/html/.htaccess || true'";
-
-  # Nginx reverse proxy (public access - no authentication)
+  # Nginx reverse proxy. Beheer achter Authelia (groep invoiceplane, zie modules/authelia.nix);
+  # alleen wat klanten nodig hebben is publiek: de gastweergave van facturen/offertes, de
+  # assets daarvan en de logo-bestanden direct in /uploads/ (voor de mails).
+  # Proxy-headers komen uit recommendedProxySettings -- niet handmatig zetten (dubbele Host → 400).
   services.nginx.virtualHosts."invoices.wereldvanbegrip.nl" = {
     useACMEHost = "wereldvanbegrip.nl";
     forceSSL = true;
@@ -50,8 +82,30 @@
         proxyPass = "http://127.0.0.1:8092";
         proxyWebsockets = true;
         extraConfig = ''
-          # Upload size limit (proxy headers are set by nginx recommendedProxySettings)
+          auth_request /authelia;
+          error_page 401 = @authelia_portal;
           client_max_body_size 20M;
+        '';
+      };
+
+      # Publiek: klantlinks uit de mails
+      "/guest/".proxyPass = "http://127.0.0.1:8092";
+      "/assets/".proxyPass = "http://127.0.0.1:8092";
+      "~ ^/uploads/[^/]+\\.(png|jpe?g)$".proxyPass = "http://127.0.0.1:8092";
+
+      "@authelia_portal".extraConfig = ''
+        return 302 https://auth.wereldvanbegrip.nl/?rd=$scheme://$http_host$request_uri;
+      '';
+
+      "/authelia" = {
+        proxyPass = "http://127.0.0.1:9091/api/verify";
+        extraConfig = ''
+          internal;
+          proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
+          proxy_set_header X-Forwarded-Method $request_method;
+          proxy_set_header X-Forwarded-Uri $request_uri;
+          proxy_pass_request_body off;
+          proxy_set_header Content-Length "";
         '';
       };
     };

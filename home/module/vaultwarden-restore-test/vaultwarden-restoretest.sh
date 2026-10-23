@@ -22,7 +22,7 @@ set -euo pipefail
 WORK="/tmp/vw-restoretest"
 CONTAINER="vaultwarden-restoretest"
 HOST="127.0.0.1"
-PORT="8099"
+PORT="8199"   # 8099 is van grainwork (oauth2-proxy)
 IMAGE="vaultwarden/server:latest"
 PROFILE="malandro"
 PINENTRY="/run/current-system/sw/bin/pinentry-tty"
@@ -108,7 +108,10 @@ rustic_run() {
 ########## Voorbereiden ##########
 log "Restore-test starten (snapshot: $SNAPSHOT)"
 sudo docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
-if sudo ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
+# Eerst vastleggen, dan grep: `ss | grep -q` faalt onder pipefail (SIGPIPE) en zag
+# een bezette poort daardoor als vrij.
+LISTENERS="$(sudo ss -tln 2>/dev/null)"
+if grep -q ":$PORT " <<<"$LISTENERS"; then
   fail "Poort $PORT is bezet — draai eerst '$0 --destroy' of maak de poort vrij"; exit 1
 fi
 # $WORK door de user aanmaken (user-owned), zodat de geïsoleerde rbw-home er later

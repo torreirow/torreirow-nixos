@@ -18,6 +18,13 @@
     commonHttpConfig = ''
       limit_req_zone $binary_remote_addr zone=vwlogin:10m rate=5r/m;
 
+      # 'combined' + vhost aan het eind: zo zie je welke site antwoordde, en fail2ban-
+      # regexen die op '^<HOST> ' matchen (nginx-scanner) blijven werken.
+      log_format combined_host '$remote_addr - $remote_user [$time_local] '
+                               '"$request" $status $body_bytes_sent '
+                               '"$http_referer" "$http_user_agent" host=$host';
+      access_log /var/log/nginx/access.log combined_host;
+
       # Generieke error pages voor alle sites
       error_page 403 /errors/403.html;
       error_page 404 /errors/404.html;

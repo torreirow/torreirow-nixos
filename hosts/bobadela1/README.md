@@ -61,6 +61,61 @@ ssh bobadela1 'systemctl list-timers nightly-shutdown.timer'     # volgende run
 ssh bobadela1 'sudo systemctl disable --now nightly-shutdown.timer'  # tijdelijk uit
 ```
 
+## Dagelijkse AIO-update 12:00 (lokale tijd)
+
+AIO's ingebouwde "daily backup + automatic updates" plant **altijd in UTC** en hangt aan een
+borg-backuplocatie. Daarom een eigen timer op bobadela1 (Europe/Amsterdam, schuift mee met
+zomer-/wintertijd), alleen updates, géén borg-backup.
+
+**Bewust geen backup van de Nextcloud-DB/`config.php`** (besluit 2026-10-22): Nextcloud dient alleen
+als bestands-backup voor 3 users. De bestanden staan op JuiceFS (S3) en de JuiceFS-metadata is
+4-voudig gedekt; accounts/shares zijn bij verlies met de hand opnieuw te maken en de bestanden
+daarna opnieuw te scannen (`occ files:scan --all`). Verwijderde bestanden zijn terug te halen via
+Nextcloud's eigen prullenbak/versies (`files_trashbin`/`files_versions`, staan ook op JuiceFS).
+
+**Restrisico:** alles met schrijfrechten op de live data (gecompromitteerde Nextcloud-container,
+root op bobadela1, de AWS-keys) kan óók prullenbak/versies wissen. Vangnetten daaronder (stand
+2026-10-23):
+
+- JuiceFS-trash: `trash-days` 1 → **30** (2026-10-23, `juicefs config … --trash-days 30`).
+- S3-versioning op `wto-s3-bucket`: **Enabled**, **geen lifecycle** → oude versies blijven
+  onbeperkt staan. IAM-user `juicefs-nextcloud` (policy `juicefs-nextcloud-s3`, gedeeld door
+  bobadela1 én malandro) mag alleen `Get/Put/DeleteObject` + `ListBucket` op `juicefs/*`: géén
+  `DeleteObjectVersion`, `PutBucketVersioning` of `PutLifecycleConfiguration`. Een gelekte key
+  kan dus alleen delete-markers zetten; de oude versies blijven terug te halen.
+  Meting 2026-10-23: 15,1 GB / 4.472 noncurrent versies + 4.473 delete-markers, vrijwel
+  allemaal eenmalig door de migratie OneDrive → Nextcloud (sept/okt); groei daarna verwacht laag.
+- Lifecycle `juicefs-noncurrent-180d` (2026-10-23, admin-profiel): prefix `juicefs/`, noncurrent
+  versies weg na **180 dagen**, lege delete-markers opgeruimd. Totaal vangnet na wissen ≈ 8 mnd
+  (Nextcloud-prullenbak ~30 d → JuiceFS-trash 30 d → S3 180 d).
+- Open: aparte read-only key voor malandro (lage prioriteit: de gedeelde key kan niets
+  onherstelbaar wissen).
+
+Omvang 2026-10-22 (uit `juicefs_meta_replica`): **~47 GB / 16.103 bestanden** — mtoorren 22 GB,
+wtoorren 18 GB, hjtoorren 5,5 GB; prullenbak + versies samen < 15 MB.
+
+- `nextcloud-aio-update.timer` (`OnCalendar=*-*-* 12:00:00`, `Persistent=false`, zelfde reden als de
+  shutdown) → `nextcloud-aio-update.service` → `/usr/local/sbin/nextcloud-aio-update`
+  (bron: `nextcloud-aio-update.sh`).
+- Het script draait `docker exec --env AUTOMATIC_UPDATES=1 --env DAILY_BACKUP=0
+  nextcloud-aio-mastercontainer /daily-backup.sh`. Werkt dat de mastercontainer bij, dan sneuvelt de
+  exec; het script ziet een gewijzigde `StartedAt`, wacht op healthy en draait een tweede keer (zoals
+  AIO voorschrijft). Zonder mastercontainer-update: één run → één stop/start (~2–5 min downtime).
+- Aanleiding: PHP2Shell (CVE-2026-109618/9, 21 okt 2026) — de images bleken sinds 6 aug niet
+  bijgewerkt. Eerste testrun 2026-10-22: geslaagd, Nextcloud 34.0.5 / PHP 8.4.27.
+
+```bash
+# uitrollen / bijwerken:
+scp hosts/bobadela1/nextcloud-aio-update.{sh,service,timer} bobadela1:/tmp/
+ssh bobadela1 'sudo install -m0755 /tmp/nextcloud-aio-update.sh /usr/local/sbin/nextcloud-aio-update && \
+  sudo mv /tmp/nextcloud-aio-update.{service,timer} /etc/systemd/system/ && \
+  sudo systemctl daemon-reload && sudo systemctl enable --now nextcloud-aio-update.timer'
+
+# bediening:
+ssh bobadela1 'sudo systemctl start nextcloud-aio-update.service'          # nu updaten
+ssh bobadela1 'journalctl -u nextcloud-aio-update.service -n 30'           # log laatste run
+```
+
 ## Dagelijkse ochtend-wake 09:00 (vanaf malandro)
 
 Complement van de 23:00-shutdown: malandro wekt bobadela1 elke ochtend 09:00 via **Wake-on-LAN**.

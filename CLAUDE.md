@@ -13,7 +13,7 @@
 - **Vragen over Magister, de agenda-sync, het token/refresh-token, `magister-sync.service`, `token.json`, iCal-feeds op `agenda.toorren.net` of opnieuw inloggen** → lees `docs/magister.md`
 - **Vragen over Torrlinny, `linny.toorren.net`, de notities-web, `torrlinny-build.service`, de Hugo/Pagefind-overlay of de deploy key** → lees `docs/torrlinny.md`
 - **Vragen over linny-mcp, `linny-mcp.toorren.net`, het notitieboek als MCP-server voor Claude, de publieke schrijfroute/`publicWrite`, `status: agent-draft`/quarantine, de bearer-tokens of waarom er twee corpus-werkmappen zijn** → lees `docs/linny-mcp.md`
-- **Vragen over de Vaultwarden restore-test, `vaultwarden-restoretest.sh`, `--rbw`/`--destroy`, de wegwerp-container op poort 8099 of de rbw-crypto-test** → lees `docs/vaultwarden-restore-test.md`
+- **Vragen over de Vaultwarden restore-test, `vaultwarden-restoretest.sh`, `--rbw`/`--destroy`, de wegwerp-container op poort 8199 of de rbw-crypto-test** → lees `docs/vaultwarden-restore-test.md`
 - **Vragen over de reMarkable, `remarkable-sync`, `10.11.99.1`, de USB-webinterface van xochitl, `.rm`-bestanden, `error -71` op USB of PDF-export naar Nextcloud** → lees `docs/remarkable.md`
 - **Vragen over het opnemen van een meeting, `meetrec`, `~/Meetings`, de twee sporen (`anderen`/`ik`), `stream.capture.sink`, de Opus-encoding of het whisper-transcript** → lees `home/module/meeting-record/README.md`
 - **Vragen over `staleness-monitor`, waarom de Nextcloud-sync géén melding per mislukking meer geeft, de twee drempels (24u/48u), het stempelbestand `last-success-*` of `notify-signal.sendCommand`** → lees `home/module/staleness-monitor/README.md`
@@ -31,9 +31,11 @@
 - **Vragen over HA-automations die buiten de repo leven (aircraft-monitor/`/aircraft`, geurhal/WC, centrale afzuiging), timer `restore: true` of de `.storage` stop-edit-start-werkwijze** → lees `docs/ha-automations.md`
 - **Vragen over msmtp, mail versturen via SES, of waarom een agenix-secret niet op `/run/secrets/<naam>` verschijnt (`path` vereist)** → lees `docs/msmtp-agenix.md`
 - **Vragen over de speedtest, `ookla_speedtest`, `sensor.speedtest_*`, `SpeedtestStale`/`InternetKapot` of waarom de speedtest-metrics een device_class-customize nodig hebben** → lees `docs/speedtest.md`
+- **Vragen over de plantwater-sensor (vrouwentong), `sensor.plantwater_*`, de droog-drempel, de Helpers-view/achterdeurkaart in HA, het Grafana-dashboard `plantwater` of de `Plantwater*`-alerts** → lees `docs/plantwater.md`
 - **Vragen over InvoicePlane, `invoices.toorren.net`, de OCI-container op poort 8092 of de `.htaccess`-workaround** → lees `docs/invoiceplane.md`
 - **Vragen over suspend/standby op lobos, S0ix/s2idle vs S3, de (verwijderde) `power-management.nix`, de resume-services of de ath11k_pci-wifi-hack** → lees `docs/power-management-lobos.md`
 - **Vragen over Qt/Wayland/GNOME op lobos, `QT_QPA_PLATFORM`, Electron op Wayland, `gnome-wayland.nix`, de Super+L-keybinding, MuseScore of Strawberry (muziekspeler/radiostreams)** → lees `docs/qt-wayland-gnome.md`
+- **Vragen over de ATAG One-ketel, pendelen/branderstarts, `climate.atag_one`, `temperatuurinvloed`, nachtverlaging of het `atag-boiler`-dashboard** → lees `docs/atag-ketel.md`
 - **Vragen over fail2ban op malandro, `modules/fail2ban.nix`, de jails of de NixOS 25.11-opties die niet op top-level bestaan** → lees `docs/fail2ban.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime

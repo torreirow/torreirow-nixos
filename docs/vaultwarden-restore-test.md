@@ -37,7 +37,7 @@ Legenda: 🔴 = root/sudo · 🔵 = user (wtoorren)
    [red]+[blue] 1. PREPARE           v
         sudo rm -rf /tmp/vw-restoretest        <- oude run wegvegen (root)
         mkdir -p   /tmp/vw-restoretest/data    <- nieuw, USER-owned
-        check poort 8099 vrij
+        check poort 8199 vrij
                                      |
    [red] 2. RESTORE  (rustic, met creds + profiel)
         +-----------------------------------------------------------+
@@ -57,12 +57,12 @@ Legenda: 🔴 = root/sudo · 🔵 = user (wtoorren)
                                      |
    [red] 4. WEGWERP-CONTAINER        v
         docker run --name vaultwarden-restoretest
-          bridge  -p 127.0.0.1:8099:8080
+          bridge  -p 127.0.0.1:8199:8080
           -v /tmp/vw-restoretest/data:/data
           vaultwarden/server:latest
                                      |
    [blue] 5. HEALTHCHECK             v
-        curl http://127.0.0.1:8099/alive   -> HTTP 200
+        curl http://127.0.0.1:8199/alive   -> HTTP 200
                                      |
    [red] 6. COUNTS                   v
         sqlite3 .../db.sqlite3  -> users, ciphers
@@ -72,7 +72,7 @@ Legenda: 🔴 = root/sudo · 🔵 = user (wtoorren)
    [blue] 7. rbw CRYPTO-TEST (geisoleerd)
         XDG_* -> /tmp/vw-restoretest/rbwhome/{config,cache,data,state,run}
         email  <- ~/.config/rbw/config.json   (READ-ONLY, ongewijzigd)
-        rbw config set base_url http://127.0.0.1:8099   (in de geisoleerde config)
+        rbw config set base_url http://127.0.0.1:8199   (in de geisoleerde config)
         rbw login   -> master-pw (pinentry) + TOTP-code
         rbw sync -> rbw list   -> N ontsleutelde items
                                      |
@@ -92,7 +92,7 @@ Legenda: 🔴 = root/sudo · 🔵 = user (wtoorren)
 | Backup-bron | `s3://wto-s3-bucket/rustic-backup/malandro` | **read-only** |
 | rustic-creds/profiel | `/run/agenix/rustic-*`, `/etc/rustic/malandro.toml` | read |
 | Werkmap (vluchtig) | `/tmp/vw-restoretest/data` + `/rbwhome` | **read/write -> gewist** |
-| Wegwerp-container | `vaultwarden-restoretest` @ `127.0.0.1:8099` | **create -> verwijderd** |
+| Wegwerp-container | `vaultwarden-restoretest` @ `127.0.0.1:8199` | **create -> verwijderd** |
 | **Live Vaultwarden** | `vaultwarden` @ `:8080`, `/var/lib/vaultwarden` | **NIET aangeraakt** |
 | **Echte rbw** | `~/.config/rbw` (-> `vw.toorren.net`) | **NIET aangeraakt** |
 
@@ -100,10 +100,10 @@ Legenda: 🔴 = root/sudo · 🔵 = user (wtoorren)
 
 - De enige `/var/lib/vaultwarden`-verwijzing is de **bron** van een rustic-restore (pad ín de
   S3-snapshot), niet de live schijf. Restore leest uit S3 en schrijft naar `/tmp`.
-- De wegwerp-container draait op een **los poort (8099)** via bridge, met een eigen naam en een
+- De wegwerp-container draait op een **los poort (8199)** via bridge, met een eigen naam en een
   eigen data-volume in `/tmp`. De live container (`:8080`, host-network) blijft ononderbroken.
 - rbw is via **XDG-override** volledig geïsoleerd: eigen config + eigen agent, praat alleen met
-  `127.0.0.1:8099`. De echte `~/.config/rbw` (naar `vw.toorren.net`) wordt niet gewijzigd.
+  `127.0.0.1:8199`. De echte `~/.config/rbw` (naar `vw.toorren.net`) wordt niet gewijzigd.
 - `rbw login` registreert een device in de **wegwerp-kopie** van de DB, niet in de live DB. De
   test-container heeft geen SMTP -> geen "nieuw device"-mail.
 - Alles onder `/tmp/vw-restoretest` en de container is vluchtig (trap of `--destroy`).

@@ -161,6 +161,18 @@
             domain = "auth.toorren.net";
             policy = "bypass";
           }
+          {
+            domain = "auth.wereldvanbegrip.nl";
+            policy = "bypass";
+          }
+
+          # InvoicePlane-beheer. De klantroutes (/guest/, /assets/, logo's in /uploads/)
+          # slaan nginx' auth_request al over; zie modules/invoiceplane-docker.nix.
+          {
+            domain = [ "invoices.wereldvanbegrip.nl" ];
+            policy = "two_factor";
+            subject = [ "group:invoiceplane" ];
+          }
 
           # KPN Modem - bypass lokaal, extern 2FA voor de operations-groep.
           {
@@ -222,7 +234,6 @@
             domain = [
               "docs.toorren.net"
               "contacts.toorren.net"
-              "mmdl.toorren.net"
               "ittools.toorren.net"
             ];
             policy = "two_factor";
@@ -262,6 +273,17 @@
             domain = "toorren.net";
             authelia_url = "https://auth.toorren.net";
             default_redirection_url = "https://toorren.net";
+            name = "authelia_session";
+            same_site = "lax";
+            expiration = "1h";
+            inactivity = "5m";
+          }
+          # Eigen cookie-domein voor InvoicePlane (invoices.wereldvanbegrip.nl): een cookie
+          # van toorren.net geldt daar niet, dus ook een eigen portal op dat domein.
+          {
+            domain = "wereldvanbegrip.nl";
+            authelia_url = "https://auth.wereldvanbegrip.nl";
+            default_redirection_url = "https://invoices.wereldvanbegrip.nl";
             name = "authelia_session";
             same_site = "lax";
             expiration = "1h";
@@ -390,9 +412,43 @@
                 }
               ];
             };
+            invoiceplane = {
+              default_policy = "deny";
+              rules = [
+                {
+                  policy = "two_factor";
+                  subject = [ "group:invoiceplane" ];
+                }
+              ];
+            };
           };
 
           clients = [
+            # InvoicePlane (invoices.wereldvanbegrip.nl), single sign-on via Gabbaya patch
+            # 0004-oidc-sso. Plaintext secret staat in secrets/invoiceplane-oidc.age
+            # (OIDC_CLIENT_SECRET, als env-file in de container); hier alleen de hash.
+            # De library (jumbojett) gebruikt client_secret_basic en PKCE S256. De issuer is
+            # https://auth.wereldvanbegrip.nl: zelfde cookie-domein als InvoicePlane, dus
+            # de forward-auth-sessie geldt meteen en er is geen tweede login.
+            {
+              client_id = "invoiceplane";
+              client_name = "InvoicePlane";
+              client_secret = "$argon2id$v=19$m=65536,t=3,p=4$1lG91gg0Rbvz6e8FzAPU4w$GjBz1bGfKFYC7gb5qpAPGJQZSTpMkXGv3zn0guyUSvY";
+              public = false;
+              authorization_policy = "invoiceplane";
+              redirect_uris = [ "https://invoices.wereldvanbegrip.nl/sessions/oidc_callback" ];
+              scopes = [ "openid" "profile" "email" ];
+              grant_types = [ "authorization_code" ];
+              response_types = [ "code" ];
+              response_modes = [ "query" ];
+              require_pkce = true;
+              pkce_challenge_method = "S256";
+              token_endpoint_auth_method = "client_secret_basic";
+              userinfo_signed_response_alg = "none";
+              consent_mode = "pre-configured";
+              pre_configured_consent_duration = "1y";
+            }
+
             {
               client_id = "wallos";
               client_name = "Wallos";
@@ -543,6 +599,20 @@
       forceSSL = true;
       enableACME = true;
       
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:9091";
+        proxyWebsockets = true;
+        extraConfig = ''
+          proxy_set_header X-Forwarded-Host $http_host;
+        '';
+      };
+    };
+
+    # Portal voor het wereldvanbegrip.nl-cookiedomein (InvoicePlane)
+    virtualHosts."auth.wereldvanbegrip.nl" = {
+      forceSSL = true;
+      useACMEHost = "wereldvanbegrip.nl";
+
       locations."/" = {
         proxyPass = "http://127.0.0.1:9091";
         proxyWebsockets = true;

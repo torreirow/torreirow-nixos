@@ -54,7 +54,6 @@
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
  ../../modules/bookstack.nix
- ../../modules/mmdl.nix
  ../../modules/docker-registry-mirror.nix
  ../../modules/formrelay.nix
  ../../modules/wallos.nix
@@ -182,6 +181,27 @@
     dhcp = "internal";
     wifi.powersave = false;
 
+    # Statisch IPv4 op de LAN-poort. Een DHCP-reservering in de router geeft
+    # wel steeds hetzelfde adres, maar blijft een lease: op 2026-10-17 05:52
+    # verliep die (renews 12u onbeantwoord) en haalde NM het adres weg, waarna
+    # alle diensten onbereikbaar waren. Zonder lease kan dat niet meer.
+    # De reservering in de router blijft staan zodat niemand anders .52 krijgt.
+    ensureProfiles.profiles.lan = {
+      connection = {
+        id = "lan";
+        type = "ethernet";
+        interface-name = "enp3s0";
+        autoconnect = true;
+        autoconnect-priority = 100;
+      };
+      ipv4 = {
+        method = "manual";
+        address1 = "192.168.2.52/24,192.168.2.254";
+        dns = "192.168.2.254;";
+        dns-search = "home;";
+      };
+      ipv6.method = "disabled";
+    };
   };
 
   # IPv6 uitgeschakeld: malandro heeft geen werkende IPv6 (geen route/adres,
@@ -378,6 +398,11 @@ environment.variables.EDITOR = "vim";
       data-root = "/data/external/dockerlibs";
     };
   };
+  # data-root staat op de externe schijf (nofail). Zonder deze eis startte docker
+  # op 2026-10-17 op de lege mountpoint-map op de root-fs en bleef daarna in een
+  # kapotte staat hangen ("invalid output path ... overlay2") toen de schijf er
+  # weer was. Nu blijft docker uit zolang de schijf ontbreekt.
+  systemd.services.docker.unitConfig.RequiresMountsFor = [ "/data/external/dockerlibs" ];
 
   programs.gnupg.agent = {
     enable = true;
@@ -456,6 +481,11 @@ services.samba-wsdd = {
 
 
 services.fwupd.enable = true;
+# Geen Secure Boot db/dbx-updates: die veranderen PCR 7, waaraan de LUKS-TPM2-
+# sleutel gebonden is, waardoor de automatische unlock breekt (2026-10-16:
+# `update-system update` → UEFI CA 2023 + dbx 20260402). Secure Boot staat uit
+# op malandro, dus deze updates leveren hier niets op.
+services.fwupd.daemonSettings.DisabledPlugins = [ "uefi_db" "uefi_dbx" ];
 #services.xscreensaver = {
 #  enable = true;
 #};
@@ -527,13 +557,13 @@ services.authelia.users = [
     groups = [ "monitoring" "network" "operations" "office" "grafana-admins" ];
     disabled = false;
   }
-  # Dagelijks account -- GEEN admin meer. Alleen de dagelijkse apps + Linny +
-  # persoonlijk; Grafana-Editor via grafana-editors (geen rauwe prometheus/alertmanager).
+  # Dagelijks account -- sinds 2026-10-20 weer met dezelfde admin-groepen als
+  # wouteradmin (monitoring/network/operations/grafana-admins).
   {
     username = "wouter";
     displayname = "Wouter van der Toorren";
     email = "wouter@toorren.net";
-    groups = [ "office" "linny" "personal-wouter" "grafana-editors" ];
+    groups = [ "monitoring" "network" "operations" "office" "linny" "personal-wouter" "grafana-admins" "invoiceplane" ];
     disabled = false;
   }
   {
@@ -541,6 +571,14 @@ services.authelia.users = [
     displayname = "WouteruseR van der Toorren";
     email = "wouteruser@toorren.net";
     groups = [ "office" "linny" ];
+    disabled = false;
+  }
+  # Wereld van Begrip: alleen InvoicePlane (invoices.wereldvanbegrip.nl)
+  {
+    username = "maaike";
+    displayname = "Maaike van der Toorren";
+    email = "maaike@wereldvanbegrip.nl";
+    groups = [ "invoiceplane" ];
     disabled = false;
   }
 ];

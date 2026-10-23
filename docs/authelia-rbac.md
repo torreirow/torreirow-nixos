@@ -14,7 +14,7 @@ org-Admin gaf (auth.proxy + auto_assign_org_role=Admin).
 **Doorgevoerd (generation 54+, live):**
 - **access_control volledig expliciet** (`modules/authelia.nix`): wildcard + groep `admins` weg;
   per-domein regels op groepen `monitoring` (prometheus, alertmanager), `network` (wg), `operations`
-  (cockpit, fail2ban, status, zigbee2mqtt, pdftools, vw`/admin`), `office` (docs, contacts, mmdl,
+  (cockpit, fail2ban, status, zigbee2mqtt, pdftools, vw`/admin`), `office` (docs, contacts,
   ittools), `linny` (webview), `personal-wouter` (wouter.toorren.net, agenda). kpn-extern → operations.
   Gaten alertmanager/agenda gedicht. **LinnyWouter → linny** (policy + regel + spec).
 - **Gescheiden accounts** (`hosts/malandro/configuration.nix` → store-symlink users-db, declaratief):
@@ -61,3 +61,26 @@ wouteradmin = superuser; wouter gedegradeerd maar via object-rechten ziet die no
 wouteradmin. Rollback = `nixos-rebuild switch` naar generation 53/555.
 
 **Status:** ✅ Live en getest. Alleen nog: change archiveren + PR/merge.
+
+### 2026-10-16 - Tweede cookie-domein wereldvanbegrip.nl (InvoicePlane)
+
+- Groep **`invoiceplane`** (wouter, maaike) → `invoices.wereldvanbegrip.nl`, two_factor. Portal
+  `auth.wereldvanbegrip.nl` met eigen `session.cookies`-entry (cookie van toorren.net geldt daar niet).
+  Details: `docs/invoiceplane.md`.
+- **WebAuthn/security keys zijn per domein (RP ID).** Een key geregistreerd op `auth.toorren.net` werkt
+  niet op `auth.wereldvanbegrip.nl` ("Found no credentials"). TOTP werkt wél op beide → kies daar
+  METHODS → One-Time Password, of registreer de key opnieuw op het tweede portal.
+- **Valkuil hashes-secret:** een ontbrekende komma in `authelia-password-hashes.age` → `jq: Bad JSON` in
+  de pre-start → `authelia-main` start niet → ALLE forward-auth-diensten plat. Na bewerken altijd
+  `sudo ragenx -d authelia-password-hashes.age --ssh-dir /etc/ssh | jq keys`.
+- `secrets/authelia-users.age` verwijderd (ongebruikt sinds commit 9c92835).
+- OIDC-client **`invoiceplane`** (2026-10-16): single sign-on voor InvoicePlane op het
+  wereldvanbegrip.nl-portal (issuer `https://auth.wereldvanbegrip.nl`), beleid `invoiceplane`
+  (groep invoiceplane, two_factor), PKCE S256, client_secret_basic, consent pre-configured.
+  Secret: hash in authelia.nix, plaintext in `secrets/invoiceplane-oidc.age`. Zie docs/invoiceplane.md.
+
+### 2026-10-20 - wouter weer admin
+
+- **wouter** heeft weer alle admin-groepen van wouteradmin: monitoring/network/operations +
+  `grafana-admins` (i.p.v. `grafana-editors`). De scheiding van 2026-10-01 is daarmee voor dit
+  account teruggedraaid; wouteradmin bestaat nog. Grafana-Admin pas na volledig uitloggen + verse login.

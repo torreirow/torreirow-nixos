@@ -1,0 +1,10 @@
+# Beheerd via torreirow-nixos hosts/bobadela1 (imperatief uitgerold, zie README.md)
+[Unit]
+Description=Dagelijkse Nextcloud AIO-update (zonder backup)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/nextcloud-aio-update
+TimeoutStartSec=1h

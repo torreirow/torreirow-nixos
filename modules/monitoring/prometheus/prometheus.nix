@@ -49,6 +49,7 @@
       ./alerts/device-tracker-alerts.yml
       ./alerts/atag-alerts.yml
       ./alerts/wifi-alerts.yml
+      ./alerts/plant-alerts.yml
     ];
   };
 

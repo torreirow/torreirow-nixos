@@ -32,7 +32,6 @@ in
   "authelia-jwt.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "authelia-session.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
   "authelia-storage.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
-  "authelia-users.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
   "route53.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "chhoto-url-database.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "chhoto-url-api-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
@@ -43,6 +42,7 @@ in
   "docseal-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "invoiceplane-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "invoiceplane-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "invoiceplane-oidc.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "vikunja-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "bookstack-appkey.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "bookstack-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
@@ -70,7 +70,6 @@ in
   "authelia-password-hashes.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "hcaptcha-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "turnstile-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "mmdl-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "wallos-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # WireGuard client secrets (lobos)
