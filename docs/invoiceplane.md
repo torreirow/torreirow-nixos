@@ -231,3 +231,20 @@ browser → invoices.wereldvanbegrip.nl → nginx forward-auth → Authelia (1×
    Klantlinks (`/guest/`) werken gewoon door (staan buiten Authelia).
 
 **Tests:** `tests/oidc-e2e/run.sh` in Gabbaya (18 scenario's tegen een mock-OIDC-provider, ook in CI).
+
+### 2026-10-23 - PHP2Shell: publieke routes alleen GET/HEAD (tijdelijk)
+
+**Aanleiding:** PHP2Shell (CVE-2026-109618/109619, unauthenticated RCE via multipart-POST). Gabbaya
+draait op `php:8.1-apache-bookworm` (PHP 8.1.34, mod_php); 8.1 krijgt van het PHP-project geen fix
+(gefixt: 8.2.35, 8.3.36, 8.4.27, 8.5.12). Beheer zit achter Authelia, maar `/guest/`, `/assets/` en
+`/uploads/*.png|jpg` zijn publiek, en niet-bestaande paden routeert `.htaccess` naar `index.php`.
+
+**Geen misbruik gezien:** nginx-log 18–23 okt: 28 requests naar de invoices-host, nul POSTs.
+
+**Mitigatie:** `limit_except GET { deny all; }` op de drie publieke locations in
+`modules/invoiceplane-docker.nix`. Getest: GET/HEAD werken, POST → 401 bij nginx en komt niet bij
+Apache aan (`docker logs invoiceplane`). Gevolg: een POST op de gastpagina (online betalen) werkt
+niet meer — zelden gebruikt.
+
+**Echte fix (open):** Gabbaya ombouwen naar `php:8.3-apache-bookworm` (of 8.2), CI, testen tegen een
+DB-kopie, digest bijwerken. Daarna de `limit_except`-regels weer weghalen.
