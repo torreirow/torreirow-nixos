@@ -37,12 +37,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
-                "color": "yellow",
-                "value": 18
+                "color": "green",
+                "value": 17
+              },
+              {
+                "color": "orange",
+                "value": 22
               },
               {
                 "color": "red",
@@ -50,7 +54,9 @@
               }
             ]
           },
-          "unit": "celsius"
+          "unit": "celsius",
+          "min": 10,
+          "max": 30
         },
         "overrides": []
       },
@@ -85,7 +91,8 @@
         }
       ],
       "title": "Kamertemperatuur",
-      "type": "gauge"
+      "type": "gauge",
+      "description": "Wat: gemeten kamertemperatuur (thermostaat ATAG One).\nWaarom: comfort en controle of het programma zijn doel haalt.\nGoed: 19-21 °C overdag (groen 17-22). Structureel onder de doeltemperatuur = ketel haalt het niet; erboven = verspilling."
     },
     {
       "datasource": {
@@ -102,20 +109,30 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "dark-blue",
                 "value": null
               },
               {
-                "color": "green",
+                "color": "light-blue",
                 "value": 0
               },
               {
-                "color": "yellow",
+                "color": "green",
                 "value": 10
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "red",
+                "value": 28
               }
             ]
           },
-          "unit": "celsius"
+          "unit": "celsius",
+          "min": -10,
+          "max": 35
         },
         "overrides": []
       },
@@ -150,7 +167,8 @@
         }
       ],
       "title": "Buitentemperatuur",
-      "type": "gauge"
+      "type": "gauge",
+      "description": "Wat: buitentemperatuur van de ATAG-buitensensor.\nWaarom: stuurt het weersafhankelijk stoken (temperatuurinvloed) en verklaart het gasverbruik.\nGoed: geen goed/fout; kleur is alleen een temperatuurschaal. Wijkt hij sterk af van het weerbericht, controleer de sensorplek (zie paneel Kalibratie)."
     },
     {
       "datasource": {
@@ -188,7 +206,9 @@
               }
             ]
           },
-          "unit": "pressurembar"
+          "unit": "pressurebar",
+          "min": 0,
+          "max": 3
         },
         "overrides": []
       },
@@ -223,7 +243,8 @@
         }
       ],
       "title": "CV Waterdruk",
-      "type": "gauge"
+      "type": "gauge",
+      "description": "Wat: waterdruk in de CV-installatie.\nWaarom: te lage druk = slechte circulatie en uiteindelijk een storing/uitval.\nGoed: 1,5-2,0 bar. Onder 1,2 bar bijvullen; boven 2,2 bar teveel (overdrukventiel kan gaan lekken). Langzaam dalende druk = lek of expansievat."
     },
     {
       "datasource": {
@@ -240,20 +261,19 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
-                "color": "yellow",
-                "value": 50
-              },
-              {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": 0.05
               }
             ]
           },
-          "unit": "percent"
+          "unit": "suffix: m³/u",
+          "decimals": 2,
+          "min": 0,
+          "max": 0.5
         },
         "overrides": []
       },
@@ -283,12 +303,13 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_unit_percent{entity=\"sensor.atag_one_brander\"}",
+          "expr": "homeassistant_sensor_volume_flow_rate_mu0xb3_per_h{entity=\"sensor.atag_one_gasverbruik\"}",
           "refId": "A"
         }
       ],
-      "title": "Brander Percentage",
-      "type": "gauge"
+      "title": "Gasdebiet ketel",
+      "type": "gauge",
+      "description": "Wat: actueel gasdebiet van de ketel (CV én warm water).\nWaarom: betrouwbare indicator dat de brander brandt; sensor.atag_one_brander bleef soms op 0 % staan.\nGoed: blauw (0) = uit. Brandend liefst laag en lang moduleren i.p.v. kort op hoog vermogen."
     },
     {
       "collapsed": false,
@@ -380,7 +401,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 9
       },
       "id": 22,
@@ -415,7 +436,7 @@
       ],
       "title": "CV Retourtemperatuur (Lager = Beter)",
       "type": "timeseries",
-      "description": "Lagere retourtemperatuur = meer warmte afgegeven aan radiatoren = hogere efficiency"
+      "description": "Wat: temperatuur van het water dat terugkomt uit de radiatoren.\nWaarom: hoe lager, hoe meer warmte afgegeven en hoe beter de ketel condenseert (zuiniger).\nGoed: onder 45 °C tijdens stoken. Hoger: max CV-temperatuur verlagen (aanbeveling 3) of radiatoren waterzijdig inregelen."
     },
     {
       "datasource": {
@@ -563,7 +584,7 @@
       ],
       "title": "Buitentemperatuur vs Gasverbruik Correlatie",
       "type": "timeseries",
-      "description": "Relatie tussen buitentemperatuur en gasverbruik. Lagere buitentemp = hoger verbruik is normaal."
+      "description": "Wat: buitentemperatuur naast gasverbruik per uur.\nWaarom: laat zien of verbruik netjes meeschaalt met de kou.\nGoed: verbruik stijgt geleidelijk als het kouder wordt. Pieken bij mild weer = warm water of een te hoog/ongunstig programma."
     },
     {
       "datasource": {
@@ -629,7 +650,7 @@
       ],
       "title": "Condensatie Indicator",
       "type": "gauge",
-      "description": "Retourtemperatuur: Groen (<45\u00b0C) = optimale condensatie, Geel (45-55\u00b0C) = verminderde condensatie, Rood (>55\u00b0C) = geen condensatie"
+      "description": "Wat: CV-retourtemperatuur als condensatiemeter.\nWaarom: onder ~55 °C condenseert de ketel en wint hij extra warmte uit de rookgassen (tot ~10 % zuiniger).\nGoed: groen (< 45 °C). Geel/rood tijdens stoken: max CV-temperatuur omlaag. Waarde buiten stookperiode zegt weinig."
     },
     {
       "datasource": {
@@ -664,7 +685,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 4,
         "w": 6,
         "x": 18,
         "y": 9
@@ -697,7 +718,7 @@
       ],
       "title": "PCB Temperatuur",
       "type": "stat",
-      "description": "Temperatuur van de PCB (print). Hoog (>70\u00b0C) kan wijzen op problemen."
+      "description": "Wat: temperatuur van de besturingsprint in de ketel.\nWaarom: signaleert oververhitting van de elektronica.\nGoed: 20-50 °C. Structureel boven 70 °C: ventilatie rond de ketel of storing laten controleren."
     },
     {
       "datasource": {
@@ -724,10 +745,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 17
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 13
       },
       "id": 26,
       "options": {
@@ -758,7 +779,7 @@
       ],
       "title": "Totaal Branduren (Cumulatief)",
       "type": "stat",
-      "description": "Totale branduren / aantal cycli. Ideaal: 10-60 minuten per cyclus."
+      "description": "Wat: totaal aantal branduren sinds installatie (teller).\nWaarom: maat voor slijtage; de stijging per dag toont de stookbehoefte.\nGoed: geen streefwaarde. Gebruik voor onderhoudsplanning (onderhoud ca. elke 1-2 jaar)."
     },
     {
       "datasource": {
@@ -785,10 +806,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 6,
         "x": 0,
-        "y": 33
+        "y": 26
       },
       "id": 29,
       "options": {
@@ -803,7 +824,7 @@
           ],
           "fields": ""
         },
-        "textMode": "value_and_name"
+        "textMode": "value"
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -813,12 +834,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_max_boiler_temp\"}",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "Max CV-temperatuur"
         }
       ],
       "title": "Max Boiler Temperatuur",
       "type": "stat",
-      "description": "Maximale toegestane keteltemperatuur. Dit is een configuratie waarde."
+      "description": "Wat: ingestelde maximale CV-watertemperatuur (plafond voor de aanvoer). Een instelling, geen meting.\nWaarom: hoger = sneller warm maar slechter condenseren en meer pendelen.\nBeter: ~50 °C i.p.v. 60 °C (aanbeveling 3, docs/atag-ketel.md). Alleen te wijzigen via ATAG-app of thermostaat."
     },
     {
       "datasource": {
@@ -853,10 +875,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 6,
         "x": 6,
-        "y": 33
+        "y": 26
       },
       "id": 30,
       "options": {
@@ -871,7 +893,7 @@
           ],
           "fields": ""
         },
-        "textMode": "value_and_name"
+        "textMode": "value"
       },
       "pluginVersion": "10.0.0",
       "targets": [
@@ -881,12 +903,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.atag_one_doel_temperatuur\"}",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "Doeltemperatuur"
         }
       ],
       "title": "Doel Temperatuur",
       "type": "stat",
-      "description": "Ingestelde doeltemperatuur voor de verwarming"
+      "description": "Wat: kamertemperatuur die de thermostaat nu nastreeft (ATAG-programma); sparkline toont het dagritme.\nWaarom: verklaart wanneer de ketel aanslaat.\nGoed: nachtstand 16 °C levert weinig op (huis koelt maar ~0,5 °C af); ~18,5 °C 's nachts geeft rustiger opwarmen (aanbeveling 4)."
     },
     {
       "collapsed": false,
@@ -1112,7 +1135,8 @@
         }
       ],
       "title": "Temperatuur Verloop",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Wat: kamer-, buiten-, CV-water- en warmwatertemperatuur over tijd.\nWaarom: toont opwarmgedrag en hoe hoog de ketel het CV-water stookt.\nGoed: CV-water bij mild weer ruim onder het maximum (40-50 °C). Steeds tegen 60 °C aan = max of temperatuurinvloed te hoog."
     },
     {
       "collapsed": false,
@@ -1211,13 +1235,14 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "rate(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.gas_meter_gasverbruik\"}[5m]) * 300",
+          "expr": "rate(homeassistant_sensor_gas_mu0xb3{entity=\"sensor.gas_meter_gasverbruik\"}[5m]) * 3600",
           "legendFormat": "Gas Verbruik per uur",
           "refId": "A"
         }
       ],
-      "title": "Gas Verbruik (m\u00b3/uur)",
-      "type": "timeseries"
+      "title": "Gas Verbruik (m³/uur)",
+      "type": "timeseries",
+      "description": "Wat: gasverbruik van de hele woning per uur (slimme meter, 5-min gemiddelde).\nWaarom: het werkelijke verbruik, inclusief koken en warm water.\nGoed: 0 buiten stookmomenten. Korte, steeds terugkerende pieken = pendelen (vergelijk met paneel Brander Activiteit)."
     },
     {
       "datasource": {
@@ -1243,7 +1268,7 @@
               "viz": false,
               "legend": false
             },
-            "lineInterpolation": "linear",
+            "lineInterpolation": "stepAfter",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -1269,9 +1294,50 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "suffix: m³/u",
+          "min": 0
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Thermostaat vraagt warmte"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 15
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 10,
@@ -1303,13 +1369,23 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_unit_percent{entity=\"sensor.atag_one_brander\"}",
-          "legendFormat": "Brander Percentage",
+          "expr": "homeassistant_sensor_volume_flow_rate_mu0xb3_per_h{entity=\"sensor.atag_one_gasverbruik\"}",
+          "legendFormat": "Gasdebiet ketel",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_climate_action{entity=\"climate.atag_one\",action=\"heating\"}",
+          "legendFormat": "Thermostaat vraagt warmte",
+          "refId": "B"
         }
       ],
-      "title": "Brander Activiteit",
-      "type": "timeseries"
+      "title": "Brander Activiteit (gasdebiet)",
+      "type": "timeseries",
+      "description": "Wat: gasdebiet van de ketel en (oranje band) of de thermostaat warmte vraagt.\nWaarom: toont pendelen: veel korte branderruns i.p.v. weinig lange.\nGoed: runs van ≥ 10 min. Gas zonder oranje band = warm water. sensor.atag_one_brander is onbetrouwbaar en niet meer gebruikt."
     },
     {
       "collapsed": false,
@@ -1381,7 +1457,8 @@
         }
       ],
       "title": "Totaal Branduren",
-      "type": "stat"
+      "type": "stat",
+      "description": "Wat: totaal aantal branduren sinds installatie (teller).\nWaarom: maat voor slijtage en onderhoudsplanning.\nGoed: geen streefwaarde."
     },
     {
       "datasource": {
@@ -1440,7 +1517,8 @@
         }
       ],
       "title": "Warm Water Temperatuur",
-      "type": "stat"
+      "type": "stat",
+      "description": "Wat: temperatuur van het warm tapwater.\nWaarom: comfort en energieverbruik voor warm water.\nGoed: 50-55 °C. Hoger kost onnodig gas; lager dan ~45 °C geeft minder comfort."
     },
     {
       "datasource": {
@@ -1499,7 +1577,8 @@
         }
       ],
       "title": "Gemiddelde Buitentemperatuur",
-      "type": "stat"
+      "type": "stat",
+      "description": "Wat: gemiddelde buitentemperatuur die de ketel gebruikt voor weersafhankelijke regeling.\nWaarom: basis voor de stooklijn (temperatuurinvloed).\nGoed: geen goed/fout; moet het weer volgen. Waarde rond -40 = sensorfout (wordt weggefilterd)."
     },
     {
       "datasource": {
@@ -1531,7 +1610,7 @@
         "x": 0,
         "y": 85
       },
-      "id": 11,
+      "id": 42,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1558,7 +1637,8 @@
         }
       ],
       "title": "Totaal Branduren",
-      "type": "stat"
+      "type": "stat",
+      "description": "Wat: totaal aantal branduren sinds installatie (teller).\nWaarom: maat voor slijtage en onderhoudsplanning.\nGoed: geen streefwaarde."
     },
     {
       "datasource": {
@@ -1598,7 +1678,7 @@
         "x": 16,
         "y": 85
       },
-      "id": 13,
+      "id": 43,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1625,7 +1705,8 @@
         }
       ],
       "title": "WiFi Signaalsterkte",
-      "type": "stat"
+      "type": "stat",
+      "description": "Wat: wifi-signaalsterkte van de ATAG One.\nWaarom: slecht signaal = gaten in de data en trage bediening via app/HA.\nGoed: beter dan -67 dBm. Slechter dan -75 dBm: access point dichterbij of extra AP."
     },
     {
       "datasource": {
@@ -1719,7 +1800,7 @@
       ],
       "title": "Warmhoud (warmtewisselaar)",
       "type": "timeseries",
-      "description": "Warmhoud-/warmtewisselaartemperatuur (comfort/eco-stand). NIET de CV-retour: volgt het warm water. Zaagtand ~47-55 C door korte warmhoud-brandjes."
+      "description": "Wat: temperatuur van de warmtewisselaar in de warmhoud-stand (comfort/eco). NIET de CV-retour; volgt het warm water.\nWaarom: warmhouden kost gas voor directer warm water.\nGoed: zaagtand ~47-55 °C is normaal. Veel korte brandjes: overweeg eco-stand om gas te sparen."
     },
     {
       "datasource": {
@@ -1813,7 +1894,7 @@
       ],
       "title": "Kalibratie buitensensor (kamer - buiten)",
       "type": "timeseries",
-      "description": "Verschil tussen kamertemperatuur en de ATAG-buitensensor, zolang die binnen hangt voor kalibratie. Stabiel verschil = offset; richting 0 = gelijke omgeving."
+      "description": "Wat: verschil tussen kamertemperatuur en de ATAG-buitensensor, zolang die binnen hangt voor kalibratie.\nWaarom: toont de offset van de buitensensor.\nGoed: stabiel verschil (offset bekend) of richting 0. Zodra de sensor buiten hangt, is dit paneel niet meer zinvol."
     }
   ],
   "refresh": "30s",

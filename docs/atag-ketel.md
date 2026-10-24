@@ -62,7 +62,10 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 
 ## Aanbevelingen (in volgorde, één tegelijk, elk ≥ 5 dagen meten)
 
-1. **Grafana:** brander-paneel baseren op `gasverbruik` i.p.v. `brander`.
+1. ~~**Grafana:** brander-paneel baseren op `gasverbruik` i.p.v. `brander`.~~ **Gedaan 2026-10-24:**
+   gauge "Gasdebiet ketel" (m³/u, `sensor.atag_one_gasverbruik`) en timeseries "Brander Activiteit
+   (gasdebiet)" met gasdebiet plus `hvac_action` heating als 0/1-band. Let op: gasdebiet omvat ook
+   warm water, dus > 0 zonder warmtevraag = tapwater.
 2. **Weersafhankelijk stoken:** `temperatuurinvloed` `room_regulation` → `average`. Verwacht: lager
    en langer moduleren, minder starts.
 3. **Max CV-temperatuur 60 → ~50 °C** (via app/thermostaat). Langere runs, lagere retour (nu ~46 °C),
