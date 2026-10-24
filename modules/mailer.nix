@@ -82,6 +82,45 @@ let
           fail(400, "Vul alle verplichte velden in. / Please fill in all required fields.");
       }
 
+      // Limieten: harde plafonds zodat misbruik nooit veel (SES-)mail oplevert.
+      // Sliding window van 24 uur, bijgehouden in één JSON-bestand onder flock.
+      $stateFile = "${cfg.stateDir}/ratelimit.json";
+      $fh = fopen($stateFile, "c+");
+      if ($fh === false || !flock($fh, LOCK_EX)) {
+          error_log("mailer: kan $stateFile niet openen of locken");
+          fail(503, "Het formulier is tijdelijk niet beschikbaar. / The form is temporarily unavailable.");
+      }
+      $now = time();
+      $sent = json_decode(stream_get_contents($fh), true) ?: [];
+      $sent = array_values(array_filter($sent, function ($e) use ($now) {
+          return $e["t"] > $now - 86400;
+      }));
+      $toDay  = 0;
+      $toHour = 0;
+      foreach ($sent as $e) {
+          if ($e["to"] === $toEmail) {
+              $toDay++;
+              if ($e["t"] > $now - 3600) {
+                  $toHour++;
+              }
+          }
+      }
+      if (count($sent) >= ${toString cfg.limits.totalPerDay}
+          || $toDay >= ${toString cfg.limits.perRecipientPerDay}
+          || $toHour >= ${toString cfg.limits.perRecipientPerHour}) {
+          flock($fh, LOCK_UN);
+          fclose($fh);
+          error_log("mailer: limiet bereikt voor $toEmail (totaal=" . count($sent) . " dag=$toDay uur=$toHour)");
+          fail(429, "Er zijn op dit moment te veel berichten verstuurd. Probeer het later opnieuw. / Too many messages right now. Please try again later.");
+      }
+      $sent[] = ["t" => $now, "to" => $toEmail];
+      ftruncate($fh, 0);
+      rewind($fh);
+      fwrite($fh, json_encode($sent));
+      fflush($fh);
+      flock($fh, LOCK_UN);
+      fclose($fh);
+
       // Verstuur via Postfix (lokale MTA)
       $subject = "Contactformulier - " . $domain;
       $body    = "Naam: $naam\nE-mail: $email\n\n$bericht";
@@ -129,6 +168,30 @@ in
       type = lib.types.str;
       description = "Pad naar het bestand met de Cap key-secret (via agenix).";
       example = "/run/secrets/cap-mailer-secret";
+    };
+
+    stateDir = lib.mkOption {
+      type = lib.types.str;
+      default = "/var/lib/mailer";
+      description = "Map voor de teller van verstuurde berichten (rate limiting).";
+    };
+
+    limits = {
+      totalPerDay = lib.mkOption {
+        type = lib.types.ints.positive;
+        default = 30;
+        description = "Maximaal aantal berichten per 24 uur, alle sites samen.";
+      };
+      perRecipientPerDay = lib.mkOption {
+        type = lib.types.ints.positive;
+        default = 10;
+        description = "Maximaal aantal berichten per ontvanger per 24 uur.";
+      };
+      perRecipientPerHour = lib.mkOption {
+        type = lib.types.ints.positive;
+        default = 3;
+        description = "Maximaal aantal berichten per ontvanger per uur.";
+      };
     };
   };
 
@@ -187,6 +250,7 @@ in
 
     systemd.tmpfiles.rules = [
       "d /var/www/mailer 0755 nginx nginx -"
+      "d ${cfg.stateDir} 0750 nginx nginx -"
     ];
   };
 }

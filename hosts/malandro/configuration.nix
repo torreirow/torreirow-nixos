@@ -130,6 +130,7 @@
       # LET OP: pas dit ontvangstadres aan indien gewenst.
       "cckafe.com" = "hello@cckafe.com";
       "devos.dutchyland.net" = "dailydevo@dutchyland.net";
+      "noraly.toorren.net" = "noraly@toorren.net";
     };
     # Self-hosted Cap CAPTCHA i.p.v. Cloudflare Turnstile.
     capSiteKey = "eaa5abea30";
