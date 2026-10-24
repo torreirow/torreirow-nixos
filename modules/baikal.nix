@@ -16,7 +16,9 @@
   };
 
   virtualisation.oci-containers.containers.baikal = {
-    image = "ckulka/baikal:nginx";
+    # https://github.com/torreirow/baikal-php: upstream 0.10.1 (nginx) met PHP 8.3.36 i.p.v.
+    # 8.1 (PHP2Shell). Upstream heeft geen image met een gepatchte PHP; terug zodra dat er is.
+    image = "ghcr.io/torreirow/baikal-php@sha256:46d2d8aeda5128856c9a6ddb26327d0e48d48783de3dc7cbfb3b5beacb6fe5df"; # PHP 8.3.36
     autoStart = true;
 
     ports = [

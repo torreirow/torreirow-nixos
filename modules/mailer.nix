@@ -141,8 +141,8 @@ in
       phpPackage = pkgs.php83.buildEnv {
         extensions = { enabled, all }: enabled ++ (with all; [ curl openssl ]);
         extraConfig = ''
-          # Gebruik de setgid-postdrop wrapper (NixOS), niet de rauwe store-binary:
-          # anders kan postdrop niet in de maildrop schrijven en hangt mail().
+          ; Gebruik de setgid-postdrop wrapper (NixOS), niet de rauwe store-binary:
+          ; anders kan postdrop niet in de maildrop schrijven en hangt mail().
           sendmail_path = /run/wrappers/bin/sendmail -t -i
           allow_url_fopen = On
           log_errors = On
