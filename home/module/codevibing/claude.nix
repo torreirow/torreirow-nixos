@@ -9,6 +9,7 @@
 
     skills = {
       srt-translate-nl = ./skills/srt-translate-nl;
+      vikunja-afspraak = ./skills/vikunja-afspraak;
     };
 
     context = ''

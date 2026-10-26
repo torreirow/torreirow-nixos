@@ -37,6 +37,7 @@
 - **Vragen over Qt/Wayland/GNOME op lobos, `QT_QPA_PLATFORM`, Electron op Wayland, `gnome-wayland.nix`, de Super+L-keybinding, MuseScore of Strawberry (muziekspeler/radiostreams)** → lees `docs/qt-wayland-gnome.md`
 - **Vragen over de ATAG One-ketel, pendelen/branderstarts, `climate.atag_one`, `temperatuurinvloed`, nachtverlaging of het `atag-boiler`-dashboard** → lees `docs/atag-ketel.md`
 - **Vragen over fail2ban op malandro, `modules/fail2ban.nix`, de jails of de NixOS 25.11-opties die niet op top-level bestaan** → lees `docs/fail2ban.md`
+- **Vragen over Vikunja-webhooks naar Signal, `vikunja-signal.service`, poort 8100, herinneringen/verlopen taken via Signal of het webhook-geheim** → lees `docs/vikunja-signal.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 
