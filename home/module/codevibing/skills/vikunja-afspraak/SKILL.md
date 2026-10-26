@@ -88,6 +88,32 @@ Vikunja rekent in seconden: "1 maand" is 30 dagen. Noem dat als het verschil ert
 Een herinnering op een vast tijdstip, los van de deadline, gaat met
 `{"reminder": "2027-09-01T09:00:00+02:00"}`.
 
+#### Overgang zomer-/wintertijd
+
+Omdat Vikunja in vaste seconden rekent, verschuift een relatieve herinnering die over een
+tijdwissel heen valt een uur. Gezien op 2026-10-26: deadline 13:22 (`+01:00`), herinnering
+"1 week eerder" kwam op 19 okt **14:22** (`+02:00`) uit in plaats van 13:22.
+
+Controleer daarom per herinnering in **dagen of weken** of de offset gelijk is aan die van de
+deadline. `date` rekent dagen in lokale kloktijd, dus dit geeft het bedoelde moment:
+
+```bash
+due='2026-10-26 13:22'
+date -d "$due" +%z                          # offset deadline → +0100
+date -d "$due 30 days ago" '+%F %R %z'      # → 2026-09-26 13:22 +0200  ← andere offset
+date -d "$due 7 days ago"  '+%F %R %z'      # → 2026-10-19 13:22 +0200  ← andere offset
+date -d "$due 1 day ago"   '+%F %R %z'      # → 2026-10-25 13:22 +0100  ← zelfde, relatief ok
+```
+
+- **Zelfde offset** → relatieve herinnering (`relative_to: due_date`).
+- **Andere offset** → vaste herinnering met het tijdstip uit `date`, bijvoorbeeld
+  `{"reminder": "2026-10-19T13:22:00+02:00"}`.
+- Herinneringen in **uren of minuten** blijven altijd relatief: daar is een absoluut aantal
+  uren juist bedoeld.
+
+Een vaste herinnering schuift **niet** mee als de deadline later verandert. Meld daarom in het
+antwoord welke herinneringen vast zijn gezet, en waarom.
+
 ### 5. Aanmaken
 
 ```
@@ -105,6 +131,9 @@ herinnering). Daar staan de tijden die Vikunja zelf heeft uitgerekend. Meld per 
 - id (`#15`), titel, weekdag + datum + tijd
 - een tabel met de herinneringsmomenten (weekdag, datum, tijd)
 - eigen keuzes (gekozen dag bij een relatieve datum, 30-dagenmaand)
+- welke herinneringen vast zijn gezet vanwege een tijdwissel. Die schuiven niet mee met de
+  deadline. Controleer ook in het antwoord dat elke herinnering op de kloktijd van de deadline
+  valt (behalve de uur- en minutenherinneringen)
 - herinneringen die al in het verleden liggen: die gaan niet meer af, meld dat
 
 ## Niet doen
