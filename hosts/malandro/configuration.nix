@@ -53,6 +53,7 @@
  ../../modules/docseal.nix
  ../../modules/invoiceplane-docker.nix
  ../../modules/vikunja.nix
+ ../../modules/vikunja-signal
  ../../modules/bookstack.nix
  ../../modules/docker-registry-mirror.nix
  ../../modules/formrelay.nix

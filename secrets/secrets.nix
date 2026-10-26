@@ -66,6 +66,7 @@ in
   "postfix-sasl-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "homeassistant-prometheus-token.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "signal-numbers.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "vikunja-webhook-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "wg-easy-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "authelia-password-hashes.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "hcaptcha-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
