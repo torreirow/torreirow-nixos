@@ -23,6 +23,7 @@ import sys
 import urllib.error
 import urllib.request
 from datetime import datetime
+from html.parser import HTMLParser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from zoneinfo import ZoneInfo
 
@@ -31,6 +32,7 @@ TASKS_URL = "https://tasks.toorren.net/tasks/{}"
 TZ = ZoneInfo("Europe/Amsterdam")
 MAX_BODY = 1024 * 1024
 MAX_LISTED = 15  # zoveel taken tonen we bij tasks.overdue, de rest als "+N"
+MAX_DESCRIPTION = 600  # langere beschrijvingen worden afgekapt met …
 
 SECRET = os.environ.get("VIKUNJA_WEBHOOK_SECRET", "").encode()
 SIGNAL_SENDER = os.environ.get("SIGNAL_SENDER")
@@ -63,6 +65,36 @@ def task_line(task, projects=None):
     return f"{title} ({', '.join(parts)})" if parts else title
 
 
+class _TextExtractor(HTMLParser):
+    """Vikunja-beschrijving (HTML) → platte tekst met regelovergangen."""
+    BREAKS = {"br", "p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6", "tr"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "li":
+            self.parts.append("\n• ")
+        elif tag in self.BREAKS:
+            self.parts.append("\n")
+
+    def handle_data(self, data):
+        self.parts.append(data)
+
+
+def description_text(value):
+    if not value:
+        return ""
+    parser = _TextExtractor()
+    parser.feed(value)
+    lines = [line.strip() for line in "".join(parser.parts).splitlines()]
+    text = "\n".join(line for line in lines if line)
+    if len(text) > MAX_DESCRIPTION:
+        text = text[:MAX_DESCRIPTION].rstrip() + "…"
+    return text
+
+
 def task_block(task, project):
     lines = [task.get("title") or "(zonder titel)"]
     if project and project.get("title"):
@@ -70,6 +102,9 @@ def task_block(task, project):
     due = fmt_date(task.get("due_date"))
     if due:
         lines.append(f"Deadline: {due}")
+    description = description_text(task.get("description"))
+    if description:
+        lines.append(description)
     if task.get("id"):
         lines.append(TASKS_URL.format(task["id"]))
     return "\n".join(lines)

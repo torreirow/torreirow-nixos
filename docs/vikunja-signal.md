@@ -17,6 +17,8 @@ Vikunja (127.0.0.1:8093) ──webhook, HMAC──▶ vikunja-signal (127.0.0.1:
 - Afzender en ontvanger komen uit `modules/signal-numbers.nix`. Dat is dezelfde
   ontvanger als bij de rustic- en wake-meldingen. Er is nog geen koppeling van
   Vikunja-gebruiker naar telefoonnummer.
+- Berichten bevatten titel, project, deadline, de beschrijving (HTML → platte tekst,
+  max. 600 tekens) en een link. `tasks.overdue` toont alleen titels en deadlines.
 - Andere events, bijvoorbeeld uit een projectwebhook, krijgen een algemene regel
   `Vikunja: <event>`.
 
