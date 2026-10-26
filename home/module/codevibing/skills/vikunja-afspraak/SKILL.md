@@ -36,7 +36,36 @@ ToolSearch  select:mcp__vikunja__tasks_create,mcp__vikunja__projects_list,mcp__v
 als het om een afspraak met een vast tijdstip gaat. Alleen bij een echte "voor die dag af"-taak
 zonder uur-herinneringen mag je zonder tijd verder; noem dat dan expliciet.
 
-Stel alle ontbrekende vragen **in één keer**, niet één voor één.
+#### Interactief vragen met `AskUserQuestion`
+
+Ontbreekt er iets, vraag het dan **interactief** met de tool `AskUserQuestion`, niet als
+platte tekst in je antwoord. Bundel alle open vragen in **één** aanroep (maximaal 4 vragen).
+Elke vraag heeft 2–4 opties, en de gebruiker kan altijd zelf iets typen via "Other". Zet de
+aanbevolen optie bovenaan met "(Recommended)" achter het label.
+
+Welke vragen je stelt hangt af van wat er ontbreekt:
+
+| Ontbreekt     | `header`      | Opties (voorbeeld)                                                        |
+|---------------|---------------|---------------------------------------------------------------------------|
+| Titel         | `Titel`       | 1–2 voorstellen afgeleid uit het verzoek; anders zelf typen               |
+| Datum         | `Datum`       | relevante kandidaten met weekdag, bijv. "ma 2 nov", "di 3 nov"            |
+| Tijd          | `Tijd`        | "09:00", "13:30", "Hele dag (geen tijd, geen uur-herinneringen)"          |
+| Herinneringen | `Herinnering` | "Standaard: 1 mnd, 1 wk, 1 dag, 1 uur (Recommended)", "Alleen 1 dag + 1 uur", "Geen" |
+| Project       | `Project`     | "Inbox (Recommended)" + projecten uit `projects_list` die passen          |
+
+- **Titel, datum en tijd** vraag je altijd als ze ontbreken.
+- **Herinneringen en project** vraag je alleen als er een reden is om te twijfelen, bijvoorbeeld
+  als de deadline zo dichtbij is dat het standaardblok grotendeels in het verleden valt, of als de
+  gebruiker een project noemt dat niet bestaat. Anders gebruik je de default en meld je die.
+- **Beschrijving** vraag je niet. Zet er alleen in wat de gebruiker zelf noemt.
+- Roep bij een projectvraag eerst `projects_list` aan, zodat de opties echte projecten zijn.
+- Bereken datumopties met `date -d` (weekdag klopt dan altijd).
+
+Wordt de skill zonder enige gegevens aangeroepen (alleen `/vikunja-afspraak`), vraag dan eerst
+in gewone tekst wat de afspraak is: titel en datum/tijd kun je niet zinnig als meerkeuze
+aanbieden. Vraag daarna wat nog ontbreekt met `AskUserQuestion`.
+
+Ga pas aanmaken als alle verplichte gegevens bekend zijn.
 
 ### 2. Project bepalen
 
