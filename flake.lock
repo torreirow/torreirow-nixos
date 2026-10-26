@@ -775,11 +775,11 @@
         "nixpkgs": "nixpkgs_11"
       },
       "locked": {
-        "lastModified": 1775829658,
-        "narHash": "sha256-p2cog9uxjJ8kvJQekzzODWfUrOPqO75gbyAv2qVF6b0=",
+        "lastModified": 1793015966,
+        "narHash": "sha256-5qrQfjPKTXeu7gby8O5OYFScjx+0aNSxRVR1rkNd+EM=",
         "owner": "torreirow",
         "repo": "parsh",
-        "rev": "7bc0f2a50e9db3825670c72b41d38c69b3cb623c",
+        "rev": "10ac23f58722363518d511c5e7ab169dda3c1c6e",
         "type": "github"
       },
       "original": {

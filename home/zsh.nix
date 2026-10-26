@@ -97,6 +97,21 @@
         export RBW_PROFILE="$profile"
         tmux setenv RBW_PROFILE "$profile" 2>/dev/null || true
         echo "RBW profiel: ''${profile:-(default)}"
+
+        # `rbw unlocked` geeft exit 0 als de vault al open is
+        if rbw unlocked 2>/dev/null; then
+          echo "Vault is al unlocked"
+          return 0
+        fi
+
+        echo "Vault is locked, unlocken..."
+        rbw unlock
+        if rbw unlocked 2>/dev/null; then
+          echo "Vault unlocked"
+        else
+          echo "Unlock van profiel ''${profile:-(default)} mislukt" >&2
+          return 1
+        fi
       }
 
       # spotdl / yt-dlp met YouTube PO-token-provider (bgutil).
