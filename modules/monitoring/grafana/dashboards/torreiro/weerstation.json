@@ -551,7 +551,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "(homeassistant_sensor_precipitation_intensity_mm_per_h{entity=\"sensor.neerslagintensiteit\"} >= 0.1) or on() ((homeassistant_binary_sensor_state{entity=\"binary_sensor.regensensor_regent\"} == 1) * 0 + 0.05) or on() (homeassistant_sensor_precipitation_intensity_mm_per_h{entity=\"sensor.neerslagintensiteit\"} * 0)",
+          "expr": "max((homeassistant_sensor_precipitation_intensity_mm_per_h{entity=\"sensor.neerslagintensiteit\"} >= 0.1) or on() ((homeassistant_binary_sensor_state{entity=\"binary_sensor.regensensor_regent\"} == 1) * 0 + 0.05) or on() (homeassistant_sensor_precipitation_intensity_mm_per_h{entity=\"sensor.neerslagintensiteit\"} * 0))",
           "refId": "A"
         }
       ],

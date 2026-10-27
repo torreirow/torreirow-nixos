@@ -89,7 +89,8 @@ Dashboard `weerstation.json` (uid `weerstation-ermelo`):
 - Stat **"Regensensor (lokaal, tuin)"**: DROOG/REGENT, "Sensor offline" bij geen data.
 - **"Toestand (radar + lokale regensensor)"**: radar ≥ 0,1 mm/h → radar-categorie; anders, als de
   lokale sensor regen meet → waarde 0,05 = "REGEN (lokale sensor)"; anders 0 = DROOG. Query:
-  `(R >= 0.1) or on() ((S == 1) * 0 + 0.05) or on() (R * 0)`.
+  `max((R >= 0.1) or on() ((S == 1) * 0 + 0.05) or on() (R * 0))`. De `max()` is nodig: elke
+  or-tak heeft eigen labels, en zonder `max()` toont de stat per tak een vak (drie vakken).
 - **"Neerslag verloop"**: lokale sensor als oranje stap-banden (verborgen as 0–1) onder de radar.
 - Tijdstempels (`homeassistant_last_updated_time_seconds * 1000`, unit `dateTimeFromNow`): de
   regensensor-stat toont **Status gewijzigd** (rainwater; meldt alleen wissels, dus kan dagen oud zijn)
