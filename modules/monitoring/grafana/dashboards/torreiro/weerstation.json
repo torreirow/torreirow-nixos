@@ -562,7 +562,7 @@
       "id": 14,
       "type": "stat",
       "title": "Regensensor (lokaal, tuin)",
-      "description": "Eigen Zigbee-regensensor in de tuin (binary_sensor.regensensor_regent): meet of het hier nú nat wordt. Los van Buienradar.",
+      "description": "Eigen Zigbee-regensensor in de tuin (binary_sensor.regensensor_regent): meet of het hier nú nat wordt, los van Buienradar. 'Status gewijzigd' = laatste wissel droog/regent (de sensor meldt alleen wissels). 'Sensor actief' = laatste meting van hetzelfde device (lichtsensor), dus of het nog leeft.",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
@@ -580,7 +580,26 @@
             "uid": "PBFA97CFB590B2093"
           },
           "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.regensensor_regent\"}",
+          "legendFormat": "Status",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_last_updated_time_seconds{entity=\"sensor.regensensor_rainwater\"} * 1000",
+          "legendFormat": "Status gewijzigd",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_last_updated_time_seconds{entity=\"sensor.regensensor_illuminance\"} * 1000",
+          "legendFormat": "Sensor actief",
+          "refId": "C"
         }
       ],
       "fieldConfig": {
@@ -617,13 +636,60 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status gewijzigd"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "mappings",
+                "value": []
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sensor actief"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "mappings",
+                "value": []
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -631,7 +697,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "10.0.0"
     },
@@ -1269,7 +1335,39 @@
           "unit": "lux",
           "min": 0
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Laatste update"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "mappings",
+                "value": []
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text"
+                }
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -1303,6 +1401,15 @@
           "expr": "homeassistant_sensor_illuminance_lx{entity=\"sensor.regensensor_illuminance\"}",
           "legendFormat": "Lichtsterkte",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_last_updated_time_seconds{entity=\"sensor.regensensor_illuminance\"} * 1000",
+          "legendFormat": "Laatste update",
+          "refId": "B"
         }
       ],
       "title": "Lichtsterkte",
