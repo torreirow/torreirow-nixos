@@ -351,13 +351,202 @@
       }
     },
     {
+      "id": 9,
+      "type": "gauge",
+      "title": "Gietmoment (dagen t.o.v. geschatte gietdag)",
+      "description": "Midden (groen) = geschatte gietdag: bodemvocht bereikt dan 20 %. Links = te vroeg (nog te nat), rechts = te laat (al te droog). Schatting uit de droogsnelheid van de afgelopen 4 dagen (minimaal 0,5 %/dag), begrensd op ±14 dagen. Vlak na het gieten staat de wijzer dus links in het rood.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "clamp(-((homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"} - 20) / clamp_min(-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400, 0.5)), -14, 14)",
+          "legendFormat": "Gietmoment",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: d",
+          "decimals": 0,
+          "min": -14,
+          "max": 14,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": -7
+              },
+              {
+                "color": "green",
+                "value": -2.5
+              },
+              {
+                "color": "orange",
+                "value": 2.5
+              },
+              {
+                "color": "red",
+                "value": 7
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdMarkers": true,
+        "showThresholdLabels": false
+      }
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Geschatte gietdag",
+      "description": "Dag waarop het bodemvocht naar verwachting 20 % bereikt. Alleen getoond als dat binnen 30 dagen is; vlak na het gieten is de schatting onbruikbaar.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 6,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "((time() + ((homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"} - 20) / clamp_min(-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400, 0.5)) * 86400) * 1000) and (((homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"} - 20) / clamp_min(-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400, 0.5)) < 30)",
+          "legendFormat": "Gietdag",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "time:DD-MM",
+          "noValue": "Net gegoten",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value"
+      }
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "Droogsnelheid (4 dagen)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 8,
+        "w": 6,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400",
+          "legendFormat": "Droogsnelheid",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: %/dag",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value"
+      }
+    },
+    {
       "id": 108,
       "type": "row",
       "title": "Historie",
       "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 8,
+        "y": 14,
         "w": 24,
         "h": 1
       },
@@ -373,7 +562,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 9,
+        "y": 15,
         "w": 24,
         "h": 9
       },
@@ -447,7 +636,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 18,
+        "y": 24,
         "w": 16,
         "h": 8
       },
@@ -545,7 +734,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 18,
+        "y": 24,
         "w": 8,
         "h": 8
       },

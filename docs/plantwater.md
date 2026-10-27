@@ -43,6 +43,12 @@ Melding: HA-automation "Plantwater droog - Signal melding" (`notify.signal_maria
 
 - Dashboard `modules/monitoring/grafana/dashboards/torreiro/plantwater.json`
   (uid `plantwater-torreiro`, map torreiro): gauge, status, temp/vocht/accu nu + historie.
+- Tweede rij in "Nu" (2026-10-27): **Gietmoment**-gauge (−14…+14 dagen t.o.v. de geschatte
+  gietdag; rood–oranje–groen–oranje–rood, links = te vroeg, rechts = te laat), **Geschatte
+  gietdag** en **Droogsnelheid**. Schatting = `(vocht − 20) / droogsnelheid`, met droogsnelheid =
+  `−deriv(vocht[4d])` in %/dag, minimaal 0,5 %/dag. Backtest wiebelde ±1 week (de sensor
+  meet in hele procenten en het drogen vertraagt), dus lees de dag als indicatie. Vlak na het
+  gieten staat de gauge op −14 (rood) en de gietdag op "Net gegoten".
 - Alerts `modules/monitoring/prometheus/alerts/plant-alerts.yml` → Telegram via alertmanager:
   - `PlantwaterDroog` — `_dry == 1` of bodemvocht < 20 %, 1 u lang
   - `PlantwaterBatterijLaag` — accu < 15 %, 6 u
