@@ -353,8 +353,8 @@
     {
       "id": 9,
       "type": "gauge",
-      "title": "Gietmoment (dagen t.o.v. geschatte gietdag)",
-      "description": "Midden (groen) = geschatte gietdag: bodemvocht bereikt dan 20 %. Links = te vroeg (nog te nat), rechts = te laat (al te droog). Schatting uit de droogsnelheid van de afgelopen 4 dagen (minimaal 0,5 %/dag), begrensd op ±14 dagen. Vlak na het gieten staat de wijzer dus links in het rood.",
+      "title": "Gietmoment",
+      "description": "Midden (groen) = geschatte gietdag: bodemvocht bereikt dan 20 %. Links = te vroeg (nog te nat), rechts = te laat (al te droog). De wijzer schuift tijdens het opdrogen van links naar het midden; vlak na het gieten staat hij helemaal links. Schatting uit de droogsnelheid van de afgelopen 4 dagen (minimaal 0,5 %/dag), begrensd op 14 dagen. Indicatie: kan ±1 week verschuiven.",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
@@ -371,17 +371,17 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "clamp(-((homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"} - 20) / clamp_min(-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400, 0.5)), -14, 14)",
+          "expr": "clamp(14 - ((homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"} - 20) / clamp_min(-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400, 0.5)), 0, 28)",
           "legendFormat": "Gietmoment",
           "refId": "A"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "suffix: d",
+          "unit": "none",
           "decimals": 0,
-          "min": -14,
-          "max": 14,
+          "min": 0,
+          "max": 28,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -391,22 +391,314 @@
               },
               {
                 "color": "orange",
-                "value": -7
+                "value": 7
               },
               {
                 "color": "green",
-                "value": -2.5
+                "value": 11.5
               },
               {
                 "color": "orange",
-                "value": 2.5
+                "value": 16.5
               },
               {
                 "color": "red",
-                "value": 7
+                "value": 21
               }
             ]
-          }
+          },
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -0.5,
+                "to": 0.4999,
+                "result": {
+                  "text": "≥14 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0.5,
+                "to": 1.4999,
+                "result": {
+                  "text": "13 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 1.5,
+                "to": 2.4999000000000002,
+                "result": {
+                  "text": "12 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 2.5,
+                "to": 3.4999000000000002,
+                "result": {
+                  "text": "11 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 3.5,
+                "to": 4.4999,
+                "result": {
+                  "text": "10 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 4.5,
+                "to": 5.4999,
+                "result": {
+                  "text": "9 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 5.5,
+                "to": 6.4999,
+                "result": {
+                  "text": "8 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 6.5,
+                "to": 7.4999,
+                "result": {
+                  "text": "7 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 7.5,
+                "to": 8.4999,
+                "result": {
+                  "text": "6 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 8.5,
+                "to": 9.4999,
+                "result": {
+                  "text": "5 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 9.5,
+                "to": 10.4999,
+                "result": {
+                  "text": "4 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 10.5,
+                "to": 11.4999,
+                "result": {
+                  "text": "3 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 11.5,
+                "to": 12.4999,
+                "result": {
+                  "text": "2 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 12.5,
+                "to": 13.4999,
+                "result": {
+                  "text": "1 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 13.5,
+                "to": 14.4999,
+                "result": {
+                  "text": "Gietdag"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 14.5,
+                "to": 15.4999,
+                "result": {
+                  "text": "1 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 15.5,
+                "to": 16.4999,
+                "result": {
+                  "text": "2 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 16.5,
+                "to": 17.4999,
+                "result": {
+                  "text": "3 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 17.5,
+                "to": 18.4999,
+                "result": {
+                  "text": "4 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 18.5,
+                "to": 19.4999,
+                "result": {
+                  "text": "5 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 19.5,
+                "to": 20.4999,
+                "result": {
+                  "text": "6 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 20.5,
+                "to": 21.4999,
+                "result": {
+                  "text": "7 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 21.5,
+                "to": 22.4999,
+                "result": {
+                  "text": "8 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 22.5,
+                "to": 23.4999,
+                "result": {
+                  "text": "9 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 23.5,
+                "to": 24.4999,
+                "result": {
+                  "text": "10 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 24.5,
+                "to": 25.4999,
+                "result": {
+                  "text": "11 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 25.5,
+                "to": 26.4999,
+                "result": {
+                  "text": "12 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 26.5,
+                "to": 27.4999,
+                "result": {
+                  "text": "13 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 27.5,
+                "to": 28.4999,
+                "result": {
+                  "text": "≥14 d te laat"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
