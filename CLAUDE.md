@@ -38,6 +38,7 @@
 - **Vragen over de ATAG One-ketel, pendelen/branderstarts, `climate.atag_one`, `temperatuurinvloed`, nachtverlaging of het `atag-boiler`-dashboard** → lees `docs/atag-ketel.md`
 - **Vragen over fail2ban op malandro, `modules/fail2ban.nix`, de jails of de NixOS 25.11-opties die niet op top-level bestaan** → lees `docs/fail2ban.md`
 - **Vragen over Vikunja-webhooks naar Signal, `vikunja-signal.service`, poort 8100, herinneringen/verlopen taken via Signal of het webhook-geheim** → lees `docs/vikunja-signal.md`
+- **Vragen over het Server Health Monitoring-dashboard, Last Boot Time, de fastfetch-systeeminfo (`fastfetch-textfile.service`, `node_fastfetch_info`) of "Reboot REQUIRED"** → lees `docs/server-health.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 

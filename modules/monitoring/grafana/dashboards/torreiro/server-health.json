@@ -787,7 +787,7 @@
               }
             ]
           },
-          "unit": "dateTimeAsIso"
+          "unit": "dateTimeAsLocal"
         },
         "overrides": []
       },
@@ -819,12 +819,13 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_timestamp{entity=\"sensor.system_monitor_last_boot\"}",
+          "expr": "node_boot_time_seconds{instance=\"localhost:9100\"} * 1000",
           "refId": "A"
         }
       ],
       "title": "Last Boot Time",
-      "type": "stat"
+      "type": "stat",
+      "description": "Bron: node_exporter (node_boot_time_seconds)."
     },
     {
       "datasource": {
@@ -945,6 +946,171 @@
       ],
       "title": "Memory Free",
       "type": "stat"
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Systeeminfo (fastfetch)",
+      "description": "Elk uur door fastfetch-textfile.service geschreven naar de node-exporter textfile collector (metric node_fastfetch_info). 'Reboot' is REQUIRED als de geactiveerde NixOS-generatie een andere kernel/initrd/kernelmodules heeft dan waarmee geboot is.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "node_fastfetch_info{instance=\"localhost:9100\"}",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "node_fastfetch_last_success_timestamp_seconds{instance=\"localhost:9100\"} * 1000",
+          "format": "table",
+          "instant": true,
+          "refId": "B",
+          "hide": true
+        }
+      ],
+      "transformations": [
+        {
+          "id": "filterByRefId",
+          "options": {
+            "include": "A"
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "order"
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "order": true
+            },
+            "indexByName": {
+              "key": 0,
+              "value": 1
+            },
+            "renameByName": {
+              "key": "Veld",
+              "value": "Waarde"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Veld"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Waarde"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "^REQUIRED.*",
+                      "result": {
+                        "color": "red",
+                        "index": 0
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "^not required$",
+                      "result": {
+                        "color": "green",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": false,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      }
     }
   ],
   "refresh": "30s",
