@@ -291,7 +291,7 @@
           "refId": "A"
         }
       ],
-      "title": "Neerslag nu (mm/h)",
+      "title": "Neerslag nu (radar, mm/h)",
       "type": "stat"
     },
     {
@@ -442,7 +442,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Afgeleid uit de radar-intensiteit (Prometheus heeft geen tekst-sensoren; de echte neerslag_indicator leeft in HA).",
+      "description": "Buienradar-nowcast voor Ermelo, aangevuld met de lokale regensensor in de tuin. Meet de lokale sensor regen terwijl de radar < 0,1 mm/h geeft, dan staat hier \"REGEN (lokale sensor)\": de radar mist kleine buien. Is de sensor offline, dan alleen radar.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -453,11 +453,23 @@
               "type": "range",
               "options": {
                 "from": 0,
-                "to": 0.0999,
+                "to": 0.0499,
                 "result": {
                   "text": "DROOG",
                   "color": "green",
                   "index": 0
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0.05,
+                "to": 0.0999,
+                "result": {
+                  "text": "REGEN (lokale sensor)",
+                  "color": "blue",
+                  "index": 4
                 }
               }
             },
@@ -513,7 +525,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 12,
+        "w": 8,
         "x": 0,
         "y": 4
       },
@@ -539,12 +551,155 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "homeassistant_sensor_precipitation_intensity_mm_per_h{entity=\"sensor.neerslagintensiteit\"}",
+          "expr": "max((homeassistant_sensor_precipitation_intensity_mm_per_h{entity=\"sensor.neerslagintensiteit\"} >= 0.1) or on() ((homeassistant_binary_sensor_state{entity=\"binary_sensor.regensensor_regent\"} == 1) * 0 + 0.05) or on() (homeassistant_sensor_precipitation_intensity_mm_per_h{entity=\"sensor.neerslagintensiteit\"} * 0))",
           "refId": "A"
         }
       ],
-      "title": "Toestand (radar)",
+      "title": "Toestand (radar + lokale regensensor)",
       "type": "stat"
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "Regensensor (lokaal, tuin)",
+      "description": "Eigen Zigbee-regensensor in de tuin (binary_sensor.regensensor_regent): meet of het hier nú nat wordt, los van Buienradar. 'Status gewijzigd' = laatste wissel droog/regent (de sensor meldt alleen wissels). 'Sensor actief' = laatste meting van hetzelfde device (lichtsensor), dus of het nog leeft.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.regensensor_regent\"}",
+          "legendFormat": "Status",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_last_updated_time_seconds{entity=\"sensor.regensensor_rainwater\"} * 1000",
+          "legendFormat": "Status gewijzigd",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_last_updated_time_seconds{entity=\"sensor.regensensor_illuminance\"} * 1000",
+          "legendFormat": "Sensor actief",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "Sensor offline",
+          "unit": "none",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DROOG",
+                  "color": "green",
+                  "index": 0
+                },
+                "1": {
+                  "text": "REGENT",
+                  "color": "blue",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status gewijzigd"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "mappings",
+                "value": []
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sensor actief"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "mappings",
+                "value": []
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "10.0.0"
     },
     {
       "datasource": {
@@ -587,8 +742,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 12,
-        "x": 12,
+        "w": 8,
+        "x": 16,
         "y": 4
       },
       "id": 8,
@@ -897,6 +1052,69 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Regensensor lokaal (nat)"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepAfter"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 20
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "droog"
+                      },
+                      "1": {
+                        "text": "nat"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -941,9 +1159,18 @@
           "expr": "homeassistant_sensor_precipitation_intensity_mm_per_h{entity=\"sensor.neerslagverwachting_gemiddeld\"}",
           "legendFormat": "Verwacht (gem)",
           "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_binary_sensor_state{entity=\"binary_sensor.regensensor_regent\"}",
+          "legendFormat": "Regensensor lokaal (nat)",
+          "refId": "C"
         }
       ],
-      "title": "Neerslag verloop",
+      "title": "Neerslag verloop (radar + lokale regensensor)",
       "type": "timeseries"
     },
     {
@@ -1108,7 +1335,39 @@
           "unit": "lux",
           "min": 0
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Laatste update"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "mappings",
+                "value": []
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "text"
+                }
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -1142,6 +1401,15 @@
           "expr": "homeassistant_sensor_illuminance_lx{entity=\"sensor.regensensor_illuminance\"}",
           "legendFormat": "Lichtsterkte",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "homeassistant_last_updated_time_seconds{entity=\"sensor.regensensor_illuminance\"} * 1000",
+          "legendFormat": "Laatste update",
+          "refId": "B"
         }
       ],
       "title": "Lichtsterkte",

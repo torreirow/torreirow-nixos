@@ -23,7 +23,7 @@
 - **Vragen over hyprlock, de vingerafdruk-unlock op lobos, `fprintAuth`, de claim-retry-patch (PR #1049) of de roterende lock-teksten** → lees `docs/hyprlock-fingerprint.md`
 - **Vragen over IT-Tools, `ittools.toorren.net`, het eigen sharevb-fork image, container-poort 8085 of figlet-fonts** → lees `docs/ittools.md`
 - **Vragen over Authelia RBAC, `access_control`, de groepen (monitoring/network/operations/office/linny), de gescheiden accounts (wouteradmin/wouter/wouteruser) of Grafana-via-OIDC (de vier 'Viewer i.p.v. Admin'-valkuilen)** → lees `docs/authelia-rbac.md`
-- **Vragen over de neerslag-indicator, het Temperatuur/Vocht-dashboard, Buienradar in HA, het dauwpunt of `sensor.neerslag_indicator`** → lees `docs/neerslag-indicator.md`
+- **Vragen over de neerslag-indicator, het Temperatuur/Vocht-dashboard, het Weerstation Ermelo-dashboard, Buienradar in HA, de lokale regensensor (`binary_sensor.regensensor_regent`), het dauwpunt of `sensor.neerslag_indicator`** → lees `docs/neerslag-indicator.md`
 - **Vragen over lynis-hardening op lobos, de hardening-index, `security-hardening.nix`, auditregels of sysctls** → lees `docs/lynis-hardening-lobos.md`
 - **Vragen over trage/vastlopende sessies tijdens een `nix build`/`nixos-rebuild`, de nix-daemon-throttling (SCHED_IDLE), `max-jobs`/`cores` of de eval-fase-alias** → lees `docs/nix-build-throttling.md`
 - **Vragen over het agenda-wandpaneel, de HA-kiosk, kiosk-mode.js, de read-only user `paneel` of het `/calendar`-dashboard** → lees `docs/agenda-wandpaneel.md`
@@ -38,6 +38,8 @@
 - **Vragen over de ATAG One-ketel, pendelen/branderstarts, `climate.atag_one`, `temperatuurinvloed`, nachtverlaging of het `atag-boiler`-dashboard** → lees `docs/atag-ketel.md`
 - **Vragen over fail2ban op malandro, `modules/fail2ban.nix`, de jails of de NixOS 25.11-opties die niet op top-level bestaan** → lees `docs/fail2ban.md`
 - **Vragen over Vikunja-webhooks naar Signal, `vikunja-signal.service`, poort 8100, herinneringen/verlopen taken via Signal of het webhook-geheim** → lees `docs/vikunja-signal.md`
+- **Vragen over het Server Health Monitoring-dashboard, Last Boot Time, de fastfetch-systeeminfo (`fastfetch-textfile.service`, `node_fastfetch_info`), "Reboot REQUIRED" of een onverklaarde stijging in CPU/temperatuur** → lees `docs/server-health.md`
+- **Vragen over Paperless (`docs.toorren.net`), de oci-containers `paperless-webserver`/`paperless-broker`, het `paperless`-netwerk (172.18.0.0/16), de herstart-lus na de reboot van 17 okt of de compose-restanten** → lees `docs/paperless.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 

@@ -10,6 +10,7 @@
     ./exporters/blackbox.nix
     ./exporters/vulnix.nix
     ./exporters/wifi-ssid.nix
+    ./exporters/fastfetch.nix
   ];
 }
 

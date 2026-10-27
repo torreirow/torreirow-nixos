@@ -351,13 +351,494 @@
       }
     },
     {
+      "id": 9,
+      "type": "gauge",
+      "title": "Gietmoment",
+      "description": "Midden (groen) = geschatte gietdag: bodemvocht bereikt dan 20 %. Links = te vroeg (nog te nat), rechts = te laat (al te droog). De wijzer schuift tijdens het opdrogen van links naar het midden; vlak na het gieten staat hij helemaal links. Schatting uit de droogsnelheid van de afgelopen 4 dagen (minimaal 0,5 %/dag), begrensd op 14 dagen. Indicatie: kan ±1 week verschuiven.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "clamp(14 - ((homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"} - 20) / clamp_min(-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400, 0.5)), 0, 28)",
+          "legendFormat": "Gietmoment",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "min": 0,
+          "max": 28,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 7
+              },
+              {
+                "color": "green",
+                "value": 11.5
+              },
+              {
+                "color": "orange",
+                "value": 16.5
+              },
+              {
+                "color": "red",
+                "value": 21
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -0.5,
+                "to": 0.4999,
+                "result": {
+                  "text": "≥14 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0.5,
+                "to": 1.4999,
+                "result": {
+                  "text": "13 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 1.5,
+                "to": 2.4999000000000002,
+                "result": {
+                  "text": "12 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 2.5,
+                "to": 3.4999000000000002,
+                "result": {
+                  "text": "11 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 3.5,
+                "to": 4.4999,
+                "result": {
+                  "text": "10 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 4.5,
+                "to": 5.4999,
+                "result": {
+                  "text": "9 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 5.5,
+                "to": 6.4999,
+                "result": {
+                  "text": "8 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 6.5,
+                "to": 7.4999,
+                "result": {
+                  "text": "7 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 7.5,
+                "to": 8.4999,
+                "result": {
+                  "text": "6 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 8.5,
+                "to": 9.4999,
+                "result": {
+                  "text": "5 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 9.5,
+                "to": 10.4999,
+                "result": {
+                  "text": "4 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 10.5,
+                "to": 11.4999,
+                "result": {
+                  "text": "3 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 11.5,
+                "to": 12.4999,
+                "result": {
+                  "text": "2 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 12.5,
+                "to": 13.4999,
+                "result": {
+                  "text": "1 d te vroeg"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 13.5,
+                "to": 14.4999,
+                "result": {
+                  "text": "Gietdag"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 14.5,
+                "to": 15.4999,
+                "result": {
+                  "text": "1 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 15.5,
+                "to": 16.4999,
+                "result": {
+                  "text": "2 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 16.5,
+                "to": 17.4999,
+                "result": {
+                  "text": "3 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 17.5,
+                "to": 18.4999,
+                "result": {
+                  "text": "4 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 18.5,
+                "to": 19.4999,
+                "result": {
+                  "text": "5 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 19.5,
+                "to": 20.4999,
+                "result": {
+                  "text": "6 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 20.5,
+                "to": 21.4999,
+                "result": {
+                  "text": "7 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 21.5,
+                "to": 22.4999,
+                "result": {
+                  "text": "8 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 22.5,
+                "to": 23.4999,
+                "result": {
+                  "text": "9 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 23.5,
+                "to": 24.4999,
+                "result": {
+                  "text": "10 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 24.5,
+                "to": 25.4999,
+                "result": {
+                  "text": "11 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 25.5,
+                "to": 26.4999,
+                "result": {
+                  "text": "12 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 26.5,
+                "to": 27.4999,
+                "result": {
+                  "text": "13 d te laat"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 27.5,
+                "to": 28.4999,
+                "result": {
+                  "text": "≥14 d te laat"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdMarkers": true,
+        "showThresholdLabels": false
+      }
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Geschatte gietdag",
+      "description": "Dag waarop het bodemvocht naar verwachting 20 % bereikt. Alleen getoond als dat binnen 30 dagen is; vlak na het gieten is de schatting onbruikbaar.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 6,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "((time() + ((homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"} - 20) / clamp_min(-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400, 0.5)) * 86400) * 1000) and (((homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"} - 20) / clamp_min(-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400, 0.5)) < 30)",
+          "legendFormat": "Gietdag",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "time:DD-MM",
+          "noValue": "Net gegoten",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value"
+      }
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "Droogsnelheid (4 dagen)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 8,
+        "w": 6,
+        "h": 6
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "-deriv(homeassistant_sensor_moisture_percent{entity=\"sensor.plantwater_soil_moisture\"}[4d]) * 86400",
+          "legendFormat": "Droogsnelheid",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: %/dag",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value"
+      }
+    },
+    {
       "id": 108,
       "type": "row",
       "title": "Historie",
       "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 8,
+        "y": 14,
         "w": 24,
         "h": 1
       },
@@ -373,7 +854,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 9,
+        "y": 15,
         "w": 24,
         "h": 9
       },
@@ -447,7 +928,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 18,
+        "y": 24,
         "w": 16,
         "h": 8
       },
@@ -545,7 +1026,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 18,
+        "y": 24,
         "w": 8,
         "h": 8
       },

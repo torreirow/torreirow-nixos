@@ -75,3 +75,27 @@ HA zet dát pad (de *user-site* van `/config/deps`, níet `/config/deps` zelf) v
 **⚠️ Opruimen** zodra HA een buienradar-versie met fix meelevert: verwijder
 `deps/lib/python3.14/site-packages/buienradar*` en herstart HA — anders schaduwt deze kopie
 toekomstige versies.
+
+## Lokale regensensor in het Weerstation Ermelo-dashboard (2026-10-27)
+
+`sensor.regensensor_rainwater` (Zigbee-regensensor in de tuin) is tekst (`none`/`raining`) en komt
+daarom niet als waarde in Prometheus. Oplossing in HA (runtime, buiten de repo):
+template-binary_sensor **`binary_sensor.regensensor_regent`** (device_class moisture, `availability`
+op rainwater) in het `binary_sensor:`-blok van `template:` in `configuration.yaml`. Toegevoegd met
+backup `configuration.yaml.bak-claude-regensensor-20261027-163436` en `template.reload` (geen
+herstart). In Prometheus: `homeassistant_binary_sensor_state{entity="binary_sensor.regensensor_regent"}`.
+
+Dashboard `weerstation.json` (uid `weerstation-ermelo`):
+- Stat **"Regensensor (lokaal, tuin)"**: DROOG/REGENT, "Sensor offline" bij geen data.
+- **"Toestand (radar + lokale regensensor)"**: radar ≥ 0,1 mm/h → radar-categorie; anders, als de
+  lokale sensor regen meet → waarde 0,05 = "REGEN (lokale sensor)"; anders 0 = DROOG. Query:
+  `max((R >= 0.1) or on() ((S == 1) * 0 + 0.05) or on() (R * 0))`. De `max()` is nodig: elke
+  or-tak heeft eigen labels, en zonder `max()` toont de stat per tak een vak (drie vakken).
+- **"Neerslag verloop"**: lokale sensor als oranje stap-banden (verborgen as 0–1) onder de radar.
+- Tijdstempels (`homeassistant_last_updated_time_seconds * 1000`, unit `dateTimeFromNow`): de
+  regensensor-stat toont **Status gewijzigd** (rainwater; meldt alleen wissels, dus kan dagen oud zijn)
+  en **Sensor actief** (illuminance van hetzelfde device = leeft het nog). "Lichtsterkte" heeft een
+  niet-geplotte legendaregel **Laatste update**.
+
+Historie van de binary_sensor begint pas op 2026-10-27; eerdere `raining`-momenten staan alleen in
+de HA-historie van `sensor.regensensor_rainwater`.
