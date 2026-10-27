@@ -32,6 +32,31 @@ de andere reboot-meldingen.
 - **Geen aanhalingstekens in het env-bestand**: `docker --env-file` neemt ze letterlijk over (compose
   stripte ze). De secret key stond tussen aanhalingstekens.
 
+## Gebruikers en rechten (runtime, in de Paperless-database)
+
+Authelia laat de groep `office` door naar `docs.toorren.net`. Paperless maakt bij de eerste login
+via `Remote-User` een gebruiker aan, maar **zonder rechten**: je kunt dan niets uploaden.
+
+| Gebruiker                                   | Rechten                                             |
+|---------------------------------------------|-----------------------------------------------------|
+| `wouteradmin`, `paperlessadmin`, `wvandertoorren` | superuser                                     |
+| `wouter`                                    | Paperless-groep `office` + `view_*` uit 2026-10-01  |
+
+De Paperless-groep **`office`** (aangemaakt 2026-10-27) geeft view/add/change/delete op document,
+tag, correspondent, documenttype, storagepath, note, savedview(+filterrule), customfield(+instance),
+sharelink en uisettings, plus view/change op paperlesstask (uploadstatus). Geen beheerrechten
+(users, groepen, mail, workflows). Een nieuwe gebruiker hoef je alleen aan de groep toe te voegen:
+
+```bash
+sudo docker exec paperless-webserver python3 /usr/src/paperless/src/manage.py shell -c "
+from django.contrib.auth.models import User, Group
+User.objects.get(username='NAAM').groups.add(Group.objects.get(name='office'))"
+```
+
+Let op: wijzigen of verwijderen van een document van **iemand anders** vraagt daarnaast
+objectrechten op dat document (eigenaar/rechten in de documentweergave). Eigen uploads zijn van
+de uploader.
+
 ## Restanten van de compose-stack (opruimen als alles een tijd goed draait)
 
 - `docker-compose.yml.migrated-to-nix` en `docker-compose.env` (bevat nog de geheimen in platte tekst)
