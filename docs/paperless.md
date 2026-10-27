@@ -1,7 +1,8 @@
 # Paperless-ngx (docs.toorren.net)
 
 Sinds 2026-10-27 als NixOS `virtualisation.oci-containers` in `modules/paperless.nix`; daarvoor een
-handmatige `docker compose`-stack in `/data/external/tmp/paperless/paperless-ngx`.
+handmatige `docker compose`-stack. De map staat sinds 2026-10-27 op `/data/external/paperless-ngx`
+(daarvoor `/data/external/tmp/paperless/paperless-ngx`; verplaatst met `mv` op dezelfde schijf).
 
 ## Waarom omgezet
 
@@ -28,7 +29,7 @@ de andere reboot-meldingen.
 - **Alleen loopback**: Paperless vertrouwt de `Remote-User`-header van nginx/Authelia. Onder compose
   stond de poort op `0.0.0.0:8181`, waardoor iedereen in het LAN de header kon vervalsen.
 - **`data`** (index, classificatiemodel, celerybeat) was onder compose een anoniem docker-volume en
-  zat dus niet in de rustic-backup; nu een bind mount onder `/data/external/tmp/paperless`.
+  zat dus niet in de rustic-backup; nu een bind mount onder `/data/external/paperless-ngx`.
 - **Geen aanhalingstekens in het env-bestand**: `docker --env-file` neemt ze letterlijk over (compose
   stripte ze). De secret key stond tussen aanhalingstekens.
 
