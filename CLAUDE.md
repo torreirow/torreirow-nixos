@@ -23,7 +23,7 @@
 - **Vragen over hyprlock, de vingerafdruk-unlock op lobos, `fprintAuth`, de claim-retry-patch (PR #1049) of de roterende lock-teksten** → lees `docs/hyprlock-fingerprint.md`
 - **Vragen over IT-Tools, `ittools.toorren.net`, het eigen sharevb-fork image, container-poort 8085 of figlet-fonts** → lees `docs/ittools.md`
 - **Vragen over Authelia RBAC, `access_control`, de groepen (monitoring/network/operations/office/linny), de gescheiden accounts (wouteradmin/wouter/wouteruser) of Grafana-via-OIDC (de vier 'Viewer i.p.v. Admin'-valkuilen)** → lees `docs/authelia-rbac.md`
-- **Vragen over de neerslag-indicator, het Temperatuur/Vocht-dashboard, Buienradar in HA, het dauwpunt of `sensor.neerslag_indicator`** → lees `docs/neerslag-indicator.md`
+- **Vragen over de neerslag-indicator, het Temperatuur/Vocht-dashboard, het Weerstation Ermelo-dashboard, Buienradar in HA, de lokale regensensor (`binary_sensor.regensensor_regent`), het dauwpunt of `sensor.neerslag_indicator`** → lees `docs/neerslag-indicator.md`
 - **Vragen over lynis-hardening op lobos, de hardening-index, `security-hardening.nix`, auditregels of sysctls** → lees `docs/lynis-hardening-lobos.md`
 - **Vragen over trage/vastlopende sessies tijdens een `nix build`/`nixos-rebuild`, de nix-daemon-throttling (SCHED_IDLE), `max-jobs`/`cores` of de eval-fase-alias** → lees `docs/nix-build-throttling.md`
 - **Vragen over het agenda-wandpaneel, de HA-kiosk, kiosk-mode.js, de read-only user `paneel` of het `/calendar`-dashboard** → lees `docs/agenda-wandpaneel.md`
