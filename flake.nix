@@ -31,6 +31,7 @@
     rbw.url = "github:torreirow/rbw";
     rme.url = "github:mipmip/rme";
     huphop.url = "github:mipmip/huphop";
+    lif.url = "github:rierek/lif";
     solidtime-waybar.url = "github:torreirow/solidtime-waybar";
     hyprquickframe = {
       url = "path:/home/wtoorren/data/git/torreirow/HyprQuickFrame";
@@ -50,7 +51,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp, huphop}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp, huphop, lif}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -335,6 +336,7 @@
          ./home/module/onlyoffice-fonts.nix
          ./home/hyprland/default.nix
          nixvim.homeModules.default
+         { home.packages = [ lif.packages.${system}.default ]; }
          linux-defaults
        ];
 
@@ -373,6 +375,7 @@
          #./home/default.nix
          ./home/linux-server.nix
          nixvim.homeModules.default
+         { home.packages = [ lif.packages.${system}.default ]; }
          linux-defaults
        ];
        extraSpecialArgs = {
