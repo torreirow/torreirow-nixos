@@ -52,7 +52,7 @@ let
     "/data/external/pihole"
     "/data/external/castopod"
     "/data/external/dockerlibs/volumes"
-    "/data/external/tmp/paperless"
+    "/data/external/paperless-ngx"
     "/data/external/blocky"              # blocky mutabele deny-/allowlist-overlays
   ];
 
@@ -63,8 +63,8 @@ let
     "!/var/lib/vaultwarden/db.sqlite3-shm"
     "!/var/lib/vaultwarden/icon_cache"      # regenereerbaar
     "!/var/lib/vaultwarden/_temp"
-    "!/data/external/tmp/paperless/paperless-ngx/consume"  # transient
-    "!/data/external/tmp/paperless/paperless-ngx/export"
+    "!/data/external/paperless-ngx/consume"  # transient
+    "!/data/external/paperless-ngx/export"
   ];
 
   sourceArgs = lib.escapeShellArgs backupSources;

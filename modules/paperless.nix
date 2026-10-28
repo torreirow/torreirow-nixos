@@ -13,7 +13,7 @@
 # Zie docs/paperless.md.
 
 let
-  baseDir = "/data/external/tmp/paperless/paperless-ngx";
+  baseDir = "/data/external/paperless-ngx";
   netName = "paperless";
   subnet = "172.18.0.0/16";
   gateway = "172.18.0.1";
@@ -30,7 +30,7 @@ in
 
   systemd.tmpfiles.rules = [
     # Data-map (index, classificatiemodel, celerybeat) — onder compose een anoniem docker-volume,
-    # nu een bind mount zodat hij ook in de rustic-backup van /data/external/tmp/paperless zit.
+    # nu een bind mount zodat hij ook in de rustic-backup van /data/external/paperless-ngx zit.
     "d ${baseDir}/data 0755 wtoorren users - -"
   ];
 
