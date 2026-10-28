@@ -76,7 +76,8 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 
 | Datum | Wijziging | Vorige waarde | Resultaat (min/start, starts/dag) |
 |-------|-----------|---------------|-----------------------------------|
-| 2026-10-22 21:52 | `temperatuurinvloed` → `average` (aanbeveling 2) | `room_regulation` (nooit eerder gewijzigd) | meten vanaf 23 okt t/m ~28 okt |
+| 2026-10-22 21:52 | `temperatuurinvloed` → `average` (aanbeveling 2) | `room_regulation` (nooit eerder gewijzigd) | **geen verbetering:** 5,3 min/start (gelijk), 27,4 starts/dag (was 23,0) |
+| 2026-10-28 ~19:20 | Max CV-aanvoertemperatuur 60 → 50 °C op de ketel zelf (E325EC, installateursparameter; aanbeveling 3). `average` blijft staan. CV bijgevuld 1,4 → 2,0 bar | 60 °C | meten 29 okt t/m 2 nov. HA-sensor `max_boiler_temp` bleef 60 tonen → controleren via CV-water max |
 
 ### Observaties `average`
 
@@ -84,6 +85,24 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
   start 06:16 (22 okt: 06:39), eerste run 23 min, daarna 4 runs van 2–14 min (gem. ~10 min over
   5 starts). CV-water piekt 54–55 °C (22 okt: 47 °C). Kamer **20,5 °C om 07:30** (22 okt: 20,9) →
   comfort net gehaald, nog niet terug naar `room_regulation`; weekevaluatie 28 okt beslist.
+
+### Weekevaluatie `average` (2026-10-28)
+
+Vergelijking op dagen met vergelijkbare buitentemperatuur (15–16 okt waren te mild en vallen af).
+Gemeten met het script onder "Opnieuw meten" (tijdzone via `zoneinfo`, dus zomer-/wintertijd-proof).
+
+| Periode                             | Starts/dag | Stookmin/dag | Min/start | Buiten gem. |
+|-------------------------------------|-----------:|-------------:|----------:|------------:|
+| Baseline `room_regulation` 17–21 okt |       23,0 |          122 |       5,3 |     10,5 °C |
+| `average` 23–27 okt                  |       27,4 |          144 |       5,3 |     11,2 °C |
+
+Per dag `average`: 23 okt 36 starts / 5,8 min, 24 okt 16 / 4,9, 25 okt 26 / 6,0, 26 okt 31 / 4,1,
+27 okt 28 / 5,5. CV-water max 52–56 °C, retour max 43–47 °C (gelijk aan baseline).
+
+**Conclusie:** `average` lost het pendelen niet op. Runs blijven ~5 min, er zijn eerder meer starts
+dan minder, bij iets milder weer. De stooklijn bepaalt blijkbaar niet de runlengte; vermoedelijk is
+het minimale vermogen van de ketel groter dan de warmtevraag, zodat hij snel zijn doel haalt en
+afslaat. Volgende stap is aanbeveling 3 (max CV-temperatuur omlaag).
 
 ## Opnieuw meten
 
