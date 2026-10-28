@@ -1,6 +1,6 @@
 # ATAG One — ketelgedrag, pendelen en afstelling
 
-**Aangemaakt:** 2026-10-22 · **Status:** stap 2 (`average`) actief sinds 2026-10-22 21:52, meten t/m ~28 okt
+**Aangemaakt:** 2026-10-22 · **Status:** stap 2 (`average`) geëvalueerd: geen verbetering. Stap 3 (max CV 50 °C, `average` blijft) actief sinds 2026-10-28 ~19:20, meten 29 okt t/m 2 nov (`~/scripts/atag-eval.sh 2026-10-29 2026-11-02`)
 
 `temperatuurinvloed` wijzigt alleen **hoe** de ketel de aanvoertemperatuur kiest (stooklijn vs. puur
 kamer); het tijdschema (preset `auto`, nacht 15 / ochtend 20,5 °C) blijft gewoon werken.
