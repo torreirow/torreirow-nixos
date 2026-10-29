@@ -58,17 +58,12 @@ Let op: wijzigen of verwijderen van een document van **iemand anders** vraagt da
 objectrechten op dat document (eigenaar/rechten in de documentweergave). Eigen uploads zijn van
 de uploader.
 
-## Restanten van de compose-stack (opruimen als alles een tijd goed draait)
+## Restanten van de compose-stack
 
-- ~~Containers `paperless-webserver-1` en `paperless-broker-1`~~ **verwijderd 2026-10-28.** Ze draaiden
-  (`restart=unless-stopped`) van 23 okt tot de reboot van 28 okt naast de Nix-containers, met de oude
-  mappen onder `/data/external/tmp/paperless/` en poort 8181. Volumes en mappen zijn blijven staan.
-
-- `docker-compose.yml.migrated-to-nix` en `docker-compose.env` (bevat nog de geheimen in platte tekst)
-  in de paperless-map.
-- Anoniem volume `6dbeb322789b…` (oude data-map, gekopieerd naar `data/`): `docker volume rm 6dbeb322789b998690557406692c7aab951106727b17fae6c122c07a506a4d55`.
-- Oude data-bestanden uit januari in de root van de paperless-map (`index/`, `classification_model.pickle`,
-  `celerybeat-schedule.db`, `documents/`, `log/`) — van vóór het anonieme volume, niet meer in gebruik.
+Opgeruimd op 2026-10-29: `docker-compose.env`, `.env`, `docker-compose.yml.migrated-to-nix`, de
+mappen `index/`, `documents/` en `log/` en losse bestanden uit januari in de root, plus het anonieme
+volume `6dbeb322789b…`. In `/data/external/paperless-ngx` staan nu alleen `consume`, `data`, `export`
+en `media`.
 
 ## Controleren
 
