@@ -30,6 +30,7 @@ var (
 	signalAPI     string
 	signalSender  string
 	signalTo      string
+	contact       string // shown to uploaders whose files exceed the limit
 	maxBytes      int64
 	page          []byte
 	davClient     = &http.Client{}
@@ -54,6 +55,7 @@ func main() {
 	signalAPI = mustEnv("SIGNAL_API")
 	signalSender = mustEnv("SIGNAL_SENDER")
 	signalTo = mustEnv("SIGNAL_RECIPIENT")
+	contact = mustEnv("LARGE_FILE_CONTACT")
 	var err error
 	if maxBytes, err = strconv.ParseInt(mustEnv("MAX_BYTES"), 10, 64); err != nil {
 		log.Fatalf("MAX_BYTES: %v", err)
@@ -61,10 +63,12 @@ func main() {
 	if amsterdam == nil {
 		amsterdam = time.UTC
 	}
+	limits = loadLimits()
 
 	page = []byte(strings.NewReplacer(
 		"{{CAP_ENDPOINT}}", capURL+"/",
 		"{{MAX_MB}}", strconv.FormatInt(maxBytes>>20, 10),
+		"{{CONTACT}}", contact,
 	).Replace(indexHTML))
 
 	addr := "127.0.0.1:" + port
@@ -96,6 +100,8 @@ func writeJSON(w http.ResponseWriter, status int, ok bool, msg string) {
 // everything is validated before a single byte goes to Nextcloud.
 type upload struct {
 	fields    map[string]string
+	ip        string
+	slot      int64 // reserved quota slot, 0 until validated
 	validated bool
 	folder    string
 	files     []string
@@ -114,7 +120,11 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u := &upload{fields: map[string]string{}}
+	ip := r.Header.Get("X-Real-IP")
+	if ip == "" {
+		ip = r.RemoteAddr
+	}
+	u := &upload{fields: map[string]string{}, ip: ip}
 	for {
 		part, err := mr.NextPart()
 		if err == io.EOF {
@@ -152,6 +162,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	account(u.slot, u.bytes)
 	log.Printf("upload ok: %d file(s), %d bytes into %q", len(u.files), u.bytes, u.folder)
 	notify(fmt.Sprintf("📥 Nieuwe upload via upload.toorren.net\nVan: %s <%s>\nBestanden (%d, %s):\n- %s\nMap: %s",
 		u.fields["naam"], u.fields["email"], len(u.files), human(u.bytes),
@@ -160,11 +171,14 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func fail(w http.ResponseWriter, u *upload, err error) {
+	if u.slot != 0 {
+		account(u.slot, u.bytes)
+	}
 	var tooBig *http.MaxBytesError
 	switch {
 	case errors.As(err, &tooBig):
 		writeJSON(w, http.StatusRequestEntityTooLarge, false,
-			fmt.Sprintf("De upload is groter dan %d MB.", maxBytes>>20))
+			fmt.Sprintf("De upload is groter dan %d MB. Neem voor grotere bestanden contact op met %s.", maxBytes>>20, contact))
 	case errors.Is(err, errValidation):
 		writeJSON(w, http.StatusBadRequest, false, strings.TrimPrefix(err.Error(), "validation: "))
 	default:
@@ -192,6 +206,11 @@ func (u *upload) validate() error {
 	if !verifyCap(u.fields["cap-token"]) {
 		return fmt.Errorf("%w: Captcha-verificatie mislukt. Probeer het opnieuw.", errValidation)
 	}
+	slot, err := reserve(u.ip)
+	if err != nil {
+		return err
+	}
+	u.slot = slot
 	u.validated = true
 	return nil
 }

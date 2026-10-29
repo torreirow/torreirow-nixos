@@ -18,7 +18,8 @@ browser ── upload.toorren.net ── nginx ── filedrop (Go, :8102) ─�
 | Captcha       | Cap site-key "filedrop" (site-key in `modules/filedrop.nix`) |
 | Geheimen      | `secrets/filedrop-env.age`: `CAP_SECRET`, `NEXTCLOUD_SHARE_TOKEN` |
 | Melding       | Signal naar `SIGNAL_RECIPIENT` uit `signal-numbers.age`  |
-| Limiet        | 2048 MB per inzending, 6 inzendingen/min per IP (burst 3) |
+| Max          | 25 MB per inzending; groter → contact taakgroepbeeldengeluid@… |
+| Quota         | zie hieronder; nginx daarnaast 6 req/min per IP (burst 3) |
 
 ## Waarom zo
 
@@ -30,6 +31,21 @@ browser ── upload.toorren.net ── nginx ── filedrop (Go, :8102) ─�
   multipart-stroom op volgorde en controleert alles voordat er één byte naar Nextcloud gaat.
 - Bestanden worden gestreamd (chunked PUT), niet op malandro gebufferd.
 - Honeypot-veld `website`: ingevuld → "Bedankt!" zonder opslag.
+
+## Quota tegen misbruik
+
+Sliding window van 24 uur in `/var/lib/filedrop/ratelimit.json` (blijft bij herstart staan).
+Een slot telt pas na een geslaagde captcha, zodat bots zonder captcha het quotum niet opmaken.
+
+| Limiet             | Waarde | Melding aan uploader                         |
+|--------------------|--------|----------------------------------------------|
+| Per IP per uur     | 3      | "maximum aantal uploads bereikt"             |
+| Per IP per 24 uur  | 10     | idem                                         |
+| Totaal per 24 uur  | 40     | "vandaag al veel geüpload" + 1× Signal-alert |
+| Bytes per 24 uur   | 1 GB   | idem                                         |
+
+Aanpassen: `LIMIT_*` in `modules/filedrop.nix`. Teller resetten: `sudo rm
+/var/lib/private/filedrop/ratelimit.json && sudo systemctl restart filedrop`.
 
 ## Share-link of Cap-sleutel vervangen
 

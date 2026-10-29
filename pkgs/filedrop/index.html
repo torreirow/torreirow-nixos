@@ -23,6 +23,7 @@
          background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
   input[type=file] { width: 100%; font: inherit; }
   .hint { color: var(--muted); font-size: .9rem; margin-top: .3rem; }
+  .hint a { color: var(--accent); }
   .hp { position: absolute; left: -9999px; }
   cap-widget { display: block; margin-top: 1.25rem; }
   button { margin-top: 1.25rem; width: 100%; padding: .75rem; font: inherit; font-weight: 700; color: #fff;
@@ -48,7 +49,8 @@
       <cap-widget id="cap" data-cap-api-endpoint="{{CAP_ENDPOINT}}"></cap-widget>
       <label for="files">Bestanden</label>
       <input type="file" id="files" name="files" multiple required>
-      <div class="hint">Maximaal {{MAX_MB}} MB per keer.</div>
+      <div class="hint">Maximaal {{MAX_MB}} MB per keer. Grotere bestanden? Neem contact op met
+        <a href="mailto:{{CONTACT}}">{{CONTACT}}</a>.</div>
       <button type="submit" id="submit">Uploaden</button>
       <progress id="progress" max="100" value="0"></progress>
       <div id="status" role="status"></div>
@@ -70,7 +72,7 @@
     const data = new FormData(form);
     if (!data.get("cap-token")) { show("Bevestig eerst de captcha.", "err"); return; }
     const total = [...document.getElementById("files").files].reduce((s, f) => s + f.size, 0);
-    if (total > maxBytes) { show("De bestanden zijn samen groter dan {{MAX_MB}} MB.", "err"); return; }
+    if (total > maxBytes) { show("De bestanden zijn samen groter dan {{MAX_MB}} MB. Neem voor grotere bestanden contact op met {{CONTACT}}.", "err"); return; }
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/upload");
@@ -84,7 +86,9 @@
         show(res.message, "ok");
         form.reset();
       } else {
-        show(res.message || "Uploaden mislukt (HTTP " + xhr.status + ").", "err");
+        show(res.message || (xhr.status === 413
+          ? "De bestanden zijn samen groter dan {{MAX_MB}} MB. Neem voor grotere bestanden contact op met {{CONTACT}}."
+          : "Uploaden mislukt (HTTP " + xhr.status + ")."), "err");
       }
       done();
     };

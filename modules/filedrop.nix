@@ -7,7 +7,7 @@
 
 let
   port = 8102;
-  maxMB = 2048;
+  maxMB = 25;
   # Cap site-key (publiek) van de site-key "filedrop" op cap.toorren.net.
   capSiteKey = "92c7e198d7";
 
@@ -34,6 +34,12 @@ in
       NEXTCLOUD_URL = "https://nxc.toorren.net";
       SIGNAL_API = "http://127.0.0.1:8088/v2/send";
       MAX_BYTES = toString (maxMB * 1024 * 1024);
+      LARGE_FILE_CONTACT = "taakgroepbeeldengeluid@evangelischegemeente.org";
+      # Quota over 24 uur (sliding window), alleen na geslaagde captcha. Zie docs/filedrop.md.
+      LIMIT_PER_IP_HOUR = "3";
+      LIMIT_PER_IP_DAY = "10";
+      LIMIT_TOTAL_DAY = "40";
+      LIMIT_BYTES_DAY = toString (1024 * 1024 * 1024);
       SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
     };
 
@@ -49,6 +55,7 @@ in
 
       # Hardening
       DynamicUser = true;
+      StateDirectory = "filedrop"; # ratelimit.json
       NoNewPrivileges = true;
       PrivateTmp = true;
       ProtectSystem = "strict";
@@ -75,7 +82,8 @@ in
         extraConfig = ''
           limit_except POST { deny all; }
           limit_req zone=filedrop burst=3 nodelay;
-          client_max_body_size ${toString maxMB}m;
+          # Ruimer dan de app-limiet, zodat filedrop zelf de nette melding (met contactadres) geeft.
+          client_max_body_size ${toString (maxMB + 5)}m;
           client_body_timeout 3600s;
           proxy_request_buffering off;
           proxy_read_timeout 3600s;
