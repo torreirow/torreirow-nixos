@@ -25,6 +25,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **LocalSend op lobos**. Bestanden, tekst en het klembord delen tussen telefoon en laptop via het
+  eigen netwerk, zonder cloud. De NixOS-module zet poort 53317 (TCP en UDP) open in de firewall,
+  zodat de telefoon lobos ook zelf kan vinden.
 - **Magister: sessieleeftijd zichtbaar**. De overzichtspagina op `agenda.toorren.net` laat nu zien
   hoe gezond de Magister-login is, in plaats van alleen "Laatste update".
   - "Ingelogd sinds" (met het aantal dagen) en "Laatste refresh". Het moment van inloggen komt uit
