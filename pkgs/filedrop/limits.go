@@ -110,7 +110,7 @@ func reserve(ip string) (int64, error) {
 	switch {
 	case ipHour >= limits.perIPHour || ipDay >= limits.perIPDay:
 		log.Printf("limit: %s reached per-IP quota (hour=%d day=%d)", ip, ipHour, ipDay)
-		return 0, fmt.Errorf("%w: Je hebt het maximum aantal uploads bereikt. Probeer het later opnieuw.", errValidation)
+		return 0, fmt.Errorf("%w: Je hebt het maximum aantal inzendingen bereikt. Probeer het later opnieuw.", errValidation)
 	case len(s.Entries) >= limits.totalDay || bytesDay >= limits.bytesDay:
 		log.Printf("limit: global quota reached (uploads=%d bytes=%d)", len(s.Entries), bytesDay)
 		if now.Unix()-s.LastAlert > 24*3600 {
@@ -119,7 +119,7 @@ func reserve(ip string) (int64, error) {
 			go notify(fmt.Sprintf("🛑 upload.toorren.net: daglimiet bereikt (%d uploads, %s in 24 uur). "+
 				"Nieuwe uploads worden geweigerd tot het venster vrijkomt.", len(s.Entries), human(bytesDay)))
 		}
-		return 0, fmt.Errorf("%w: Er is vandaag al veel geüpload. Probeer het morgen opnieuw.", errValidation)
+		return 0, fmt.Errorf("%w: Er is vandaag al veel ingestuurd. Probeer het morgen opnieuw.", errValidation)
 	}
 
 	id := now.UnixNano()

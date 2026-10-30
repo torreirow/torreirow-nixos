@@ -23,6 +23,11 @@ import (
 //go:embed index.html
 var indexHTML string
 
+// White EGH logo on transparency, from evangelischegemeente.org; shown on a dark band.
+//
+//go:embed logo.png
+var logoPNG []byte
+
 var (
 	capURL        string // https://cap.example/<site-key>
 	capSecret     string
@@ -33,6 +38,8 @@ var (
 	contact       string // shown to uploaders whose files exceed the limit
 	maxBytes      int64
 	page          []byte
+	renderPage    *strings.Replacer
+	devHTML       string // dev.sh: re-read index.html from this path on every request
 	davClient     = &http.Client{}
 	shortClient   = &http.Client{Timeout: 15 * time.Second}
 	amsterdam, _  = time.LoadLocation("Europe/Amsterdam")
@@ -65,11 +72,19 @@ func main() {
 	}
 	limits = loadLimits()
 
-	page = []byte(strings.NewReplacer(
-		"{{CAP_ENDPOINT}}", capURL+"/",
+	// The widget talks to the Cap server directly; dev.sh points it at the real
+	// server while verification goes to a local stand-in.
+	widgetURL := strings.TrimRight(os.Getenv("CAP_WIDGET_URL"), "/")
+	if widgetURL == "" {
+		widgetURL = capURL
+	}
+	renderPage = strings.NewReplacer(
+		"{{CAP_ENDPOINT}}", widgetURL+"/",
 		"{{MAX_MB}}", strconv.FormatInt(maxBytes>>20, 10),
 		"{{CONTACT}}", contact,
-	).Replace(indexHTML))
+	)
+	page = []byte(renderPage.Replace(indexHTML))
+	devHTML = os.Getenv("FILEDROP_DEV_HTML")
 
 	addr := "127.0.0.1:" + port
 	log.Printf("filedrop listening on %s (max %d MB per upload)", addr, maxBytes>>20)
@@ -77,6 +92,11 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleIndex)
 	mux.HandleFunc("/upload", handleUpload)
+	mux.HandleFunc("/logo.png", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Write(logoPNG)
+	})
 	log.Fatal(http.ListenAndServe(addr, mux))
 }
 
@@ -86,6 +106,12 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if devHTML != "" {
+		if html, err := os.ReadFile(devHTML); err == nil {
+			w.Write([]byte(renderPage.Replace(string(html))))
+			return
+		}
+	}
 	w.Write(page)
 }
 
@@ -95,18 +121,30 @@ func writeJSON(w http.ResponseWriter, status int, ok bool, msg string) {
 	json.NewEncoder(w).Encode(map[string]any{"ok": ok, "message": msg})
 }
 
-// upload holds the state of one form submission. Text fields precede the file
-// input in the form, so they are known before the first file part arrives and
-// everything is validated before a single byte goes to Nextcloud.
+// upload holds the state of one form submission. Text fields (including the
+// video links) precede the file input in the form, so they are known before
+// the first file part arrives and everything is validated before a single
+// byte goes to Nextcloud.
 type upload struct {
 	fields    map[string]string
 	ip        string
+	when      time.Time
 	slot      int64 // reserved quota slot, 0 until validated
 	validated bool
-	folder    string
+	links     []link
+	dir       []string // month and submission folder, empty until created
+	used      map[string]bool
 	files     []string
 	bytes     int64
 }
+
+// Names written by the service itself; uploaded files never take them.
+const (
+	senderFile  = "_afzender.txt"
+	linksFile   = "video-links.txt"
+	messageFile = "bericht.txt"
+	maxMessage  = 1000 // characters
+)
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -124,7 +162,10 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	if ip == "" {
 		ip = r.RemoteAddr
 	}
-	u := &upload{fields: map[string]string{}, ip: ip}
+	u := &upload{
+		fields: map[string]string{}, ip: ip, when: time.Now().In(amsterdam),
+		used: map[string]bool{senderFile: true, linksFile: true, messageFile: true},
+	}
 	for {
 		part, err := mr.NextPart()
 		if err == io.EOF {
@@ -135,7 +176,12 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if part.FileName() == "" {
-			v, _ := io.ReadAll(io.LimitReader(part, 4096))
+			if u.validated && strings.HasPrefix(part.FormName(), "link") {
+				// Links are validated at the first file; one arriving later would be lost.
+				fail(w, u, fmt.Errorf("%w: Ongeldig verzoek: links moeten vóór de bestanden staan.", errValidation))
+				return
+			}
+			v, _ := io.ReadAll(io.LimitReader(part, 8192)) // room for a 1000-character message
 			u.fields[part.FormName()] = strings.TrimSpace(string(v))
 			continue
 		}
@@ -153,21 +199,35 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if len(u.files) == 0 {
-		if err := u.validate(); err != nil {
+	if !u.validated {
+		// No file parts: a links-only submission, or an empty one.
+		links, err := parseLinks(u.fields)
+		if err == nil && len(links) == 0 {
+			err = fmt.Errorf("%w: Kies minstens één bestand of vul een link in.", errValidation)
+		}
+		if err == nil {
+			err = u.validate()
+		}
+		if err != nil {
 			fail(w, u, err)
 			return
 		}
-		writeJSON(w, http.StatusBadRequest, false, "Kies minstens één bestand.")
+		if u.fields["website"] != "" {
+			writeJSON(w, http.StatusOK, true, "Bedankt!")
+			return
+		}
+	}
+	if err := u.finish(r); err != nil {
+		fail(w, u, err)
 		return
 	}
 
 	account(u.slot, u.bytes)
-	log.Printf("upload ok: %d file(s), %d bytes into %q", len(u.files), u.bytes, u.folder)
-	notify(fmt.Sprintf("📥 Nieuwe upload via upload.toorren.net\nVan: %s <%s>\nBestanden (%d, %s):\n- %s\nMap: %s",
-		u.fields["naam"], u.fields["email"], len(u.files), human(u.bytes),
-		strings.Join(u.files, "\n- "), u.folder))
-	writeJSON(w, http.StatusOK, true, fmt.Sprintf("Bedankt! %d bestand(en) ontvangen.", len(u.files)))
+	folder := strings.Join(u.dir, "/")
+	log.Printf("upload ok: %d file(s), %d bytes, %d link(s) into %q", len(u.files), u.bytes, len(u.links), folder)
+	notify(u.summary())
+	writeJSON(w, http.StatusOK, true, fmt.Sprintf("Bedankt! We hebben %s ontvangen. "+
+		"Het Scherm Team bekijkt je inzending. Je kunt dit venster sluiten.", u.received()))
 }
 
 func fail(w http.ResponseWriter, u *upload, err error) {
@@ -178,14 +238,16 @@ func fail(w http.ResponseWriter, u *upload, err error) {
 	switch {
 	case errors.As(err, &tooBig):
 		writeJSON(w, http.StatusRequestEntityTooLarge, false,
-			fmt.Sprintf("De upload is groter dan %d MB. Neem voor grotere bestanden contact op met %s.", maxBytes>>20, contact))
+			fmt.Sprintf("Je bestanden zijn samen groter dan %d MB. Neem contact op met het Scherm Team "+
+				"via %s, dan krijg je een persoonlijke link om ze te sturen.", maxBytes>>20, contact))
 	case errors.Is(err, errValidation):
 		writeJSON(w, http.StatusBadRequest, false, strings.TrimPrefix(err.Error(), "validation: "))
 	default:
-		log.Printf("upload failed after %d file(s) in %q: %v", len(u.files), u.folder, err)
-		if len(u.files) > 0 {
-			notify(fmt.Sprintf("⚠️ Upload van %s <%s> afgebroken na %d bestand(en): %v",
-				u.fields["naam"], u.fields["email"], len(u.files), err))
+		folder := strings.Join(u.dir, "/")
+		log.Printf("upload failed after %d file(s) in %q: %v", len(u.files), folder, err)
+		if len(u.dir) > 0 {
+			notify(fmt.Sprintf("⚠️ Upload van %s <%s> afgebroken na %d bestand(en) in %s: %v",
+				u.fields["naam"], u.fields["email"], len(u.files), folder, err))
 		}
 		writeJSON(w, http.StatusBadGateway, false, "Er ging iets mis bij het opslaan. Probeer het later opnieuw.")
 	}
@@ -203,40 +265,114 @@ func (u *upload) validate() error {
 	if err != nil || addr.Name != "" || !strings.Contains(addr.Address, ".") {
 		return fmt.Errorf("%w: Vul een geldig e-mailadres in.", errValidation)
 	}
+	links, err := parseLinks(u.fields)
+	if err != nil {
+		return err
+	}
+	if len([]rune(u.fields["bericht"])) > maxMessage {
+		return fmt.Errorf("%w: Je bericht is te lang. Gebruik maximaal %d tekens.", errValidation, maxMessage)
+	}
 	if !verifyCap(u.fields["cap-token"]) {
-		return fmt.Errorf("%w: Captcha-verificatie mislukt. Probeer het opnieuw.", errValidation)
+		return fmt.Errorf("%w: De controle \"Ik ben geen robot\" is niet gelukt. Probeer het opnieuw.", errValidation)
 	}
 	slot, err := reserve(u.ip)
 	if err != nil {
 		return err
 	}
+	u.links = links
 	u.slot = slot
 	u.validated = true
 	return nil
 }
 
-// store streams one file part into the share, inside a folder per submission.
-func (u *upload) store(r *http.Request, part *multipart.Part) error {
-	if u.folder == "" {
-		base := fmt.Sprintf("%s - %s (%s)", time.Now().In(amsterdam).Format("2006-01-02 15.04"),
-			clean(u.fields["naam"]), clean(u.fields["email"]))
-		folder, err := mkcol(r, base)
+// ensureDir creates <YYYY-MM>/<YYYYMMDD-HHMMSS>/ on first use. The share is
+// create-only (no PROPFIND), so "exists" is only visible as a 405 on MKCOL.
+func (u *upload) ensureDir(r *http.Request) error {
+	if len(u.dir) > 0 {
+		return nil
+	}
+	month := u.when.Format("2006-01")
+	if status, err := mkcol(r, month); err != nil {
+		return err
+	} else if status != http.StatusCreated && status != http.StatusMethodNotAllowed {
+		return fmt.Errorf("MKCOL %s: HTTP %d", month, status)
+	}
+	base := u.when.Format("20060102-150405")
+	for i := 1; i <= 20; i++ {
+		sub := base
+		if i > 1 {
+			sub = fmt.Sprintf("%s-%d", base, i)
+		}
+		status, err := mkcol(r, month, sub)
 		if err != nil {
 			return err
 		}
-		u.folder = folder
+		switch status {
+		case http.StatusCreated:
+			u.dir = []string{month, sub}
+			return nil
+		case http.StatusMethodNotAllowed: // folder exists
+			continue
+		default:
+			return fmt.Errorf("MKCOL %s/%s: HTTP %d", month, sub, status)
+		}
 	}
+	return errors.New("MKCOL: no free folder name")
+}
 
+func mkcol(r *http.Request, elems ...string) (int, error) {
+	req, err := http.NewRequestWithContext(r.Context(), "MKCOL", davURL(elems...), nil)
+	if err != nil {
+		return 0, err
+	}
+	resp, err := shortClient.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	resp.Body.Close()
+	return resp.StatusCode, nil
+}
+
+// uniqueName returns name, or "name (2).ext", "name (3).ext", ... when it is
+// already used in this submission: the share does not allow overwriting.
+func (u *upload) uniqueName(name string) string {
+	ext := path.Ext(name)
+	stem := strings.TrimSuffix(name, ext)
+	candidate := name
+	for i := 2; u.used[strings.ToLower(candidate)]; i++ {
+		candidate = fmt.Sprintf("%s (%d)%s", stem, i, ext)
+	}
+	u.used[strings.ToLower(candidate)] = true
+	return candidate
+}
+
+// store streams one file part into the submission folder.
+func (u *upload) store(r *http.Request, part *multipart.Part) error {
+	if err := u.ensureDir(r); err != nil {
+		return err
+	}
 	name := clean(path.Base(strings.ReplaceAll(part.FileName(), "\\", "/")))
 	if name == "" || name == "." {
 		name = fmt.Sprintf("bestand-%d", len(u.files)+1)
 	}
+	name = u.uniqueName(name)
 	body := &counter{r: part}
-	req, err := http.NewRequestWithContext(r.Context(), http.MethodPut, davURL(u.folder, name), body)
+	if err := u.put(r, name, body); err != nil {
+		return err
+	}
+	u.files = append(u.files, name)
+	u.bytes += body.n
+	return nil
+}
+
+func (u *upload) put(r *http.Request, name string, body io.Reader) error {
+	elems := append(append([]string{}, u.dir...), name)
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodPut, davURL(elems...), body)
 	if err != nil {
 		return err
 	}
-	req.Header.Set("X-NC-Nickname", u.fields["naam"])
+	// No X-NC-Nickname header: on a File Drop, Nextcloud moves uploads that carry
+	// a guest name into a folder named after that guest, breaking the layout.
 	resp, err := davClient.Do(req)
 	if err != nil {
 		return err
@@ -245,37 +381,92 @@ func (u *upload) store(r *http.Request, part *multipart.Part) error {
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("PUT %s: HTTP %d", name, resp.StatusCode)
 	}
-	u.files = append(u.files, name)
-	u.bytes += body.n
 	return nil
 }
 
-// mkcol creates the submission folder, adding a suffix when the name is taken.
-func mkcol(r *http.Request, base string) (string, error) {
-	for i := 1; i <= 20; i++ {
-		folder := base
-		if i > 1 {
-			folder = fmt.Sprintf("%s %d", base, i)
-		}
-		req, err := http.NewRequestWithContext(r.Context(), "MKCOL", davURL(folder), nil)
-		if err != nil {
-			return "", err
-		}
-		resp, err := shortClient.Do(req)
-		if err != nil {
-			return "", err
-		}
-		resp.Body.Close()
-		switch resp.StatusCode {
-		case http.StatusCreated:
-			return folder, nil
-		case http.StatusMethodNotAllowed: // folder exists
-			continue
-		default:
-			return "", fmt.Errorf("MKCOL: HTTP %d", resp.StatusCode)
+// finish writes video-links.txt and _afzender.txt once all files are stored,
+// so the sender file can list them.
+func (u *upload) finish(r *http.Request) error {
+	if err := u.ensureDir(r); err != nil {
+		return err
+	}
+	if len(u.links) > 0 {
+		fetchTitles(r.Context(), u.links)
+		if err := u.put(r, linksFile, bytes.NewReader(renderLinks(u.links))); err != nil {
+			return err
 		}
 	}
-	return "", errors.New("MKCOL: no free folder name")
+	// The message is only stored as a file; it never goes into the Signal notification.
+	if msg := messageText(u.fields["bericht"]); msg != "" {
+		if err := u.put(r, messageFile, strings.NewReader(msg)); err != nil {
+			return err
+		}
+	}
+	return u.put(r, senderFile, bytes.NewReader(u.senderText()))
+}
+
+// messageText keeps line breaks and tabs, drops other control characters and
+// uses CRLF line endings; empty input gives "".
+func messageText(s string) string {
+	s = strings.ReplaceAll(strings.ReplaceAll(s, "\r\n", "\n"), "\r", "\n")
+	s = strings.TrimSpace(strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) && r != '\n' && r != '\t' {
+			return -1
+		}
+		return r
+	}, s))
+	if s == "" {
+		return ""
+	}
+	return strings.ReplaceAll(s, "\n", "\r\n") + "\r\n"
+}
+
+// received describes the submission for the uploader, e.g. "2 bestanden en 1 link".
+func (u *upload) received() string {
+	count := func(n int, one, many string) string {
+		if n == 1 {
+			return "1 " + one
+		}
+		return fmt.Sprintf("%d %s", n, many)
+	}
+	var parts []string
+	if len(u.files) > 0 {
+		parts = append(parts, count(len(u.files), "bestand", "bestanden"))
+	}
+	if len(u.links) > 0 {
+		parts = append(parts, count(len(u.links), "link", "links"))
+	}
+	return strings.Join(parts, " en ")
+}
+
+func (u *upload) senderText() []byte {
+	lines := []string{
+		"Naam: " + oneLine(u.fields["naam"]),
+		"E-mail: " + oneLine(u.fields["email"]),
+		"Tijdstip: " + u.when.Format("02-01-2006 15:04:05"),
+		fmt.Sprintf("Bestanden (%d, %s):", len(u.files), human(u.bytes)),
+	}
+	for _, f := range u.files {
+		lines = append(lines, "- "+f)
+	}
+	lines = append(lines, fmt.Sprintf("Links: %d (zie %s)", len(u.links), linksFile))
+	return []byte(strings.Join(lines, "\r\n") + "\r\n")
+}
+
+func (u *upload) summary() string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "📥 Nieuwe inzending via upload.toorren.net\nVan: %s <%s>\nMap: %s",
+		u.fields["naam"], u.fields["email"], strings.Join(u.dir, "/"))
+	if len(u.files) > 0 {
+		fmt.Fprintf(&b, "\nBestanden (%d, %s):\n- %s", len(u.files), human(u.bytes), strings.Join(u.files, "\n- "))
+	}
+	if len(u.links) > 0 {
+		fmt.Fprintf(&b, "\nLinks (%d):", len(u.links))
+		for i, l := range u.links {
+			fmt.Fprintf(&b, "\n%d. %s\n   %s", i+1, l.Title, l.URL)
+		}
+	}
+	return b.String()
 }
 
 func davURL(elems ...string) string {
