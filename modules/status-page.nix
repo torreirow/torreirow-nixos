@@ -19,16 +19,42 @@ let
   # Docker-apps (vaultwarden, paperless, ...) komen automatisch via de
   # container-inventaris hieronder — niet hier opnemen.
   nativeServices = [
+    # Infrastructuur
     "nginx"
     "authelia-main"
-    "grafana"
+    "redis-authelia"
+    "pocket-id"
+    "oauth2-proxy"
+    "fail2ban"
+    "postfix"
+    "blocky"
+    # Databases
     "mysql"
     "postgresql"
-    "postfix"
+    # Monitoring
+    "grafana"
     "prometheus"
     "alertmanager"
-    "fail2ban"
-    "redis-authelia"
+    "vulnix-exporter"
+    # PHP-FPM-pools (bookstack = stwvwiki, castopod = podcast, mailer, portal = toorren.net)
+    "phpfpm-bookstack"
+    "phpfpm-castopod"
+    "phpfpm-mailer"
+    "phpfpm-portal"
+    # Applicaties
+    "vikunja"
+    "vikunja-signal"
+    "chhoto-url"
+    "formrelay"
+    "filedrop"
+    "linny-mcp"
+    "linny-mcp-authz"
+    "linny-mcp-index"
+    "magister-sync"
+    # Opslag en delen
+    "juicefs-nextcloud-ro"
+    "samba-smbd"
+    "nfs-mountd"
   ];
 
   # soll: OCI-containers uit de NixOS-config.

@@ -33,9 +33,6 @@ in
   "authelia-session.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
   "authelia-storage.age".publicKeys =  users ++ [ wtoorren_workstation malandro_workstation ];
   "route53.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "chhoto-url-database.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "chhoto-url-api-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "chhoto-url-adminpwd.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "chhoto-url-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "gitea-admin.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "nginxendpoints.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
@@ -100,6 +97,8 @@ in
   "cap-admin-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   # Cap CAPTCHA: key-secret voor server-side siteverify vanuit de mailer
   "cap-mailer-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  # File Drop (eghupload.toorren.net): env-file met CAP_SECRET en NEXTCLOUD_SHARE_TOKEN
+  "filedrop-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # linny-mcp (READ/WRITE deploy key voor torreirow/torrlinny -- git-sync pusht
   # agent-notities terug). Bewust een tweede sleutel: torrlinny-deploy-key blijft

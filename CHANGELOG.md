@@ -28,6 +28,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **LocalSend op lobos**. Bestanden, tekst en het klembord delen tussen telefoon en laptop via het
   eigen netwerk, zonder cloud. De NixOS-module zet poort 53317 (TCP en UDP) open in de firewall,
   zodat de telefoon lobos ook zelf kan vinden.
+- **Media-upload voor de Evangelische Gemeente Harderwijk** (`upload.toorren.net`). Een
+  eenvoudige pagina waar mensen foto's, filmpjes en videolinks naar het Scherm Team sturen. Alles
+  komt in een Nextcloud-map waar inzenders niets van anderen zien.
+  - Verplicht naam en e-mail, een "Ik ben geen robot"-controle en limieten tegen misbruik.
+  - Videolinks van YouTube, Facebook, Instagram en Vimeo komen in `video-links.txt`, met de
+    titel erbij (YouTube en Vimeo zoeken die zelf op).
+  - Optioneel bericht als `bericht.txt`. Elke inzending krijgt een eigen map per maand en
+    tijdstip, met `_afzender.txt`.
+  - Signal-melding per inzending. Groter dan 25 MB: contact met het Scherm Team voor een
+    persoonlijke link.
+  - Gemaakt voor niet-technische gebruikers: logo, genummerde stappen, uitklapbare handleiding
+    en duidelijke popups.
 - **Magister: sessieleeftijd zichtbaar**. De overzichtspagina op `agenda.toorren.net` laat nu zien
   hoe gezond de Magister-login is, in plaats van alleen "Laatste update".
   - "Ingelogd sinds" (met het aantal dagen) en "Laatste refresh". Het moment van inloggen komt uit
