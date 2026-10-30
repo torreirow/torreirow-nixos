@@ -25,6 +25,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **Bezoekmeting voor de websites** (`stats.toorren.net`, Umami). Eén dashboard met
+  paginaweergaven, verwijzers en land/stad voor 10 sites: zes op malandro (toorren.net,
+  wereldvanbegrip.nl, cckafe.com, cv-jolijn, boaz, eghupload) en vier op Cloudflare Pages
+  (noraly, devos, recepten, stichtingwittevelden).
+  - Anoniem en zonder cookies: IP-adressen worden niet bewaard, dus geen cookiebanner nodig.
+  - Dashboard achter Authelia plus Umami-login met tweestapsverificatie.
+  - Apps, inlogdiensten en DocuSeal worden bewust niet gemeten.
 - **LocalSend op lobos**. Bestanden, tekst en het klembord delen tussen telefoon en laptop via het
   eigen netwerk, zonder cloud. De NixOS-module zet poort 53317 (TCP en UDP) open in de firewall,
   zodat de telefoon lobos ook zelf kan vinden.

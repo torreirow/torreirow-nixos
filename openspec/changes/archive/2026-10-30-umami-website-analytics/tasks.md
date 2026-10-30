@@ -6,7 +6,7 @@
 - [x] 1.2 `modules/umami.nix`: `services.umami` op 127.0.0.1 (vrije poort), PostgreSQL-database/gebruiker `umami` via peer-auth, `CLIENT_IP_HEADER=x-real-ip`, neutrale `TRACKER_SCRIPT_NAME`/`COLLECT_API_ENDPOINT`; importeren in `hosts/malandro/configuration.nix`; verify: rebuild slaagt, `systemctl is-active umami` en `curl 127.0.0.1:<poort>/api/heartbeat` geven ok
 - [x] 1.3 nginx-vhost `stats.toorren.net`: script en meldadres publiek met `limit_req`, de rest achter Authelia forward-auth (groep `monitoring`, regel in de Authelia-config); verify: zonder sessie geeft `/` een redirect naar auth.toorren.net, het script en een POST naar het meldadres niet
 - [x] 1.4 Eerste login: admin-wachtwoord wijzigen, de websites aanmaken (11; onzeovereenkomst daarna weer verwijderd, zie 2.3) en hun site-ID's noteren in `docs/umami.md`; verify: het dashboard toont 11 websites
-- [ ] 1.5 `umami` toevoegen aan `nativeServices` in `modules/status-page.nix` en controleren dat de database in de rustic-dump zit; verify: status.toorren.net meldt umami gezond, en na een backup-run bevat de dump `CREATE DATABASE umami`
+- [x] 1.5 `umami` toevoegen aan `nativeServices` in `modules/status-page.nix` en controleren dat de database in de rustic-dump zit; verify: status.toorren.net meldt umami gezond, en na een backup-run bevat de dump `CREATE DATABASE umami`
 - [x] 1.6 `docs/umami.md` (opzet, wat wel/niet gemeten wordt, adblock-ondergrens, site-ID's, beheer) + indexregel in `CLAUDE.md`; verify: de docs noemen alle 10 sites met ID
 
 ## 2. Malandro-sites
