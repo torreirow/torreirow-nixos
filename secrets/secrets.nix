@@ -99,6 +99,8 @@ in
   "cap-mailer-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   # File Drop (eghupload.toorren.net): env-file met CAP_SECRET en NEXTCLOUD_SHARE_TOKEN
   "filedrop-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  # Umami (stats.toorren.net): APP_SECRET, alleen de waarde (APP_SECRET_FILE)
+  "umami-app-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # linny-mcp (READ/WRITE deploy key voor torreirow/torrlinny -- git-sync pusht
   # agent-notities terug). Bewust een tweede sleutel: torrlinny-deploy-key blijft

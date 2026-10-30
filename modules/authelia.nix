@@ -196,6 +196,7 @@
             domain = [
               "prometheus.toorren.net"
               "alertmanager.toorren.net"
+              "stats.toorren.net" # Umami-dashboard; script en meldadres zijn publiek in nginx
             ];
             policy = "two_factor";
             subject = [ "group:monitoring" ];

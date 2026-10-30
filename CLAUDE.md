@@ -41,6 +41,7 @@
 - **Vragen over het Server Health Monitoring-dashboard, Last Boot Time, de fastfetch-systeeminfo (`fastfetch-textfile.service`, `node_fastfetch_info`), "Reboot REQUIRED" of een onverklaarde stijging in CPU/temperatuur** → lees `docs/server-health.md`
 - **Vragen over Paperless (`docs.toorren.net`), de oci-containers `paperless-webserver`/`paperless-broker`, het `paperless`-netwerk (172.18.0.0/16), de herstart-lus na de reboot van 17 okt of de compose-restanten** → lees `docs/paperless.md`
 - **Vragen over File Drop, `eghupload.toorren.net`, de Go-dienst `filedrop` (Cap-captcha, naam/e-mail verplicht, Signal-melding), de Nextcloud-share van `nxceghmedia`/`eghuploads` of het vervangen van share-token/Cap-sleutel** → lees `docs/filedrop.md`
+- **Vragen over Umami, `stats.toorren.net`, bezoekersaantallen/land/stad van de websites, het meetscript (`s.js`, `sub_filter`, `trackedSites`), de website-ID's of de Cloudflare-sites (noraly, devos, recepten, stichtingwittevelden)** → lees `docs/umami.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 
