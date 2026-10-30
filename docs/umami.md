@@ -67,6 +67,9 @@ met nonce blokkeert een ingevoegd script terecht).
   betrouwbaar.
 - **Wachtwoord wijzigen** maakt de lopende Umami-sessie ongeldig: daarna gaf elke actie
   "Unauthorized" tot opnieuw inloggen (gezien op 30-10-2026).
+- **Geen SSO met Authelia:** Umami OSS (3.4.1) kent geen OIDC of header-login; SSO zit alleen
+  in Umami Cloud/Enterprise. `DISABLE_LOGIN` verbergt alleen de loginpagina. Bewust gekozen
+  (30-10-2026): dubbel inloggen houden, Authelia én Umami-login met 2FA.
 - **Bouwen duurt lang:** Umami (Next.js) staat niet in de binaire cache; een nieuwe versie wordt
   op malandro gebouwd (~15 min, SCHED_IDLE). Sneller: vanaf lobos bouwen met
   `nixos-rebuild switch --flake .#malandro --target-host malandro --use-remote-sudo`.
