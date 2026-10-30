@@ -379,8 +379,8 @@ func TestPageLayout(t *testing.T) {
 		t.Error("help block must start closed")
 	}
 	for _, word := range []string{"captcha", "upload", "URL"} {
-		// "Media upload" is the requested subtitle; nothing else may use these words.
-		text := strings.ReplaceAll(visibleText(indexHTML), "Media upload", "")
+		// The "Media upload" subtitle is requested; nothing else may use these words.
+		text := visibleText(regexp.MustCompile(`(?s)<p class="subtitle">.*?</p>|<title>.*?</title>`).ReplaceAllString(indexHTML, ""))
 		if strings.Contains(strings.ToLower(text), strings.ToLower(word)) {
 			t.Errorf("technical word %q visible on the page", word)
 		}

@@ -51,6 +51,7 @@ let
     "linny-mcp-authz"
     "linny-mcp-index"
     "magister-sync"
+    "umami"
     # Opslag en delen
     "juicefs-nextcloud-ro"
     "samba-smbd"
