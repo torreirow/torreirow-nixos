@@ -46,6 +46,14 @@ in
     file = ../secrets/umami-app-secret.age;
     mode = "0400"; # root; de module geeft hem via LoadCredential door aan de DynamicUser
   };
+  # TWO_FACTOR_ENCRYPTION_KEY=<64 hex> (AES-256) voor 2FA in het dashboard. De module kent
+  # alleen APP_SECRET/DATABASE_URL als bestand, dus deze gaat via een EnvironmentFile
+  # (gelezen door systemd als root, vóór de DynamicUser start).
+  age.secrets.umami-env = {
+    file = ../secrets/umami-env.age;
+    mode = "0400";
+  };
+  systemd.services.umami.serviceConfig.EnvironmentFile = config.age.secrets.umami-env.path;
 
   services.umami = {
     enable = true;
