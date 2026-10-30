@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Media upload - Evangelische Gemeente Harderwijk</title>
+<style>
+  :root { --fg: #141414; --muted: #5b564f; --bg: #f7f5f2; --card: #fff; --line: #ddd8d0;
+          --accent: #2563eb; --ok: #15803d; --err: #b91c1c; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg: #f3f0ea; --muted: #bdb6ab; --bg: #141414; --card: #1f1e1c; --line: #3a3733;
+            --accent: #60a5fa; --ok: #4ade80; --err: #f87171; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 560px; margin: 3rem auto; padding: 0 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .brand { background: #1f1e1c; text-align: center; padding: 20px 16px 12px; }
+  .brand img { width: 160px; max-width: 60%; height: auto; }
+  .body { padding: 24px; }
+  h1 { font-size: 1.4rem; margin: 0; }
+  .subtitle { font-size: 1.1rem; font-weight: 600; color: var(--accent); margin: 0 0 .5rem; }
+  details.help { margin: .75rem 0 0; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+  details.help summary { cursor: pointer; padding: .7rem 1rem; font-weight: 600; }
+  details.help[open] summary { border-bottom: 1px solid var(--line); }
+  details.help .content { padding: .25rem 1rem .9rem; }
+  details.help ol { margin: .5rem 0; padding-left: 1.3rem; }
+  details.help p { margin: .5rem 0 0; }
+  section { border-top: 1px solid var(--line); margin-top: 1.5rem; padding-top: 1rem; }
+  h2 { font-size: 1.1rem; margin: 0 0 .25rem; }
+  h2 .nr { display: inline-block; width: 1.6rem; height: 1.6rem; margin-right: .4rem; border-radius: 50%;
+           background: var(--accent); color: #fff; text-align: center; line-height: 1.6rem; font-size: .9rem; }
+  .andor { display: flex; align-items: center; gap: .75rem; margin-top: 1.5rem; color: var(--muted);
+           font-weight: 600; }
+  .andor::before, .andor::after { content: ""; flex: 1; border-top: 1px dashed var(--line); }
+  .andor + section { border-top: 0; margin-top: .5rem; }
+  label { display: block; font-weight: 600; margin: 1rem 0 .3rem; }
+  input[type=text], input[type=email], input[type=url], textarea { width: 100%; padding: .6rem .7rem; font: inherit;
+         color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+  textarea { resize: vertical; }
+  label.hint { font-weight: 400; margin-top: .25rem; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .filebtn { display: block; margin-top: .75rem; padding: .9rem; text-align: center; font-weight: 700;
+             color: var(--accent); border: 2px dashed var(--accent); border-radius: 8px; cursor: pointer; }
+  #files:focus-visible + .filebtn { outline: 3px solid var(--accent); outline-offset: 2px; }
+  #filelist { margin: .5rem 0 0; padding-left: 1.2rem; }
+  .linkrow { margin-top: .75rem; padding-top: .75rem; }
+  .linkrow + .linkrow { border-top: 1px dashed var(--line); }
+  .linkrow[hidden] { display: none; }
+  .linkrow label { margin-top: .4rem; }
+  button.secondary { width: auto; margin-top: .75rem; padding: .4rem .8rem; font-weight: 600;
+           color: var(--accent); background: transparent; border: 1px solid var(--line); }
+  .hint { color: var(--muted); font-size: .9rem; margin-top: .3rem; }
+  .hint a, details.help a { color: var(--accent); word-break: break-all; }
+  .hp { position: absolute; left: -9999px; }
+  cap-widget { display: block; margin-top: .75rem; }
+  button { margin-top: 1rem; width: 100%; padding: .85rem; font: inherit; font-weight: 700; color: #fff;
+           background: var(--accent); border: 0; border-radius: 8px; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  progress { width: 100%; margin-top: 1rem; display: none; }
+  #status { margin-top: 1rem; min-height: 1.5em; }
+  dialog#msg { max-width: min(420px, calc(100vw - 32px)); padding: 24px; border: 0; border-radius: 12px;
+               background: var(--card); color: var(--fg); text-align: center; }
+  dialog#msg::backdrop { background: rgb(0 0 0 / .55); }
+  dialog#msg .icon { width: 3rem; height: 3rem; margin: 0 auto .75rem; border-radius: 50%; color: #fff;
+                     font-size: 1.6rem; font-weight: 700; line-height: 3rem; }
+  dialog#msg.ok .icon { background: var(--ok); }
+  dialog#msg.err .icon { background: var(--err); }
+  dialog#msg h2 { margin: 0 0 .5rem; }
+  dialog#msg p { margin: 0; }
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <div class="brand"><img src="/logo.png" alt="Logo Evangelische Gemeente Harderwijk" width="350" height="286"></div>
+    <div class="body">
+    <h1>Evangelische Gemeente Harderwijk</h1>
+    <p class="subtitle">Media upload</p>
+
+    <details class="help">
+      <summary>Handleiding: hoe werkt het insturen?</summary>
+      <div class="content">
+        <ol>
+          <li>Vul je naam en e-mailadres in.</li>
+          <li>Kies foto's of filmpjes van je computer of telefoon, en/of plak een link naar een
+            video op YouTube, Facebook, Instagram of Vimeo.</li>
+          <li>Druk op Versturen.</li>
+        </ol>
+        <p><strong>Een link kopiëren:</strong> open de video, tik op "Delen" en kies "Link kopiëren".
+          Plak de link daarna in het vak Link.</p>
+        <p><strong>Groter dan {{MAX_MB}} MB?</strong> Neem dan contact op met het Scherm Team via
+          <a href="mailto:{{CONTACT}}">{{CONTACT}}</a>. Je krijgt dan een persoonlijke link waarmee
+          je grotere bestanden kunt sturen.</p>
+      </div>
+    </details>
+
+    <!-- The server needs all text fields (incl. links and the robot check) before the files;
+         the submit handler sends them in that order, whatever the order on the page. -->
+    <form id="form" action="/upload" method="post" enctype="multipart/form-data" novalidate>
+      <section>
+        <h2><span class="nr">1</span>Jouw gegevens</h2>
+        <label for="naam">Naam</label>
+        <input type="text" id="naam" name="naam" required maxlength="100" autocomplete="name">
+        <label for="email">E-mailadres</label>
+        <input type="email" id="email" name="email" required maxlength="200" autocomplete="email">
+        <div class="hint">We gebruiken je naam en e-mailadres alleen voor deze inzending.</div>
+        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      </section>
+
+      <section>
+        <h2><span class="nr">2</span>Bestanden</h2>
+        <div class="hint">Foto's, filmpjes of andere bestanden. Je kunt er meerdere tegelijk kiezen.</div>
+        <input type="file" id="files" name="files" multiple class="visually-hidden">
+        <label for="files" class="filebtn">Bestanden kiezen</label>
+        <ul id="filelist" hidden></ul>
+        <div class="hint">Samen maximaal {{MAX_MB}} MB. Is het groter? Neem contact op met het Scherm
+          Team via <a href="mailto:{{CONTACT}}">{{CONTACT}}</a>, dan krijg je een persoonlijke link.</div>
+      </section>
+
+      <div class="andor">en/of</div>
+
+      <section>
+        <h2><span class="nr">3</span>Videolinks</h2>
+        <div class="hint">Staat de video op YouTube, Facebook, Instagram of Vimeo? Kopieer de link
+          (via "Delen" en dan "Link kopiëren") en plak hem hier.</div>
+        <div id="links"></div>
+        <button type="button" class="secondary" id="addlink">+ Nog een link</button>
+      </section>
+
+      <section>
+        <h2><span class="nr">4</span>Bericht <span class="hint">(mag je leeg laten)</span></h2>
+        <label for="bericht" class="hint">Wil je iets laten weten over je inzending?</label>
+        <textarea id="bericht" name="bericht" rows="4" maxlength="1000"
+          placeholder='bijv. "Graag zondag tijdens de mededelingen"'></textarea>
+        <div class="hint" id="bericht-teller" aria-live="polite">Nog 1000 tekens</div>
+      </section>
+
+      <section>
+        <h2><span class="nr">5</span>Versturen</h2>
+        <cap-widget id="cap" data-cap-api-endpoint="{{CAP_ENDPOINT}}"
+          data-cap-i18n-initial-state="Ik ben geen robot"
+          data-cap-i18n-verifying-label="Bezig met controleren…"
+          data-cap-i18n-solved-label="Gecontroleerd"
+          data-cap-i18n-error-label="Controle mislukt, probeer het opnieuw"></cap-widget>
+        <button type="submit" id="submit">Versturen</button>
+        <progress id="progress" max="100" value="0"></progress>
+        <div id="status" role="status"></div>
+      </section>
+    </form>
+    </div>
+  </div>
+</main>
+<dialog id="msg" aria-labelledby="msg-title">
+  <div class="icon" aria-hidden="true"></div>
+  <h2 id="msg-title"></h2>
+  <p id="msg-text"></p>
+  <button type="button" id="msg-close"></button>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@cap.js/widget@0.1.58" defer></script>
+<script>
+  const form = document.getElementById("form");
+  const button = document.getElementById("submit");
+  const progress = document.getElementById("progress");
+  const status = document.getElementById("status");
+  const maxBytes = {{MAX_MB}} * 1024 * 1024;
+  const tooBig = "Je bestanden zijn samen groter dan {{MAX_MB}} MB. Neem contact op met het Scherm Team " +
+    "via {{CONTACT}}, dan krijg je een persoonlijke link om ze te sturen.";
+
+  // Results and problems appear in a popup; the status line only shows progress.
+  const dialog = document.getElementById("msg");
+  document.getElementById("msg-close").addEventListener("click", () => dialog.close());
+  function popup(ok, text) {
+    status.textContent = "";
+    dialog.className = ok ? "ok" : "err";
+    dialog.querySelector(".icon").textContent = ok ? "✓" : "!";
+    document.getElementById("msg-title").textContent = ok ? "Bedankt!" : "Dat lukte niet";
+    document.getElementById("msg-text").textContent = ok ? text.replace(/^Bedankt! /, "") : text;
+    document.getElementById("msg-close").textContent = ok ? "Sluiten" : "Terug naar het formulier";
+    dialog.showModal();
+  }
+
+  // Five link/title pairs; only the first is visible until "+ Nog een link".
+  const linksBox = document.getElementById("links");
+  const addLink = document.getElementById("addlink");
+  for (let i = 1; i <= 5; i++) {
+    const row = document.createElement("div");
+    row.className = "linkrow";
+    row.hidden = i > 1;
+    row.innerHTML = `<label for="link${i}">Link${i > 1 ? " " + i : ""}</label>
+      <input type="url" id="link${i}" name="link${i}" maxlength="2048" placeholder="https://…">
+      <label for="titel${i}">Titel <span class="hint">(mag je leeg laten)</span></label>
+      <input type="text" id="titel${i}" name="titel${i}" maxlength="200"
+        placeholder='bijv. "Voor zondag 3 november"'>`;
+    linksBox.appendChild(row);
+  }
+  addLink.addEventListener("click", () => {
+    const next = linksBox.querySelector(".linkrow[hidden]");
+    if (next) next.hidden = false;
+    if (!linksBox.querySelector(".linkrow[hidden]")) addLink.hidden = true;
+  });
+
+  // Show the chosen file names under the big button.
+  const fileInput = document.getElementById("files");
+  const fileList = document.getElementById("filelist");
+  fileInput.addEventListener("change", () => {
+    fileList.replaceChildren(...[...fileInput.files].map((f) => {
+      const li = document.createElement("li");
+      li.textContent = f.name;
+      return li;
+    }));
+    fileList.hidden = fileInput.files.length === 0;
+  });
+
+  const message = document.getElementById("bericht");
+  const counter = document.getElementById("bericht-teller");
+  const updateCounter = () => {
+    counter.textContent = "Nog " + (1000 - [...message.value].length) + " tekens";
+  };
+  message.addEventListener("input", updateCounter);
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    // Text fields first, files last: the server validates everything before storing a byte.
+    const data = new FormData();
+    const entries = [...new FormData(form)];
+    for (const [k, v] of entries) if (!(v instanceof File)) data.append(k, v);
+    for (const [k, v] of entries) if (v instanceof File && v.name) data.append(k, v);
+    if (!(data.get("naam") || "").trim()) { popup(false, "Vul je naam in."); return; }
+    if (!document.getElementById("email").checkValidity() || !(data.get("email") || "").trim()) {
+      popup(false, "Vul een geldig e-mailadres in."); return;
+    }
+    const files = [...document.getElementById("files").files];
+    const hasLink = [1, 2, 3, 4, 5].some((i) => (data.get("link" + i) || "").trim() !== "");
+    if (!files.length && !hasLink) { popup(false, "Kies minstens één bestand of vul een link in."); return; }
+    const total = files.reduce((s, f) => s + f.size, 0);
+    if (total > maxBytes) { popup(false, tooBig); return; }
+    if (!data.get("cap-token")) { popup(false, "Klik eerst op \"Ik ben geen robot\" en wacht op het vinkje."); return; }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/upload");
+    xhr.upload.onprogress = (ev) => {
+      if (ev.lengthComputable) progress.value = Math.round(ev.loaded / ev.total * 100);
+    };
+    xhr.onload = () => {
+      let res = {};
+      try { res = JSON.parse(xhr.responseText); } catch (_) {}
+      if (xhr.status === 200 && res.ok) {
+        popup(true, res.message);
+        form.reset();
+        linksBox.querySelectorAll(".linkrow").forEach((r, i) => { r.hidden = i > 0; });
+        fileList.replaceChildren();
+        updateCounter();
+        fileList.hidden = true;
+        addLink.hidden = false;
+      } else {
+        popup(false, res.message || (xhr.status === 413 ? tooBig
+          : "Versturen is niet gelukt. Probeer het later opnieuw."));
+      }
+      done();
+    };
+    xhr.onerror = () => { popup(false, "De verbinding viel weg. Probeer het opnieuw."); done(); };
+    button.disabled = true;
+    progress.value = 0;
+    progress.style.display = "block";
+    status.textContent = "Bezig met versturen…";
+    xhr.send(data);
+  });
+
+  // A Cap token is single-use: reset the widget after every attempt.
+  function done() {
+    button.disabled = false;
+    progress.style.display = "none";
+    const cap = document.getElementById("cap");
+    if (cap && cap.reset) cap.reset();
+  }
+</script>
+</body>
+</html>

@@ -18,6 +18,7 @@
  ../../modules/claude.nix
  ../../modules/cockpit.nix
  ../../modules/erugo.nix
+ ../../modules/filedrop.nix
  ../../modules/fail2ban.nix
  ../../modules/fail2bancontrol.nix
  ../../modules/hassio
