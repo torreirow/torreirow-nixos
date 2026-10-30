@@ -15,6 +15,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | 8087 | blocky-ui | 127.0.0.1 | Docker | Beheer-UI voor blocky DNS (ghcr.io/gabeduartem/blocky-ui; blocky.toorren.net) |
 | 8086 | Zigbee2MQTT | 127.0.0.1 | Docker | Zigbee bridge web interface |
 | 8088 | Signal CLI | 127.0.0.1 | Docker | Signal messenger API for notifications |
+| 8089 | OwnSteps | 127.0.0.1 | Docker | Reisblog / Polarsteps-vervanger (reis.toorren.net), proef |
 | 8090 | DocSeal | 127.0.0.1 | Docker | Open source document signing platform (docseal.toorren.net) |
 | 8092 | InvoicePlane | 127.0.0.1 | Docker | Open source invoicing platform (invoices.wereldvanbegrip.nl) |
 | 8094 | formrelay | 127.0.0.1 | Native | Form-to-email relay met hCaptcha (forms.toorren.net) |
@@ -77,6 +78,7 @@ All these services are accessible via HTTPS through Nginx reverse proxy with Aut
 - `tasks.toorren.net` → Vikunja (8093) - **Note: Authelia protected**
 - `nxc.toorren.net` → Nextcloud (externe host `192.168.2.67:11000`, TLS termineert op malandro; WebSocket + 10G upload)
 - `status.toorren.net` → Status Dashboard (9099) - **Note: Authelia protected**
+- `reis.toorren.net` → OwnSteps (8089) - **Note: GEEN Authelia** (publieke deellinks + Android-API; eigen login)
 - *(Add other domains as configured in nginx modules)*
 
 ## Notes

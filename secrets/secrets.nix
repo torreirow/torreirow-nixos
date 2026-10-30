@@ -103,6 +103,7 @@ in
   "umami-app-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   # Umami: env-file met TWO_FACTOR_ENCRYPTION_KEY (64 hex, AES-256) voor 2FA in het dashboard
   "umami-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "ownsteps-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # linny-mcp (READ/WRITE deploy key voor torreirow/torrlinny -- git-sync pusht
   # agent-notities terug). Bewust een tweede sleutel: torrlinny-deploy-key blijft
