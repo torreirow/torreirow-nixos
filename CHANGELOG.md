@@ -25,6 +25,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **Media-upload voor de Evangelische Gemeente Harderwijk** (`upload.toorren.net`). Een
+  eenvoudige pagina waar mensen foto's, filmpjes en videolinks naar het Scherm Team sturen. Alles
+  komt in een Nextcloud-map waar inzenders niets van anderen zien.
+  - Verplicht naam en e-mail, een "Ik ben geen robot"-controle en limieten tegen misbruik.
+  - Videolinks van YouTube, Facebook, Instagram en Vimeo komen in `video-links.txt`, met de
+    titel erbij (YouTube en Vimeo zoeken die zelf op).
+  - Optioneel bericht als `bericht.txt`. Elke inzending krijgt een eigen map per maand en
+    tijdstip, met `_afzender.txt`.
+  - Signal-melding per inzending. Groter dan 25 MB: contact met het Scherm Team voor een
+    persoonlijke link.
+  - Gemaakt voor niet-technische gebruikers: logo, genummerde stappen, uitklapbare handleiding
+    en duidelijke popups.
 - **Magister: sessieleeftijd zichtbaar**. De overzichtspagina op `agenda.toorren.net` laat nu zien
   hoe gezond de Magister-login is, in plaats van alleen "Laatste update".
   - "Ingelogd sinds" (met het aantal dagen) en "Laatste refresh". Het moment van inloggen komt uit
