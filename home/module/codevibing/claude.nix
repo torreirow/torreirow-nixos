@@ -28,6 +28,7 @@
       # Context on-demand (bespaart tokens — lees het bestand pas wanneer het onderwerp speelt)
       - Archiveren van een OpenSpec change, of de CHANGELOG bijwerken na een afgeronde `/opsx:apply` → lees `~/.claude/docs/openspec-workflow.md`
       - Vragen of problemen rond rtk (`rtk gain`, token-besparing, `rtk: command not found`, naam-collisie met Rust Type Kit, hook-gedrag) → lees `~/.claude/docs/rtk.md`
+      - Iets maken of opmaken in de stijl/huisstijl van de EGH (Evangelische Gemeente Harderwijk, "Samen EGH"): slides, beamer, social, web, drukwerk, kleuren, logo → lees `~/.claude/docs/egh-stijl.md`
     '';
 
     settings = {
@@ -87,4 +88,5 @@
   # NIET elke sessie meeladen; Claude leest ze alleen wanneer het onderwerp speelt.
   home.file.".claude/docs/openspec-workflow.md".source = ./claude-context/openspec-workflow.md;
   home.file.".claude/docs/rtk.md".source = ./claude-context/rtk.md;
+  home.file.".claude/docs/egh-stijl.md".source = ./claude-context/egh-stijl.md;
 }
