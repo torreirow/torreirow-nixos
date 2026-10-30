@@ -116,8 +116,8 @@ func reserve(ip string) (int64, error) {
 		if now.Unix()-s.LastAlert > 24*3600 {
 			s.LastAlert = now.Unix()
 			writeState(s)
-			go notify(fmt.Sprintf("🛑 upload.toorren.net: daglimiet bereikt (%d uploads, %s in 24 uur). "+
-				"Nieuwe uploads worden geweigerd tot het venster vrijkomt.", len(s.Entries), human(bytesDay)))
+			go announce("Daglimiet bereikt", fmt.Sprintf("🛑 eghupload.toorren.net: daglimiet bereikt (%d uploads, %s in 24 uur). "+
+				"Nieuwe uploads worden geweigerd tot het venster vrijkomt.", len(s.Entries), human(bytesDay)), "")
 		}
 		return 0, fmt.Errorf("%w: Er is vandaag al veel ingestuurd. Probeer het morgen opnieuw.", errValidation)
 	}

@@ -63,6 +63,10 @@ func main() {
 	signalSender = mustEnv("SIGNAL_SENDER")
 	signalTo = mustEnv("SIGNAL_RECIPIENT")
 	contact = mustEnv("LARGE_FILE_CONTACT")
+	notifyEmail = strings.TrimSpace(os.Getenv("NOTIFY_EMAIL"))
+	if notifyEmail != "" {
+		mailFrom = mustEnv("MAIL_FROM")
+	}
 	var err error
 	if maxBytes, err = strconv.ParseInt(mustEnv("MAX_BYTES"), 10, 64); err != nil {
 		log.Fatalf("MAX_BYTES: %v", err)
@@ -225,7 +229,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	account(u.slot, u.bytes)
 	folder := strings.Join(u.dir, "/")
 	log.Printf("upload ok: %d file(s), %d bytes, %d link(s) into %q", len(u.files), u.bytes, len(u.links), folder)
-	notify(u.summary())
+	announce("Nieuwe inzending van "+u.fields["naam"], u.summary(), u.fields["email"])
 	writeJSON(w, http.StatusOK, true, fmt.Sprintf("Bedankt! We hebben %s ontvangen. "+
 		"Het Scherm Team bekijkt je inzending. Je kunt dit venster sluiten.", u.received()))
 }
@@ -246,8 +250,9 @@ func fail(w http.ResponseWriter, u *upload, err error) {
 		folder := strings.Join(u.dir, "/")
 		log.Printf("upload failed after %d file(s) in %q: %v", len(u.files), folder, err)
 		if len(u.dir) > 0 {
-			notify(fmt.Sprintf("⚠️ Upload van %s <%s> afgebroken na %d bestand(en) in %s: %v",
-				u.fields["naam"], u.fields["email"], len(u.files), folder, err))
+			announce("Inzending afgebroken: "+u.fields["naam"],
+				fmt.Sprintf("⚠️ Upload van %s <%s> afgebroken na %d bestand(en) in %s: %v",
+					u.fields["naam"], u.fields["email"], len(u.files), folder, err), u.fields["email"])
 		}
 		writeJSON(w, http.StatusBadGateway, false, "Er ging iets mis bij het opslaan. Probeer het later opnieuw.")
 	}
@@ -455,7 +460,7 @@ func (u *upload) senderText() []byte {
 
 func (u *upload) summary() string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "📥 Nieuwe inzending via upload.toorren.net\nVan: %s <%s>\nMap: %s",
+	fmt.Fprintf(&b, "📥 Nieuwe inzending via eghupload.toorren.net\nVan: %s <%s>\nMap: %s",
 		u.fields["naam"], u.fields["email"], strings.Join(u.dir, "/"))
 	if len(u.files) > 0 {
 		fmt.Fprintf(&b, "\nBestanden (%d, %s):\n- %s", len(u.files), human(u.bytes), strings.Join(u.files, "\n- "))

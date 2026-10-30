@@ -1,23 +1,24 @@
-# File Drop (upload.toorren.net)
+# File Drop (eghupload.toorren.net)
 
 Uploadpagina waar anderen bestanden en/of videolinks bij ons neerzetten, met verplichte naam en
 e-mail en een Cap-captcha. Ze zien geen inzendingen van anderen.
 
 ```
-browser ── upload.toorren.net ── nginx ── filedrop (Go, :8102) ──┬─ cap.toorren.net/<key>/siteverify
+browser ── eghupload.toorren.net ── nginx ── filedrop (Go, :8102) ──┬─ cap.toorren.net/<key>/siteverify
                                                                 ├─ nxc.toorren.net public WebDAV (share)
                                                                 └─ signal-cli REST :8088 (melding)
 ```
 
 | Onderdeel     | Waarde                                                   |
 |---------------|----------------------------------------------------------|
-| Pagina        | `https://upload.toorren.net`                             |
+| Pagina        | `https://eghupload.toorren.net` (oud `upload.` → 301-redirect) |
 | Code          | `pkgs/filedrop/` (Go + `index.html`), `modules/filedrop.nix` |
 | Nextcloud     | account `nxceghmedia`, map `eghuploads`, File Drop-share |
 | Opslag        | `JJJJ-MM/JJJJMMDD-UUMMSS/` per inzending (zie hieronder) |
 | Captcha       | Cap site-key "filedrop" (site-key in `modules/filedrop.nix`) |
 | Geheimen      | `secrets/filedrop-env.age`: `CAP_SECRET`, `NEXTCLOUD_SHARE_TOKEN` |
 | Melding       | Signal naar `SIGNAL_RECIPIENT` uit `signal-numbers.age`  |
+| Mail          | zelfde tekst naar `eghupload@toorren.net` (Reply-To = inzender) |
 | Max          | 25 MB per inzending; groter → contact taakgroepbeeldengeluid@… |
 | Quota         | zie hieronder; nginx daarnaast 6 req/min per IP (burst 3) |
 

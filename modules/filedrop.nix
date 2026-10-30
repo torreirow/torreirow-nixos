@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 
-# File Drop op upload.toorren.net: uploadpagina met verplichte naam/e-mail en Cap-captcha.
+# File Drop op eghupload.toorren.net: uploadpagina met verplichte naam/e-mail en Cap-captcha.
 # De Go-dienst (pkgs/filedrop) streamt de bestanden via de publieke WebDAV van een Nextcloud
 # File Drop-share (account nxceghmedia, map eghuploads) in een submap per inzending en meldt
 # elke upload via Signal. De share-link zelf wordt nooit getoond. Zie docs/filedrop.md.
@@ -25,7 +25,7 @@ in
   systemd.services.filedrop = {
     description = "File Drop upload-formulier naar Nextcloud";
     wantedBy = [ "multi-user.target" ];
-    after = [ "network-online.target" "docker-signal-cli.service" ];
+    after = [ "network-online.target" "docker-signal-cli.service" "postfix.service" ];
     wants = [ "network-online.target" ];
 
     environment = {
@@ -33,6 +33,9 @@ in
       CAP_URL = "https://cap.toorren.net/${capSiteKey}";
       NEXTCLOUD_URL = "https://nxc.toorren.net";
       SIGNAL_API = "http://127.0.0.1:8088/v2/send";
+      # Melding per inzending ook per mail (via postfix -> SES); Reply-To = inzender.
+      NOTIFY_EMAIL = "eghupload@toorren.net";
+      MAIL_FROM = "noreply@toorren.net"; # SES accepteert alleen @toorren.net-afzenders
       MAX_BYTES = toString (maxMB * 1024 * 1024);
       LARGE_FILE_CONTACT = "taakgroepbeeldengeluid@evangelischegemeente.org";
       # Quota over 24 uur (sliding window), alleen na geslaagde captcha. Zie docs/filedrop.md.
@@ -71,7 +74,14 @@ in
       limit_req_zone $binary_remote_addr zone=filedrop:10m rate=6r/m;
     '';
 
+    # Oude naam (tot 30-10-2026): doorsturen, zodat gedeelde links blijven werken.
     virtualHosts."upload.toorren.net" = {
+      forceSSL = true;
+      useACMEHost = "toorren.net";
+      globalRedirect = "eghupload.toorren.net";
+    };
+
+    virtualHosts."eghupload.toorren.net" = {
       forceSSL = true;
       useACMEHost = "toorren.net";
 

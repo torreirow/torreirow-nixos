@@ -1,7 +1,7 @@
 # filedrop Specification
 
 ## Purpose
-Een publiek formulier op `upload.toorren.net` waarmee buitenstaanders bestanden en videolinks
+Een publiek formulier op `eghupload.toorren.net` waarmee buitenstaanders bestanden en videolinks
 naar het EGH Scherm Team sturen. Inzendingen landen in een Nextcloud File Drop-share zonder dat
 de inzender bestanden van anderen kan zien of de share-link leert kennen.
 
