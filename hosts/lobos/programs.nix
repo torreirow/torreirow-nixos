@@ -303,6 +303,13 @@ programs.nix-ld = {
     flake = "/home/wtoorren/data/git/torreirow/torreirow-nixos"; # sets NH_OS_FLAKE variable for you
   };
 
+  # LocalSend: bestanden delen met de telefoon via het LAN. openFirewall zet
+  # poort 53317 (TCP voor de overdracht, UDP voor multicast-discovery) open.
+  programs.localsend = {
+    enable = true;
+    openFirewall = true;
+  };
+
   environment.variables = {
     LV2_PATH    = "/run/current-system/sw/lib/lv2";
     LADSPA_PATH = "/run/current-system/sw/lib/ladspa";

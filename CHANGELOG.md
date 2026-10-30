@@ -25,6 +25,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **LocalSend op lobos**. Bestanden, tekst en het klembord delen tussen telefoon en laptop via het
+  eigen netwerk, zonder cloud. De NixOS-module zet poort 53317 (TCP en UDP) open in de firewall,
+  zodat de telefoon lobos ook zelf kan vinden.
 - **Media-upload voor de Evangelische Gemeente Harderwijk** (`upload.toorren.net`). Een
   eenvoudige pagina waar mensen foto's, filmpjes en videolinks naar het Scherm Team sturen. Alles
   komt in een Nextcloud-map waar inzenders niets van anderen zien.
