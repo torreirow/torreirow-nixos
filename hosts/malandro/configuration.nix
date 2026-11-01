@@ -62,6 +62,7 @@
  ../../modules/status-page.nix
  ../../modules/umami.nix
  ../../modules/ownsteps.nix
+ ../../modules/markmysteps.nix
  ../../modules/rustic-backup.nix
  ../../modules/juicefs-nextcloud-mount.nix
  ../../modules/torrlinny.nix
