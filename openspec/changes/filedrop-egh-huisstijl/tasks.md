@@ -36,8 +36,8 @@
 
 ## 6. Integratie op malandro
 
-- [ ] 6.1 Rebuild malandro (dat doet de gebruiker zelf). Controle: `curl -sI https://eghupload.toorren.net/hero.webp` en `/fonts/blenda-script.woff2` geven 200, en `/fonts/letter-gothic.woff2` geeft 404 zolang het font er nog niet staat.
-- [ ] 6.2 Zet de gelicentieerde Letter Gothic-woff2 op malandro zoals de doc beschrijft. Controle: zonder herstart geeft `/fonts/letter-gothic.woff2` 200. In de browser staan de koppen in Letter Gothic en toont het netwerktabblad geen nieuwe externe verzoeken.
+- [x] 6.1 Rebuild malandro (dat doet de gebruiker zelf). Controle: `curl -sI https://eghupload.toorren.net/hero.webp` en `/fonts/blenda-script.woff2` geven 200, en `/fonts/letter-gothic.woff2` geeft 404 zolang het font er nog niet staat.
+- [x] 6.2 Zet de gelicentieerde Letter Gothic-woff2 op malandro zoals de doc beschrijft. Controle: zonder herstart geeft `/fonts/letter-gothic.woff2` 200. In de browser staan de koppen in Letter Gothic en toont het netwerktabblad geen nieuwe externe verzoeken.
 
 ## Workflow follow-up
 
