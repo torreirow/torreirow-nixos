@@ -9,7 +9,7 @@
 
 ## 2. Integratie
 
-- [ ] 2.1 Rebuild malandro (dat doet de gebruiker zelf). Controle: buiten 23:00–09:00 werkt insturen gewoon. Tussen 23:00 en 09:00 toont een inzending de nachtmelding.
+- [x] 2.1 Rebuild malandro (dat doet de gebruiker zelf). Controle: buiten 23:00–09:00 werkt insturen gewoon. Tussen 23:00 en 09:00 toont een inzending de nachtmelding.
 
 ## Workflow follow-up
 
