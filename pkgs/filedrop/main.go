@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -28,6 +29,16 @@ var indexHTML string
 //go:embed logo.png
 var logoPNG []byte
 
+// EGH "Dusk To Dawn 1b" background, 1600x900, behind the logo band.
+//
+//go:embed hero.webp
+var heroWebP []byte
+
+// Script font for the page title; free for commercial use (fonts/BlendaScript-LICENSE.txt).
+//
+//go:embed fonts/BlendaScript.woff2
+var blendaWOFF2 []byte
+
 var (
 	capURL        string // https://cap.example/<site-key>
 	capSecret     string
@@ -40,6 +51,7 @@ var (
 	page          []byte
 	renderPage    *strings.Replacer
 	devHTML       string // dev.sh: re-read index.html from this path on every request
+	fontDir       string // licensed fonts that may not be in the public repository
 	davClient     = &http.Client{}
 	shortClient   = &http.Client{Timeout: 15 * time.Second}
 	amsterdam, _  = time.LoadLocation("Europe/Amsterdam")
@@ -89,19 +101,46 @@ func main() {
 	)
 	page = []byte(renderPage.Replace(indexHTML))
 	devHTML = os.Getenv("FILEDROP_DEV_HTML")
+	if fontDir = os.Getenv("FONT_DIR"); fontDir == "" {
+		fontDir = filepath.Join(mustEnv("STATE_DIRECTORY"), "fonts")
+	}
 
 	addr := "127.0.0.1:" + port
 	log.Printf("filedrop listening on %s (max %d MB per upload)", addr, maxBytes>>20)
 
+	log.Fatal(http.ListenAndServe(addr, routes()))
+}
+
+func routes() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleIndex)
 	mux.HandleFunc("/upload", handleUpload)
-	mux.HandleFunc("/logo.png", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/png")
+	mux.HandleFunc("/logo.png", staticHandler("image/png", logoPNG))
+	mux.HandleFunc("/hero.webp", staticHandler("image/webp", heroWebP))
+	mux.HandleFunc("/fonts/blenda-script.woff2", staticHandler("font/woff2", blendaWOFF2))
+	mux.HandleFunc("/fonts/letter-gothic.woff2", handleLetterGothic)
+	return mux
+}
+
+// handleLetterGothic serves the licensed Letter Gothic font from the server's disk, read on every
+// request so a file placed later works without a restart. Without the file the browser gets a 404
+// and falls back to a sans-serif.
+func handleLetterGothic(w http.ResponseWriter, r *http.Request) {
+	data, err := os.ReadFile(filepath.Join(fontDir, "LetterGothicStd.woff2"))
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	staticHandler("font/woff2", data)(w, r)
+}
+
+// staticHandler serves an embedded asset that browsers may cache for a day.
+func staticHandler(contentType string, data []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", contentType)
 		w.Header().Set("Cache-Control", "public, max-age=86400")
-		w.Write(logoPNG)
-	})
-	log.Fatal(http.ListenAndServe(addr, mux))
+		w.Write(data)
+	}
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Media upload - Evangelische Gemeente Harderwijk</title>
 <style>
-  /* EGH-huisstijl, lichte web-variant (~/.claude/docs/egh-stijl.md): witte basis, het
-     zonsondergang-verloop als band achter het witte logo, oker als accent. */
+  /* EGH-huisstijl, lichte web-variant: witte basis, de zonsondergang (foto "Dusk To Dawn 1b",
+     met het verloop als terugval) als band achter het witte logo, oker als accent. */
   :root {
     --oker: #E7A309; --indigo: #1C0850; --paars: #2F1D5C; --violet: #452B70; --mauve: #91536F;
     --koraal: #D47462; --oranje: #FF9135; --creme: #FCE5BF; --lichtcreme: #FFFDE3;
@@ -16,18 +16,28 @@
     --sunset: linear-gradient(180deg, #1C0850 0%, #2F1D5C 22%, #452B70 40%, #91536F 58%,
                               #D47462 72%, #FF9135 84%, #FCE5BF 94%, #FFFDE3 100%);
   }
+  /* Beide lettertypes komen van deze dienst zelf. Letter Gothic staat niet in de (publieke) repo
+     maar alleen op de server; ontbreekt het, dan geeft /fonts/letter-gothic.woff2 een 404 en
+     valt de browser terug op de rest van --kop. */
+  @font-face { font-family: "Blenda Script"; src: url(/fonts/blenda-script.woff2) format("woff2");
+               font-display: swap; }
+  @font-face { font-family: "Letter Gothic Std"; src: url(/fonts/letter-gothic.woff2) format("woff2");
+               font-display: swap; }
+  :root { --script: "Blenda Script", cursive;
+          --kop: "Letter Gothic Std", Roboto, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--wit); color: var(--fg);
          font: 16px/1.55 Roboto, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif; }
   main { max-width: 600px; margin: 0 auto; padding: 0 0 3rem; }
 
-  .hero { background: var(--sunset); color: var(--wit); text-align: center; padding: 28px 16px 56px; }
+  .hero { background: url(/hero.webp) center bottom / cover, var(--sunset); color: var(--wit); text-align: center; padding: 28px 16px 56px; }
   .hero img { width: 120px; max-width: 40%; height: auto; }
-  h1 { margin: .75rem 0 0; font-size: .85rem; font-weight: 400; text-transform: uppercase;
+  h1 { margin: .75rem 0 0; font-family: var(--kop); font-size: .85rem; font-weight: 400; text-transform: uppercase;
        letter-spacing: .35em; }
   .subtitle { margin: 1.25rem 0 0; line-height: 1; }
-  .subtitle .small { display: block; font-size: .8rem; letter-spacing: .5em; text-transform: uppercase; }
-  .subtitle .big { display: block; font-size: 2.6rem; font-weight: 700; font-style: italic; }
+  .subtitle .small { display: block; font-family: var(--kop); font-size: .8rem; letter-spacing: .5em; text-transform: uppercase; }
+  .subtitle .big { display: block; margin-top: .2rem; font-family: var(--script); font-size: 3.2rem;
+                   font-weight: 400; }
 
   .body { padding: 0 16px; }
   details.help { margin: 1.5rem 0 0; border-left: 4px solid var(--oker); background: var(--lichtcreme); }
@@ -37,7 +47,7 @@
   details.help p { margin: .6rem 0 0; }
 
   section { border-top: 1px solid var(--line); margin-top: 1.75rem; padding-top: 1.25rem; }
-  h2 { margin: 0 0 .4rem; font-size: 1.05rem; font-weight: 400; font-style: italic; text-transform: lowercase;
+  h2 { margin: 0 0 .4rem; font-family: var(--kop); font-size: 1.05rem; font-weight: 400; font-style: italic; text-transform: lowercase;
        letter-spacing: .25em; color: var(--violet); }
   h2 .nr { display: inline-block; width: 1.9rem; height: 1.9rem; margin-right: .6rem; border-radius: 50%;
            background: var(--oker); color: var(--wit); text-align: center; line-height: 1.9rem;
@@ -87,7 +97,7 @@
                      font-size: 1.6rem; font-weight: 700; line-height: 3rem; }
   dialog#msg.ok .icon { background: var(--oker); }
   dialog#msg.err .icon { background: var(--err); }
-  dialog#msg h2 { margin: 0 1.5rem .5rem; color: var(--indigo); }
+  dialog#msg h2 { margin: 0 1.5rem .5rem; font-family: inherit; color: var(--indigo); }
   dialog#msg p { margin: 0 1.5rem; }
   dialog#msg button { width: calc(100% - 3rem); margin: 1.25rem 1.5rem 1.5rem; }
 </style>
