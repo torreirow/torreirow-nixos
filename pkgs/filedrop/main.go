@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	_ "embed"
+	"embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -34,10 +34,20 @@ var logoPNG []byte
 //go:embed hero.webp
 var heroWebP []byte
 
-// Script font for the page title; free for commercial use (fonts/BlendaScript-LICENSE.txt).
+// Fonts that may be redistributed (licenses next to them in fonts/): Blenda Script for the page
+// title, Roboto (Latin subset) for all body text. Listed one by one, never as a glob, so the
+// licensed Letter Gothic can never end up in the binary.
 //
-//go:embed fonts/BlendaScript.woff2
-var blendaWOFF2 []byte
+//go:embed fonts/BlendaScript.woff2 fonts/Roboto-Regular.woff2 fonts/Roboto-Bold.woff2 fonts/Roboto-Italic.woff2
+var fontFiles embed.FS
+
+// embeddedFonts maps the URL path to the file in fontFiles.
+var embeddedFonts = map[string]string{
+	"/fonts/blenda-script.woff2":  "fonts/BlendaScript.woff2",
+	"/fonts/roboto-regular.woff2": "fonts/Roboto-Regular.woff2",
+	"/fonts/roboto-bold.woff2":    "fonts/Roboto-Bold.woff2",
+	"/fonts/roboto-italic.woff2":  "fonts/Roboto-Italic.woff2",
+}
 
 var (
 	capURL        string // https://cap.example/<site-key>
@@ -56,6 +66,9 @@ var (
 	shortClient   = &http.Client{Timeout: 15 * time.Second}
 	amsterdam, _  = time.LoadLocation("Europe/Amsterdam")
 	errValidation = errors.New("validation")
+	// Nextcloud is unreachable: a connection error or the proxy's 502/503/504. bobadela1 is
+	// switched off every night from 23:00 to 09:00; the clock itself is never consulted.
+	errStorageDown = errors.New("storage unreachable")
 )
 
 func mustEnv(name string) string {
@@ -117,7 +130,10 @@ func routes() *http.ServeMux {
 	mux.HandleFunc("/upload", handleUpload)
 	mux.HandleFunc("/logo.png", staticHandler("image/png", logoPNG))
 	mux.HandleFunc("/hero.webp", staticHandler("image/webp", heroWebP))
-	mux.HandleFunc("/fonts/blenda-script.woff2", staticHandler("font/woff2", blendaWOFF2))
+	for route, file := range embeddedFonts {
+		data, _ := fontFiles.ReadFile(file) // embedded at build time, cannot fail
+		mux.HandleFunc(route, staticHandler("font/woff2", data))
+	}
 	mux.HandleFunc("/fonts/letter-gothic.woff2", handleLetterGothic)
 	return mux
 }
@@ -293,7 +309,12 @@ func fail(w http.ResponseWriter, u *upload, err error) {
 				fmt.Sprintf("⚠️ Upload van %s <%s> afgebroken na %d bestand(en) in %s: %v",
 					u.fields["naam"], u.fields["email"], len(u.files), folder, err), u.fields["email"])
 		}
-		writeJSON(w, http.StatusBadGateway, false, "Er ging iets mis bij het opslaan. Probeer het later opnieuw.")
+		status, msg := http.StatusBadGateway, "Er ging iets mis bij het opslaan. Probeer het later opnieuw."
+		if errors.Is(err, errStorageDown) {
+			status, msg = http.StatusServiceUnavailable, "De opslag is nu niet bereikbaar. "+
+				"Die staat elke nacht van 23:00 tot 09:00 uit; probeer het daarna opnieuw."
+		}
+		writeJSON(w, status, false, msg+" Gebeurt dit opnieuw? Neem dan contact op via "+contact+".")
 	}
 }
 
@@ -371,10 +392,18 @@ func mkcol(r *http.Request, elems ...string) (int, error) {
 	}
 	resp, err := shortClient.Do(req)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("%w: MKCOL: %v", errStorageDown, err)
 	}
 	resp.Body.Close()
+	if storageDown(resp.StatusCode) {
+		return resp.StatusCode, fmt.Errorf("%w: MKCOL: HTTP %d", errStorageDown, resp.StatusCode)
+	}
 	return resp.StatusCode, nil
+}
+
+func storageDown(status int) bool {
+	return status == http.StatusBadGateway || status == http.StatusServiceUnavailable ||
+		status == http.StatusGatewayTimeout
 }
 
 // uniqueName returns name, or "name (2).ext", "name (3).ext", ... when it is
@@ -419,9 +448,12 @@ func (u *upload) put(r *http.Request, name string, body io.Reader) error {
 	// a guest name into a folder named after that guest, breaking the layout.
 	resp, err := davClient.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("%w: PUT %s: %v", errStorageDown, name, err)
 	}
 	resp.Body.Close()
+	if storageDown(resp.StatusCode) {
+		return fmt.Errorf("%w: PUT %s: HTTP %d", errStorageDown, name, resp.StatusCode)
+	}
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("PUT %s: HTTP %d", name, resp.StatusCode)
 	}

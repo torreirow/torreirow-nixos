@@ -25,11 +25,12 @@ type fakeBackend struct {
 	dirs     map[string]bool   // existing folders (MKCOL answers 405)
 	files    map[string]string // PUT path -> body
 	messages []string          // Signal messages
+	failing  map[string]int    // method -> status the share answers with instead
 }
 
 func newFakeBackend(t *testing.T) *httptest.Server {
 	t.Helper()
-	fb := &fakeBackend{dirs: map[string]bool{}, files: map[string]string{}}
+	fb := &fakeBackend{dirs: map[string]bool{}, files: map[string]string{}, failing: map[string]int{}}
 	backend = fb
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fb.mu.Lock()
@@ -45,6 +46,8 @@ func newFakeBackend(t *testing.T) *httptest.Server {
 			json.NewDecoder(r.Body).Decode(&d)
 			fb.messages = append(fb.messages, d["message"].(string))
 			w.WriteHeader(http.StatusCreated)
+		case fb.failing[r.Method] != 0:
+			w.WriteHeader(fb.failing[r.Method])
 		case r.Method == "MKCOL":
 			if fb.dirs[p] {
 				w.WriteHeader(http.StatusMethodNotAllowed)
@@ -448,9 +451,12 @@ func get(t *testing.T, path string) *httptest.ResponseRecorder {
 
 func TestStaticAssets(t *testing.T) {
 	for path, contentType := range map[string]string{
-		"/logo.png":                  "image/png",
-		"/hero.webp":                 "image/webp",
-		"/fonts/blenda-script.woff2": "font/woff2",
+		"/logo.png":                   "image/png",
+		"/hero.webp":                  "image/webp",
+		"/fonts/blenda-script.woff2":  "font/woff2",
+		"/fonts/roboto-regular.woff2": "font/woff2",
+		"/fonts/roboto-bold.woff2":    "font/woff2",
+		"/fonts/roboto-italic.woff2":  "font/woff2",
 	} {
 		rec := get(t, path)
 		if rec.Code != http.StatusOK || rec.Header().Get("Content-Type") != contentType || rec.Body.Len() == 0 {
@@ -503,5 +509,29 @@ func TestNoExternalAssets(t *testing.T) {
 		default:
 			t.Errorf("external or unexpected reference %q", ref)
 		}
+	}
+}
+
+func TestStorageErrors(t *testing.T) {
+	for _, c := range []struct {
+		method, want string
+		status, code int
+	}{
+		{"MKCOL", "23:00", http.StatusServiceUnavailable, http.StatusServiceUnavailable}, // night: proxy answers 503
+		{"PUT", "23:00", http.StatusBadGateway, http.StatusServiceUnavailable},           // gone during the upload
+		{"PUT", "iets mis", http.StatusInternalServerError, http.StatusBadGateway},       // any other failure
+	} {
+		newFakeBackend(t)
+		backend.failing[c.method] = c.status
+		code, msg := submit(t, with(field{"files", "x", "foto.jpg"})...)
+		if code != c.code || !strings.Contains(msg, c.want) || !strings.HasSuffix(msg, "contact op via contact@example.org.") {
+			t.Errorf("%s answering %d: status %d: %s", c.method, c.status, code, msg)
+		}
+	}
+
+	newFakeBackend(t)
+	davBase = "http://127.0.0.1:1/dav" // connection refused, while the robot check still works
+	if code, msg := submit(t, with(field{"files", "x", "foto.jpg"})...); code != http.StatusServiceUnavailable || !strings.Contains(msg, "09:00") {
+		t.Errorf("unreachable: status %d: %s", code, msg)
 	}
 }

@@ -16,9 +16,15 @@
     --sunset: linear-gradient(180deg, #1C0850 0%, #2F1D5C 22%, #452B70 40%, #91536F 58%,
                               #D47462 72%, #FF9135 84%, #FCE5BF 94%, #FFFDE3 100%);
   }
-  /* Beide lettertypes komen van deze dienst zelf. Letter Gothic staat niet in de (publieke) repo
+  /* Alle lettertypes komen van deze dienst zelf. Letter Gothic staat niet in de (publieke) repo
      maar alleen op de server; ontbreekt het, dan geeft /fonts/letter-gothic.woff2 een 404 en
      valt de browser terug op de rest van --kop. */
+  @font-face { font-family: "Roboto"; src: url(/fonts/roboto-regular.woff2) format("woff2");
+               font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Roboto"; src: url(/fonts/roboto-bold.woff2) format("woff2");
+               font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Roboto"; src: url(/fonts/roboto-italic.woff2) format("woff2");
+               font-weight: 400; font-style: italic; font-display: swap; }
   @font-face { font-family: "Blenda Script"; src: url(/fonts/blenda-script.woff2) format("woff2");
                font-display: swap; }
   @font-face { font-family: "Letter Gothic Std"; src: url(/fonts/letter-gothic.woff2) format("woff2");
@@ -100,6 +106,7 @@
   dialog#msg.err .icon { background: var(--err); }
   dialog#msg h2 { margin: 0 1.5rem .5rem; font-family: inherit; color: var(--indigo); }
   dialog#msg p { margin: 0 1.5rem; }
+  dialog#msg .mail { font-size: .85em; white-space: nowrap; color: var(--violet); }
   dialog#msg button { width: calc(100% - 3rem); margin: 1.25rem 1.5rem 1.5rem; }
 </style>
 </head>
@@ -210,7 +217,17 @@
     dialog.className = ok ? "ok" : "err";
     dialog.querySelector(".icon").textContent = ok ? "✓" : "!";
     document.getElementById("msg-title").textContent = ok ? "Bedankt!" : "Dat lukte niet";
-    document.getElementById("msg-text").textContent = ok ? text.replace(/^Bedankt! /, "") : text;
+    // Keep the last two words together, so a centered message never ends with one word alone.
+    const msgText = document.getElementById("msg-text");
+    msgText.textContent = (ok ? text.replace(/^Bedankt! /, "") : text).replace(/ (\S+)$/, "\u00a0$1");
+    // A failure that names the contact address gets a small mail link behind it.
+    if (!ok && text.includes("{{CONTACT}}")) {
+      const mail = document.createElement("a");
+      mail.className = "mail";
+      mail.href = "mailto:{{CONTACT}}?subject=" + encodeURIComponent("Insturen lukt niet");
+      mail.textContent = "klik hier";
+      msgText.append(" ", mail);
+    }
     document.getElementById("msg-close").textContent = ok ? "Sluiten" : "Terug naar het formulier";
     dialog.showModal();
   }

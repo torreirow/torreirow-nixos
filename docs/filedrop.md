@@ -51,7 +51,7 @@ Alles komt van de dienst zelf; de enige externe bron van de pagina is de robotco
 | Achtergrond hero                      | `hero.webp` ("Dusk To Dawn 1b", 1600×900) in de binary | `/hero.webp`            |
 | "upload" (titel)                      | Blenda Script, `fonts/BlendaScript.woff2` in de binary | `/fonts/blenda-script.woff2` |
 | Kerknaam, "Media", sectiekoppen       | Letter Gothic Std, **alleen op malandro**         | `/fonts/letter-gothic.woff2` |
-| Uitleg, labels, velden, meldingen     | Roboto-stack (systeemfont)                        | -                            |
+| Uitleg, labels, velden, meldingen     | Roboto (OFL, Latijnse subset, Regular/Bold/Italic) in de binary | `/fonts/roboto-*.woff2` |
 
 - **Waarom Letter Gothic niet in de repo staat:** het is een Adobe-font. EGH heeft er een licentie
   voor, maar de repo is publiek en dan zou het bestand vrij te downloaden zijn. Ook niet via
@@ -60,6 +60,8 @@ Alles komt van de dienst zelf; de enige externe bron van de pagina is de robotco
 - **Ontbreekt het bestand**, dan geeft de route een 404 en toont de browser die teksten in de
   Roboto-stack; de pagina werkt verder gewoon. Een later neergezet bestand werkt zonder herstart
   (het wordt per verzoek gelezen).
+- Roboto komt uit `nixpkgs#roboto` (3.016), teruggebracht tot Latijn met `pyftsubset … --flavor=woff2`
+  (samen ~64 KB); licentie in `fonts/Roboto-LICENSE.txt`. Gewicht 600 valt op Bold.
 - Blenda Script (Seniors Studio, dafont) is "Free for Personal and Commercial use", zie
   `fonts/BlendaScript-LICENSE.txt`. Het font is van zichzelf vet; daarom geen `font-weight: 700`.
 - De bronbeelden van de hele "Dusk To Dawn"-reeks (12 stuks, 3840×2160) staan in de Dropbox-map
@@ -180,6 +182,23 @@ echte file drop is (geen leesrechten):
 curl -s https://nxc.toorren.net/s/<token> | grep -o 'files_sharing-view" value="[^"]*' \
   | sed 's/.*value="//' | base64 -d   # moet "public-file-drop" geven
 ```
+
+## Als opslaan mislukt
+
+bobadela1, en daarmee Nextcloud, staat elke nacht van 23:00 tot 09:00 uit. De proxy op
+`nxc.toorren.net` antwoordt dan binnen ongeveer 3 s met 503 (zie `modules/nextcloud-proxy.nix`),
+dus er treedt geen time-out op.
+
+| Antwoord van de opslag                    | HTTP aan inzender | Melding                                                                 |
+|-------------------------------------------|-------------------|-------------------------------------------------------------------------|
+| verbindingsfout of 502/503/504 (MKCOL/PUT) | 503               | "De opslag is nu niet bereikbaar. Die staat elke nacht van 23:00 tot 09:00 uit; probeer het daarna opnieuw." |
+| een andere fout                           | 502               | "Er ging iets mis bij het opslaan. Probeer het later opnieuw."          |
+
+Beide meldingen eindigen met "Gebeurt dit opnieuw? Neem dan contact op via
+eghmedia@evangelischegemeente.org." In de dialoog staat daarachter een kleine "klik hier"-mailto-link
+(onderwerp "Insturen lukt niet"). De dienst kijkt naar het antwoord van de opslag en niet naar
+de klok. Een storing overdag krijgt daardoor dezelfde melding, en een verschoven nachtpauze vraagt
+geen aanpassing. Een mislukte poging telt wel mee voor het quotum.
 
 ## Logs
 
