@@ -46,23 +46,24 @@ geleverd worden, zonder handmatige stap op de server.
 - **THEN** staat de grote titel in Blenda Script
 
 ### Requirement: Gelicentieerd lettertype is optioneel
-De kerknaam, het woord "Media" en de sectiekoppen SHALL in Letter Gothic Std staan als het
-fontbestand op de server aanwezig is. Ontbreekt het, dan MUST de pagina dezelfde tekst in het
-gewone lettertype tonen en volledig werken. Het fontbestand MUST NOT in de publieke repository
+Alle tekst behalve de titel SHALL in Letter Gothic Std staan als het fontbestand op de server
+aanwezig is, zoals in de EGH-presentaties. Ontbreekt het, dan MUST de pagina dezelfde tekst in
+Roboto tonen en volledig werken. Het fontbestand MUST NOT in de publieke repository
 staan.
 
 #### Scenario: Fontbestand aanwezig
 - **WHEN** het Letter Gothic-bestand op de server staat en iemand de pagina opent
-- **THEN** staan kerknaam, "Media" en sectiekoppen in Letter Gothic Std
+- **THEN** staan kerknaam, koppen, uitleg, labels, velden en meldingen in Letter Gothic Std
 
 #### Scenario: Fontbestand ontbreekt
 - **WHEN** het Letter Gothic-bestand niet op de server staat
-- **THEN** antwoordt de dienst op het fontverzoek met "niet gevonden", toont de pagina die teksten in het gewone lettertype en kan iemand gewoon insturen
+- **THEN** antwoordt de dienst op het fontverzoek met "niet gevonden", toont de pagina die teksten in Roboto en kan iemand gewoon insturen
 
-### Requirement: Lopende tekst blijft goed leesbaar
-Uitleg, labels, invoervelden en meldingen SHALL in het gewone sans-serif-lettertype blijven. Het
-script-lettertype en het typemachine-lettertype MUST NOT voor deze teksten gebruikt worden.
+### Requirement: Terugvallettertype komt van de dienst
+Het terugvallettertype Roboto SHALL door de dienst zelf geleverd worden, zodat de pagina ook op
+apparaten zonder Roboto (iPhone, Mac, Windows) niet in het standaardlettertype van de browser
+staat. Het script-lettertype MUST NOT voor andere tekst dan de titel gebruikt worden.
 
-#### Scenario: Formuliervelden
-- **WHEN** iemand de pagina opent
-- **THEN** staan labels, velden en uitleg in het sans-serif-lettertype
+#### Scenario: Apparaat zonder Roboto en zonder Letter Gothic op de server
+- **WHEN** het Letter Gothic-bestand ontbreekt en het apparaat heeft geen Roboto
+- **THEN** staat de tekst in Roboto, geleverd door eghupload.toorren.net

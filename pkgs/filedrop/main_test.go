@@ -467,15 +467,20 @@ func TestStaticAssets(t *testing.T) {
 
 func TestLetterGothicOptional(t *testing.T) {
 	fontDir = t.TempDir()
-	if rec := get(t, "/fonts/letter-gothic.woff2"); rec.Code != http.StatusNotFound {
-		t.Fatalf("without the font: status %d, want 404", rec.Code)
-	}
-	if err := os.WriteFile(fontDir+"/LetterGothicStd.woff2", []byte("wOF2"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	rec := get(t, "/fonts/letter-gothic.woff2")
-	if rec.Code != http.StatusOK || rec.Header().Get("Content-Type") != "font/woff2" || rec.Body.String() != "wOF2" {
-		t.Errorf("after placing the font: status %d, type %q", rec.Code, rec.Header().Get("Content-Type"))
+	for route, file := range map[string]string{
+		"/fonts/letter-gothic.woff2":              "LetterGothicStd.woff2",
+		"/fonts/letter-gothic-bold-slanted.woff2": "LetterGothicStd-BoldSlanted.woff2",
+	} {
+		if rec := get(t, route); rec.Code != http.StatusNotFound {
+			t.Fatalf("%s without the font: status %d, want 404", route, rec.Code)
+		}
+		if err := os.WriteFile(fontDir+"/"+file, []byte("wOF2"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		rec := get(t, route)
+		if rec.Code != http.StatusOK || rec.Header().Get("Content-Type") != "font/woff2" || rec.Body.String() != "wOF2" {
+			t.Errorf("%s after placing the font: status %d, type %q", route, rec.Code, rec.Header().Get("Content-Type"))
+		}
 	}
 }
 

@@ -134,20 +134,23 @@ func routes() *http.ServeMux {
 		data, _ := fontFiles.ReadFile(file) // embedded at build time, cannot fail
 		mux.HandleFunc(route, staticHandler("font/woff2", data))
 	}
-	mux.HandleFunc("/fonts/letter-gothic.woff2", handleLetterGothic)
+	mux.HandleFunc("/fonts/letter-gothic.woff2", serverFont("LetterGothicStd.woff2"))
+	mux.HandleFunc("/fonts/letter-gothic-bold-slanted.woff2", serverFont("LetterGothicStd-BoldSlanted.woff2"))
 	return mux
 }
 
-// handleLetterGothic serves the licensed Letter Gothic font from the server's disk, read on every
+// serverFont serves a licensed Letter Gothic font file from the server's disk, read on every
 // request so a file placed later works without a restart. Without the file the browser gets a 404
-// and falls back to a sans-serif.
-func handleLetterGothic(w http.ResponseWriter, r *http.Request) {
-	data, err := os.ReadFile(filepath.Join(fontDir, "LetterGothicStd.woff2"))
-	if err != nil {
-		http.NotFound(w, r)
-		return
+// and falls back to Roboto (or, for the bold slanted face, a synthesized one).
+func serverFont(file string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data, err := os.ReadFile(filepath.Join(fontDir, file))
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		staticHandler("font/woff2", data)(w, r)
 	}
-	staticHandler("font/woff2", data)(w, r)
 }
 
 // staticHandler serves an embedded asset that browsers may cache for a day.

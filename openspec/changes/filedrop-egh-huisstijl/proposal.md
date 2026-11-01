@@ -14,14 +14,14 @@ een korter adres: `eghmedia@evangelischegemeente.org`.
   geldt voor de pagina, de foutmelding van de server en de documentatie.
 - De grote titel "upload" in de hero krijgt het script-lettertype Blenda Script. Dat lettertype is
   vrij te gebruiken, ook commercieel, en zit in de binary.
-- De kerknaam, het woord "Media" en de sectiekoppen krijgen Letter Gothic Std (Adobe). EGH heeft
+- Alle tekst behalve de titel krijgt Letter Gothic Std (Adobe), zoals in de EGH-presentaties. EGH heeft
   daar een licentie voor, maar de repo is publiek. Daarom staat het fontbestand niet in de repo
   maar alleen op malandro, in de state-map van de dienst. Ontbreekt het bestand, dan toont de
-  pagina dezelfde tekst in het gewone sans-serif-lettertype, zonder fout.
+  pagina dezelfde tekst in Roboto, zonder fout.
 - De hero krijgt de achtergrondfoto "Dusk To Dawn 1b" uit de EGH-huisstijl, verkleind tot een
   WebP-bestand in de binary. Het bestaande CSS-verloop blijft als terugval. Het formulier blijft
   wit.
-- De lopende tekst en de invoervelden houden het huidige sans-serif-lettertype.
+- Roboto wordt meegeleverd als terugval, voor als Letter Gothic op de server ontbreekt.
 - De pagina doet ook na deze wijziging geen verzoeken naar andere servers dan de eigen dienst en
   de Cap-widget, net als nu bij het logo.
 - Het CSS-commentaar verwijst niet meer naar het niet-bestaande `~/.claude/docs/egh-stijl.md`.

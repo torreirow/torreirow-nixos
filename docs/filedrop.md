@@ -50,15 +50,15 @@ Alles komt van de dienst zelf; de enige externe bron van de pagina is de robotco
 |---------------------------------------|---------------------------------------------------|------------------------------|
 | Achtergrond hero                      | `hero.webp` ("Dusk To Dawn 1b", 1600×900) in de binary | `/hero.webp`            |
 | "upload" (titel)                      | Blenda Script, `fonts/BlendaScript.woff2` in de binary | `/fonts/blenda-script.woff2` |
-| Kerknaam, "Media", sectiekoppen       | Letter Gothic Std, **alleen op malandro**         | `/fonts/letter-gothic.woff2` |
-| Uitleg, labels, velden, meldingen     | Roboto (OFL, Latijnse subset, Regular/Bold/Italic) in de binary | `/fonts/roboto-*.woff2` |
+| Alle andere tekst (zoals in de EGH-presentaties) | Letter Gothic Std, **alleen op malandro** | `/fonts/letter-gothic.woff2` |
+| Terugval, en het cijfer in het sectierondje | Roboto (OFL, Latijnse subset, Regular/Bold/Italic) in de binary | `/fonts/roboto-*.woff2` |
 
 - **Waarom Letter Gothic niet in de repo staat:** het is een Adobe-font. EGH heeft er een licentie
   voor, maar de repo is publiek en dan zou het bestand vrij te downloaden zijn. Ook niet via
   agenix: het is geen geheim en zou versleuteld alsnog in de publieke repo staan.
   `TestNoLicensedFontInRepo` faalt als er een `*LetterGothic*`-bestand in `pkgs/filedrop/` staat.
-- **Ontbreekt het bestand**, dan geeft de route een 404 en toont de browser die teksten in de
-  Roboto-stack; de pagina werkt verder gewoon. Een later neergezet bestand werkt zonder herstart
+- **Ontbreekt het bestand**, dan geeft de route een 404 en toont de browser alle tekst in
+  Roboto; de pagina werkt verder gewoon. Een later neergezet bestand werkt zonder herstart
   (het wordt per verzoek gelezen).
 - Roboto komt uit `nixpkgs#roboto` (3.016), teruggebracht tot Latijn met `pyftsubset … --flavor=woff2`
   (samen ~64 KB); licentie in `fonts/Roboto-LICENSE.txt`. Gewicht 600 valt op Bold.
@@ -72,9 +72,15 @@ Letter Gothic op malandro neerzetten (eenmalig, en opnieuw na een herinstallatie
 `.otf`, zet die dan eerst om met `nix shell nixpkgs#woff2 -c woff2_compress LetterGothicStd.otf`:
 
 ```bash
-sudo install -Dm644 LetterGothicStd.woff2 /var/lib/private/filedrop/fonts/LetterGothicStd.woff2
-curl -sI https://eghupload.toorren.net/fonts/letter-gothic.woff2 | head -1   # 200
+for f in LetterGothicStd LetterGothicStd-BoldSlanted; do
+  sudo install -Dm644 $f.woff2 /var/lib/private/filedrop/fonts/$f.woff2
+done
+curl -sI https://eghupload.toorren.net/fonts/letter-gothic.woff2 | head -1               # 200
+curl -sI https://eghupload.toorren.net/fonts/letter-gothic-bold-slanted.woff2 | head -1  # 200
 ```
+
+`LetterGothicStd-BoldSlanted` is voor de vette, schuine sectiekoppen. Ontbreekt dat bestand, dan
+maakt de browser het vet en schuin zelf na uit de gewone variant; dat is nauwelijks zichtbaar.
 
 De map is de standaardwaarde van `FONT_DIR` (`$STATE_DIRECTORY/fonts`; door `DynamicUser` ligt
 de state-map in `/var/lib/private/`).

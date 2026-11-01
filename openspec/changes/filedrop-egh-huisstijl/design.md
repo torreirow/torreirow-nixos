@@ -63,11 +63,13 @@ spatiëring) blijft staan, zodat de fallback er net zo uitziet als nu.
 ### Waar welk lettertype
 | Element                        | Lettertype                 |
 |--------------------------------|----------------------------|
-| `h1` (kerknaam)                | Letter Gothic Std → sans   |
-| `.subtitle .small` ("Media")   | Letter Gothic Std → sans   |
-| `h2` (sectiekoppen)            | Letter Gothic Std → sans   |
 | `.subtitle .big` ("upload")    | Blenda Script → cursive    |
-| de rest                        | Roboto-stack (ongewijzigd) |
+| cijfer in het sectierondje     | Roboto vet                 |
+| alle andere tekst              | Letter Gothic Std → Roboto |
+
+Bijgesteld na het bekijken van "EGH - Preek.pptx": de EGH-presentaties zetten ook lange
+lopende tekst in Letter Gothic, en de gebruiker koos ervoor om dat ook voor labels en velden
+te doen. Roboto wordt meegeleverd (OFL, Latijnse subset) als terugval.
 
 Blenda Script heeft geen bold of italic. Daarom vervallen `font-weight: 700` en
 `font-style: italic` op `.big`, zodat de browser geen nep-vet of nep-cursief maakt.
