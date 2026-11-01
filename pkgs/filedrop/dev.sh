@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Run the upload page locally: http://127.0.0.1:18111
+# Run the upload page locally: http://127.0.0.1:18111 (another port: FILEDROP_DEV_PORT=18121 ./dev.sh)
 #
 # Submissions land in ./dev-share/, Signal messages are printed here and the
 # robot check always passes (the widget still uses cap.toorren.net). index.html
 # is re-read on every page load: edit it and press F5. Restart after Go changes.
+# Put your own licensed LetterGothicStd.woff2 in ./dev-fonts/ (git-ignored) to see
+# the headings as on the server; without it you see the sans-serif fallback.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -12,9 +14,10 @@ stub=$!
 trap 'kill $stub 2>/dev/null' EXIT
 
 state=$(mktemp -d)
-echo "Pagina: http://127.0.0.1:18111   inzendingen: $PWD/dev-share   stoppen: Ctrl-C"
+port=${FILEDROP_DEV_PORT:-18111}
+echo "Pagina: http://127.0.0.1:$port   inzendingen: $PWD/dev-share   stoppen: Ctrl-C"
 
-env FILEDROP_PORT=18111 \
+env FILEDROP_PORT="$port" \
   FILEDROP_DEV_HTML="$PWD/index.html" \
   CAP_URL=http://127.0.0.1:18110/cap \
   CAP_WIDGET_URL=https://cap.toorren.net/92c7e198d7 \
@@ -23,9 +26,10 @@ env FILEDROP_PORT=18111 \
   NEXTCLOUD_SHARE_TOKEN=dev \
   SIGNAL_API=http://127.0.0.1:18110/signal \
   SIGNAL_SENDER=dev SIGNAL_RECIPIENT=dev \
-  LARGE_FILE_CONTACT=taakgroepbeeldengeluid@evangelischegemeente.org \
+  LARGE_FILE_CONTACT=eghmedia@evangelischegemeente.org \
   MAX_BYTES=$((25 * 1024 * 1024)) \
   LIMIT_PER_IP_HOUR=100 LIMIT_PER_IP_DAY=100 LIMIT_TOTAL_DAY=100 \
   LIMIT_BYTES_DAY=$((1024 * 1024 * 1024)) \
   STATE_DIRECTORY="$state" \
+  FONT_DIR="$PWD/dev-fonts" \
   go run .

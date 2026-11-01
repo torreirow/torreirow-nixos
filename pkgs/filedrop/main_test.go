@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"io/fs"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -23,11 +25,12 @@ type fakeBackend struct {
 	dirs     map[string]bool   // existing folders (MKCOL answers 405)
 	files    map[string]string // PUT path -> body
 	messages []string          // Signal messages
+	failing  map[string]int    // method -> status the share answers with instead
 }
 
 func newFakeBackend(t *testing.T) *httptest.Server {
 	t.Helper()
-	fb := &fakeBackend{dirs: map[string]bool{}, files: map[string]string{}}
+	fb := &fakeBackend{dirs: map[string]bool{}, files: map[string]string{}, failing: map[string]int{}}
 	backend = fb
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fb.mu.Lock()
@@ -43,6 +46,8 @@ func newFakeBackend(t *testing.T) *httptest.Server {
 			json.NewDecoder(r.Body).Decode(&d)
 			fb.messages = append(fb.messages, d["message"].(string))
 			w.WriteHeader(http.StatusCreated)
+		case fb.failing[r.Method] != 0:
+			w.WriteHeader(fb.failing[r.Method])
 		case r.Method == "MKCOL":
 			if fb.dirs[p] {
 				w.WriteHeader(http.StatusMethodNotAllowed)
@@ -433,5 +438,105 @@ func TestMessageFile(t *testing.T) {
 	code, msg = submit(t, with(field{"bericht", "alleen tekst", ""})...)
 	if code != http.StatusBadRequest || msg != "Kies minstens één bestand of vul een link in." {
 		t.Errorf("message only: status %d: %s", code, msg)
+	}
+}
+
+// get requests path from the real routes.
+func get(t *testing.T, path string) *httptest.ResponseRecorder {
+	t.Helper()
+	rec := httptest.NewRecorder()
+	routes().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+	return rec
+}
+
+func TestStaticAssets(t *testing.T) {
+	for path, contentType := range map[string]string{
+		"/logo.png":                   "image/png",
+		"/hero.webp":                  "image/webp",
+		"/fonts/blenda-script.woff2":  "font/woff2",
+		"/fonts/roboto-regular.woff2": "font/woff2",
+		"/fonts/roboto-bold.woff2":    "font/woff2",
+		"/fonts/roboto-italic.woff2":  "font/woff2",
+	} {
+		rec := get(t, path)
+		if rec.Code != http.StatusOK || rec.Header().Get("Content-Type") != contentType || rec.Body.Len() == 0 {
+			t.Errorf("%s: status %d, type %q, %d bytes", path, rec.Code, rec.Header().Get("Content-Type"), rec.Body.Len())
+		}
+	}
+}
+
+func TestLetterGothicOptional(t *testing.T) {
+	fontDir = t.TempDir()
+	for route, file := range map[string]string{
+		"/fonts/letter-gothic.woff2":              "LetterGothicStd.woff2",
+		"/fonts/letter-gothic-bold-slanted.woff2": "LetterGothicStd-BoldSlanted.woff2",
+	} {
+		if rec := get(t, route); rec.Code != http.StatusNotFound {
+			t.Fatalf("%s without the font: status %d, want 404", route, rec.Code)
+		}
+		if err := os.WriteFile(fontDir+"/"+file, []byte("wOF2"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		rec := get(t, route)
+		if rec.Code != http.StatusOK || rec.Header().Get("Content-Type") != "font/woff2" || rec.Body.String() != "wOF2" {
+			t.Errorf("%s after placing the font: status %d, type %q", route, rec.Code, rec.Header().Get("Content-Type"))
+		}
+	}
+}
+
+// The Adobe Letter Gothic font is licensed for this site, not for redistribution: it lives on the
+// server only (FONT_DIR), never in this public repository.
+func TestNoLicensedFontInRepo(t *testing.T) {
+	filepath.WalkDir(".", func(p string, d fs.DirEntry, err error) error {
+		if d.IsDir() && (p == "dev-fonts" || p == "dev-share") {
+			return filepath.SkipDir
+		}
+		if strings.Contains(strings.ToLower(d.Name()), "lettergothic") {
+			t.Errorf("%s must not be in the repository", p)
+		}
+		return nil
+	})
+}
+
+// Fonts, images and styles come from this service; only the robot check (Cap) is external.
+func TestNoExternalAssets(t *testing.T) {
+	refs := regexp.MustCompile(`(?:src|href)="([^"]*)"|url\(\s*['"]?([^'")]*)`).FindAllStringSubmatch(indexHTML, -1)
+	if len(refs) == 0 {
+		t.Fatal("no references found")
+	}
+	for _, m := range refs {
+		ref := m[1] + m[2]
+		switch {
+		case strings.HasPrefix(ref, "/") && !strings.HasPrefix(ref, "//"),
+			strings.HasPrefix(ref, "mailto:"),
+			ref == "{{CAP_ENDPOINT}}",
+			strings.HasPrefix(ref, "https://cdn.jsdelivr.net/npm/@cap.js/widget@"):
+		default:
+			t.Errorf("external or unexpected reference %q", ref)
+		}
+	}
+}
+
+func TestStorageErrors(t *testing.T) {
+	for _, c := range []struct {
+		method, want string
+		status, code int
+	}{
+		{"MKCOL", "23:00", http.StatusServiceUnavailable, http.StatusServiceUnavailable}, // night: proxy answers 503
+		{"PUT", "23:00", http.StatusBadGateway, http.StatusServiceUnavailable},           // gone during the upload
+		{"PUT", "iets mis", http.StatusInternalServerError, http.StatusBadGateway},       // any other failure
+	} {
+		newFakeBackend(t)
+		backend.failing[c.method] = c.status
+		code, msg := submit(t, with(field{"files", "x", "foto.jpg"})...)
+		if code != c.code || !strings.Contains(msg, c.want) || !strings.HasSuffix(msg, "contact op via contact@example.org.") {
+			t.Errorf("%s answering %d: status %d: %s", c.method, c.status, code, msg)
+		}
+	}
+
+	newFakeBackend(t)
+	davBase = "http://127.0.0.1:1/dav" // connection refused, while the robot check still works
+	if code, msg := submit(t, with(field{"files", "x", "foto.jpg"})...); code != http.StatusServiceUnavailable || !strings.Contains(msg, "09:00") {
+		t.Errorf("unreachable: status %d: %s", code, msg)
 	}
 }

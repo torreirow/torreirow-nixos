@@ -51,6 +51,7 @@ programs.firefox = {
 };
 
 environment.systemPackages = with pkgs; [
+    m32edit
     audacity
     calf
     airwindows-lv2

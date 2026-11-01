@@ -49,7 +49,7 @@ Het systeem SHALL een inzending weigeren die geen bestand en geen geldige link b
 
 ### Requirement: Maximale grootte per inzending
 Het systeem SHALL een inzending groter dan 25 MB weigeren met een melding die het contactadres
-taakgroepbeeldengeluid@evangelischegemeente.org noemt. Het formulier MUST deze grens en het
+eghmedia@evangelischegemeente.org noemt. Het formulier MUST deze grens en het
 contactadres ook vooraf tonen.
 
 #### Scenario: Te groot
@@ -200,3 +200,92 @@ pagina, in antwoorden of in de publieke repository.
 #### Scenario: Pagina en antwoorden
 - **WHEN** iemand de pagina opent of een inzending doet
 - **THEN** bevat geen enkel antwoord het share-token
+
+### Requirement: Melding als de opslag onbereikbaar is
+Als de opslag niet bereikbaar is, SHALL het systeem de inzending weigeren met HTTP 503. De melding
+noemt de vaste nachtpauze van 23:00 tot 09:00 en zegt dat de inzender het daarna opnieuw kan
+proberen. Of de opslag onbereikbaar is, MUST het systeem afleiden uit het antwoord van de opslag
+(een verbindingsfout of HTTP 502, 503 of 504). Het tijdstip mag daarvoor niet gebruikt worden.
+
+#### Scenario: Insturen tijdens de nachtpauze
+- **WHEN** iemand iets instuurt en de opslag antwoordt met HTTP 503
+- **THEN** krijgt de inzender HTTP 503 met een melding die 23:00 en 09:00 noemt
+
+#### Scenario: Opslag valt weg tijdens het insturen
+- **WHEN** de opslag tijdens het versturen van een bestand onbereikbaar wordt
+- **THEN** krijgt de inzender dezelfde melding over de onbereikbare opslag
+
+#### Scenario: Overdag onbereikbaar
+- **WHEN** de opslag overdag onbereikbaar is
+- **THEN** krijgt de inzender dezelfde melding, omdat de klok niet meetelt
+
+### Requirement: Contactadres bij een opslagfout
+Elke melding over een mislukte opslag SHALL eindigen met de zin dat de inzender contact kan opnemen
+via het contactadres als het opnieuw gebeurt. Dat geldt zowel voor een onbereikbare opslag als
+voor een andere opslagfout. Op de pagina MUST daarachter een kleinere link "klik hier" staan, die
+een mail aan het contactadres opent.
+
+#### Scenario: Andere opslagfout
+- **WHEN** de opslag een onverwachte fout geeft, zoals HTTP 500
+- **THEN** noemt de melding dat het opslaan mislukte en het contactadres
+
+#### Scenario: Onbereikbare opslag
+- **WHEN** de opslag onbereikbaar is
+- **THEN** noemt de melding ook het contactadres
+
+#### Scenario: Maillink in de melding
+- **WHEN** de pagina een foutmelding toont waarin het contactadres staat
+- **THEN** staat daarachter in kleinere letters "klik hier", als link die een mail aan het contactadres opent
+
+### Requirement: Huisstijl-middelen komen van de eigen dienst
+De pagina SHALL haar lettertypes, achtergrond en logo alleen van de eigen dienst laden. Ze MUST
+geen verzoek doen naar een font-dienst, CDN of de kerk-website. De enige externe bron blijft de
+robotcontrole.
+
+#### Scenario: Geen externe huisstijlbronnen
+- **WHEN** iemand de pagina opent
+- **THEN** komen alle lettertype-, afbeelding- en stijlverzoeken van eghupload.toorren.net
+
+### Requirement: Hero toont de EGH-achtergrond
+De kop van de pagina, met logo, kerknaam en titel, SHALL de EGH-achtergrond "Dusk To Dawn 1b"
+tonen. Het formulier daaronder MUST een witte achtergrond houden. Als de afbeelding niet laadt,
+MUST de kop het kleurverloop in dezelfde tinten tonen.
+
+#### Scenario: Achtergrond geladen
+- **WHEN** iemand de pagina opent
+- **THEN** staat de afbeelding achter de kop en is het formulier wit
+
+#### Scenario: Afbeelding laadt niet
+- **WHEN** de afbeelding niet geladen kan worden
+- **THEN** toont de kop het kleurverloop en blijven logo en titel leesbaar
+
+### Requirement: Script-lettertype voor de titel
+De grote titel in de kop SHALL in Blenda Script staan. Dit lettertype MUST altijd door de dienst
+geleverd worden, zonder handmatige stap op de server.
+
+#### Scenario: Titel in script
+- **WHEN** iemand de pagina opent
+- **THEN** staat de grote titel in Blenda Script
+
+### Requirement: Gelicentieerd lettertype is optioneel
+Alle tekst behalve de titel SHALL in Letter Gothic Std staan als het fontbestand op de server
+aanwezig is, zoals in de EGH-presentaties. Ontbreekt het, dan MUST de pagina dezelfde tekst in
+Roboto tonen en volledig werken. Het fontbestand MUST NOT in de publieke repository
+staan.
+
+#### Scenario: Fontbestand aanwezig
+- **WHEN** het Letter Gothic-bestand op de server staat en iemand de pagina opent
+- **THEN** staan kerknaam, koppen, uitleg, labels, velden en meldingen in Letter Gothic Std
+
+#### Scenario: Fontbestand ontbreekt
+- **WHEN** het Letter Gothic-bestand niet op de server staat
+- **THEN** antwoordt de dienst op het fontverzoek met "niet gevonden", toont de pagina die teksten in Roboto en kan iemand gewoon insturen
+
+### Requirement: Terugvallettertype komt van de dienst
+Het terugvallettertype Roboto SHALL door de dienst zelf geleverd worden, zodat de pagina ook op
+apparaten zonder Roboto (iPhone, Mac, Windows) niet in het standaardlettertype van de browser
+staat. Het script-lettertype MUST NOT voor andere tekst dan de titel gebruikt worden.
+
+#### Scenario: Apparaat zonder Roboto en zonder Letter Gothic op de server
+- **WHEN** het Letter Gothic-bestand ontbreekt en het apparaat heeft geen Roboto
+- **THEN** staat de tekst in Roboto, geleverd door eghupload.toorren.net

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Media upload - Evangelische Gemeente Harderwijk</title>
 <style>
-  /* EGH-huisstijl, lichte web-variant (~/.claude/docs/egh-stijl.md): witte basis, het
-     zonsondergang-verloop als band achter het witte logo, oker als accent. */
+  /* EGH-huisstijl, lichte web-variant: witte basis, de zonsondergang (foto "Dusk To Dawn 1b",
+     met het verloop als terugval) als band achter het witte logo, oker als accent. */
   :root {
     --oker: #E7A309; --indigo: #1C0850; --paars: #2F1D5C; --violet: #452B70; --mauve: #91536F;
     --koraal: #D47462; --oranje: #FF9135; --creme: #FCE5BF; --lichtcreme: #FFFDE3;
@@ -16,31 +16,53 @@
     --sunset: linear-gradient(180deg, #1C0850 0%, #2F1D5C 22%, #452B70 40%, #91536F 58%,
                               #D47462 72%, #FF9135 84%, #FCE5BF 94%, #FFFDE3 100%);
   }
+  /* Alle lettertypes komen van deze dienst zelf. Zoals in de EGH-presentaties staat alle tekst in
+     Letter Gothic, alleen de titel in Blenda Script. Letter Gothic staat niet in de (publieke) repo
+     maar alleen op de server; ontbreekt het, dan geeft /fonts/letter-gothic.woff2 een 404 en
+     valt de browser terug op Roboto (de rest van --tekst). */
+  @font-face { font-family: "Roboto"; src: url(/fonts/roboto-regular.woff2) format("woff2");
+               font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Roboto"; src: url(/fonts/roboto-bold.woff2) format("woff2");
+               font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Roboto"; src: url(/fonts/roboto-italic.woff2) format("woff2");
+               font-weight: 400; font-style: italic; font-display: swap; }
+  @font-face { font-family: "Blenda Script"; src: url(/fonts/blenda-script.woff2) format("woff2");
+               font-display: swap; }
+  @font-face { font-family: "Letter Gothic Std"; src: url(/fonts/letter-gothic.woff2) format("woff2");
+               font-display: swap; }
+  @font-face { font-family: "Letter Gothic Std"; src: url(/fonts/letter-gothic-bold-slanted.woff2) format("woff2");
+               font-weight: 700; font-style: italic; font-display: swap; }
+  :root { --script: "Blenda Script", cursive;
+          --tekst: "Letter Gothic Std", Roboto, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--wit); color: var(--fg);
-         font: 16px/1.55 Roboto, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+         font: 16px/1.55 var(--tekst); }
   main { max-width: 600px; margin: 0 auto; padding: 0 0 3rem; }
 
-  .hero { background: var(--sunset); color: var(--wit); text-align: center; padding: 28px 16px 56px; }
+  .hero { background: url(/hero.webp) center bottom / cover, var(--sunset); color: var(--wit); text-align: center; padding: 28px 16px 56px; }
   .hero img { width: 120px; max-width: 40%; height: auto; }
   h1 { margin: .75rem 0 0; font-size: .85rem; font-weight: 400; text-transform: uppercase;
        letter-spacing: .35em; }
   .subtitle { margin: 1.25rem 0 0; line-height: 1; }
   .subtitle .small { display: block; font-size: .8rem; letter-spacing: .5em; text-transform: uppercase; }
-  .subtitle .big { display: block; font-size: 2.6rem; font-weight: 700; font-style: italic; }
+  .subtitle .big { display: block; margin-top: .2rem; font-family: var(--script); font-size: 3.2rem;
+                   font-weight: 400; }
 
   .body { padding: 0 16px; }
   details.help { margin: 1.5rem 0 0; border-left: 4px solid var(--oker); background: var(--lichtcreme); }
   details.help summary { cursor: pointer; padding: .8rem 1rem; font-weight: 600; }
+  details.help .more { font-size: .8rem; font-weight: 400; color: var(--muted); white-space: nowrap; }
+  details.help[open] .more { display: none; }
   details.help .content { padding: 0 1rem 1rem; }
   details.help ol { margin: .25rem 0; padding-left: 1.3rem; }
   details.help p { margin: .6rem 0 0; }
 
   section { border-top: 1px solid var(--line); margin-top: 1.75rem; padding-top: 1.25rem; }
-  h2 { margin: 0 0 .4rem; font-size: 1.05rem; font-weight: 400; font-style: italic; text-transform: lowercase;
+  h2 { margin: 0 0 .4rem; font-size: 1.05rem; font-weight: 700; font-style: italic; text-transform: lowercase;
        letter-spacing: .25em; color: var(--violet); }
   h2 .nr { display: inline-block; width: 1.9rem; height: 1.9rem; margin-right: .6rem; border-radius: 50%;
            background: var(--oker); color: var(--wit); text-align: center; line-height: 1.9rem;
+           font-family: Roboto, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
            font-style: normal; font-weight: 700; letter-spacing: 0; }
   h2 .hint { letter-spacing: 0; text-transform: none; }
   .andor { display: flex; align-items: center; gap: .75rem; margin-top: 1.75rem; color: var(--mauve);
@@ -65,7 +87,9 @@
   .linkrow[hidden] { display: none; }
   .linkrow label { margin-top: .4rem; }
   .hint { color: var(--muted); font-size: .9rem; margin-top: .3rem; }
-  .hint a, details.help a { color: var(--violet); word-break: break-all; }
+  /* Een lang e-mailadres gaat als geheel naar de volgende regel; alleen als het daar ook niet
+     past, breekt het af. */
+  .hint a, details.help a { color: var(--violet); overflow-wrap: anywhere; }
   .hp { position: absolute; left: -9999px; }
   cap-widget { display: block; margin-top: .75rem; }
   button { margin-top: 1rem; width: 100%; padding: .9rem; font: inherit; font-weight: 700; color: var(--wit);
@@ -89,6 +113,7 @@
   dialog#msg.err .icon { background: var(--err); }
   dialog#msg h2 { margin: 0 1.5rem .5rem; color: var(--indigo); }
   dialog#msg p { margin: 0 1.5rem; }
+  dialog#msg .mail { font-size: .85em; white-space: nowrap; color: var(--violet); }
   dialog#msg button { width: calc(100% - 3rem); margin: 1.25rem 1.5rem 1.5rem; }
 </style>
 </head>
@@ -103,7 +128,7 @@
     <div class="body">
 
     <details class="help">
-      <summary>Handleiding: hoe werkt het insturen?</summary>
+      <summary>Handleiding: hoe werkt het insturen? <span class="more">klik hier voor meer</span></summary>
       <div class="content">
         <ol>
           <li>Vul je naam en e-mailadres in.</li>
@@ -199,7 +224,17 @@
     dialog.className = ok ? "ok" : "err";
     dialog.querySelector(".icon").textContent = ok ? "✓" : "!";
     document.getElementById("msg-title").textContent = ok ? "Bedankt!" : "Dat lukte niet";
-    document.getElementById("msg-text").textContent = ok ? text.replace(/^Bedankt! /, "") : text;
+    // Keep the last two words together, so a centered message never ends with one word alone.
+    const msgText = document.getElementById("msg-text");
+    msgText.textContent = (ok ? text.replace(/^Bedankt! /, "") : text).replace(/ (\S+)$/, "\u00a0$1");
+    // A failure that names the contact address gets a small mail link behind it.
+    if (!ok && text.includes("{{CONTACT}}")) {
+      const mail = document.createElement("a");
+      mail.className = "mail";
+      mail.href = "mailto:{{CONTACT}}?subject=" + encodeURIComponent("Insturen lukt niet");
+      mail.textContent = "klik hier";
+      msgText.append(" ", mail);
+    }
     document.getElementById("msg-close").textContent = ok ? "Sluiten" : "Terug naar het formulier";
     dialog.showModal();
   }

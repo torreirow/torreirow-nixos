@@ -1,0 +1,12 @@
+Blenda Script (Seniors Studio), https://www.dafont.com/blenda-script.font
+Origineel 'Read Me.txt' uit blenda_script.zip:
+
+Blenda Script is a free experimental font inspired by lobster font, a bold vintage script. 
+can be used for various purposes. Such as news, posters, logos, badges etc.
+
+To enable OpenType Stylistic alternatives 
+intelligent programs or manually select a character from the Glyph Palette. 
+
+License: Free for Personal and Commercial use 
+Free weights: Bold 
+Contact: seniorsstudio@gmail.com

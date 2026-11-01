@@ -19,7 +19,7 @@ browser ── eghupload.toorren.net ── nginx ── filedrop (Go, :8102) �
 | Geheimen      | `secrets/filedrop-env.age`: `CAP_SECRET`, `NEXTCLOUD_SHARE_TOKEN` |
 | Melding       | Signal naar `SIGNAL_RECIPIENT` uit `signal-numbers.age`  |
 | Mail          | zelfde tekst naar `eghupload@toorren.net` (Reply-To = inzender) |
-| Max          | 25 MB per inzending; groter → contact taakgroepbeeldengeluid@… |
+| Max          | 25 MB per inzending; groter → contact `eghmedia@evangelischegemeente.org` |
 | Quota         | zie hieronder; nginx daarnaast 6 req/min per IP (burst 3) |
 
 ## Pagina
@@ -41,6 +41,50 @@ boven de knop).
 - Het logo zit in de binary (`logo.png`, van evangelischegemeente.org) en wordt op `/logo.png`
   geserveerd; er gaat geen verzoek naar de kerk-website.
 
+## Huisstijl: lettertypes en achtergrond
+
+Alles komt van de dienst zelf; de enige externe bron van de pagina is de robotcontrole (Cap).
+`TestNoExternalAssets` bewaakt dat.
+
+| Wat                                   | Bron                                              | Route                        |
+|---------------------------------------|---------------------------------------------------|------------------------------|
+| Achtergrond hero                      | `hero.webp` ("Dusk To Dawn 1b", 1600×900) in de binary | `/hero.webp`            |
+| "upload" (titel)                      | Blenda Script, `fonts/BlendaScript.woff2` in de binary | `/fonts/blenda-script.woff2` |
+| Alle andere tekst (zoals in de EGH-presentaties) | Letter Gothic Std, **alleen op malandro** | `/fonts/letter-gothic.woff2` |
+| Terugval, en het cijfer in het sectierondje | Roboto (OFL, Latijnse subset, Regular/Bold/Italic) in de binary | `/fonts/roboto-*.woff2` |
+
+- **Waarom Letter Gothic niet in de repo staat:** het is een Adobe-font. EGH heeft er een licentie
+  voor, maar de repo is publiek en dan zou het bestand vrij te downloaden zijn. Ook niet via
+  agenix: het is geen geheim en zou versleuteld alsnog in de publieke repo staan.
+  `TestNoLicensedFontInRepo` faalt als er een `*LetterGothic*`-bestand in `pkgs/filedrop/` staat.
+- **Ontbreekt het bestand**, dan geeft de route een 404 en toont de browser alle tekst in
+  Roboto; de pagina werkt verder gewoon. Een later neergezet bestand werkt zonder herstart
+  (het wordt per verzoek gelezen).
+- Roboto komt uit `nixpkgs#roboto` (3.016), teruggebracht tot Latijn met `pyftsubset … --flavor=woff2`
+  (samen ~64 KB); licentie in `fonts/Roboto-LICENSE.txt`. Gewicht 600 valt op Bold.
+- Blenda Script (Seniors Studio, dafont) is "Free for Personal and Commercial use", zie
+  `fonts/BlendaScript-LICENSE.txt`. Het font is van zichzelf vet; daarom geen `font-weight: 700`.
+- De bronbeelden van de hele "Dusk To Dawn"-reeks (12 stuks, 3840×2160) staan in de Dropbox-map
+  van EGH; alleen 1b is in gebruik. Omzetten: `magick Dusk_To_Dawn_1b.jpg -resize 1600x900 -strip
+  -quality 88 -define webp:method=6 hero.webp` (bij lagere kwaliteit zie je banding in het donker).
+
+Letter Gothic op malandro neerzetten (eenmalig, en opnieuw na een herinstallatie). Heb je alleen een
+`.otf`, zet die dan eerst om met `nix shell nixpkgs#woff2 -c woff2_compress LetterGothicStd.otf`:
+
+```bash
+for f in LetterGothicStd LetterGothicStd-BoldSlanted; do
+  sudo install -Dm644 $f.woff2 /var/lib/private/filedrop/fonts/$f.woff2
+done
+curl -sI https://eghupload.toorren.net/fonts/letter-gothic.woff2 | head -1               # 200
+curl -sI https://eghupload.toorren.net/fonts/letter-gothic-bold-slanted.woff2 | head -1  # 200
+```
+
+`LetterGothicStd-BoldSlanted` is voor de vette, schuine sectiekoppen. Ontbreekt dat bestand, dan
+maakt de browser het vet en schuin zelf na uit de gewone variant; dat is nauwelijks zichtbaar.
+
+De map is de standaardwaarde van `FONT_DIR` (`$STATE_DIRECTORY/fonts`; door `DynamicUser` ligt
+de state-map in `/var/lib/private/`).
+
 ## Lokaal testen
 
 ```bash
@@ -51,6 +95,9 @@ Inzendingen komen in `pkgs/filedrop/dev-share/` (genegeerd door git), Signal-mel
 in de terminal en de robotcontrole slaagt altijd (de widget zelf praat wel met cap.toorren.net).
 `index.html` wordt bij elke paginaweergave opnieuw gelezen: aanpassen en F5. Na een Go-wijziging
 het script herstarten. Pas als het lokaal goed is: rebuild van malandro.
+
+Letter Gothic lokaal zien: zet je eigen `LetterGothicStd.woff2` in `pkgs/filedrop/dev-fonts/`
+(genegeerd door git; `dev.sh` zet `FONT_DIR` daarheen). Zonder dat bestand zie je de terugval.
 
 ## Opslagindeling
 
@@ -141,6 +188,23 @@ echte file drop is (geen leesrechten):
 curl -s https://nxc.toorren.net/s/<token> | grep -o 'files_sharing-view" value="[^"]*' \
   | sed 's/.*value="//' | base64 -d   # moet "public-file-drop" geven
 ```
+
+## Als opslaan mislukt
+
+bobadela1, en daarmee Nextcloud, staat elke nacht van 23:00 tot 09:00 uit. De proxy op
+`nxc.toorren.net` antwoordt dan binnen ongeveer 3 s met 503 (zie `modules/nextcloud-proxy.nix`),
+dus er treedt geen time-out op.
+
+| Antwoord van de opslag                    | HTTP aan inzender | Melding                                                                 |
+|-------------------------------------------|-------------------|-------------------------------------------------------------------------|
+| verbindingsfout of 502/503/504 (MKCOL/PUT) | 503               | "De opslag is nu niet bereikbaar. Die staat elke nacht van 23:00 tot 09:00 uit; probeer het daarna opnieuw." |
+| een andere fout                           | 502               | "Er ging iets mis bij het opslaan. Probeer het later opnieuw."          |
+
+Beide meldingen eindigen met "Gebeurt dit opnieuw? Neem dan contact op via
+eghmedia@evangelischegemeente.org." In de dialoog staat daarachter een kleine "klik hier"-mailto-link
+(onderwerp "Insturen lukt niet"). De dienst kijkt naar het antwoord van de opslag en niet naar
+de klok. Een storing overdag krijgt daardoor dezelfde melding, en een verschoven nachtpauze vraagt
+geen aanpassing. Een mislukte poging telt wel mee voor het quotum.
 
 ## Logs
 

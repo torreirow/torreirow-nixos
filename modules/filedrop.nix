@@ -37,7 +37,7 @@ in
       NOTIFY_EMAIL = "eghupload@toorren.net";
       MAIL_FROM = "noreply@toorren.net"; # SES accepteert alleen @toorren.net-afzenders
       MAX_BYTES = toString (maxMB * 1024 * 1024);
-      LARGE_FILE_CONTACT = "taakgroepbeeldengeluid@evangelischegemeente.org";
+      LARGE_FILE_CONTACT = "eghmedia@evangelischegemeente.org";
       # Quota over 24 uur (sliding window), alleen na geslaagde captcha. Zie docs/filedrop.md.
       LIMIT_PER_IP_HOUR = "3";
       LIMIT_PER_IP_DAY = "10";
