@@ -25,6 +25,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **Fotoserver Immich op `photos.toorren.net`**. Automatische backup van de foto's op de
+  telefoon, en foto's kiezen in de reisapps MarkMySteps en OwnSteps. Inloggen gaat met het
+  gewone Authelia-account. De originelen staan versleuteld in de eigen cloudopslag.
 - **EGH-huisstijl op de uploadpagina** (`eghupload.toorren.net`). De pagina lijkt nu op de
   EGH-presentaties.
   - De titel "upload" staat in Blenda Script, alle andere tekst in Letter Gothic Std. Die laatste

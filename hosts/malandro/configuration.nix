@@ -65,6 +65,8 @@
  ../../modules/markmysteps.nix
  ../../modules/rustic-backup.nix
  ../../modules/juicefs-nextcloud-mount.nix
+ ../../modules/juicefs-immich.nix
+ ../../modules/immich.nix
  ../../modules/torrlinny.nix
  ../../modules/linny-mcp.nix
  ../../modules/grainwork.nix

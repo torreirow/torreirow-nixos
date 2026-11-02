@@ -17,7 +17,7 @@ de foto's op de Nothing Phone. Er draait nu geen fotodienst op malandro.
 - **Machine learning uit** (`machine-learning.enabled = false`): de Celeron J3455 heeft geen AVX.
   Later eventueel ML op lobos (buiten deze change).
 - **Opslag van de originelen op een eigen JuiceFS-volume** `immich`:
-  - metadata in PostgreSQL op **malandro** (database `juicefs_immich_meta`), want bobadela1
+  - metadata in PostgreSQL op **malandro** (database `juicefs_immich`), want bobadela1
     staat 's nachts uit en de bestaande Nextcloud-mount op malandro is read-only;
   - data in `s3://wto-s3-bucket/immich/`, met de IAM-user `juicefs-immich` (bestaat al, policy
     `juicefs-immich-s3`: alleen dit prefix) en `secrets/juicefs-immich-env.age` (bestaat al);
@@ -25,7 +25,10 @@ de foto's op de Nothing Phone. Er draait nu geen fotodienst op malandro.
   - mount `/data/juicefs-immich` (lezen en schrijven), lokale cache op `/var/cache/juicefs-immich`.
 - **Thumbnails en omgezette video lokaal** op `/data/external/immich` (opnieuw te maken, vaak
   gelezen), via bind-mounts in de Immich-dienst.
-- **Video-omzetten via VAAPI** op de Intel HD 500 (`/dev/dri/renderD128`).
+- **Video-omzetten op de CPU**. VAAPI op de Intel HD 500 is geprobeerd maar faalde in
+  Immich's transcode (vervolg-bean `nixos-umuq`).
+- **Immich 3.3.5 uit `unstable`** (pakket + module): 26.05 heeft alleen 2.7.5, als insecure
+  gemarkeerd.
 - **S3-lifecycle**: regel `immich-noncurrent-180d` voor `immich/`, naast de bestaande regel
   `juicefs-noncurrent-180d`.
 - **Backup**: de Immich-database zit vanzelf in de nachtelijke `pg_dumpall`; de JuiceFS-metadata

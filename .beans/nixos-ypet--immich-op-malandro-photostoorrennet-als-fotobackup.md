@@ -1,11 +1,11 @@
 ---
 # nixos-ypet
 title: Immich op malandro (photos.toorren.net) als fotobackup en bron voor de reisapps
-status: todo
+status: in-progress
 type: epic
 priority: normal
 created_at: 2026-11-02T21:56:32Z
-updated_at: 2026-11-02T21:56:32Z
+updated_at: 2026-11-02T23:07:11Z
 ---
 
 Immich op malandro: automatische fotobackup van de Nothing Phone en foto-bron (API-sleutel) voor
@@ -39,3 +39,7 @@ Randvoorwaarden: secrets alleen via ragenx (rbw moet ontgrendeld zijn), nooit wa
 AWS met AWS_PROFILE=TEC-playground-student01 en het echte aws-binary (rtk-wrapper verminkt
 uitvoer); branch system/malandro, niet pushen/PR zonder vraag; flake.nix/flake.lock
 (HyprQuickFrame) zijn ongerelateerd werk van de gebruiker: niet meenemen in commits.
+
+
+## Stand 2026-11-03
+Alle agent-stories klaar (w6ip, cv87, kvys, mjvo). Open: gebruikerstaak nixos-3pjm (web-login met 2FA, app op de telefoon, API-sleutel in de reisapps). Vervolg: nixos-umuq (VAAPI).

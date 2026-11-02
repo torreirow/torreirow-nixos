@@ -1,14 +1,14 @@
-# Spec Delta
+# immich-photos Specification
 
 ## Purpose
-
 Een eigen fotoserver op malandro die de foto's van de telefoon automatisch bewaart, inlogt via
 Authelia en via API-sleutels foto's levert aan de reisapps, met de originelen versleuteld in S3.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Immich bereikbaar op photos.toorren.net
-Het systeem SHALL Immich draaien via de NixOS-module `services.immich`, luisterend op
+Het systeem SHALL Immich 3.x draaien via de NixOS-module `services.immich` (pakket en module uit
+de `unstable`-input, omdat 26.05 alleen het onveilige 2.7.5 heeft), luisterend op
 `127.0.0.1:2283`, en bereikbaar maken via nginx op `https://photos.toorren.net`. Er MUST GEEN
 Authelia forward-auth voor de vhost staan, zodat de Immich-app, API-sleutels en deellinks werken.
 
@@ -61,13 +61,18 @@ Het systeem SHALL thumbnails en omgezette video's op de lokale schijf
 - **WHEN** Immich een thumbnail maakt
 - **THEN** staat die onder `/data/external/immich` en niet in S3
 
-### Requirement: Machine learning uit, video via de GPU
-Het systeem SHALL de machine-learningdienst van Immich niet draaien en video omzetten via VAAPI
-op `/dev/dri/renderD128`.
+### Requirement: Machine learning uit, video op de CPU
+Het systeem SHALL de machine-learningdienst van Immich niet draaien en video omzetten op de CPU
+(`ffmpeg.accel = "disabled"`). VAAPI op de HD 500 faalde in Immich's transcode en is een
+vervolgtaak.
 
 #### Scenario: Geen ML-dienst
 - **WHEN** de diensten op malandro worden bekeken
 - **THEN** draait er geen `immich-machine-learning`
+
+#### Scenario: Video wordt omgezet
+- **WHEN** een video in een niet-ondersteund formaat wordt geüpload
+- **THEN** maakt Immich een omgezette `.mp4` onder `/data/external/immich/encoded-video`
 
 ### Requirement: Reisapps koppelen via API-sleutel
 Het systeem SHALL toestaan dat MarkMySteps en OwnSteps met een Immich-API-sleutel foto's

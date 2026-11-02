@@ -91,6 +91,10 @@ in
   "juicefs-malandro-env.age".publicKeys      = users ++ [ wtoorren_workstation malandro_workstation ];
   # Eigen JuiceFS-volume voor Immich op malandro (prefix immich/, IAM-user juicefs-immich)
   "juicefs-immich-env.age".publicKeys        = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-immich-passphrase.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "juicefs-immich-rsa-key.age".publicKeys    = users ++ [ wtoorren_workstation malandro_workstation ];
+  "immich-oidc.age".publicKeys               = users ++ [ wtoorren_workstation malandro_workstation ];
+  "immich-admin-password.age".publicKeys     = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
   "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];

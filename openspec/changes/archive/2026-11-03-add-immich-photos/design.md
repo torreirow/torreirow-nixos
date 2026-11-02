@@ -42,7 +42,7 @@ voor MarkMySteps en OwnSteps, originelen versleuteld in S3, herstelbaar uit de b
 ### D2. Eigen JuiceFS-volume met metadata op malandro
 De Nextcloud-JuiceFS kan niet: malandro heeft hem read-only en zijn metadata staat op bobadela1,
 die om 23:00 uitgaat. Een tweede volume `immich` met metadata in de lokale PostgreSQL (database
-`juicefs_immich_meta`) is onafhankelijk van bobadela1.
+`juicefs_immich`) is onafhankelijk van bobadela1.
 
 - Format (eenmalig, als root, met de env uit agenix):
   `juicefs format --storage s3 --bucket https://wto-s3-bucket.s3.eu-central-1.amazonaws.com
@@ -50,7 +50,7 @@ die om 23:00 uitgaat. Een tweede volume `immich` met metadata in de lokale Postg
   De volumenaam `immich` maakt het objectprefix `immich/` (zoals de Nextcloud-volume `juicefs`
   in `juicefs/` schrijft), en dat valt precies onder de IAM-policy.
 - Meta-URL via de unix-socket, zonder wachtwoord in de nix-store, bijvoorbeeld
-  `postgres://juicefs_immich@/juicefs_immich_meta?host=/run/postgresql&sslmode=disable` met een
+  `postgres://juicefs_immich@/juicefs_immich?host=/run/postgresql&sslmode=disable` met een
   eigen rol en peer/ident-mapping, of het `runuser -u postgres`-patroon uit
   `modules/rustic-backup.nix`. Kies wat met de bestaande `services.postgresql`-config werkt.
 - Mount-unit `juicefs-immich` (systemd service zoals `modules/juicefs-nextcloud-mount.nix`):
@@ -90,14 +90,22 @@ map en weigert te starten als die ontbreken.
   `client_max_body_size 50000M`, `proxy_read_timeout`/`proxy_send_timeout 600s`,
   `proxy_request_buffering off`. Geen `auth_request`.
 
-### D6. ML uit, VAAPI aan
-`machine-learning.enabled = false`. `accelerationDevices = [ "/dev/dri/renderD128" ]` en in
-`settings.ffmpeg`: `accel = "vaapi"`, `accelDecode = true`. Controleer dat de immich-gebruiker
-in de groepen `video`/`render` zit.
+### D6. ML uit, video op de CPU
+`machine-learning.enable = false`. VAAPI is getest (iHD en i965 via `hardware.graphics`,
+`accelerationDevices = [ "/dev/dri/renderD128" ]`, ook met `accelDecode = false`): losse
+`h264_vaapi`-tests slaagden, maar Immich's transcode faalde met "Error encoding a frame" en viel
+terug op de CPU. Daarom `ffmpeg.accel = "disabled"` en `accelerationDevices = [ ]`; VAAPI is
+vervolg-bean `nixos-umuq`.
+
+### D9. Immich 3 uit unstable
+nixpkgs 26.05 levert `immich-2.7.5` met `knownVulnerabilities` (end-of-life, CVE-2026-59258,
+CVE-2026-82272). In `flake.nix` worden voor malandro de 26.05-module uitgeschakeld
+(`disabledModules`) en de module uit de `unstable`-input geïmporteerd; `package =
+unstable.immich` (3.3.5, in de binaire cache). VectorChord (1.1.1) is in beide gelijk.
 
 ### D7. Backup en herstel
 - Immich-database: zit in de bestaande `pg_dumpall` (`/var/backup/db/pg-all.sql.zst`).
-- JuiceFS-metadata `juicefs_immich_meta`: extra `juicefs dump` naar
+- JuiceFS-metadata `juicefs_immich`: extra `juicefs dump` naar
   `/var/backup/db/juicefs-immich-meta-dump.json` in `modules/rustic-backup.nix`, naast de
   bestaande `juicefs-meta-dump`. De data zelf staat al in S3 (versioning + lifecycle).
 - Herstel: `juicefs load` + `juicefs config --access-key/--secret-key`, mount met

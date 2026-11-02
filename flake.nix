@@ -208,6 +208,12 @@
         agenix.nixosModules.default
         inputs.linny-web.nixosModules.linny-web
         inputs.linny-mcp.nixosModules.linny-mcp
+        # Immich uit unstable (3.x): 26.05 heeft alleen 2.7.5, dat geen updates meer krijgt
+        # en als insecure gemarkeerd is. Module en pakket komen samen uit dezelfde input.
+        {
+          disabledModules = [ "services/web-apps/immich.nix" ];
+          imports = [ "${unstable}/nixos/modules/services/web-apps/immich.nix" ];
+        }
         ./hosts/malandro/configuration.nix
         ./modules/tnaws.nix
       ];

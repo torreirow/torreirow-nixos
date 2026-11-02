@@ -498,6 +498,30 @@
               pre_configured_consent_duration = "1M";
             }
 
+            # Immich (photos.toorren.net): web en Android-app via OAuth. Het platte secret
+            # staat in secrets/immich-oidc.age (Immich leest het via settings._secret), hier
+            # alleen de hash. app.immich:///oauth-callback is de redirect van de app.
+            {
+              client_id = "immich";
+              client_name = "Immich";
+              client_secret = "$argon2id$v=19$m=65536,t=3,p=4$8w7JfvNeALxwtxrTWTwagw$qm2RJKDTUai3i2UIlw4ZyX3PjhGI1edzOLxOW5/TwFg";
+              public = false;
+              authorization_policy = "two_factor";
+              redirect_uris = [
+                "https://photos.toorren.net/auth/login"
+                "https://photos.toorren.net/user-settings"
+                "app.immich:///oauth-callback"
+              ];
+              scopes = [ "openid" "profile" "email" ];
+              grant_types = [ "authorization_code" ];
+              response_types = [ "code" ];
+              response_modes = [ "query" ];
+              token_endpoint_auth_method = "client_secret_post";
+              userinfo_signed_response_alg = "none";
+              consent_mode = "pre-configured";
+              pre_configured_consent_duration = "1M";
+            }
+
             # Claude's MCP-connector. Publieke client met PKCE; Claude's dialoog
             # vraagt optioneel om een secret, maar dat is bij PKCE niet nodig.
             #
