@@ -94,7 +94,13 @@ wél vuurt → check eerst de Tuya-koppeling (zelfde oorzaak als bij de afzuigin
 
 ### Sessie 2026-08-23 - Afzuiging gaat wel aan maar niet uit - DEELS OPGELOST
 
-**Probleem:** Centrale afzuiging (keuken) ging wel aan maar niet meer automatisch uit. Knop (RODRET) deed het slecht.
+**Probleem:** Centrale afzuiging ging wel aan maar niet meer automatisch uit. Knop (RODRET) deed het slecht.
+
+**Installatie:** mechanische ventilatiebox **Itho Daalderop CVE-S Optima Inside** (art. 03-00421,
+geïnstalleerd 2021-05-12; serienummer op de typeplaat) op zolder, aan de buitenmuur boven de
+trap naast de cv-ketel, met kanalen naar
+de badkamer (1e verdieping) en de WC. De box staat op een Tuya-stekker en kent in HA alleen aan/uit
+(geen standenschakelaar of RFT-koppeling).
 
 **HA-opzet afzuiging:**
 - Stekker: **LSC Smart Power Plug** (Tuya) `switch.afzuiging_socket_1` (device `bfb84198cfdccbb47akpf2`,
@@ -104,11 +110,24 @@ wél vuurt → check eerst de Tuya-koppeling (zelfde oorzaak als bij de afzuigin
   entity-ID's zijn mee-hernoemd, dus automations, `binary_sensor.afzuiging_status` en het
   dashboard hoefden niet aangepast te worden. Wissel je weer een stekker: hernoem de entity-ID's
   (HA-UI of websocket `config/entity_registry/update`), niet de YAML.
+- **Valkuil (2026-11-02):** een *device-actie* (`type: turn_on` + `device_id`) volgt het apparaat,
+  niet de entity-ID. Na de stekkerwissel zette "Centrale afzuiging aan" daardoor de Boaz-plug aan.
+  Gebruik in automations altijd `action: switch.turn_on` met `entity_id`.
+- **Timer liep nooit af (2026-11-02):** de state-trigger `to: 'on'` vuurde ook bij `unavailable → on`
+  (Tuya-cloud kwam terug, een paar keer per uur), waardoor `timer.start` de timer steeds op 1 uur
+  zette. Eerst opgelost met `not_from: [unavailable, unknown]`; later dezelfde avond is de timer
+  helemaal geschrapt (zie hieronder).
 - Knop: **IKEA RODRET** `afzuigingknop` via zigbee2mqtt (`0x5cc7c1fffe405825`)
-- Timer: `timer.afzuiging` (UI-helper in `.storage/timer`, duur 1u)
-- Automations in `/var/lib/homeassistant/automations.yaml`:
-  - `1771177871263` "Centrale afzuiging aan" → knop-on/switch-on → stekker aan + timer start
-  - `2024112501` "Centrale afzuiging uit" → `timer.finished` → stekker uit
+- Automations in `/var/lib/homeassistant/automations.yaml` (sinds 2026-11-02, zonder timer):
+  - `2026110201` "Afzuiging dagschema (07-23)" → 07:00 stekker aan, 23:00 uit. Overdag aan zodat
+    de vocht/CO2-sensor in de box (auto-stand via de RFT-afstandsbediening) kan regelen; 's nachts
+    uit omdat het motorgeluid van de box doordringt in de twee slaapkamers op zolder.
+  - `1771177871263` "Centrale afzuiging aan" → RODRET-on → stekker aan
+  - `1771177871264` "Centrale afzuiging uit (knop)" → RODRET-off → stekker uit
+  - De oude 1-uurs-timer (`2024112501` op `timer.finished`) is verwijderd; de helper
+    `timer.afzuiging` bestaat nog maar wordt niet meer gebruikt.
+- Stroom: ±3 W in de stand die hij nu heeft (gemeten met de stekker), dus 24/7 aan kost ±€8/jaar.
+  Het uitzetten is er voor het geluid, niet voor de kosten.
 - Let op: entity-slugs misleidend — `automation.centrale_afzuiging_uit_2/_3/_4` zijn NIET allemaal afzuiging (uit_2 = de "aan"; uit_3/_4 = Geurzolder/Geurwerkkamer, oude slugs).
 
 **Hoofdoorzaak (nog handmatig op te lossen):**
