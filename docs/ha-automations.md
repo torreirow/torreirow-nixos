@@ -97,7 +97,13 @@ wél vuurt → check eerst de Tuya-koppeling (zelfde oorzaak als bij de afzuigin
 **Probleem:** Centrale afzuiging (keuken) ging wel aan maar niet meer automatisch uit. Knop (RODRET) deed het slecht.
 
 **HA-opzet afzuiging:**
-- Stekker: **Tuya Smart Plug** `switch.afzuiging_socket_1` (device `bf4193cbb9e7c8307efsqq`)
+- Stekker: **LSC Smart Power Plug** (Tuya) `switch.afzuiging_socket_1` (device `bfb84198cfdccbb47akpf2`,
+  in Tuya `afzuiging-plug`). Sinds 2026-11-02; daarvoor was dit de `hassio-plug`. De vorige
+  afzuigingsstekker (`bf4193cbb9e7c8307efsqq`) is nu `Boaz-plug` → `switch.boaz_plug_socket_1`, en
+  de nieuwe `Malandro-plug` (`bf7498f3de86951460maab`) → `switch.malandro_plug_socket_1`. De
+  entity-ID's zijn mee-hernoemd, dus automations, `binary_sensor.afzuiging_status` en het
+  dashboard hoefden niet aangepast te worden. Wissel je weer een stekker: hernoem de entity-ID's
+  (HA-UI of websocket `config/entity_registry/update`), niet de YAML.
 - Knop: **IKEA RODRET** `afzuigingknop` via zigbee2mqtt (`0x5cc7c1fffe405825`)
 - Timer: `timer.afzuiging` (UI-helper in `.storage/timer`, duur 1u)
 - Automations in `/var/lib/homeassistant/automations.yaml`:

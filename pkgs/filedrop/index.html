@@ -115,6 +115,14 @@
   dialog#msg p { margin: 0 1.5rem; }
   dialog#msg .mail { font-size: .85em; white-space: nowrap; color: var(--violet); }
   dialog#msg button { width: calc(100% - 3rem); margin: 1.25rem 1.5rem 1.5rem; }
+  /* Telefoon: alles in rem schaalt mee (16 -> 19px); de script-titel blijft even groot. */
+  @media (max-width: 600px) {
+    html { font-size: 118.75%; }
+    body { font-size: 1rem; }
+    .hint { font-size: 1rem; }
+    details.help .more { font-size: .9rem; }
+    .subtitle .big { font-size: 2.7rem; }
+  }
 </style>
 </head>
 <body>
@@ -128,7 +136,7 @@
     <div class="body">
 
     <details class="help">
-      <summary>Handleiding: hoe werkt het insturen? <span class="more">klik hier voor meer</span></summary>
+      <summary>Handleiding: hoe werkt het insturen? <span class="more">klik hier voor uitleg..</span></summary>
       <div class="content">
         <ol>
           <li>Vul je naam en e-mailadres in.</li>

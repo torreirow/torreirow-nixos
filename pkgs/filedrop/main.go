@@ -118,7 +118,12 @@ func main() {
 		fontDir = filepath.Join(mustEnv("STATE_DIRECTORY"), "fonts")
 	}
 
-	addr := "127.0.0.1:" + port
+	// FILEDROP_ADDR only for dev.sh (phone testing on the LAN); the service stays on localhost.
+	host := os.Getenv("FILEDROP_ADDR")
+	if host == "" {
+		host = "127.0.0.1"
+	}
+	addr := host + ":" + port
 	log.Printf("filedrop listening on %s (max %d MB per upload)", addr, maxBytes>>20)
 
 	log.Fatal(http.ListenAndServe(addr, routes()))
