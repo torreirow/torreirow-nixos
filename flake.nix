@@ -34,7 +34,7 @@
     lif.url = "github:rierek/lif";
     solidtime-waybar.url = "github:torreirow/solidtime-waybar";
     hyprquickframe = {
-      url = "path:/home/wtoorren/data/git/torreirow/HyprQuickFrame";
+      url = "github:torreirow/HyprQuickFrame";
       inputs.nixpkgs.follows = "unstable";
     };
     walker.url = "github:abenz1267/walker";
