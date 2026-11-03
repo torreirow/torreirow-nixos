@@ -41,6 +41,7 @@
  ../../modules/nginx.nix
  ../../modules/cckafe.nix
  ../../modules/nextcloud-proxy.nix
+ ../../modules/ai-blocklist
  ../../modules/blocky
  ../../modules/opsknight.nix
  ../../modules/paperless.nix
@@ -100,6 +101,25 @@
     # met het eigen publieke IP, dus zet dat dan in pocketId.allowedNetworks.
     pocketId.setupLock = false;
     site.enable = true;     # OIDC-client "GrainWork" + groep grainwork staan in Pocket ID
+  };
+
+  # AI-crawlers weren (modules/ai-blocklist): 403 in nginx + aanvulling op de bestaande
+  # robots.txt. Alleen publieke sites; achter Authelia en de catch-all blijven buiten.
+  services.aiBlocklist.sites = {
+    "toorren.net" = { sitemap = true; extraLocations = [ "~ \\.php$" ]; };
+    "wereldvanbegrip.nl".sitemap = true;
+    "cckafe.com" = { };
+    # Niet indexeerbaar, ook niet voor gewone zoekmachines.
+    "boaz.toorren.net".noindex = true;
+    "cv-jolijn.toorren.net".noindex = true;
+    # Publieke paden van grainwork (publicLocations in modules/grainwork.nix); de rest
+    # staat achter Pocket ID.
+    "grainwork.dutchyland.net".extraLocations = [
+      "/welkom/"
+      "~ ^/(css|js|img|fontawesome|webfonts)/"
+      "~ ^/style\\.main\\.[^/]+\\.css$"
+      "= /favicon.ico"
+    ];
   };
 
   # linny-mcp: hetzelfde notitieboek, maar schrijfbaar voor Claude via MCP.

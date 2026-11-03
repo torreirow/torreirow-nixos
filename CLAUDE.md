@@ -44,6 +44,7 @@
 - **Vragen over Umami, `stats.toorren.net`, bezoekersaantallen/land/stad van de websites, het meetscript (`s.js`, `sub_filter`, `trackedSites`), de website-ID's of de Cloudflare-sites (noraly, devos, recepten, stichtingwittevelden)** → lees `docs/umami.md`
 - **Vragen over OwnSteps, `reis.toorren.net`, de reisblog/Polarsteps-vervanger, `ownsteps-env.age` of waarom er geen Authelia voor staat** → lees `docs/ownsteps.md`
 - **Vragen over Immich, `photos.toorren.net`, de telefoon-fotobackup, het JuiceFS-volume `immich` (`/data/juicefs-immich`, prefix `immich/`), de Authelia-OIDC-client `immich`, API-sleutels voor MarkMySteps/OwnSteps of waarom Immich uit unstable komt** → lees `docs/immich.md`
+- **Vragen over AI-crawlers weren, `ai-blocklist.service/.timer/.path`, `$ai_bot`, de gegenereerde robots.txt per site (`/var/lib/ai-blocklist`), noindex van boaz/cv-jolijn of een bot die onterecht 403 krijgt** → lees `docs/ai-blocklist.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 
