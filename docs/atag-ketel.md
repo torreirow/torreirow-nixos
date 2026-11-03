@@ -1,6 +1,6 @@
 # ATAG One — ketelgedrag, pendelen en afstelling
 
-**Aangemaakt:** 2026-10-22 · **Status:** stap 2 (`average`) geëvalueerd: geen verbetering. Stap 3 (max CV 50 °C, `average` blijft) actief sinds 2026-10-28 ~19:20, meten 29 okt t/m 2 nov (`~/scripts/atag-eval.sh 2026-10-29 2026-11-02`)
+**Aangemaakt:** 2026-10-22 · **Status:** stap 2 (`average`) en stap 3 (max CV 50 °C) geëvalueerd: runlengte blijft ~5 min. Stap 3 blijft staan (minder starts en stookminuten); volgende stap nog te kiezen (zie "Evaluatie max CV 50 °C")
 
 `temperatuurinvloed` wijzigt alleen **hoe** de ketel de aanvoertemperatuur kiest (stooklijn vs. puur
 kamer); het tijdschema (preset `auto`, nacht 15 / ochtend 20,5 °C) blijft gewoon werken.
@@ -77,7 +77,7 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 | Datum | Wijziging | Vorige waarde | Resultaat (min/start, starts/dag) |
 |-------|-----------|---------------|-----------------------------------|
 | 2026-10-22 21:52 | `temperatuurinvloed` → `average` (aanbeveling 2) | `room_regulation` (nooit eerder gewijzigd) | **geen verbetering:** 5,3 min/start (gelijk), 27,4 starts/dag (was 23,0) |
-| 2026-10-28 ~19:20 | Max CV-aanvoertemperatuur 60 → 50 °C op de ketel zelf (E325EC, installateursparameter; aanbeveling 3). `average` blijft staan. CV bijgevuld 1,4 → 2,0 bar | 60 °C | meten 29 okt t/m 2 nov. HA-sensor `max_boiler_temp` toonde pas na herstart van HA (reboot malandro 28 okt 19:35) 50 °C: de integratie leest deze waarde alleen bij opstarten |
+| 2026-10-28 ~19:20 | Max CV-aanvoertemperatuur 60 → 50 °C op de ketel zelf (E325EC, installateursparameter; aanbeveling 3). `average` blijft staan. CV bijgevuld 1,4 → 2,0 bar | 60 °C | **runs niet langer:** 5,3 min/start (gelijk), 19,8 starts/dag (was 23,0 baseline, 27,4 `average`), 105 stookmin/dag (was 122). HA-sensor `max_boiler_temp` toonde pas na herstart van HA (reboot malandro 28 okt 19:35) 50 °C: de integratie leest deze waarde alleen bij opstarten |
 
 ### Observaties `average`
 
@@ -103,6 +103,28 @@ Per dag `average`: 23 okt 36 starts / 5,8 min, 24 okt 16 / 4,9, 25 okt 26 / 6,0,
 dan minder, bij iets milder weer. De stooklijn bepaalt blijkbaar niet de runlengte; vermoedelijk is
 het minimale vermogen van de ketel groter dan de warmtevraag, zodat hij snel zijn doel haalt en
 afslaat. Volgende stap is aanbeveling 3 (max CV-temperatuur omlaag).
+
+### Evaluatie max CV 50 °C (2026-11-03)
+
+Gemeten met `~/scripts/atag-eval.sh 2026-10-29 2026-11-02`.
+
+| Periode                              | Starts/dag | Stookmin/dag | Min/start | Buiten gem. |
+|--------------------------------------|-----------:|-------------:|----------:|------------:|
+| Baseline `room_regulation` 17–21 okt |       23,0 |          122 |       5,3 |     10,5 °C |
+| `average` 23–27 okt                  |       27,4 |          144 |       5,3 |     11,2 °C |
+| + max CV 50 °C 29 okt–2 nov          |       19,8 |          105 |       5,3 |     10,3 °C |
+
+Per dag: 29 okt 15 starts / 4,9 min, 30 okt 29 / 5,0, 31 okt 11 / 5,2, 1 nov 16 / 5,9,
+2 nov 28 / 5,5. Runs ≥ 10 min: 2–6 per dag. CV-water max 52,5–56,2 °C, retour max 44,5–46,2 °C.
+
+**Conclusie:** minder starts (−14 % t.o.v. baseline) en minder stookminuten (−14 %) bij vrijwel
+hetzelfde buitenweer, maar de runlengte blijft 5,3 min: het pendelen zelf is niet opgelost. Het
+doel ≥ 10 min/start is niet gehaald. Opvallend: CV-water piekt nog boven 50 °C. Vermoedelijk is dat
+warm tapwater (combiketel, zelfde sensor) en niet de CV-aanvoer; niet nagekeken.
+Max CV 50 °C blijft staan. De oorzaak lijkt het minimale vermogen van de ketel, dat groter is dan de
+warmtevraag; instellingen in HA veranderen daar niets aan. Opties voor de volgende stap:
+aanbeveling 4 (nachtstand), of bij de installateur vragen naar minimaal vermogen en
+anti-pendeltijd (installateursparameters).
 
 ## Opnieuw meten
 
