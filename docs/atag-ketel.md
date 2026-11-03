@@ -59,6 +59,13 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 | `select.atag_one_gebouwgrootte`     | `medium`          | ja                 |
 | `sensor.atag_one_max_boiler_temp`   | 60 °C             | **nee** (alleen sensor → ATAG-app/thermostaat) |
 | Nachtstand / ochtend                | 15 °C / 20,5 °C om 07:15 | programma in ATAG |
+| `switch.atag_one_zomer_eco_mode`    | aan               | ja                 |
+| `number.atag_one_zomer_eco_temp`    | 20 °C             | ja (10–25 °C)      |
+
+**Zomer eco:** boven de drempel (buitentemperatuur) stookt de ketel niet voor CV; tapwater blijft
+werken. Niet zichtbaar in de ATAG-app. De integratie `atagone` noemde de drempel ten onrechte
+`number.atag_one_temp_vakantieperiode` (unique_id eindigt op `summer_eco_temp`); hernoemd
+2026-11-03. De echte vakantietemperatuur is `number.atag_one_vakantie_temp`.
 
 ## Aanbevelingen (in volgorde, één tegelijk, elk ≥ 5 dagen meten)
 
