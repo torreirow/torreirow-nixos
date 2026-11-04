@@ -10,7 +10,7 @@ geen extraPkgs, geen home-manager). OpenSpec-change: `mpenzi-laptop` (gearchivee
 |---------------|------------------------------------------------------------------------------|
 | Basis         | NixOS 26.05, Plasma 6 + SDDM (Wayland), systemd-boot, LUKS root + swap       |
 | Taal          | `nl_NL.UTF-8`, `Europe/Amsterdam`, toetsenbord `us` variant `intl`           |
-| Gebruikers    | `maaike` (geen wheel), `wtoorren` (wheel + ssh-key)                          |
+| Gebruikers    | `maaike` (geen wheel), `wtoorren` (wheel + ssh-key, `docs/wtoorren-admin.md`) |
 | Beheer        | ssh alleen met sleutel, geen root; updates handmatig vanaf lobos             |
 | Remote access | Nebula `toorren` (10.77.0.3) + RustDesk direct IP op poort 21118             |
 | Apps          | Firefox, Chrome, OnlyOffice, Nextcloud, Thunderbird, Zoom, Bitwarden,        |

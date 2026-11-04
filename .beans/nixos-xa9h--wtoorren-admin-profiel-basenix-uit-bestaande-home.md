@@ -1,10 +1,11 @@
 ---
 # nixos-xa9h
 title: 'wtoorren-admin: profiel base.nix uit bestaande home-modules'
-status: todo
+status: completed
 type: task
+priority: normal
 created_at: 2026-11-04T20:39:33Z
-updated_at: 2026-11-04T20:39:33Z
+updated_at: 2026-11-04T22:03:45Z
 parent: nixos-tesy
 ---
 
@@ -17,3 +18,8 @@ Profiel opsplitsen zonder lobos te breken.
   `vaultwarden-restore-test`, `wake-bobadela1`, `clipbridge`, `update-system`, seahorse-askpass.
 - Hardcoded paden naar `~/data/git/wearetechnative/*` alleen in het aws-deel en alleen als ze bestaan.
 - `home.stateVersion` komt van de host (NixOS-module zet hem op `config.system.stateVersion`).
+
+
+## Summary of Changes
+
+`home/profiles/wtoorren-admin/{default,base}.nix`. Gedeeld met lobos/malandro: `home/shell-tools.nix` (atuin/fzf/direnv/jq uit common.nix) en `home/zsh-rbwsel.nix` (rbwsel uit zsh.nix); `tmux.nix` ongewijzigd hergebruikt; dotfiles via paden. drvPath van wtoorren@linuxserver gelijk vóór en na. stateVersion komt van de host (module) of 25.11 (standalone).

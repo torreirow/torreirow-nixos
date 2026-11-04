@@ -44,6 +44,7 @@
 - **Vragen over Umami, `stats.toorren.net`, bezoekersaantallen/land/stad van de websites, het meetscript (`s.js`, `sub_filter`, `trackedSites`), de website-ID's of de Cloudflare-sites (noraly, devos, recepten, stichtingwittevelden)** → lees `docs/umami.md`
 - **Vragen over OwnSteps, `reis.toorren.net`, de reisblog/Polarsteps-vervanger, `ownsteps-env.age` of waarom er geen Authelia voor staat** → lees `docs/ownsteps.md`
 - **Vragen over mpenzi (laptop van Maaike), de Nebula-mesh (`modules/nebula.nix`, 10.77.0.0/24, lighthouse malandro), RustDesk via het Nebula-IP, de Plasma-defaults in `/etc/xdg` of deployen met `--target-host wtoorren@mpenzi`** → lees `docs/mpenzi.md`
+- **Vragen over het wtoorren-admin-profiel, `toorren.admin.*`, `wtoorren@admin`/nixhost, Wouters shell op mpenzi, de bmc-config met `tmux load-buffer`/OSC 52, waarom AWS-wrappers ontbreken zonder `~/.aws/credentials` of waarom malandro het profiel (nog) niet heeft** → lees `docs/wtoorren-admin.md`
 - **Een nieuwe eindgebruikers-laptop toevoegen (zoals mpenzi): installeren, eerste deploy vanaf lobos, Nebula-certificaat tekenen met de CA uit Vaultwarden, `sysadmin` weghalen, of de valkuilen (`command nixos-rebuild`, `ragenx -e` via stdin)** → lees `docs/nieuwe-laptop.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime

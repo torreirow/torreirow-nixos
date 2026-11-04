@@ -1,10 +1,11 @@
 ---
 # nixos-qq9o
 title: 'wtoorren-admin: standalone homeConfiguration wtoorren@admin (nixhost)'
-status: todo
+status: completed
 type: task
+priority: normal
 created_at: 2026-11-04T20:52:07Z
-updated_at: 2026-11-04T20:52:07Z
+updated_at: 2026-11-04T22:03:45Z
 parent: nixos-tesy
 blocked_by:
     - nixos-xa9h
@@ -20,3 +21,8 @@ Standalone ingang voor niet-NixOS-hosts (eerste: nixhost).
   `/run/current-system/sw/bin/pinentry-tty`); `nix.package`/`targets.genericLinux.enable` waar nodig.
 - `wtoorren@linuxserver` niet aanpassen (malandro). In docs: hoe nixhost overstapt van
   `linuxserver` naar `admin` (`home-manager switch --flake .#wtoorren@admin -b backup`).
+
+
+## Summary of Changes
+
+`homeConfigurations."wtoorren@admin"`: profiel + nixvim, genericLinux, stateVersion 25.11, pinentry-tty in het profiel. activationPackage bouwt zonder --impure. wtoorren@linuxserver ongewijzigd; overstap staat in docs/wtoorren-admin.md.

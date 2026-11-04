@@ -1,11 +1,11 @@
 ---
 # nixos-toj0
 title: 'wtoorren-admin: NixOS-module + aan op mpenzi'
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-11-04T20:39:33Z
-updated_at: 2026-11-04T20:57:05Z
+updated_at: 2026-11-04T22:03:45Z
 parent: nixos-tesy
 blocked_by:
     - nixos-xa9h
@@ -32,3 +32,8 @@ NixOS-module `modules/wtoorren-admin.nix`.
   module is de enige bron. Eval moet daarna hetzelfde account opleveren (uid blijft 1002, `wheel`,
   `networkmanager`, dezelfde sleutel).
 - `createUser = false` voor hosts die het account zelf beheren; dan zet de module alleen HM aan.
+
+
+## Summary of Changes
+
+`modules/wtoorren-admin.nix` (functie van de inputs home-manager/nixvim/bmc/race), opties enable/aws.enable/createUser. mpenzi: eigen users.users.wtoorren weg, `toorren.admin.enable = true`; eval: wheel+networkmanager+sleutel+zsh, alleen de module definieert het account. Geen wheelNeedsPassword/sshAgentAuth.

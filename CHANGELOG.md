@@ -25,6 +25,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **wtoorren-admin: Wouters shell op andere hosts** (`modules/wtoorren-admin.nix`,
+  `homeConfigurations."wtoorren@admin"`). Eén home-manager-profiel met zsh, tmux, nixvim, rbw,
+  atuin, bmc en race, voor NixOS-hosts (één regel: `toorren.admin.enable = true`) en voor
+  niet-NixOS-hosts zoals nixhost.
+  - mpenzi gebruikt het al; het account `wtoorren` komt nu uit de module (wheel, ssh-sleutel,
+    zsh). sudo vraagt nog steeds een wachtwoord.
+  - Via ssh ingelogd blijft de doorgestuurde ssh-agent werken; lokaal is rbw de agent.
+  - De AWS-commando's (`bmc`-functie, `bmcp`, `aws-switch`, `tfplan`…) verschijnen pas als
+    `~/.aws/credentials` op de host staat. `~/.aws/config` alleen met `toorren.admin.aws.enable`.
+  - bmc-MFA kopieert de code via tmux/OSC 52 naar het clipboard van lobos in plaats van wl-copy.
+  - lobos en malandro veranderen niet; atuin/fzf/direnv/jq en `rbwsel` zijn gedeeld
+    (`home/shell-tools.nix`, `home/zsh-rbwsel.nix`).
 - **mpenzi, de laptop van Maaike** (nieuwe host). Een NixOS-laptop voor iemand die van Windows
   komt: Plasma 6 met Windows-achtige defaults en de vertrouwde apps.
   - Plasma 6 + SDDM. Win+E, Win+L en Win+Shift+S doen wat ze onder Windows doen, je opent met

@@ -1,14 +1,11 @@
 # mpenzi: laptop van Maaike (overstap van Windows). Bewust een kale host: geen Hyprland,
-# geen home-manager, geen lobos-overlays. Zie docs/mpenzi.md.
+# geen lobos-overlays en voor Maaike geen home-manager. Wouter krijgt zijn shell via het
+# wtoorren-admin-profiel. Zie docs/mpenzi.md en docs/wtoorren-admin.md.
 #
 # Updates doet Wouter vanaf lobos:
 #   nixos-rebuild switch --flake .#mpenzi --target-host wtoorren@mpenzi --sudo --ask-sudo-password
 { config, lib, pkgs, ... }:
 
-let
-  # Zelfde sleutel als `wtoorren` in secrets/secrets.nix.
-  wtoorrenKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFH+KiVBYLoBByXonUb7Hq7JfZpJJYag1eK5/EQEQKvp";
-in
 {
   imports = [
     ./hardware-configuration.nix
@@ -57,12 +54,8 @@ in
     extraGroups = [ "networkmanager" "lp" "scanner" ];
   };
 
-  users.users.wtoorren = {
-    isNormalUser = true;
-    description = "Wouter";
-    extraGroups = [ "wheel" "networkmanager" ];
-    openssh.authorizedKeys.keys = [ wtoorrenKey ];
-  };
+  # Beheeraccount wtoorren (wheel, ssh-sleutel, zsh + home-manager): modules/wtoorren-admin.nix.
+  toorren.admin.enable = true;
 
   ########## SSH ##########
   services.openssh = {

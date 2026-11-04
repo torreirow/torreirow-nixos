@@ -231,7 +231,8 @@
 ### KARLAPI config END
 
   ## MPENZI config START
-  # Laptop van Maaike: kaal host-blok, geen extraPkgs/overlays/home-manager (zie docs/mpenzi.md).
+  # Laptop van Maaike: kaal host-blok, geen extraPkgs/overlays (zie docs/mpenzi.md). Alleen
+  # Wouter krijgt home-manager, via het wtoorren-admin-profiel.
   nixosConfigurations.mpenzi = nixpkgs.lib.nixosSystem {
     modules =
       let
@@ -242,6 +243,7 @@
       in [
         defaults
         agenix.nixosModules.default
+        (import ./modules/wtoorren-admin.nix { inherit home-manager nixvim bmc race; })
         ./hosts/mpenzi/configuration.nix
       ];
     };
@@ -404,12 +406,50 @@
       });
   #### LINUX SERVER HOMEMANAGER END
 
+  #### WTOORREN-ADMIN HOMEMANAGER START
+  # wtoorren-admin standalone, voor niet-NixOS-hosts (nixhost):
+  #   home-manager switch --flake .#wtoorren@admin -b backup
+  # NixOS-hosts gebruiken modules/wtoorren-admin.nix. Zie docs/wtoorren-admin.md.
+  homeConfigurations."wtoorren@admin" = home-manager.lib.homeManagerConfiguration (
+    let
+      system = "x86_64-linux";
+    in {
+      pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
+      modules = [
+        ./home/profiles/wtoorren-admin
+        nixvim.homeModules.default
+        {
+          home.username = "wtoorren";
+          home.homeDirectory = "/home/wtoorren";
+          # Zelfde als wtoorren@linuxserver, waar nixhost vandaan komt.
+          home.stateVersion = "25.11";
+          programs.home-manager.enable = true;
+          targets.genericLinux.enable = true;
+        }
+      ];
+      extraSpecialArgs = {
+        unstable = import unstable { inherit system; config.allowUnfree = true; };
+        adminInputs = { inherit bmc race; };
+      };
+    });
+  #### WTOORREN-ADMIN HOMEMANAGER END
+
   # VM-tests: nix build .#checks.x86_64-linux.<naam> -L
   checks.x86_64-linux.grainwork =
     nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
       imports = [ ./modules/grainwork_vmtest.nix ];
       # De module declareert age.secrets (ook als agenix = false); de optie moet bestaan.
       defaults.imports = [ agenix.nixosModules.default ];
+    };
+
+  # wtoorren-admin: zsh-login, AWS-wrappers alleen met credentials, SSH_AUTH_SOCK per sessie.
+  checks.x86_64-linux.wtoorren-admin =
+    nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
+      imports = [ ./modules/wtoorren-admin_vmtest.nix ];
+      defaults = {
+        imports = [ (import ./modules/wtoorren-admin.nix { inherit home-manager nixvim bmc race; }) ];
+        _module.args.unstable = import unstable { system = "x86_64-linux"; config.allowUnfree = true; };
+      };
     };
 
   # Nebula-mesh: toegangsbeleid lobos/malandro -> mpenzi (modules/nebula.nix).

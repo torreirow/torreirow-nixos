@@ -1,11 +1,11 @@
 ---
 # nixos-682w
 title: 'wtoorren-admin: VM-test, builds en docs'
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-11-04T20:39:33Z
-updated_at: 2026-11-04T20:52:07Z
+updated_at: 2026-11-04T22:03:46Z
 parent: nixos-tesy
 blocked_by:
     - nixos-toj0
@@ -25,3 +25,8 @@ Testen en documenteren.
 
 - Ook bouwen: `homeConfigurations."wtoorren@admin".activationPackage`. VM-test of eval-check dat de bmc-config geen `wl-copy` bevat.
 - Docs: SSM-sessie werkt niet met rbw/pinentry op nixhost; inloggen via ssh (ook ssh-over-SSM).
+
+
+## Summary of Changes
+
+VM-test `checks.x86_64-linux.wtoorren-admin` (6 subtests) geslaagd. Gebouwd: mpenzi toplevel, wtoorren@admin; wtoorren@linuxserver drvPath ongewijzigd; lobos eval ok. wtoorren@linuxdesktop niet te evalueren op malandro (pad-input hyprquickframe hash-mismatch, bestond al); deelt dezelfde gewijzigde bestanden als linuxserver. Docs: docs/wtoorren-admin.md + CLAUDE.md-index.

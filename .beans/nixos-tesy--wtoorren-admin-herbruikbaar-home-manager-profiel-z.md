@@ -1,11 +1,11 @@
 ---
 # nixos-tesy
 title: 'wtoorren-admin: home-manager-profiel voor hosts buiten lobos/malandro (mpenzi, nixhost)'
-status: todo
+status: in-progress
 type: epic
 priority: normal
 created_at: 2026-11-04T20:39:33Z
-updated_at: 2026-11-04T21:22:28Z
+updated_at: 2026-11-04T21:39:51Z
 ---
 
 Herbruikbaar home-manager-profiel **wtoorren-admin**: de shell-omgeving van Wouter (zsh, tmux, nixvim,
