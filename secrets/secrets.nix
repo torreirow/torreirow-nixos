@@ -154,7 +154,7 @@ in
   # Nebula-mesh toorren (modules/nebula.nix, docs/mpenzi.md). Alleen het CA-certificaat, nooit
   # de CA-sleutel (die staat in Vaultwarden). Per host alleen die host + users als recipient.
   # mpenzi: na de eerste deploy de host-key toevoegen als `mpenzi`, de twee regels hieronder
-  # aanzetten, mpenzi aan nebula-ca toevoegen en `agenix -r` draaien.
+  # aanzetten, mpenzi aan nebula-ca toevoegen en `ragenx -r` draaien.
   "nebula-ca.crt.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation ];
   "nebula-malandro.crt.age".publicKeys = users ++ [ malandro_workstation ];
   "nebula-malandro.key.age".publicKeys = users ++ [ malandro_workstation ];
