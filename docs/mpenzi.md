@@ -14,7 +14,7 @@ geen extraPkgs, geen home-manager). OpenSpec-change: `mpenzi-laptop` (gearchivee
 | Beheer        | ssh alleen met sleutel, geen root; updates handmatig vanaf lobos             |
 | Remote access | Nebula `toorren` (10.77.0.3) + RustDesk direct IP op poort 21118             |
 | Apps          | Firefox, Chrome, OnlyOffice, Nextcloud, Thunderbird, Zoom, Bitwarden,        |
-|               | Spotify, Signal, Audacity, ZapZap (WhatsApp)                                 |
+|               | Spotify, Signal, Audacity, ZapZap (WhatsApp), SMPlayer (standaard), VLC      |
 | Webapps       | Canva en Jitsi Meet als Chrome `--app`-venster                               |
 | Zelf          | Discover + Flathub                                                           |
 

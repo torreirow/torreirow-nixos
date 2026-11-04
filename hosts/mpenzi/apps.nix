@@ -40,6 +40,14 @@ let
     icon = "Nextcloud";
     noDisplay = true;
   };
+
+  # SMPlayer is de standaard-videospeler; VLC staat ernaast. Beide gebruiken de ffmpeg van
+  # nixpkgs (AV1/dav1d, HEVC, VP9, Opus); hardware-decodering via VA-API (mesa radeonsi).
+  videoTypes = [
+    "video/mp4" "video/x-matroska" "video/webm" "video/quicktime" "video/x-msvideo"
+    "video/mpeg" "video/x-flv" "video/x-ms-wmv" "video/3gpp" "video/ogg" "video/mp2t"
+    "video/x-m4v" "video/av1"
+  ];
 in
 {
   programs.firefox.enable = true;
@@ -47,7 +55,7 @@ in
     "text/html" = "firefox.desktop";
     "x-scheme-handler/http" = "firefox.desktop";
     "x-scheme-handler/https" = "firefox.desktop";
-  };
+  } // lib.genAttrs videoTypes (_: "smplayer.desktop");
 
   environment.systemPackages = with pkgs; [
     google-chrome
@@ -60,6 +68,9 @@ in
     signal-desktop
     audacity
     zapzap # WhatsApp (Qt-wrapper om WhatsApp Web; geen officiële Linux-app)
+    smplayer
+    mpv # backend van SMPlayer; het smplayer-pakket brengt hem niet zelf mee
+    vlc
     kdePackages.discover
     canva
     jitsi
