@@ -48,6 +48,11 @@ let
     "video/mpeg" "video/x-flv" "video/x-ms-wmv" "video/3gpp" "video/ogg" "video/mp2t"
     "video/x-m4v" "video/av1"
   ];
+
+  smplayerIni = pkgs.writeText "smplayer.ini" ''
+    [performance]
+    hwdec=auto
+  '';
 in
 {
   programs.firefox.enable = true;
@@ -75,6 +80,17 @@ in
     canva
     jitsi
     canvaIcon
+  ];
+
+  # SMPlayer-startconfig voor maaike: hardware-decodering aan (VA-API, radeonsi; de Ryzen 4700U
+  # decodeert H.264/HEVC/VP9 in hardware, AV1 gaat via dav1d). tmpfiles `C` kopieert alleen als
+  # het bestand nog niet bestaat, dus wat Maaike daarna in SMPlayer kiest blijft staan. Wordt
+  # later onderdeel van herstel-app (epic nixos-kzxu).
+  systemd.tmpfiles.rules = [
+    "d /home/maaike/.config 0700 maaike users -"
+    "d /home/maaike/.config/smplayer 0755 maaike users -"
+    "C /home/maaike/.config/smplayer/smplayer.ini - - - - ${smplayerIni}"
+    "z /home/maaike/.config/smplayer/smplayer.ini 0644 maaike users -"
   ];
 
   # OnlyOffice zonder Microsoft-fonts verschuift Word-documenten.
