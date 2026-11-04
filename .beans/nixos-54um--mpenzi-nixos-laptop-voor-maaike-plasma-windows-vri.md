@@ -1,11 +1,11 @@
 ---
 # nixos-54um
 title: 'mpenzi: NixOS-laptop voor Maaike (Plasma, Windows-vriendelijk, Nebula + RustDesk)'
-status: in-progress
+status: completed
 type: epic
 priority: normal
 created_at: 2026-11-04T16:26:56Z
-updated_at: 2026-11-04T16:32:21Z
+updated_at: 2026-11-04T20:29:58Z
 ---
 
 Nieuwe NixOS-laptop **mpenzi** voor Maaike, die net van Windows overstapt. Een eigen, kaal host-blok

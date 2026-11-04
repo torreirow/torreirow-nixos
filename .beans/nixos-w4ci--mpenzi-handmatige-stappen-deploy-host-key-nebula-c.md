@@ -1,13 +1,13 @@
 ---
 # nixos-w4ci
 title: 'mpenzi: handmatige stappen (deploy, host-key, Nebula-CA, router, sysadmin weg)'
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
     - handmatig
 created_at: 2026-11-04T16:26:56Z
-updated_at: 2026-11-04T17:29:46Z
+updated_at: 2026-11-04T20:29:58Z
 parent: nixos-54um
 blocked_by:
     - nixos-nkux
