@@ -5,7 +5,7 @@ status: todo
 type: epic
 priority: normal
 created_at: 2026-11-04T20:39:33Z
-updated_at: 2026-11-04T20:52:07Z
+updated_at: 2026-11-04T20:57:05Z
 ---
 
 Herbruikbaar home-manager-profiel **wtoorren-admin**: de shell-omgeving van Wouter (zsh, tmux, nixvim,
@@ -20,7 +20,7 @@ rbw, en optioneel AWS-tooling bmc/race) op hosts buiten lobos en malandro (die b
 |----------------|-----------------------------------------------------------------------------------------|
 | Vorm           | Eén HM-profiel, twee ingangen: (1) **NixOS-module** voor NixOS-hosts (mpenzi): bouwt op lobos, gaat mee met `--target-host`; (2) **standalone** `homeConfigurations."wtoorren@admin"` voor niet-NixOS-hosts (nixhost): `home-manager switch --flake .#wtoorren@admin` op de host zelf. `wtoorren@linuxserver` blijft voor malandro |
 | Bestanden      | `modules/wtoorren-admin.nix` (NixOS-module, opties) + `home/profiles/wtoorren-admin/` (HM-profiel: `default.nix`, `base.nix`, `aws.nix`) |
-| Opties         | `toorren.admin.enable` (default false), `toorren.admin.aws.enable` (default false)      |
+| Opties         | `toorren.admin.enable` (default false), `toorren.admin.aws.enable` (default false), `toorren.admin.createUser` (default true: maakt account wtoorren met wheel + ssh-sleutel, zodat een nieuwe NixOS-host met één regel beheerbaar is) |
 | Basis          | zsh, tmux, nixvim, rbw (`programs.rbw` + `~/.config/rbw/config.json` en `rbw-technative`), atuin/fzf/direnv/jq |
 | AWS-tools      | bmc en race-pakketten altijd installeren (zonder credentials doen ze niets)              |
 | AWS-shell      | zsh-wrappers/aliassen (bmc-functie, bmcp, aws-switch, tfplan/tfapply/tfbackend) alleen als op **runtime** `~/.aws/credentials` bestaat. NIET op `~/.aws` checken: HM maakt die map zelf aan |
@@ -55,5 +55,6 @@ runtime-check in zsh ziet de echte toestand op de host.
 - Eval met `aws.enable = true` (VM-test of eval-check, `--impure`) levert wel `.aws/config`.
 - VM-test (`nixosTest`): login-shell zsh werkt; zonder `~/.aws/credentials` bestaat de bmc-functie niet,
   met een dummy-bestand wel; met `SSH_CONNECTION` gezet wijst `SSH_AUTH_SOCK` niet naar rbw.
+- Eval van mpenzi met de module: `users.users.wtoorren` heeft `wheel`, `networkmanager` en de ssh-sleutel, en wordt alleen door de module gedefinieerd.
 - `wtoorren@linuxdesktop` bouwt nog (`--impure`), `wtoorren@linuxserver` ook.
 - Docs: `docs/wtoorren-admin.md` + indexregel in `CLAUDE.md`; OpenSpec change gearchiveerd.
