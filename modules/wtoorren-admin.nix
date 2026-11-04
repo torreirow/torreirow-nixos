@@ -24,6 +24,15 @@ in
     aws.enable = lib.mkEnableOption ''
       ~/.aws/config met de klantaccounts (vraagt --impure bij het bouwen)'';
 
+    editor = lib.mkOption {
+      type = lib.types.enum [ "light" "full" ];
+      default = "light";
+      description = ''
+        Welke nixvim-variant: "light" (zonder LSP-servers, linters en dap; ~0,5 GiB) voor
+        beheer-hosts, of "full" (zoals op lobos; ~2,6 GiB, o.a. trivy, pyright, opentofu).
+      '';
+    };
+
     createUser = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -43,7 +52,7 @@ in
           inherit unstable;
           adminInputs = { inherit bmc race; };
         };
-        sharedModules = [ nixvim.homeModules.default ];
+        sharedModules = [ nixvim.homeModules.${cfg.editor} ];
         users.wtoorren = {
           imports = [ ../home/profiles/wtoorren-admin ];
           toorren.admin.aws.enable = cfg.aws.enable;
