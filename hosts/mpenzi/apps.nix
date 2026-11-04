@@ -56,6 +56,10 @@ in
     thunderbird
     zoom-us
     bitwarden-desktop
+    spotify
+    signal-desktop
+    audacity
+    zapzap # WhatsApp (Qt-wrapper om WhatsApp Web; geen officiële Linux-app)
     kdePackages.discover
     canva
     jitsi
