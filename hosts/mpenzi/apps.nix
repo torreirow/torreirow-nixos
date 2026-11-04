@@ -76,6 +76,7 @@ in
     smplayer
     mpv # backend van SMPlayer; het smplayer-pakket brengt hem niet zelf mee
     vlc
+    alacritty
     kdePackages.discover
     canva
     jitsi
