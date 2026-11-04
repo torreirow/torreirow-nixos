@@ -5,7 +5,7 @@ status: todo
 type: epic
 priority: normal
 created_at: 2026-11-04T20:39:33Z
-updated_at: 2026-11-04T20:57:05Z
+updated_at: 2026-11-04T21:22:28Z
 ---
 
 Herbruikbaar home-manager-profiel **wtoorren-admin**: de shell-omgeving van Wouter (zsh, tmux, nixvim,
@@ -58,3 +58,8 @@ runtime-check in zsh ziet de echte toestand op de host.
 - Eval van mpenzi met de module: `users.users.wtoorren` heeft `wheel`, `networkmanager` en de ssh-sleutel, en wordt alleen door de module gedefinieerd.
 - `wtoorren@linuxdesktop` bouwt nog (`--impure`), `wtoorren@linuxserver` ook.
 - Docs: `docs/wtoorren-admin.md` + indexregel in `CLAUDE.md`; OpenSpec change gearchiveerd.
+
+
+## Besloten na aanmaken (2026-11-04)
+
+- sudo blijft MET wachtwoord voor wtoorren: geen `wheelNeedsPassword = false` en geen `pam.sshAgentAuth` in de module. Deployen blijft `--sudo --ask-sudo-password`.
