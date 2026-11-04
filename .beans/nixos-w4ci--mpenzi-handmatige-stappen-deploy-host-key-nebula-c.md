@@ -19,7 +19,7 @@ NIET door de agent: deze stappen vragen de fysieke laptop, de router of geheime 
 1. Eerste deploy lokaal op mpenzi als `sysadmin` (repo klonen of `--target-host sysadmin@<ip>`).
 2. Host-key `/etc/ssh/ssh_host_ed25519_key.pub` van mpenzi in `secrets/secrets.nix` zetten.
 3. Nebula-CA maken met `nebula-cert ca -name toorren -duration 43800h` (5 jaar; zonder `-duration` verloopt de CA na 1 jaar en valt de toegang stil weg); CA-key in Vaultwarden, NIET in de repo.
-4. Certs per host (`nebula-cert sign -name <host> -ip 10.77.0.X/24`) en als .age versleutelen met `ragenx` (niet `agenix`), vanuit `secrets/`: `EDITOR="cp <tmp>/<host>.crt" ragenx -e nebula-<host>.crt.age` (idem `.key`, en `ca.crt` → `nebula-ca.crt.age`). Controleer met `ragenx -d`.
+4. Certs per host (`nebula-cert sign -name <host> -ip 10.77.0.X/24`) en als .age versleutelen met `ragenx` (niet `agenix`), vanuit `secrets/`: `ragenx -e nebula-<host>.crt.age < <tmp>/<host>.crt` (via stdin; een EDITOR-truc wordt genegeerd als stdin geen terminal is) (idem `.key`, en `ca.crt` → `nebula-ca.crt.age`). Controleer met `ragenx -d`.
 5. Router: UDP 4242 doorsturen naar malandro.
 6. Controleren: `ssh wtoorren@mpenzi.local` + `sudo`, dan `sysadmin` uit de config halen en opnieuw deployen.
 
