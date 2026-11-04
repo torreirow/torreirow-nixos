@@ -60,7 +60,7 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 | `sensor.atag_one_max_boiler_temp`   | 60 °C             | **nee** (alleen sensor → ATAG-app/thermostaat) |
 | Nachtstand / ochtend                | 15 °C / 20,5 °C om 07:15 | programma in ATAG |
 | `switch.atag_one_zomer_eco_mode`    | aan               | ja                 |
-| `number.atag_one_zomer_eco_temp`    | 20 °C             | ja (10–25 °C)      |
+| `number.atag_one_zomer_eco_temp`    | 18 °C (was 20)    | ja (10–25 °C)      |
 
 **Zomer eco:** boven de drempel (buitentemperatuur) stookt de ketel niet voor CV; tapwater blijft
 werken. Niet zichtbaar in de ATAG-app. De integratie `atagone` noemde de drempel ten onrechte
@@ -85,6 +85,7 @@ werken. Niet zichtbaar in de ATAG-app. De integratie `atagone` noemde de drempel
 |-------|-----------|---------------|-----------------------------------|
 | 2026-10-22 21:52 | `temperatuurinvloed` → `average` (aanbeveling 2) | `room_regulation` (nooit eerder gewijzigd) | **geen verbetering:** 5,3 min/start (gelijk), 27,4 starts/dag (was 23,0) |
 | 2026-10-28 ~19:20 | Max CV-aanvoertemperatuur 60 → 50 °C op de ketel zelf (E325EC, installateursparameter; aanbeveling 3). `average` blijft staan. CV bijgevuld 1,4 → 2,0 bar | 60 °C | **runs niet langer:** 5,3 min/start (gelijk), 19,8 starts/dag (was 23,0 baseline, 27,4 `average`), 105 stookmin/dag (was 122). HA-sensor `max_boiler_temp` toonde pas na herstart van HA (reboot malandro 28 okt 19:35) 50 °C: de integratie leest deze waarde alleen bij opstarten |
+| 2026-11-03 11:17 | Zomer-eco-drempel 20 → 18 °C (goed geïsoleerd huis: boven 18 °C buiten geen warmtevraag, alleen korte runs). Geen effect in de winter | 20 °C | pas te zien in lente/herfst |
 
 ### Observaties `average`
 
