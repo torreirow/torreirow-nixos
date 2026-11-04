@@ -90,6 +90,8 @@ in
         nebula-cert = ageSecret ageFiles.cert;
         nebula-key = ageSecret ageFiles.key;
       };
+      # Op malandro/lobos lopen de agenix-paden via /run/keys (0750 root:keys).
+      users.users.${owner}.extraGroups = [ "keys" ];
     })
 
     (lib.mkIf active {
