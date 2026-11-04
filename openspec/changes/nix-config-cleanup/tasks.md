@@ -13,9 +13,9 @@
 
 ## 3. Configuratie-fouten corrigeren
 
-- [ ] 3.1 Herstel typefout in `hosts/lobos/lobos-secrets.nix:40`: `update_latop` → `update_laptop`
-- [ ] 3.2 Herstel typefout in `hosts/malandro/malandro-secrets.nix:28`: `update_latop` → `update_laptop`
-- [ ] 3.3 Controleer via grep of `update_latop` nog ergens anders voorkomt in de repo
+- [x] 3.1 ~~Typefout `update_latop` in `lobos-secrets.nix`~~ — vervallen: secret verwijderd in 3677a2d (vervangen door `update-system`)
+- [x] 3.2 ~~Typefout `update_latop` in `malandro-secrets.nix`~~ — vervallen: idem
+- [x] 3.3 `update_latop` komt nergens meer voor; dangling symlink `/data/scripts/update_laptop.sh` op lobos verwijderd
 - [ ] 3.4 Corrigeer locale in `hosts/malandro/configuration.nix`: `"nl.UTF-8"` → `"nl_NL.UTF-8"`
 
 ## 4. Dode code en lege modules verwijderen

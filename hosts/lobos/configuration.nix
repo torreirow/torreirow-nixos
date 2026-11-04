@@ -30,8 +30,17 @@
     message = "ERROR: Deze configuratie is voor 'lobos', maar hostname is '${config.networking.hostName}'. Gebruik --flake .#${config.networking.hostName}";
   }];
 
+  # GitHub-PAT tegen de API-rate-limit bij flake-updates; leesbaar voor wheel omdat
+  # `nix flake update` als gebruiker ophaalt. `!include` slaat een ontbrekend bestand over.
+  age.secrets.nix-access-tokens = {
+    file = ../../secrets/nix-access-tokens.age;
+    group = "wheel";
+    mode = "0440";
+  };
+
   nix.extraOptions = ''
     experimental-features = nix-command flakes
+    !include ${config.age.secrets.nix-access-tokens.path}
     '';
 
   # Nix-build-throttling (OpenSpec change throttle-nix-builds).

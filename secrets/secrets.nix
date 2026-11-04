@@ -150,4 +150,6 @@ in
   "grainwork-pocket-id-encryption-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "grainwork-oauth2-proxy-client.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "grainwork-oauth2-proxy-cookie.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "nix-access-tokens.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
 }
