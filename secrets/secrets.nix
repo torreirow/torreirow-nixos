@@ -161,4 +161,8 @@ in
   "nebula-lobos.key.age".publicKeys    = users ++ [ wtoorren_workstation ];
   "nebula-mpenzi.crt.age".publicKeys   = users ++ [ mpenzi ];
   "nebula-mpenzi.key.age".publicKeys   = users ++ [ mpenzi ];
+
+  # Spotify-login van Maaike op mpenzi (epic nixos-kzxu): volledige prefs incl. autologin-token,
+  # landt via agenix op /home/maaike/.config/spotify/prefs. Alleen mpenzi + users.
+  "spotify-maaike.age".publicKeys = users ++ [ mpenzi ];
 }
