@@ -867,11 +867,11 @@
         "nixpkgs": "nixpkgs_14"
       },
       "locked": {
-        "lastModified": 1785503863,
-        "narHash": "sha256-JrYhttNQhxduKMKhOL0SF9tp2nxjs7NODeurabybILk=",
+        "lastModified": 1793819131,
+        "narHash": "sha256-kR+2HovTHdQ/dMzNM/3SEoyomMfIrk7U6uC7NEc8qEI=",
         "owner": "torreirow",
         "repo": "rbw",
-        "rev": "baa90c0516a3e548567a1ac0b1a7f8b2ce6b9b6c",
+        "rev": "a47030d591497ccde7b9145dae7c10f948f79beb",
         "type": "github"
       },
       "original": {
