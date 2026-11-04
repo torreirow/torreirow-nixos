@@ -104,9 +104,11 @@ in
         lighthouses = lib.optional (!isLighthouse) lighthouseIp;
         relays = lib.optional (!isLighthouse) lighthouseIp;
         staticHostMap = { ${lighthouseIp} = cfg.lighthouseEndpoints; };
-        # Lighthouse luistert vast op 4242 (de module zet de UDP-poort in de host-firewall
-        # open); nodes kiezen een willekeurige poort.
-        listen.port = if isLighthouse then 4242 else 0;
+        # Alle hosts luisteren vast op 4242. Met een willekeurige poort (0) hield de host-firewall
+        # van de nodes de eerste pakketten tegen, waardoor lobos en mpenzi zelfs op hetzelfde LAN
+        # pas na 5-8 s via de relay verbonden (gemeten 2026-11-04). Achter CGNAT (5G) blijft de
+        # relay nodig; dat lost een vaste poort niet op.
+        listen.port = 4242;
         settings.punchy = { punch = true; respond = true; };
         firewall = {
           outbound = [{ port = "any"; proto = "any"; host = "any"; }];
@@ -118,6 +120,9 @@ in
       # De Nebula-firewall hierboven is de poortwachter voor de overlay; de host-firewall
       # vertrouwt de tun-interface zodat er geen tweede, afwijkende regelset ontstaat.
       networking.firewall.trustedInterfaces = [ "nebula.${netName}" ];
+      # Underlay-poort open op elke host (de nixpkgs-module doet dat niet zelf). Nebula neemt
+      # alleen handshakes met een certificaat van de eigen CA aan.
+      networking.firewall.allowedUDPPorts = [ 4242 ];
     })
   ]);
 }
