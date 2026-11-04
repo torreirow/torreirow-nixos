@@ -7,7 +7,7 @@ priority: normal
 tags:
     - handmatig
 created_at: 2026-11-04T21:10:32Z
-updated_at: 2026-11-04T21:39:50Z
+updated_at: 2026-11-04T21:54:34Z
 parent: nixos-kzxu
 blocked_by:
     - nixos-h295
@@ -27,3 +27,7 @@ NIET door de agent.
 - Nextcloud-wizard doorlopen door Maaike (server nxc.toorren.net, gebruiker mtoorren); `nextcloud.cfg` klaar om vast te leggen.
 
 - `home/profiles/maaike/defaults/nextcloud.cfg` vastgelegd (zonder `displayName`; geen geheimen, app-wachtwoord staat in KWallet).
+
+- ZapZap en Signal gekoppeld (QR) door Maaike.
+
+- `home/profiles/maaike/defaults/ZapZap.conf` vastgelegd (alleen instellingen; sessie in ~/.local/share/ZapZap niet). Signal bewust niet vastgelegd: config.json bevat encryptedKey; herstel = opnieuw koppelen.
