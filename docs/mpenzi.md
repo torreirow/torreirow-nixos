@@ -10,7 +10,7 @@ geen extraPkgs, geen home-manager). OpenSpec-change: `mpenzi-laptop` (gearchivee
 |---------------|------------------------------------------------------------------------------|
 | Basis         | NixOS 26.05, Plasma 6 + SDDM (Wayland), systemd-boot, LUKS root + swap       |
 | Taal          | `nl_NL.UTF-8`, `Europe/Amsterdam`, toetsenbord `us` variant `intl`           |
-| Gebruikers    | `maaike` (geen wheel), `wtoorren` (wheel + ssh-key), `sysadmin` (tijdelijk)  |
+| Gebruikers    | `maaike` (geen wheel), `wtoorren` (wheel + ssh-key)                          |
 | Beheer        | ssh alleen met sleutel, geen root; updates handmatig vanaf lobos             |
 | Remote access | Nebula `toorren` (10.77.0.3) + RustDesk direct IP op poort 21118             |
 | Apps          | Firefox, Chrome, OnlyOffice, Nextcloud, Thunderbird, Zoom, Bitwarden,        |
@@ -86,8 +86,12 @@ Router: UDP 4242 doorsturen naar malandro (192.168.2.52).
 
 ## RustDesk
 
-- mpenzi draait `rustdesk --service` als systeemservice (zoals het upstream .deb-pakket). Daardoor
-  neemt RustDesk verbindingen aan, ook als het venster dicht is.
+- mpenzi draait `rustdesk --service` als systeemservice (zoals het upstream .deb-pakket). Onder
+  Wayland (de Plasma-sessie van Maaike) doet die niets: het log toont `cannot open display:` en
+  poort 21118 luistert niet. Getest 2026-11-04.
+- Werkwijze: Maaike opent RustDesk zelf als ze hulp wil en keurt "scherm delen" goed. Zolang het
+  venster open is, luistert RustDesk op 21118 (alleen bereikbaar via Nebula, dicht op het LAN).
+  Bewust geen autostart.
 - Bij de start zet de service `direct-server = 'Y'` in `/root/.config/rustdesk/RustDesk2.toml`,
   alleen als die optie er nog niet staat.
 - Verbinden vanaf lobos: RustDesk openen, `10.77.0.3` als ID invullen.

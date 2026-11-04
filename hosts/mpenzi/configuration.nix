@@ -64,12 +64,6 @@ in
     openssh.authorizedKeys.keys = [ wtoorrenKey ];
   };
 
-  # Installatie-account. Blijft tot wtoorren via ssh + sudo werkt; daarna weg (handmatige stap).
-  users.users.sysadmin = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
-  };
-
   ########## SSH ##########
   services.openssh = {
     enable = true;
