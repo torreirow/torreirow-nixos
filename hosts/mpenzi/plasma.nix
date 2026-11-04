@@ -16,6 +16,8 @@
     "xdg/kdeglobals".text = ''
       [General]
       BrowserApplication=firefox.desktop
+      TerminalApplication=alacritty
+      TerminalService=Alacritty.desktop
 
       [KDE]
       SingleClick=false
@@ -29,6 +31,12 @@
 
       [services][org.kde.dolphin.desktop]
       _launch=Meta+E
+
+      [services][org.kde.konsole.desktop]
+      _launch=none
+
+      [services][Alacritty.desktop]
+      _launch=Ctrl+Alt+T
 
       [services][org.kde.spectacle.desktop]
       RectangularRegionScreenShot=Meta+Shift+S
