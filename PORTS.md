@@ -7,6 +7,7 @@ This document provides an overview of all ports in use on the Malandro server.
 | Port | Service | Binding | Type | Description |
 |------|---------|---------|------|-------------|
 | 8080 | Vaultwarden | 127.0.0.1 | Native | Password manager (Bitwarden compatible) |
+| 2283 | Immich | 127.0.0.1 | Native | Fotobackup + API voor de reisapps (photos.toorren.net), originelen op JuiceFS `immich` |
 | 8081 | Baikal | 127.0.0.1 | Docker | CalDAV/CardDAV server |
 | 8082 | Infcloud | 127.0.0.1 | Docker | Web calendar interface |
 | 8083 | Erugo | 127.0.0.1 | Docker | Task management |
@@ -80,6 +81,7 @@ All these services are accessible via HTTPS through Nginx reverse proxy with Aut
 - `nxc.toorren.net` → Nextcloud (externe host `192.168.2.67:11000`, TLS termineert op malandro; WebSocket + 10G upload)
 - `status.toorren.net` → Status Dashboard (9099) - **Note: Authelia protected**
 - `markmysteps.toorren.net` → MarkMySteps (8091) - **Note: GEEN Authelia** (Android-app via /api, privélink voor thuisfront)
+- `photos.toorren.net` → Immich (2283) - **Note: GEEN Authelia forward-auth** (app, API-sleutels, deellinks; login via Authelia-OIDC)
 - `reis.toorren.net` → OwnSteps (8089) - **Note: GEEN Authelia** (publieke deellinks + Android-API; eigen login)
 - *(Add other domains as configured in nginx modules)*
 
