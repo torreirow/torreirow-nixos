@@ -22,6 +22,7 @@
 #   ../../modules/monitoring
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
+    ../../modules/nebula.nix
     ];
 
   # Safety check: prevent building wrong config on wrong host
@@ -98,6 +99,8 @@ boot.binfmt.preferStaticEmulators = true;
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
    networking.firewall.enable = true;
+  # Nebula-mesh naar malandro/mpenzi (o.a. RustDesk naar 10.77.0.3), zie docs/mpenzi.md.
+  toorren.nebula.enable = true;
 
 
 

@@ -25,6 +25,22 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **mpenzi, de laptop van Maaike** (nieuwe host). Een NixOS-laptop voor iemand die van Windows
+  komt: Plasma 6 met Windows-achtige defaults en de vertrouwde apps.
+  - Plasma 6 + SDDM. Win+E, Win+L en Win+Shift+S doen wat ze onder Windows doen, je opent met
+    dubbelklik en Firefox is de standaardbrowser. Maaike kan dit allemaal zelf overschrijven.
+  - Firefox, Chrome, OnlyOffice (met Microsoft-fonts), Nextcloud (start mee), Thunderbird, Zoom
+    en Bitwarden. Canva en Jitsi Meet staan als los Chrome-venster in het menu. Andere apps
+    installeert ze zelf via Discover + Flathub.
+  - `maaike` zit niet in wheel. Wouter beheert de laptop via ssh (alleen met sleutel) en deployt
+    vanaf lobos met `--target-host`. Er is geen automatische upgrade.
+- **Nebula-mesh `toorren`** (`modules/nebula.nix`, 10.77.0.0/24). Een privénetwerk tussen
+  malandro (lighthouse/relay), lobos en mpenzi, ook als mpenzi niet thuis is.
+  - Op mpenzi mag alleen lobos bij ssh (22) en RustDesk (21118); op wifi/LAN blijft alles dicht.
+  - Nebula gaat pas aan als de certificaten als `.age` in de repo staan; tot die tijd bouwt elke
+    host gewoon. VM-test: `nix build .#checks.x86_64-linux.nebula`.
+- **RustDesk zonder publieke relay**. mpenzi draait RustDesk als systeemservice met directe
+  IP-toegang; lobos heeft de client. Verbinden gaat via het Nebula-IP `10.77.0.3`.
 - **EGH-huisstijl op de uploadpagina** (`eghupload.toorren.net`). De pagina lijkt nu op de
   EGH-presentaties.
   - De titel "upload" staat in Blenda Script, alle andere tekst in Letter Gothic Std. Die laatste

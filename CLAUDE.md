@@ -43,6 +43,7 @@
 - **Vragen over File Drop, `eghupload.toorren.net`, de Go-dienst `filedrop` (Cap-captcha, naam/e-mail verplicht, Signal-melding), de Nextcloud-share van `nxceghmedia`/`eghuploads`, het vervangen van share-token/Cap-sleutel of de huisstijl (Blenda Script, Letter Gothic alleen op malandro, hero-achtergrond)** → lees `docs/filedrop.md`
 - **Vragen over Umami, `stats.toorren.net`, bezoekersaantallen/land/stad van de websites, het meetscript (`s.js`, `sub_filter`, `trackedSites`), de website-ID's of de Cloudflare-sites (noraly, devos, recepten, stichtingwittevelden)** → lees `docs/umami.md`
 - **Vragen over OwnSteps, `reis.toorren.net`, de reisblog/Polarsteps-vervanger, `ownsteps-env.age` of waarom er geen Authelia voor staat** → lees `docs/ownsteps.md`
+- **Vragen over mpenzi (laptop van Maaike), de Nebula-mesh (`modules/nebula.nix`, 10.77.0.0/24, lighthouse malandro), RustDesk via het Nebula-IP, de Plasma-defaults in `/etc/xdg` of deployen met `--target-host wtoorren@mpenzi`** → lees `docs/mpenzi.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 

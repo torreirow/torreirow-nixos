@@ -1,10 +1,11 @@
 ---
 # nixos-e41o
 title: 'Nebula-mesh: lighthouse malandro, nodes lobos + mpenzi'
-status: todo
+status: completed
 type: task
+priority: normal
 created_at: 2026-11-04T16:26:56Z
-updated_at: 2026-11-04T16:26:56Z
+updated_at: 2026-11-04T18:03:39Z
 parent: nixos-54um
 blocked_by:
     - nixos-nkux
@@ -20,3 +21,8 @@ Nebula-mesh, altijd aan, alleen eigen overlay-verkeer (raakt het gewone internet
 - Certs/keys via agenix (`secrets/nebula-<host>.{crt,key}.age` + `ca.crt`), entries in `secrets/secrets.nix`.
   De .age-bestanden zelf maakt de gebruiker (handmatige bean); de config moet zonder evalueren/bouwen.
 - Nebula-firewall: inbound ICMP overal; op mpenzi tcp 22 en 21118 alleen van host `lobos` (of group `admin`).
+
+
+## Resultaat
+
+modules/nebula.nix (10.77.0.0/24, lighthouse malandro), geïmporteerd op malandro/lobos/mpenzi; staat uit tot de .age-certs bestaan. VM-test checks.x86_64-linux.nebula geslaagd; malandro dry-build en lobos-eval geslaagd. OpenSpec: mpenzi-laptop.

@@ -1,10 +1,11 @@
 ---
 # nixos-v0p3
 title: 'mpenzi: Plasma-defaults en apps'
-status: todo
+status: completed
 type: task
+priority: normal
 created_at: 2026-11-04T16:26:56Z
-updated_at: 2026-11-04T16:26:56Z
+updated_at: 2026-11-04T18:03:39Z
 parent: nixos-54um
 blocked_by:
     - nixos-nkux
@@ -21,3 +22,8 @@ Plasma 6 Windows-vriendelijk inrichten en de apps installeren.
 - Canva: desktopentry die Chrome start met `--app=https://www.canva.com` (eigen naam + icoon).
 - `services.flatpak.enable` + Flathub-remote (bv. oneshot-service), Discover aanwezig.
 - `../../modules/printer-thuis.nix` importeren.
+
+
+## Resultaat
+
+hosts/mpenzi/{plasma,apps}.nix: Plasma 6 + /etc/xdg-defaults, apps, Canva/Jitsi als Chrome-webapp (jitsi-meet-electron is insecure in 26.05), Nextcloud-autostart, Flathub. OpenSpec: mpenzi-laptop.

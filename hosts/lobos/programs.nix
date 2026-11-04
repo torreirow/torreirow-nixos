@@ -51,6 +51,7 @@ programs.firefox = {
 };
 
 environment.systemPackages = with pkgs; [
+    rustdesk-flutter  # meekijken op mpenzi via Nebula (docs/mpenzi.md)
     m32edit
     audacity
     calf

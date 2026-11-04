@@ -1,10 +1,11 @@
 ---
 # nixos-nkux
 title: 'mpenzi: host-basis (flake-blok, hardware, LUKS, gebruikers, ssh)'
-status: todo
+status: completed
 type: task
+priority: normal
 created_at: 2026-11-04T16:26:56Z
-updated_at: 2026-11-04T16:26:56Z
+updated_at: 2026-11-04T18:03:38Z
 parent: nixos-54um
 ---
 
@@ -18,3 +19,8 @@ Nieuw host-blok `nixosConfigurations.mpenzi` in `flake.nix` (kaal, model `karlap
 - `services.openssh` aan, `PasswordAuthentication = false`, `PermitRootLogin = "no"`
 - avahi met `nssmdns4` zodat `mpenzi.local` thuis werkt
 - `nixpkgs.config.allowUnfree = true`, `fwupd` aan, `nix.gc` wekelijks
+
+
+## Resultaat
+
+Host-blok in flake.nix, hosts/mpenzi/{configuration,hardware-configuration}.nix. Toplevel-build en acceptatie-eval geslaagd (maaike geen wheel, wtoorren wheel+key, ssh key-only, geen autoUpgrade). OpenSpec: mpenzi-laptop.

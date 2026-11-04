@@ -230,6 +230,23 @@
     };
 ### KARLAPI config END
 
+  ## MPENZI config START
+  # Laptop van Maaike: kaal host-blok, geen extraPkgs/overlays/home-manager (zie docs/mpenzi.md).
+  nixosConfigurations.mpenzi = nixpkgs.lib.nixosSystem {
+    modules =
+      let
+        system = "x86_64-linux";
+        defaults = { pkgs, ... }: {
+          _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
+        };
+      in [
+        defaults
+        agenix.nixosModules.default
+        ./hosts/mpenzi/configuration.nix
+      ];
+    };
+### MPENZI config END
+
   ### LINUX HOMEMANAGER START ROOT
   homeConfigurations."root@linuxdesktop" = home-manager.lib.homeManagerConfiguration(
     let
@@ -392,6 +409,13 @@
     nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
       imports = [ ./modules/grainwork_vmtest.nix ];
       # De module declareert age.secrets (ook als agenix = false); de optie moet bestaan.
+      defaults.imports = [ agenix.nixosModules.default ];
+    };
+
+  # Nebula-mesh: toegangsbeleid lobos/malandro -> mpenzi (modules/nebula.nix).
+  checks.x86_64-linux.nebula =
+    nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
+      imports = [ ./modules/nebula_vmtest.nix ];
       defaults.imports = [ agenix.nixosModules.default ];
     };
 
