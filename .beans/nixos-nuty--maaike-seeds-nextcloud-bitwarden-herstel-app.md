@@ -5,7 +5,7 @@ status: todo
 type: task
 priority: normal
 created_at: 2026-11-04T21:10:32Z
-updated_at: 2026-11-04T21:14:51Z
+updated_at: 2026-11-04T21:39:50Z
 parent: nixos-kzxu
 blocked_by:
     - nixos-8tac
@@ -18,3 +18,5 @@ Seeds + `herstel-app`.
 
 
 - Bestaat al (sinds a563af2+): SMPlayer-seed via `systemd.tmpfiles` `C` in `hosts/mpenzi/apps.nix` (`[performance] hwdec=auto`). Overzetten naar het seed-mechanisme van het profiel en opnemen in `herstel-app maaike smplayer`; de tmpfiles-regels dan weghalen.
+
+- Gouden Nextcloud-config staat al in `home/profiles/maaike/defaults/nextcloud.cfg` (vastgelegd van mpenzi, client 34.0.4). Gebruik die als seed i.p.v. zelf een cfg te schrijven.

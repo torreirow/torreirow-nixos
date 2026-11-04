@@ -7,7 +7,7 @@ priority: normal
 tags:
     - handmatig
 created_at: 2026-11-04T21:10:32Z
-updated_at: 2026-11-04T21:30:47Z
+updated_at: 2026-11-04T21:39:50Z
 parent: nixos-kzxu
 blocked_by:
     - nixos-h295
@@ -23,3 +23,7 @@ NIET door de agent.
 ## Voortgang 2026-11-04
 - Spotify en Bitwarden ingelogd door Maaike.
 - Stap 2 klaar: `secrets/spotify-maaike.age` (4 autologin-regels, 2 recipients) + regel in `secrets.nix`, commit 8240fde.
+
+- Nextcloud-wizard doorlopen door Maaike (server nxc.toorren.net, gebruiker mtoorren); `nextcloud.cfg` klaar om vast te leggen.
+
+- `home/profiles/maaike/defaults/nextcloud.cfg` vastgelegd (zonder `displayName`; geen geheimen, app-wachtwoord staat in KWallet).
