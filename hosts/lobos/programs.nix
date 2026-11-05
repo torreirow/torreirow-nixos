@@ -51,6 +51,7 @@ programs.firefox = {
 };
 
 environment.systemPackages = with pkgs; [
+    gitleaks  # pre-commit secret-scan (.githooks/pre-commit); anders nix run, verdwijnt bij gc
     rustdesk-flutter  # meekijken op mpenzi via Nebula (docs/mpenzi.md)
     m32edit
     audacity

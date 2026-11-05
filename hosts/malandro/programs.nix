@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs; [
     wireguard-tools
     unstable.beans
+    gitleaks  # pre-commit secret-scan (.githooks/pre-commit); anders nix run, verdwijnt bij gc
     rtk
     #cooklang
     #flameshot
