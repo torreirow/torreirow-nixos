@@ -112,6 +112,15 @@ in
         'set -g prefix C-b; unbind C-a; bind C-b send-prefix' \
         'set -g prefix C-a; unbind C-b; bind C-a send-prefix'
 
+      # Splitsen en panes wisselen. Stond alleen in een los ~/.tmux.conf op lobos (niet door Nix
+      # beheerd), waardoor prefix+v/h op malandro, mpenzi en nixhost niets deden.
+      bind-key v split-window -h
+      bind-key h split-window -v
+      bind -n M-Left select-pane -L
+      bind -n M-Right select-pane -R
+      bind -n M-Up select-pane -U
+      bind -n M-Down select-pane -D
+
       bind T popup -E -w 80% -h 80% 'tj --columns --sort-activity --no-sound --no-notify'
       bind J popup -E -d '#{pane_current_path}' -w 90% -h 90% 'lazyjj'
       bind B popup -E -d '#{pane_current_path}' -w 90% -h 90% 'beans-tui-popup'
