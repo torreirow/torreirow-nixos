@@ -13,6 +13,7 @@
     ./plasma.nix
     ./apps.nix
     ./rustdesk.nix
+    ./power.nix
     ../../modules/printer-thuis.nix
     ../../modules/nebula.nix
     ../../modules/maaike-apps.nix

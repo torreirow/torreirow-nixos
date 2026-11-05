@@ -15,6 +15,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `/Documents/reMarkable`.
 
 ### Fixed
+- **mpenzi gaat niet meer uit bij het wekken uit de slaapstand**. Met de aan/uit-knop wakker
+  maken zette de laptop uit en bleef daarbij hangen op "power off". De wek-druk wordt nu
+  genegeerd als uitzet-opdracht; uitzetten via het menu werkt gewoon.
 - **Magister-overzichtspagina toont tekens weer goed**. Op `agenda.toorren.net` stond
   "Toevoegen â†’ Via URL" in plaats van "Toevoegen → Via URL". De pagina meldt nu dat ze UTF-8
   is, zowel in de HTML als in de nginx-header.

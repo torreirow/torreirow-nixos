@@ -112,6 +112,23 @@ In nixpkgs 26.05 hangt dat pakket aan Electron 41, dat EOL is en als insecure st
 insecure pakket op de laptop van een beginnende gebruiker willen we niet. Jitsi werkt in Chrome net
 zo goed, dus het is een webapp geworden.
 
+## Slaapstand (IdeaPad 5 14ARE05)
+
+Dit model kent alleen `s2idle` (BIOS `DTCN24WW`; fwupd heeft geen BIOS-update, Lenovo's installer
+vraagt Windows).
+
+- Toetsen en touchpad wekken hem niet: de kernel zet IRQ1-wake uit (`atkbd serio0: Disabling IRQ1
+  wakeup source to avoid platform firmware bug`). Wekken gaat met de aan/uit-knop of het deksel.
+- De wek-druk op de aan/uit-knop kwam binnen als poweroff van de kernel (`kernel.poweroff_cmd`,
+  vóór het ontdooien, `SIGRTMIN+4` aan PID 1). Het uitzetten bleef hangen op de bevroren
+  sessies.
+- Fix (`hosts/mpenzi/power.nix`): `kernel.poweroff_cmd` is een wrapper die een poweroff negeert
+  zolang `/run/suspend-bezig` bestaat (gezet door `powerDownCommands`, weg via `resumeCommands`).
+  Uitzetten via menu of knop buiten de slaap gaat gewoon via logind.
+- Controle na het wekken: `journalctl -k | grep poweroff-na-wekken`.
+- Werkt dit niet: het verborgen BIOS-menu kan naar S3 schakelen (ArchWiki "Lenovo IdeaPad 5
+  14are05"). Handwerk in het BIOS, alleen als laatste stap.
+
 ## Handmatige stappen
 
 Bean `nixos-w4ci`: eerste deploy, host-key, wachtwoorden, Nebula-CA/certs, router, RustDesk-check,
