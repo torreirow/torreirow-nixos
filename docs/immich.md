@@ -92,8 +92,29 @@ host-firewall van lobos houdt de poort dicht op wifi/LAN. Opgezet 2026-11-05 (Op
 
 - **Lobos uit of in slaap:** Immich controleert de URL elke 30 s en logt alleen bij een wissel
   ("became unhealthy/healthy"). ML-taken van uploads in die tijd mislukken (één waarschuwing per
-  taak). Inhalen: Administratie → Taken → bij Slim zoeken en Gezichtsdetectie **Ontbrekende**.
-  Gezichten clusteren gebeurt ook in de nachtelijke taak.
+  taak). Inhalen gaat automatisch met de timer `immich-ml-catchup` (hieronder); met de hand:
+  https://photos.toorren.net/admin/queues → Smart Search en Face Detection → **Missing**.
+- **Admin-menu:** alleen voor admin-accounts. Het eigen OIDC-account is een gewone gebruiker;
+  log in met `immich-admin@toorren.net` (wachtwoord-login) of maak het eigen account admin.
+
+### Inhaal-timer `immich-ml-catchup` (malandro)
+
+`modules/immich-ml-catchup/` (OpenSpec `immich-ml-catchup`, bean `nixos-h8zb`). Elke 10 minuten
+pingt hij `http://10.77.0.2:3003/ping`. Was ML de vorige keer onbereikbaar, is het de eerste run,
+of is de laatste start ouder dan 6 uur, dan start hij `PUT /api/jobs/smartSearch` en
+`/faceDetection` met `force=false` (= Missing). Toestand in `/var/lib/immich-ml-catchup/state`.
+Test: `nix build .#checks.x86_64-linux.immich-ml-catchup -L`.
+
+Zonder `secrets/immich-ml-catchup-key.age` staat de timer uit (build-warning). Sleutel maken:
+
+1. Als `immich-admin@toorren.net`: avatar → Account Settings → API Keys → New API Key, naam
+   `ml-catchup`, rechten alleen **job.create**. Kopieer de sleutel.
+2. `cd secrets && wl-paste | tr -d '\n' | sudo ragenx -e immich-ml-catchup-key.age --ssh-dir /etc/ssh`
+3. `git add secrets/immich-ml-catchup-key.age`, committen, malandro rebuilden.
+4. Controle: `sudo systemctl start immich-ml-catchup; journalctl -u immich-ml-catchup -n 5`.
+
+Let op: `PUT /api/jobs/:name` is sinds Immich 2.4 deprecated (de opvolger kan alleen pauzeren).
+Verdwijnt het bij een upgrade, dan faalt de dienst met een HTTP-fout.
 - **Eerste keer:** de modellen (CLIP `ViT-B-32__openai`, gezichten `buffalo_l`) komen bij de eerste
   aanvraag van Hugging Face in `/var/cache/immich-ml`. Daarna één keer **Alle** draaien voor
   Slim zoeken en Gezichtsdetectie, met lobos aan het net.

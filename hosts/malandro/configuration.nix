@@ -68,6 +68,7 @@
  ../../modules/juicefs-nextcloud-mount.nix
  ../../modules/juicefs-immich.nix
  ../../modules/immich.nix
+ ../../modules/immich-ml-catchup
  ../../modules/torrlinny.nix
  ../../modules/linny-mcp.nix
  ../../modules/grainwork.nix

@@ -470,6 +470,10 @@
       ];
     };
 
+  # Immich: ML-jobs inhalen als lobos terug is (modules/immich-ml-catchup).
+  checks.x86_64-linux.immich-ml-catchup =
+    nixpkgs.legacyPackages.x86_64-linux.callPackage ./modules/immich-ml-catchup/test.nix { };
+
   checks.x86_64-linux.nebula =
     nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
       imports = [ ./modules/nebula_vmtest.nix ];

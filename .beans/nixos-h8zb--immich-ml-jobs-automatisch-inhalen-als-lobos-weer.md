@@ -1,11 +1,11 @@
 ---
 # nixos-h8zb
 title: Immich ML-jobs automatisch inhalen als lobos weer online komt
-status: todo
+status: in-progress
 type: task
 priority: deferred
 created_at: 2026-11-05T10:37:23Z
-updated_at: 2026-11-05T10:37:23Z
+updated_at: 2026-11-05T11:44:24Z
 parent: nixos-esgu
 ---
 

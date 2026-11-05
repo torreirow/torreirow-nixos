@@ -96,6 +96,7 @@ in
   "juicefs-immich-rsa-key.age".publicKeys    = users ++ [ wtoorren_workstation malandro_workstation ];
   "immich-oidc.age".publicKeys               = users ++ [ wtoorren_workstation malandro_workstation ];
   "immich-admin-password.age".publicKeys     = users ++ [ wtoorren_workstation malandro_workstation ];
+  "immich-ml-catchup-key.age".publicKeys     = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
   "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
