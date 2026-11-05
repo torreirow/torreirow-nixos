@@ -1,11 +1,11 @@
 ---
 # nixos-3pjm
 title: Immich-app op de Nothing Phone koppelen (gebruikerstaak)
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-11-02T23:06:48Z
-updated_at: 2026-11-02T23:06:48Z
+updated_at: 2026-11-05T09:23:55Z
 parent: nixos-ypet
 ---
 

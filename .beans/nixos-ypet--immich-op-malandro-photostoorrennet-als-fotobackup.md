@@ -1,11 +1,11 @@
 ---
 # nixos-ypet
 title: Immich op malandro (photos.toorren.net) als fotobackup en bron voor de reisapps
-status: in-progress
+status: completed
 type: epic
 priority: normal
 created_at: 2026-11-02T21:56:32Z
-updated_at: 2026-11-02T23:07:11Z
+updated_at: 2026-11-05T09:23:55Z
 ---
 
 Immich op malandro: automatische fotobackup van de Nothing Phone en foto-bron (API-sleutel) voor
