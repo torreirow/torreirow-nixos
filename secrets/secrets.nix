@@ -5,6 +5,7 @@ let
 
   wtoorren_workstation = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGt4v9ns8+HmnoyTMGvH7bNpgN4MkTgYst2YgSYzPTfO";
   malandro_workstation = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFwxP+MM4rwc6T5g4NZrjSYxQ3yRwlFCK6pnXZt/JWCX";
+  mpenzi = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF+2/Lgc87e2OuXe7eaAyL3Z7ZvvVUB49hWWPbF4/KAH root@mpenzi";
   #prod = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB65TTLa+J49yEthFh98kadBZTIMFQSLO4uw7xgfjGy/";
   prod = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICKG+/j0X7t8IhYpCeLExMV3ddsgC4B7zh5tybEJpnLE";
   nonprod = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMRZYXbx6yNqp7wCxztD2pHILbe+Kou+s15GnNaq0+b1";
@@ -156,4 +157,18 @@ in
   "grainwork-pocket-id-encryption-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "grainwork-oauth2-proxy-client.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "grainwork-oauth2-proxy-cookie.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
+  # Nebula-mesh toorren (modules/nebula.nix, docs/mpenzi.md). Alleen het CA-certificaat, nooit
+  # de CA-sleutel (die staat in Vaultwarden). Per host alleen die host + users als recipient.
+  "nebula-ca.crt.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation mpenzi ];
+  "nebula-malandro.crt.age".publicKeys = users ++ [ malandro_workstation ];
+  "nebula-malandro.key.age".publicKeys = users ++ [ malandro_workstation ];
+  "nebula-lobos.crt.age".publicKeys    = users ++ [ wtoorren_workstation ];
+  "nebula-lobos.key.age".publicKeys    = users ++ [ wtoorren_workstation ];
+  "nebula-mpenzi.crt.age".publicKeys   = users ++ [ mpenzi ];
+  "nebula-mpenzi.key.age".publicKeys   = users ++ [ mpenzi ];
+
+  # Spotify-login van Maaike op mpenzi (epic nixos-kzxu): volledige prefs incl. autologin-token,
+  # landt via agenix op /home/maaike/.config/spotify/prefs. Alleen mpenzi + users.
+  "spotify-maaike.age".publicKeys = users ++ [ mpenzi ];
 }

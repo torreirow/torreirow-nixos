@@ -71,6 +71,7 @@
  ../../modules/torrlinny.nix
  ../../modules/linny-mcp.nix
  ../../modules/grainwork.nix
+ ../../modules/nebula.nix
  ./malandro-secrets.nix
 # ../../modules/gitea.nix
 
@@ -248,6 +249,9 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
+
+  # Nebula-lighthouse + relay; de module zet UDP 4242 open (docs/mpenzi.md).
+  toorren.nebula.enable = true;
 
   ## Spotify discovery devices
   networking.firewall.allowedUDPPorts = [ 111 2049  5353 ]; # Spotify Connect
