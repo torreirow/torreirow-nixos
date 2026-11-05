@@ -13,10 +13,11 @@ geen USB-stick, maar een netwerkapparaat op **10.11.99.1**. Daarop draaien twee 
 | 80 | webinterface in `xochitl` | PDF-export, door het apparaat zelf gerenderd |
 
 Beide worden gebruikt door `services.remarkable-sync` (home-manager, elke 2 minuten). Alles landt
-in `~/Nextcloud/reMarkable/`, waar de bestaande `services.nextcloud-sync` het meeneemt.
+in `~/Documents/reMarkable/`, dat de Nextcloud GUI-client live synct naar `/Documents/reMarkable`
+(sinds 2026-11-05; daarvoor `~/Nextcloud/reMarkable` via de headless sync, die is weggehaald).
 
 ```
-~/Nextcloud/reMarkable/
+~/Documents/reMarkable/
 ├── backup/xochitl/     ruwe spiegel — exact herstelbaar, onleesbaar (UUID's + binaire .rm)
 └── documenten/         PDF's met de inkt erin — leesbaar op elk apparaat
 ```
