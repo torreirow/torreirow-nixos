@@ -198,97 +198,37 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "decimals": 0,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 400 },
-              { "color": "orange", "value": 800 },
-              { "color": "red", "value": 1200 }
-            ]
-          },
-          "unit": "watt"
-        },
-        "overrides": []
-      },
+      "description": "Geen meting: de buitenunit hangt niet meer aan een meetstekker (outdoorplug verplaatst, nov 2026). SmartThings levert geen verbruik.",
       "gridPos": { "h": 5, "w": 8, "x": 8, "y": 7 },
       "id": 5,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
+        "content": "<div style=\"display:flex;align-items:center;justify-content:center;height:100%;font-size:1.6em;opacity:0.6\">Geen meting</div>",
+        "mode": "html"
       },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "homeassistant_sensor_power_w{entity=\"sensor.outdoorplug_power\"}",
-          "refId": "A"
-        }
-      ],
       "title": "Huidig verbruik buitenunit",
-      "type": "stat"
+      "type": "text"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-      "description": "Kosten per uur op basis van €0,202/kWh",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "decimals": 3,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.08 },
-              { "color": "red", "value": 0.20 }
-            ]
-          },
-          "unit": "currencyEUR"
-        },
-        "overrides": []
-      },
+      "description": "Geen meting: de buitenunit hangt niet meer aan een meetstekker (outdoorplug verplaatst, nov 2026). SmartThings levert geen verbruik.",
       "gridPos": { "h": 5, "w": 8, "x": 16, "y": 7 },
       "id": 6,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
+        "content": "<div style=\"display:flex;align-items:center;justify-content:center;height:100%;font-size:1.6em;opacity:0.6\">Geen meting</div>",
+        "mode": "html"
       },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "homeassistant_sensor_power_w{entity=\"sensor.outdoorplug_power\"} / 1000 * 0.20212",
-          "refId": "A"
-        }
-      ],
       "title": "Kosten per uur (huidig)",
-      "type": "stat"
+      "type": "text"
     },
     {
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 12 },
       "id": 101,
-      "title": "Temperatuur & Verbruik Over Tijd",
+      "title": "Temperatuur Over Tijd",
       "type": "row"
     },
     {
       "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-      "description": "Temperaturen (links) en verbruik buitenunit (rechts). Je ziet hoe de inverter minder hard draait als de kamer de doeltemperatuur bereikt.",
+      "description": "Temperaturen buiten en in de werkkamer, met ingestelde en geadviseerde doeltemperatuur. Verbruik buitenunit is weggehaald: geen meetstekker meer (nov 2026).",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -344,15 +284,6 @@
               { "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } },
               { "id": "custom.lineStyle", "value": { "dash": [4, 4], "fill": "dash" } }
             ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Verbruik (W)" },
-            "properties": [
-              { "id": "custom.axisPlacement", "value": "right" },
-              { "id": "unit", "value": "watt" },
-              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } },
-              { "id": "custom.fillOpacity", "value": 20 }
-            ]
           }
         ]
       },
@@ -392,15 +323,9 @@
           "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.airco_werkkamer_advies_temperatuur\"}",
           "legendFormat": "Advies doel",
           "refId": "D"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "homeassistant_sensor_power_w{entity=\"sensor.outdoorplug_power\"}",
-          "legendFormat": "Verbruik (W)",
-          "refId": "E"
         }
       ],
-      "title": "Temperatuur vs Verbruik buitenunit",
+      "title": "Temperatuur werkkamer",
       "type": "timeseries"
     },
     {
@@ -411,101 +336,26 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-      "description": "Energieverbruik buitenunit in kWh over de geselecteerde periode",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
-            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 4,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "decimals": 3,
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "kwatth"
-        },
-        "overrides": []
-      },
+      "description": "Geen meting: de buitenunit hangt niet meer aan een meetstekker (outdoorplug verplaatst, nov 2026). SmartThings levert geen verbruik.",
       "gridPos": { "h": 9, "w": 16, "x": 0, "y": 26 },
       "id": 11,
       "options": {
-        "legend": {
-          "calcs": ["lastNotNull", "min", "max"],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": { "mode": "multi", "sort": "none" }
+        "content": "<div style=\"display:flex;align-items:center;justify-content:center;height:100%;font-size:1.6em;opacity:0.6\">Geen meting</div>",
+        "mode": "html"
       },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "homeassistant_sensor_energy_kwh{entity=\"sensor.outdoorplug_energy\"}",
-          "legendFormat": "Energie buitenunit (kWh)",
-          "refId": "A"
-        }
-      ],
       "title": "Energieteller buitenunit",
-      "type": "timeseries"
+      "type": "text"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-      "description": "Verbruik vandaag (kWh) × €0,202",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "decimals": 3,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.50 },
-              { "color": "red", "value": 1.00 }
-            ]
-          },
-          "unit": "currencyEUR"
-        },
-        "overrides": []
-      },
+      "description": "Geen meting: de buitenunit hangt niet meer aan een meetstekker (outdoorplug verplaatst, nov 2026). SmartThings levert geen verbruik.",
       "gridPos": { "h": 9, "w": 8, "x": 16, "y": 26 },
       "id": 12,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
+        "content": "<div style=\"display:flex;align-items:center;justify-content:center;height:100%;font-size:1.6em;opacity:0.6\">Geen meting</div>",
+        "mode": "html"
       },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "(homeassistant_sensor_energy_kwh{entity=\"sensor.outdoorplug_energy\"} - homeassistant_sensor_energy_kwh{entity=\"sensor.outdoorplug_energy\"} offset 1d) * 0.20212",
-          "legendFormat": "Kosten vandaag",
-          "refId": "A"
-        }
-      ],
       "title": "Geschatte kosten vandaag",
-      "type": "stat"
+      "type": "text"
     }
   ],
   "refresh": "1m",
