@@ -1,11 +1,11 @@
 ---
 # nixos-kzxu
 title: 'maaike-app-defaults: herstelbare app-standaarden voor Maaike op mpenzi'
-status: in-progress
+status: completed
 type: epic
 priority: normal
 created_at: 2026-11-04T21:10:32Z
-updated_at: 2026-11-05T08:00:32Z
+updated_at: 2026-11-05T09:15:47Z
 ---
 
 App-standaarden voor **maaike** op mpenzi: Wouter moet standaardinstellingen van haar apps makkelijk
@@ -46,3 +46,8 @@ Uitgewerkt op 2026-11-04. Maak bij uitvoering een OpenSpec change (voorstel: `ma
   zet de standaard terug en laat een `.bak-*` achter.
 - Firefox- en Chrome-policies bevatten de Bitwarden- en uBlock-extensies.
 - Docs: `docs/maaike-app-defaults.md` (per app: wat is standaard, hoe herstellen, wat moet Maaike daarna doen) + indexregel in `CLAUDE.md`.
+
+
+## Summary of Changes
+
+modules/maaike-apps.nix (toorren.maaike): home-manager voor maaike met seeds (Nextcloud, Bitwarden, ZapZap, SMPlayer), herstel-app, Spotify-login via agenix; Firefox/Chrome/Thunderbird-policies in hosts/mpenzi/apps.nix; scripts/vastleggen-app-defaults.sh; VM-test checks.x86_64-linux.maaike-apps; docs/maaike-app-defaults.md. OpenSpec 2026-11-05-maaike-app-defaults. Herstel van Nextcloud op mpenzi getest.

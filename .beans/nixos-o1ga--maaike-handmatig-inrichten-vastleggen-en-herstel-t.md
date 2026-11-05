@@ -1,13 +1,13 @@
 ---
 # nixos-o1ga
 title: 'maaike: handmatig inrichten, vastleggen en herstel testen'
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
     - handmatig
 created_at: 2026-11-04T21:10:32Z
-updated_at: 2026-11-05T08:58:21Z
+updated_at: 2026-11-05T09:15:47Z
 parent: nixos-kzxu
 blocked_by:
     - nixos-h295
@@ -39,3 +39,11 @@ NIET door de agent.
 • 2026-11-05: herstel-app en scripts/vastleggen-app-defaults.sh bestaan nu (epic-werk klaar); stap 3 en 4 kunnen na de deploy.
 
 - 2026-11-05: `herstel-app maaike nextcloud` getest op mpenzi. Daarna: gebruikersnaam ingevuld, wachtwoord via browser-login + "grant access" (app-wachtwoord uit KWallet wordt niet hergebruikt). Werkt zoals afgesproken.
+
+
+## Summary of Changes
+
+- Stap 1: apps ingelogd/gekoppeld door Maaike (Thunderbird/Gmail bewust uitgesteld).
+- Stap 2: spotify-maaike.age (8240fde).
+- Stap 3: gouden nextcloud.cfg en ZapZap.conf met de hand vastgelegd; scripts/vastleggen-app-defaults.sh is er voor een volgende keer.
+- Stap 4: herstel-app maaike nextcloud getest op mpenzi; daarna browser-login, werkt.
