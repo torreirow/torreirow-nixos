@@ -22,6 +22,6 @@
 
 ## 5. Uitrol (handmatig, door de beheerder)
 
-- [ ] 5.1 `sudo nixos-rebuild switch --flake .#lobos`; `systemctl status immich-machine-learning`
-- [ ] 5.2 Op malandro: `git pull && sudo nixos-rebuild switch --flake .#malandro`; `curl http://10.77.0.2:3003/ping` → pong
-- [ ] 5.3 Immich: Administratie → Taken → Slim zoeken en Gezichtsdetectie → **Alle**
+- [x] 5.1 `sudo nixos-rebuild switch --flake .#lobos`; `systemctl status immich-machine-learning`
+- [x] 5.2 Op malandro: `git pull && sudo nixos-rebuild switch --flake .#malandro`; `curl http://10.77.0.2:3003/ping` → pong
+- [x] 5.3 Immich: Administratie → Taken → Slim zoeken en Gezichtsdetectie → **Alle**
