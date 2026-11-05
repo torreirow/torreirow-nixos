@@ -8,7 +8,7 @@
 # `%N` is de naam van de *falende* unit, dus één template bedient alles.
 #
 # Daarnaast is de verzender los beschikbaar als `sendCommand`, voor meldingen die
-# géén unit-fout zijn (bv. de staleness-monitor). Zo blijft er één kanaal en één
+# géén unit-fout zijn (eigen scripts). Zo blijft er één kanaal en één
 # plek waar het token gelezen wordt.
 #
 # WAAROM VIA HOME ASSISTANT EN NIET DIRECT VIA signal-cli:
@@ -27,8 +27,8 @@ let
   cfg = config.services.notify-signal;
 
   # De verzender: neemt één bericht als argument en zet het op Signal. Bewust
-  # losgetrokken van de faalmelding hieronder, zodat andere modules (bv.
-  # staleness-monitor) hun eigen tekst kunnen sturen zonder het token opnieuw te
+  # losgetrokken van de faalmelding hieronder, zodat andere modules
+  # hun eigen tekst kunnen sturen zonder het token opnieuw te
   # lezen of de curl-logica te dupliceren. Eén kanaal, één tokenlocatie.
   # Naar buiten beschikbaar als `services.notify-signal.sendCommand`.
   sendScript = pkgs.writeShellScript "notify-signal-send" ''

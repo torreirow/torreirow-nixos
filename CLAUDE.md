@@ -16,7 +16,6 @@
 - **Vragen over de Vaultwarden restore-test, `vaultwarden-restoretest.sh`, `--rbw`/`--destroy`, de wegwerp-container op poort 8199 of de rbw-crypto-test** → lees `docs/vaultwarden-restore-test.md`
 - **Vragen over de reMarkable, `remarkable-sync`, `10.11.99.1`, de USB-webinterface van xochitl, `.rm`-bestanden, `error -71` op USB of PDF-export naar Nextcloud** → lees `docs/remarkable.md`
 - **Vragen over het opnemen van een meeting, `meetrec`, `~/Meetings`, de twee sporen (`anderen`/`ik`), `stream.capture.sink`, de Opus-encoding of het whisper-transcript** → lees `home/module/meeting-record/README.md`
-- **Vragen over `staleness-monitor`, waarom de Nextcloud-sync géén melding per mislukking meer geeft, de twee drempels (24u/48u), het stempelbestand `last-success-*` of `notify-signal.sendCommand`** → lees `home/module/staleness-monitor/README.md`
 - **Vragen over de HA-recorder, welke entities wel/niet bewaard worden, retentie/`purge_keep_days` of neerslag/plantwater-opslag** → lees `docs/homeassistant-data-retention.md`
 - **Vragen over de HA→Prometheus-export, `include_domains`, metricnamen of waarom een entity niet in Prometheus staat** → lees `docs/homeassistant-prometheus-setup.md`
 - **Vragen over opstarten na een stroomstoring, de volgorde van diensten of handmatig herstel** → lees `docs/na-stroomstoring.md`
