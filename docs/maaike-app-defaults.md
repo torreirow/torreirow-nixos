@@ -13,7 +13,7 @@ ssh wtoorren@10.77.0.3 sudo herstel-app maaike nextcloud     # of: bitwarden zap
 
 | App       | Standaard                                       | Herstel doet                   | Maaike daarna                         |
 |-----------|-------------------------------------------------|--------------------------------|---------------------------------------|
-| Nextcloud | `nxc.toorren.net`, `mtoorren`, `~/Nextcloud` ↔ `/` | seed terug                   | één keer inloggen via de browser      |
+| Nextcloud | `nxc.toorren.net`, `mtoorren`, `~/Nextcloud` ↔ `/` | seed terug                   | inloggen via de browser (gebruikersnaam staat al ingevuld; getest 2026-11-05) |
 | Bitwarden | server `https://vw.toorren.net`                 | seed terug (kluis lokaal weg)  | e-mail + master-wachtwoord            |
 | ZapZap    | instellingen uit de gouden config               | seed terug (sessie blijft)     | niets; zo nodig QR-code scannen       |
 | SMPlayer  | hardware-decodering (`hwdec=auto`)              | seed terug                     | niets                                 |
