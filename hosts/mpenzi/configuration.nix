@@ -1,6 +1,7 @@
 # mpenzi: laptop van Maaike (overstap van Windows). Bewust een kale host: geen Hyprland,
-# geen lobos-overlays en voor Maaike geen home-manager. Wouter krijgt zijn shell via het
-# wtoorren-admin-profiel. Zie docs/mpenzi.md en docs/wtoorren-admin.md.
+# geen lobos-overlays. Maaike krijgt home-manager alleen voor app-standaarden (seeds +
+# herstel-app, modules/maaike-apps.nix); Wouter zijn shell via het wtoorren-admin-profiel.
+# Zie docs/mpenzi.md, docs/maaike-app-defaults.md en docs/wtoorren-admin.md.
 #
 # Updates doet Wouter vanaf lobos:
 #   nixos-rebuild switch --flake .#mpenzi --target-host wtoorren@mpenzi --sudo --ask-sudo-password
@@ -14,6 +15,7 @@
     ./rustdesk.nix
     ../../modules/printer-thuis.nix
     ../../modules/nebula.nix
+    ../../modules/maaike-apps.nix
   ];
 
   ########## BOOT ##########
@@ -52,6 +54,14 @@
     description = "Maaike";
     # Bewust geen wheel: Maaike beheert het systeem niet zelf.
     extraGroups = [ "networkmanager" "lp" "scanner" ];
+  };
+
+  # App-standaarden van Maaike (seeds, herstel-app). Spotify-login alleen als het secret bestaat.
+  toorren.maaike = {
+    enable = true;
+    spotifyPrefs =
+      let file = ../../secrets/spotify-maaike.age;
+      in if builtins.pathExists file then file else null;
   };
 
   # Beheeraccount wtoorren (wheel, ssh-sleutel, zsh + home-manager): modules/wtoorren-admin.nix.

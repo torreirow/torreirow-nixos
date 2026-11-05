@@ -52,9 +52,9 @@ in
           inherit unstable;
           adminInputs = { inherit bmc race; };
         };
-        sharedModules = [ nixvim.homeModules.${cfg.editor} ];
+        # nixvim alleen voor wtoorren: via sharedModules zou het bij elke HM-gebruiker landen.
         users.wtoorren = {
-          imports = [ ../home/profiles/wtoorren-admin ];
+          imports = [ ../home/profiles/wtoorren-admin nixvim.homeModules.${cfg.editor} ];
           toorren.admin.aws.enable = cfg.aws.enable;
           home.stateVersion = config.system.stateVersion;
         };

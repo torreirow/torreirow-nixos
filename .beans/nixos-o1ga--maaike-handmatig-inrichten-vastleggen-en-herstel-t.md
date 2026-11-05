@@ -7,7 +7,7 @@ priority: normal
 tags:
     - handmatig
 created_at: 2026-11-04T21:10:32Z
-updated_at: 2026-11-05T07:56:25Z
+updated_at: 2026-11-05T08:36:17Z
 parent: nixos-kzxu
 blocked_by:
     - nixos-h295
@@ -34,3 +34,6 @@ NIET door de agent.
 
 
 • 2026-11-05: Thunderbird met Gmail uitgesteld; Maaike gebruikt nu geen mailclient (geen Outlook-app of Thunderbird). Geen voorwaarde om o1ga af te ronden.
+
+
+• 2026-11-05: herstel-app en scripts/vastleggen-app-defaults.sh bestaan nu (epic-werk klaar); stap 3 en 4 kunnen na de deploy.

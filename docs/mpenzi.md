@@ -1,7 +1,8 @@
 # mpenzi: laptop van Maaike
 
 NixOS-laptop voor Maaike, die van Windows overstapt. Kaal host-blok in de flake (geen Hyprland,
-geen extraPkgs, geen home-manager). OpenSpec-change: `mpenzi-laptop` (gearchiveerd), epic
+geen extraPkgs). Home-manager alleen voor Wouters shell en voor de app-standaarden van Maaike
+(`docs/maaike-app-defaults.md`). OpenSpec-change: `mpenzi-laptop` (gearchiveerd), epic
 `nixos-54um`.
 
 ## Overzicht
@@ -17,9 +18,11 @@ geen extraPkgs, geen home-manager). OpenSpec-change: `mpenzi-laptop` (gearchivee
 |               | Spotify, Signal, Audacity, ZapZap (WhatsApp), SMPlayer (standaard), VLC      |
 | Webapps       | Canva en Jitsi Meet als Chrome `--app`-venster                               |
 | Zelf          | Discover + Flathub                                                           |
+| Herstellen    | `sudo herstel-app maaike <app\|all>` (`docs/maaike-app-defaults.md`)          |
 
 Bestanden: `hosts/mpenzi/{configuration,hardware-configuration,plasma,apps,rustdesk}.nix`,
-`modules/nebula.nix`, test `modules/nebula_vmtest.nix`.
+`modules/nebula.nix`, `modules/maaike-apps.nix`, tests `modules/nebula_vmtest.nix` en
+`modules/maaike-apps_vmtest.nix`.
 
 ## Updaten (vanaf lobos)
 
