@@ -237,8 +237,9 @@
 ### KARLAPI config END
 
   ## MPENZI config START
-  # Laptop van Maaike: kaal host-blok, geen extraPkgs/overlays (zie docs/mpenzi.md). Alleen
-  # Wouter krijgt home-manager, via het wtoorren-admin-profiel.
+  # Laptop van Maaike: kaal host-blok, geen extraPkgs/overlays (zie docs/mpenzi.md). Wouter
+  # krijgt home-manager via wtoorren-admin (dat ook de HM-module importeert), Maaike alleen voor
+  # app-standaarden via modules/maaike-apps.nix (in hosts/mpenzi/configuration.nix).
   nixosConfigurations.mpenzi = nixpkgs.lib.nixosSystem {
     modules =
       let
@@ -458,6 +459,17 @@
     };
 
   # Nebula-mesh: toegangsbeleid lobos/malandro -> mpenzi (modules/nebula.nix).
+  # App-standaarden van maaike: seeds en herstel-app (modules/maaike-apps.nix).
+  checks.x86_64-linux.maaike-apps =
+    nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
+      imports = [ ./modules/maaike-apps_vmtest.nix ];
+      defaults.imports = [
+        home-manager.nixosModules.home-manager
+        agenix.nixosModules.default
+        ./modules/maaike-apps.nix
+      ];
+    };
+
   checks.x86_64-linux.nebula =
     nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
       imports = [ ./modules/nebula_vmtest.nix ];

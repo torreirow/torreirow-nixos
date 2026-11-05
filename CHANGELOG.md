@@ -33,6 +33,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     en zijn dus ook over meerdere weken te bekijken.
 
 ### Added
+- **App-standaarden van Maaike, met één commando terug te zetten** (mpenzi). Raakt een app-instelling
+  kwijt, dan draait Wouter `sudo herstel-app maaike <app>`; Maaike voert daarna hooguit een
+  wachtwoord in of scant een QR-code.
+  - Nextcloud (`nxc.toorren.net`), Bitwarden (`vw.toorren.net`), ZapZap en SMPlayer krijgen bij
+    een nieuwe installatie hun standaard; wat Maaike zelf wijzigt blijft staan. De oude versie
+    blijft als `.bak-<datum>` bewaard.
+  - Spotify blijft ingelogd via een versleuteld bestand in de repo; een deploy zet het terug.
+  - Firefox en Chrome installeren altijd Bitwarden en uBlock.
+  - `scripts/vastleggen-app-defaults.sh` legt een nieuwe gouden config vast, zonder geheimen en
+    pas na een diff.
 - **wtoorren-admin: Wouters shell op andere hosts** (`modules/wtoorren-admin.nix`,
   `homeConfigurations."wtoorren@admin"`). Eén home-manager-profiel met zsh, tmux, nixvim, rbw,
   atuin, bmc en race, voor NixOS-hosts (één regel: `toorren.admin.enable = true`) en voor

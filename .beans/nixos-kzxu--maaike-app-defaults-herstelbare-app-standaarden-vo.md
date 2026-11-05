@@ -1,10 +1,11 @@
 ---
 # nixos-kzxu
 title: 'maaike-app-defaults: herstelbare app-standaarden voor Maaike op mpenzi'
-status: todo
+status: in-progress
 type: epic
+priority: normal
 created_at: 2026-11-04T21:10:32Z
-updated_at: 2026-11-04T21:10:32Z
+updated_at: 2026-11-05T08:00:32Z
 ---
 
 App-standaarden voor **maaike** op mpenzi: Wouter moet standaardinstellingen van haar apps makkelijk

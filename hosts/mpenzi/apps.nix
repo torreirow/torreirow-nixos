@@ -48,14 +48,48 @@ let
     "video/mpeg" "video/x-flv" "video/x-ms-wmv" "video/3gpp" "video/ogg" "video/mp2t"
     "video/x-m4v" "video/av1"
   ];
-
-  smplayerIni = pkgs.writeText "smplayer.ini" ''
-    [performance]
-    hwdec=auto
-  '';
 in
 {
-  programs.firefox.enable = true;
+  # Extensies afgedwongen (force_installed: Maaike kan ze niet per ongeluk weghalen). Zelfde
+  # AMO-route als hosts/lobos/programs.nix.
+  programs.firefox = {
+    enable = true;
+    policies.ExtensionSettings =
+      let
+        ext = shortId: uuid: {
+          name = uuid;
+          value = {
+            install_url = "https://addons.mozilla.org/firefox/downloads/latest/${shortId}/latest.xpi";
+            installation_mode = "force_installed";
+          };
+        };
+      in builtins.listToAttrs [
+        (ext "bitwarden-password-manager" "{446900e4-71c2-419f-a6a7-df9c091e268b}")
+        (ext "ublock-origin"              "uBlock0@raymondhill.net")
+      ];
+  };
+
+  # Policies voor Google Chrome (leest /etc/opt/chrome/policies): ExtensionInstallForcelist.
+  # In Chrome uBlock Origin Lite, de MV2-versie werkt daar niet meer.
+  programs.chromium = {
+    enable = true;
+    extensions = [
+      "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
+      "ddkjiahejlhfcafbddmgiahcphecmpfh" # uBlock Origin Lite
+    ];
+  };
+
+  # Thunderbird met offline-kopie van de mail; het Gmail-account (OAuth) is handwerk.
+  programs.thunderbird = {
+    enable = true;
+    policies = {
+      DisableTelemetry = true;
+      Preferences = {
+        "mail.server.default.offline_download" = { Value = true; Status = "default"; };
+        "mail.server.default.autosync_offline_stores" = { Value = true; Status = "default"; };
+      };
+    };
+  };
   xdg.mime.defaultApplications = {
     "text/html" = "firefox.desktop";
     "x-scheme-handler/http" = "firefox.desktop";
@@ -66,7 +100,6 @@ in
     google-chrome
     onlyoffice-desktopeditors
     nextcloud-client
-    thunderbird
     zoom-us
     bitwarden-desktop
     spotify
@@ -81,17 +114,6 @@ in
     canva
     jitsi
     canvaIcon
-  ];
-
-  # SMPlayer-startconfig voor maaike: hardware-decodering aan (VA-API, radeonsi; de Ryzen 4700U
-  # decodeert H.264/HEVC/VP9 in hardware, AV1 gaat via dav1d). tmpfiles `C` kopieert alleen als
-  # het bestand nog niet bestaat, dus wat Maaike daarna in SMPlayer kiest blijft staan. Wordt
-  # later onderdeel van herstel-app (epic nixos-kzxu).
-  systemd.tmpfiles.rules = [
-    "d /home/maaike/.config 0700 maaike users -"
-    "d /home/maaike/.config/smplayer 0755 maaike users -"
-    "C /home/maaike/.config/smplayer/smplayer.ini - - - - ${smplayerIni}"
-    "z /home/maaike/.config/smplayer/smplayer.ini 0644 maaike users -"
   ];
 
   # OnlyOffice zonder Microsoft-fonts verschuift Word-documenten.
