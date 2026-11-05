@@ -117,15 +117,15 @@ zo goed, dus het is een webapp geworden.
 Dit model kent alleen `s2idle` (BIOS `DTCN24WW`; fwupd heeft geen BIOS-update, Lenovo's installer
 vraagt Windows).
 
-- Toetsen en touchpad wekken hem niet: de kernel zet IRQ1-wake uit (`atkbd serio0: Disabling IRQ1
-  wakeup source to avoid platform firmware bug`). Wekken gaat met de aan/uit-knop of het deksel.
+- Wekken kan met een toets, het touchpad, de aan/uit-knop of het deksel (getest 2026-11-05).
 - De wek-druk op de aan/uit-knop zette hem uit: udev laadt naast `button` ook de kernelmodule
   `tiny_power_button` (alias `acpi*:LNXPWRBN:*`), en die stuurt bij elke druk zelf `SIGRTMIN+4`
   (poweroff) naar PID 1, buiten logind en Plasma om. Het uitzetten bleef hangen op de bevroren
   sessies.
 - Fix (`hosts/mpenzi/power.nix`): `tiny_power_button` op de blacklist. De knop is dan een gewone
   toets voor logind/Plasma; logind negeert hem vlak na het wekken (`HoldoffTimeoutSec`).
-- Controle: `lsmod | grep tiny_power_button` geeft niets; na wekken met de knop blijft hij aan.
+- Controle: `lsmod | grep tiny_power_button` geeft niets; na wekken met de knop blijft hij aan
+  (getest 2026-11-05).
 - Werkt dit niet: het verborgen BIOS-menu kan naar S3 schakelen (ArchWiki "Lenovo IdeaPad 5
   14are05"). Handwerk in het BIOS, alleen als laatste stap.
 
