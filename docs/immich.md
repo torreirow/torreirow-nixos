@@ -22,7 +22,7 @@ Immich-app / browser / reisapps --> nginx photos.toorren.net (geen forward-auth)
 | JuiceFS-meta  | PostgreSQL `juicefs_immich`, rol `juicefs_immich` (peer via identMap van root) |
 | JuiceFS-data  | `s3://wto-s3-bucket/immich/`, IAM-user `juicefs-immich` (alleen `immich/`)   |
 | Secrets JFS   | `juicefs-immich-env.age` (S3), `-passphrase.age` (`JFS_RSA_PASSPHRASE`), `-rsa-key.age` (PEM) |
-| ML            | uit (J3455 heeft geen AVX)                                                  |
+| ML            | op lobos via Nebula (`http://10.77.0.2:3003`), zie "Machine learning" hieronder |
 | Video         | CPU (`ffmpeg.accel = "disabled"`), zie "VAAPI" hieronder                    |
 
 ## Waarom zo
@@ -81,6 +81,24 @@ JFS_RSA_PASSPHRASE=… juicefs mount "<meta-url>" /data/juicefs-immich
 # (Administratie → Taken → Thumbnails genereren).
 ```
 
+## Machine learning op lobos
+
+De J3455 van malandro heeft geen AVX, dus de ML-dienst (slim zoeken, gezichten, dubbele foto's)
+draait op lobos: `modules/immich-ml.nix`, alleen `immich-machine-learning` 3.3.5 uit `unstable`
+(zelfde versie als de server), op poort 3003, met `Nice=15` en idle-I/O. Malandro gebruikt hem via
+de Nebula-mesh; de Nebula-firewall laat 3003 alleen voor het certificaat `malandro` door en de
+host-firewall van lobos houdt de poort dicht op wifi/LAN. Opgezet 2026-11-05 (OpenSpec
+`immich-ml-on-lobos`, bean `nixos-esgu`).
+
+- **Lobos uit of in slaap:** Immich controleert de URL elke 30 s en logt alleen bij een wissel
+  ("became unhealthy/healthy"). ML-taken van uploads in die tijd mislukken (één waarschuwing per
+  taak). Inhalen: Administratie → Taken → bij Slim zoeken en Gezichtsdetectie **Ontbrekende**.
+  Gezichten clusteren gebeurt ook in de nachtelijke taak.
+- **Eerste keer:** de modellen (CLIP `ViT-B-32__openai`, gezichten `buffalo_l`) komen bij de eerste
+  aanvraag van Hugging Face in `/var/cache/immich-ml`. Daarna één keer **Alle** draaien voor
+  Slim zoeken en Gezichtsdetectie, met lobos aan het net.
+- **Geheugen:** modellen gaan na 10 minuten zonder werk uit het RAM (`MACHINE_LEARNING_MODEL_TTL`).
+
 ## VAAPI (nog niet werkend)
 
 Getest 2026-11-02 met iHD (intel-media-driver) en i965: losse `ffmpeg -c:v h264_vaapi`-tests op
@@ -94,6 +112,8 @@ meteen CPU. Vervolg: bean `nixos-umuq`. Aanzetten vraagt `hardware.graphics` (+ 
 ```bash
 systemctl is-active juicefs-immich immich-server redis-immich
 curl -s https://photos.toorren.net/api/server/ping            # {"res":"pong"}
+curl -s http://10.77.0.2:3003/ping                             # op malandro: pong (lobos aan)
+journalctl -u immich-server | grep -i "machine learning"       # healthy/unhealthy-wissels
 sudo runuser -u postgres -- juicefs status "postgres://postgres@/juicefs_immich?host=/run/postgresql&sslmode=disable" | jq .Setting.Name
 aws s3 ls s3://wto-s3-bucket/immich/ --recursive | sort | tail   # het echte aws-binary, niet via rtk
 ```

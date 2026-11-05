@@ -20,7 +20,12 @@ let
   # naam in het certificaat (`host`), dus `nebula-cert sign -name lobos` is hier lobos.
   hosts = {
     malandro = { ip = "10.77.0.1"; inbound = [ ]; };
-    lobos = { ip = "10.77.0.2"; inbound = [ ]; };
+    lobos = {
+      ip = "10.77.0.2";
+      inbound = [
+        { port = 3003; proto = "tcp"; host = "malandro"; } # Immich-ML (modules/immich-ml.nix)
+      ];
+    };
     mpenzi = {
       ip = "10.77.0.3";
       inbound = [

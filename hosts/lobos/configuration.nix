@@ -23,6 +23,7 @@
     ../../modules/teamviewer.nix
    ../../modules/torrlinny-web.nix
     ../../modules/nebula.nix
+    ../../modules/immich-ml.nix  # ML voor Immich op malandro (docs/immich.md)
     ];
 
   # Safety check: prevent building wrong config on wrong host

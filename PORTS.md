@@ -85,6 +85,12 @@ All these services are accessible via HTTPS through Nginx reverse proxy with Aut
 - `reis.toorren.net` → OwnSteps (8089) - **Note: GEEN Authelia** (publieke deellinks + Android-API; eigen login)
 - *(Add other domains as configured in nginx modules)*
 
+## Op andere hosts (gebruikt door malandro)
+
+| Host  | Port | Service          | Binding | Description                                                         |
+|-------|------|------------------|---------|---------------------------------------------------------------------|
+| lobos | 3003 | Immich-ML        | 0.0.0.0 | Alleen via Nebula (10.77.0.2) voor malandro; `modules/immich-ml.nix` |
+
 ## Notes
 
 - **127.0.0.1** binding means the service is only accessible locally (via reverse proxy)

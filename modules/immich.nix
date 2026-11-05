@@ -6,7 +6,8 @@
 # - Originelen op het eigen JuiceFS-volume (modules/juicefs-immich.nix), thumbnails en
 #   omgezette video lokaal: die zijn opnieuw te maken en worden vaak gelezen.
 # - Immich 3.x uit unstable: 26.05 levert alleen 2.7.5 (end-of-life, CVE's).
-# - Machine learning uit: de Celeron J3455 heeft geen AVX. Video omzetten op de CPU.
+# - Machine learning niet hier (de Celeron J3455 heeft geen AVX) maar op lobos, via Nebula
+#   (modules/immich-ml.nix). Video omzetten op de CPU.
 # - Login via Authelia-OIDC (client `immich` in modules/authelia.nix). GEEN forward-auth:
 #   de Immich-app, API-sleutels en deellinks moeten zonder werken (zoals OwnSteps).
 
@@ -38,7 +39,12 @@ in
     settings = {
       server.externalDomain = "https://${domain}";
       newVersionCheck.enabled = false;
-      machineLearning.enabled = false;
+      # ML draait op lobos (modules/immich-ml.nix). Staat lobos uit, dan wordt de URL na de
+      # availability-check overgeslagen en mislukken ML-taken; later "Ontbrekende" draaien.
+      machineLearning = {
+        enabled = true;
+        urls = [ "http://10.77.0.2:3003" ];
+      };
       # VAAPI op de HD 500 (iHD én i965) faalde in Immich's transcode met "Error encoding a
       # frame" (CQP + B-frames), ook met software-decode; losse h264_vaapi-tests slaagden wel.
       # Immich viel dan terug op de CPU. Daarom meteen CPU. Vervolg: bean "VAAPI voor Immich".

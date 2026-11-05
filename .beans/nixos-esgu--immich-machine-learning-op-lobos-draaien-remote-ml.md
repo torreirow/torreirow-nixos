@@ -1,11 +1,11 @@
 ---
 # nixos-esgu
 title: Immich machine learning op lobos draaien (remote ML voor malandro)
-status: todo
+status: in-progress
 type: feature
 priority: low
 created_at: 2026-11-05T10:19:50Z
-updated_at: 2026-11-05T10:19:50Z
+updated_at: 2026-11-05T10:30:09Z
 parent: nixos-ypet
 ---
 

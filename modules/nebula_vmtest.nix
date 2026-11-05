@@ -3,8 +3,8 @@
 #   nix build .#checks.x86_64-linux.nebula -L
 #
 # Controleert het toegangsbeleid uit de hosts-tabel: lobos komt via de mesh bij ssh (22) en
-# RustDesk (21118) op mpenzi, malandro niet; ICMP mag overal; en 21118 staat op het gewone
-# netwerk (de underlay) dicht. De certificaten zijn wegwerp, alleen voor deze test gemaakt.
+# RustDesk (21118) op mpenzi, malandro niet; malandro komt bij Immich-ML (3003) op lobos, mpenzi
+# niet; ICMP mag overal; en 21118/3003 staan op het gewone netwerk (de underlay) dicht. De certificaten zijn wegwerp, alleen voor deze test gemaakt.
 { pkgs, ... }:
 
 let
@@ -33,7 +33,14 @@ in
 
   nodes = {
     malandro = node "malandro";
-    lobos = node "lobos";
+    lobos = { pkgs, ... }: {
+      imports = [ (node "lobos") ];
+      # Staat in voor immich-machine-learning (modules/immich-ml.nix), luistert ook op 0.0.0.0.
+      systemd.services.fake-immich-ml = {
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig.ExecStart = "${pkgs.netcat}/bin/nc -lk 3003";
+      };
+    };
     mpenzi = { pkgs, ... }: {
       imports = [ (node "mpenzi") ];
       services.openssh.enable = true;
@@ -51,6 +58,7 @@ in
         m.wait_for_unit("nebula@toorren.service")
     mpenzi.wait_for_unit("sshd.service")
     mpenzi.wait_for_open_port(21118)
+    lobos.wait_for_open_port(3003)
 
     with subtest("mesh is opgebouwd: ICMP mag overal"):
         lobos.wait_until_succeeds("ping -c1 -W2 10.77.0.1", timeout=60)
@@ -65,8 +73,13 @@ in
         malandro.fail("nc -z -w5 10.77.0.3 22")
         malandro.fail("nc -z -w5 10.77.0.3 21118")
 
-    with subtest("RustDesk staat op de underlay dicht"):
+    with subtest("malandro mag bij Immich-ML op lobos, mpenzi niet"):
+        malandro.succeed("nc -z -w5 10.77.0.2 3003")
+        mpenzi.fail("nc -z -w5 10.77.0.2 3003")
+
+    with subtest("RustDesk en Immich-ML staan op de underlay dicht"):
         lobos.fail("nc -z -w5 ${nodes.mpenzi.networking.primaryIPAddress} 21118")
+        malandro.fail("nc -z -w5 ${nodes.lobos.networking.primaryIPAddress} 3003")
 
     with subtest("lighthouse luistert op UDP 4242"):
         malandro.succeed("ss -uln | grep -q ':4242 '")
