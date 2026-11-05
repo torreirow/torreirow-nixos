@@ -15,5 +15,5 @@
 
 ## 4. Uitrol (handmatig)
 
-- [ ] 4.1 API-sleutel aanmaken (admin, alleen `job.create`) en versleutelen naar `secrets/immich-ml-catchup-key.age`
-- [ ] 4.2 malandro rebuilden; `systemctl start immich-ml-catchup` → "Missing gestart" in de journal
+- [x] 4.1 API-sleutel aanmaken (admin, alleen `job.create`) en versleutelen naar `secrets/immich-ml-catchup-key.age`
+- [x] 4.2 malandro rebuilden; `systemctl start immich-ml-catchup` → "Missing gestart" in de journal
