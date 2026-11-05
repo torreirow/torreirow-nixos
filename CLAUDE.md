@@ -46,6 +46,8 @@
 - **Vragen over mpenzi (laptop van Maaike), de Nebula-mesh (`modules/nebula.nix`, 10.77.0.0/24, lighthouse malandro), RustDesk via het Nebula-IP, de Plasma-defaults in `/etc/xdg` of deployen met `--target-host wtoorren@mpenzi`** → lees `docs/mpenzi.md`
 - **Vragen over het wtoorren-admin-profiel, `toorren.admin.*`, `wtoorren@admin`/nixhost, Wouters shell op mpenzi, de bmc-config met `tmux load-buffer`/OSC 52, waarom AWS-wrappers ontbreken zonder `~/.aws/credentials` of waarom malandro het profiel (nog) niet heeft** → lees `docs/wtoorren-admin.md`
 - **Een nieuwe eindgebruikers-laptop toevoegen (zoals mpenzi): installeren, eerste deploy vanaf lobos, Nebula-certificaat tekenen met de CA uit Vaultwarden, `sysadmin` weghalen, of de valkuilen (`command nixos-rebuild`, `ragenx -e` via stdin)** → lees `docs/nieuwe-laptop.md`
+- **Vragen over Immich, `photos.toorren.net`, de telefoon-fotobackup, het JuiceFS-volume `immich` (`/data/juicefs-immich`, prefix `immich/`), de Authelia-OIDC-client `immich`, API-sleutels voor MarkMySteps/OwnSteps of waarom Immich uit unstable komt** → lees `docs/immich.md`
+- **Vragen over AI-crawlers weren, `ai-blocklist.service/.timer/.path`, `$ai_bot`, de gegenereerde robots.txt per site (`/var/lib/ai-blocklist`), noindex van boaz/cv-jolijn of een bot die onterecht 403 krijgt** → lees `docs/ai-blocklist.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 

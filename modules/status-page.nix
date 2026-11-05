@@ -52,8 +52,11 @@ let
     "linny-mcp-index"
     "magister-sync"
     "umami"
+    "immich-server"
+    "redis-immich"
     # Opslag en delen
     "juicefs-nextcloud-ro"
+    "juicefs-immich"
     "samba-smbd"
     "nfs-mountd"
   ];

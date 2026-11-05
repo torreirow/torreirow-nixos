@@ -272,14 +272,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1782390138,
-        "narHash": "sha256-nbFXsmDx9q/XZdGWlV7heskvuA25Fs3oXr65hHNASFg=",
-        "path": "/home/wtoorren/data/git/torreirow/HyprQuickFrame",
-        "type": "path"
+        "lastModified": 1780319201,
+        "narHash": "sha256-Xkg1tj1XLEnURikdmfpH9jBOTC5/g6bksvbTRJbZmoE=",
+        "owner": "torreirow",
+        "repo": "HyprQuickFrame",
+        "rev": "57f0629b4af9740c704e5f315f9aafe487952095",
+        "type": "github"
       },
       "original": {
-        "path": "/home/wtoorren/data/git/torreirow/HyprQuickFrame",
-        "type": "path"
+        "owner": "torreirow",
+        "repo": "HyprQuickFrame",
+        "type": "github"
       }
     },
     "import-tree": {

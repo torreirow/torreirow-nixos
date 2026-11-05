@@ -144,6 +144,21 @@ let
     mv -f "$tmp" "$out"
   '';
 
+  # Zelfde dump voor het eigen Immich-volume (modules/juicefs-immich.nix); die metadata staat
+  # direct in de lokale PostgreSQL, dus geen replica nodig.
+  juicefsImmichMetaDumpScript = pkgs.writeShellScript "juicefs-immich-meta-dump" ''
+    set -euo pipefail
+    umask 077
+    tmp="${stagingDir}/juicefs-immich-meta-dump.json.tmp"
+    out="${stagingDir}/juicefs-immich-meta-dump.json"
+    ${pkgs.util-linux}/bin/runuser -u postgres -- \
+      ${pkgs.juicefs}/bin/juicefs dump \
+      "postgres://postgres@/juicefs_immich?host=/run/postgresql&sslmode=disable" \
+      > "$tmp"
+    ${pkgs.jq}/bin/jq -e '.Setting.Name == "immich"' "$tmp" >/dev/null
+    mv -f "$tmp" "$out"
+  '';
+
   backupScript = pkgs.writeShellScript "rustic-backup" ''
     set -euo pipefail
     cd ${configDir}
@@ -204,6 +219,8 @@ in
   systemd.services.vaultwarden-dump = dumpService "vaultwarden-dump" vaultwardenDumpScript;
   # JuiceFS-metadata-dump uit de lokale replica (peer-auth als postgres, geen secret).
   systemd.services.juicefs-meta-dump = dumpService "juicefs-meta-dump" juicefsMetaDumpScript;
+  systemd.services.juicefs-immich-meta-dump =
+    dumpService "juicefs-immich-meta-dump" juicefsImmichMetaDumpScript;
 
   ###### Hoofd-backup-service ######
   systemd.services.rustic-backup = {
@@ -213,6 +230,7 @@ in
       "mariadb-dump.service"
       "vaultwarden-dump.service"
       "juicefs-meta-dump.service"
+      "juicefs-immich-meta-dump.service"
       "network-online.target"
     ];
     wants = [
@@ -220,6 +238,7 @@ in
       "mariadb-dump.service"
       "vaultwarden-dump.service"
       "juicefs-meta-dump.service"
+      "juicefs-immich-meta-dump.service"
       "network-online.target"
     ];
     onFailure = [ "rustic-notify@rustic-backup.service" ];

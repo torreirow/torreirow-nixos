@@ -53,6 +53,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     host gewoon. VM-test: `nix build .#checks.x86_64-linux.nebula`.
 - **RustDesk zonder publieke relay**. mpenzi draait RustDesk als systeemservice met directe
   IP-toegang; lobos heeft de client. Verbinden gaat via het Nebula-IP `10.77.0.3`.
+- **Fotoserver Immich op `photos.toorren.net`**. Automatische backup van de foto's op de
+  telefoon, en foto's kiezen in de reisapps MarkMySteps en OwnSteps. Inloggen gaat met het
+  gewone Authelia-account. De originelen staan versleuteld in de eigen cloudopslag.
 - **EGH-huisstijl op de uploadpagina** (`eghupload.toorren.net`). De pagina lijkt nu op de
   EGH-presentaties.
   - De titel "upload" staat in Blenda Script, alle andere tekst in Letter Gothic Std. Die laatste
