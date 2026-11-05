@@ -1,4 +1,4 @@
-{config,pkgs,...}: {
+{config,pkgs,lib,...}: {
  imports = [
   ./overlays.nix
   ./zsh.nix
@@ -41,59 +41,49 @@ systemd.user.services.evolution-alarm-notify = {
   Install.WantedBy = [ "graphical-session.target" ];
 };
 
-# Headless Nextcloud-sync (module: home/module/nextcloud-sync).
-# Credentials (NC_USER/NC_PASSWORD, app-password) staan handmatig in
-# ~/.config/nextcloud-sync/credentials (0600), bewust niet in de nix-store.
-# Faalmeldingen naar Signal via Home Assistant (notify.signal_maria).
+# Faalmeldingen naar Signal via Home Assistant (notify.signal_maria); o.a. remarkable-sync.
 # Token komt uit agenix: age.secrets.ha-token in hosts/lobos/lobos-secrets.nix.
 # Waarom via HA en niet rechtstreeks: de signal-cli REST API op malandro
 # luistert alleen op 127.0.0.1 en is vanaf lobos onbereikbaar.
 services.notify-signal.enable = true;
 
-services.nextcloud-sync = {
-  enable = true;
-  # Deze package levert ook de GUI-client. De wrapper laat maar één GUI-instantie
-  # toe; twee tegelijk vechten om de sync-journal en hersyncen alles.
-  package = pkgs.callPackage ./module/nextcloud-sync/single-instance.nix { };
-  # BEWUST GEEN onFailure hier. De Nextcloud-server (bobadela1) gaat 's nachts uit
-  # en wordt 's ochtends handmatig gewekt; een melding per mislukking gaf daardoor
-  # elke ochtend loos alarm. De staleness-monitor hieronder neemt die rol over en
-  # meet het resultaat ("is er nog gesynct?") in plaats van de storing.
-  syncs.docs = {
-    serverUrl = "https://nxc.toorren.net";
-    localPath = "~/Nextcloud";
-    # remotePath = "/";     # optioneel: alleen een submap syncen
-    # interval   = "10min"; # default (OnUnitActiveSec)
-    # trust      = false;   # true bij self-signed certificaat
-  };
-};
+# Nextcloud: alleen de GUI-client, die ~/Documents <-> /Documents live synct (tray-icoon).
+# De headless nextcloud-sync (~/Nextcloud, timer) is op 2026-11-05 weggehaald: /Documents stond
+# daardoor dubbel lokaal (6,9 GB) en de rest van de server hoeft niet naar lobos.
+# De wrapper laat maar één GUI-instantie toe (zie module/nextcloud-sync/single-instance.nix).
+home.packages = [ (pkgs.callPackage ./module/nextcloud-sync/single-instance.nix { }) ];
 
-# reMarkable via USB -> ~/Nextcloud/reMarkable (module: home/module/remarkable-sync).
-# Landt onder ~/Nextcloud, dus de sync hierboven neemt het vanzelf mee.
+xdg.configFile."autostart/Nextcloud.desktop".text = ''
+  [Desktop Entry]
+  Name=Nextcloud
+  GenericName=File Synchronizer
+  Exec=nextcloud --background
+  Terminal=false
+  Icon=Nextcloud
+  Categories=Network
+  Type=Application
+  StartupNotify=false
+  X-GNOME-Autostart-enabled=true
+  X-GNOME-Autostart-Delay=10
+'';
+
+# Startconfig van de GUI-client (account nxc.toorren.net, map ~/Documents). Alleen neerzetten
+# als hij ontbreekt: de client schrijft zelf in nextcloud.cfg, dus geen read-only symlink.
+# Het app-wachtwoord staat in de keyring, niet in dit bestand. Selectieve sync (o.a.
+# Onedrive-ECMI-backup uit) staat in de sync-journal, niet hier.
+home.activation.nextcloudConfigSeed = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  if [ ! -e "$HOME/.config/Nextcloud/nextcloud.cfg" ]; then
+    run mkdir -p "$HOME/.config/Nextcloud"
+    run install -m 644 ${./dotfiles/nextcloud/nextcloud-lobos.cfg} "$HOME/.config/Nextcloud/nextcloud.cfg"
+  fi
+'';
+
+# reMarkable via USB -> ~/Documents/reMarkable (module: home/module/remarkable-sync).
+# Landt in ~/Documents, dat de Nextcloud GUI-client live synct.
 # Handmatig vooraf: USB-webinterface aanzetten op het apparaat en een SSH-sleutel
 # in ~/.ssh-priv/remarkable neerleggen -- zie de README van de module.
-# Dagelijkse controle of er nog gesynct is (module: home/module/staleness-monitor).
-# Twee drempels: binnen 24-48u alleen melden als de server ook echt antwoordt,
-# zodat het ochtendgat waarin bobadela1 nog uit staat stil blijft. Na 48u altijd,
-# zodat een server die dagen uit blijft alsnog een herinnering oplevert.
-services.staleness-monitor = {
-  enable = true;
-  # 20:00: tegen die tijd heeft de server de hele dag aan gestaan. Sliep lobos op
-  # dat moment, dan haalt Persistent=true het in zodra hij wakker is.
-  checkTime = "20:00";
-  watch.nextcloud = {
-    stampFile = config.services.nextcloud-sync.stampFiles.docs;
-    message = "Nextcloud-sync op lobos is te lang niet gelukt";
-    # Toetst op INHOUD, niet op de statuscode: er staat een nginx vóór Nextcloud
-    # die ook antwoordt als de backend plat ligt (dan met 502), en een captive
-    # portal geeft vrolijk 200 met HTML terug. --fail vangt de 502, jq -e eist dat
-    # het echt een draaiende, niet-onderhoudende Nextcloud is.
-    readinessCommand = ''
-      ${pkgs.curl}/bin/curl -sS --fail --max-time 10 https://nxc.toorren.net/status.php \
-        | ${pkgs.jq}/bin/jq -e '.installed == true and .maintenance == false' >/dev/null
-    '';
-  };
-};
+# staleness-monitor uit: hij bewaakte alleen de headless Nextcloud-sync, die weg is. De GUI-client
+# laat zelf in het tray-icoon zien of hij synct.
 
 # Meeting-opname: beide kanten van een gesprek als twee sporen
 # (module: home/module/meeting-record). Neemt nooit uit zichzelf op --
@@ -130,7 +120,8 @@ services.remarkable-sync = {
   # Een slapend/losgekoppeld apparaat is exit 0, dus dit vuurt alleen bij een
   # echt probleem (SSH stuk, webinterface uit, download mislukt).
   onFailure = [ "notify-signal@%N.service" ];
-  # targetDir     = "~/Nextcloud/reMarkable";  # default
+  # In ~/Documents, zodat de Nextcloud GUI-client het live synct (naar /Documents/reMarkable).
+  targetDir = "~/Documents/reMarkable";
   # interval      = "2min";                    # default
   # backup.enable = true;                      # ruwe xochitl-spiegel over SSH
   # export.enable = true;                      # PDF's via de USB-webinterface
