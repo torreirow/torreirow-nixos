@@ -1,11 +1,11 @@
 ---
 # nixos-nqza
 title: 'RustDesk: eigen ID-/relay-server op malandro via Nebula (later)'
-status: draft
+status: scrapped
 type: feature
 priority: low
 created_at: 2026-11-04T21:35:12Z
-updated_at: 2026-11-04T21:35:12Z
+updated_at: 2026-11-05T09:05:56Z
 ---
 
 Eigen RustDesk ID-/relay-server (hbbs/hbbr, pakket `rustdesk-server`) op malandro, alleen bereikbaar via
@@ -27,3 +27,7 @@ Wat te doen:
 - lobos-client: zelfde instellingen.
 - Nebula-firewall: inbound 21115-21119 op malandro alleen van lobos en mpenzi.
 - Belasting verwacht: ~10-30 MB RAM, CPU ~0; relay alleen als direct verbinden faalt.
+
+
+## Geannuleerd 2026-11-05
+Niet nodig: RustDesk draait alleen als Maaike de app opent, toegang vraagt haar wachtwoord + klik + schermdeel-toestemming, en Wouter verbindt al direct via het Nebula-IP 10.77.0.3.
