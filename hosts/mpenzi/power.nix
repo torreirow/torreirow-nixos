@@ -11,4 +11,9 @@
 
 {
   boot.blacklistedKernelModules = [ "tiny_power_button" ];
+
+  # Hibernate ("Slaapstand naar schijf"): het image komt op de swap (LUKS, in de initrd
+  # ontgrendeld). systemd-initrd vindt het ook via de EFI-variabele HibernateLocation, maar met
+  # resume= hangt het hervatten daar niet van af.
+  boot.resumeDevice = "/dev/mapper/luks-ef7880b0-64cd-4dbb-8fa8-56faceca9e77";
 }
