@@ -423,7 +423,8 @@
       pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
       modules = [
         ./home/profiles/wtoorren-admin
-        nixvim.homeModules.default
+        # Lichte nixvim (zonder LSP/linters/dap); wtoorren@linuxdesktop houdt de volledige.
+        nixvim.homeModules.light
         {
           home.username = "wtoorren";
           home.homeDirectory = "/home/wtoorren";
