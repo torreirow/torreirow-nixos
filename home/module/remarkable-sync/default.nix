@@ -1,8 +1,8 @@
 # home-manager module: reMarkable -> Nextcloud, via USB
 #
 # Haalt periodiek de documenten van een via USB aangesloten reMarkable op en zet
-# ze in een map onder ~/Nextcloud, waar de bestaande `services.nextcloud-sync`
-# ze vanzelf meeneemt. Twee onafhankelijke stappen, elk los uitschakelbaar:
+# ze in een map die Nextcloud synct (op lobos ~/Documents/reMarkable, via de
+# GUI-client). Twee onafhankelijke stappen, elk los uitschakelbaar:
 #
 #   backup  ruwe spiegel van de xochitl-map over SSH  -> <targetDir>/backup/
 #   export  PDF per document via de USB-webinterface  -> <targetDir>/documenten/
@@ -151,11 +151,11 @@ in
 
     targetDir = mkOption {
       type = types.str;
-      default = "~/Nextcloud/reMarkable";
+      default = "~/Documents/reMarkable";
       description = ''
         Map waarin `backup/` en `documenten/` landen. Een leidende `~/` wordt
-        geëxpandeerd. Zet dit onder de map die `services.nextcloud-sync` synct,
-        dan gaat de rest vanzelf.
+        geëxpandeerd. Zet dit onder een map die Nextcloud synct, dan gaat de
+        rest vanzelf.
 
         Let op: die map synct twee kanten op. Verwijder je elders een
         geëxporteerde PDF, dan zet de volgende run hem terug -- de map is een

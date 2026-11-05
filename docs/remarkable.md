@@ -148,5 +148,5 @@ bewust buiten — anders belanden die geheimen in Nextcloud.
 ## Zie ook
 
 - `home/module/remarkable-sync/README.md` — handmatige stappen en wat bewust buiten scope valt
-- `home/module/nextcloud-sync/` — de sync die de map naar `nxc.toorren.net` brengt
+- De Nextcloud GUI-client op lobos synct `~/Documents` (dus ook `reMarkable/`) naar `nxc.toorren.net`
 - `docs/usb-dongles.md` — het andere USB-verhaal op deze configuratie (stabiele device-paden)

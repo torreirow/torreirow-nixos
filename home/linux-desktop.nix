@@ -50,8 +50,8 @@ services.notify-signal.enable = true;
 # Nextcloud: alleen de GUI-client, die ~/Documents <-> /Documents live synct (tray-icoon).
 # De headless nextcloud-sync (~/Nextcloud, timer) is op 2026-11-05 weggehaald: /Documents stond
 # daardoor dubbel lokaal (6,9 GB) en de rest van de server hoeft niet naar lobos.
-# De wrapper laat maar één GUI-instantie toe (zie module/nextcloud-sync/single-instance.nix).
-home.packages = [ (pkgs.callPackage ./module/nextcloud-sync/single-instance.nix { }) ];
+# De wrapper laat maar één GUI-instantie toe (zie module/nextcloud-gui/single-instance.nix).
+home.packages = [ (pkgs.callPackage ./module/nextcloud-gui/single-instance.nix { }) ];
 
 xdg.configFile."autostart/Nextcloud.desktop".text = ''
   [Desktop Entry]

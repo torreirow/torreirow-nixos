@@ -6,6 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## NEXT VERSION
 
+### Removed
+- **Headless Nextcloud-sync en staleness-monitor op lobos** (`home/module/nextcloud-sync/`,
+  `home/module/staleness-monitor/`). `/Documents` stond dubbel lokaal (GUI-client in `~/Documents`
+  én headless in `~/Nextcloud/Documents`, 6,9 GB); de rest van de server hoeft niet naar lobos.
+  Alleen de GUI-client blijft (single-instance-wrapper nu in `home/module/nextcloud-gui/`).
+  `remarkable-sync` schrijft naar `~/Documents/reMarkable`; de servermap is verplaatst naar
+  `/Documents/reMarkable`.
+
 ### Fixed
 - **Magister-overzichtspagina toont tekens weer goed**. Op `agenda.toorren.net` stond
   "Toevoegen â†’ Via URL" in plaats van "Toevoegen → Via URL". De pagina meldt nu dat ze UTF-8

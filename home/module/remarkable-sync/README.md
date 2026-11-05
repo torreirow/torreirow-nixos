@@ -1,15 +1,15 @@
 # remarkable-sync
 
-Haalt de documenten van een via USB aangesloten **reMarkable 2** op en zet ze in een map onder
-`~/Nextcloud`, waar `services.nextcloud-sync` ze vanzelf meeneemt.
+Haalt de documenten van een via USB aangesloten **reMarkable 2** op en zet ze in een map die
+Nextcloud synct. Op lobos is dat `~/Documents/reMarkable`, dat de GUI-client live meeneemt.
 
 ```
   reMarkable 2                       lobos                        nxc.toorren.net
   ┌────────────────┐                 ┌──────────────────────────┐
   │ 10.11.99.1     │  SSH  :22  ────►│ …/reMarkable/backup/     │──┐
-  │ (USB cdc_ether)│                 │   ruwe xochitl-map       │  │  bestaande
-  │                │  HTTP :80  ────►│ …/reMarkable/documenten/ │  ├─ nextcloud-sync
-  └────────────────┘                 │   PDF's mét inkt         │──┘  (elke 10 min)
+  │ (USB cdc_ether)│                 │   ruwe xochitl-map       │  │  Nextcloud
+  │                │  HTTP :80  ────►│ …/reMarkable/documenten/ │  ├─ GUI-client
+  └────────────────┘                 │   PDF's mét inkt         │──┘  (live)
                                      └──────────────────────────┘
 ```
 
@@ -18,7 +18,7 @@ Haalt de documenten van een via USB aangesloten **reMarkable 2** op en zet ze in
 ```nix
 services.remarkable-sync = {
   enable = true;
-  # targetDir = "~/Nextcloud/reMarkable";  # default
+  # targetDir = "~/Documents/reMarkable";  # default
   # interval  = "2min";                    # default
   # backup.enable = true;                  # ruwe spiegel over SSH
   # export.enable = true;                  # PDF's via de webinterface

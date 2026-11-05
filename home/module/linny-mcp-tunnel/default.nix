@@ -67,8 +67,8 @@ in
     systemd.user.services.linny-mcp-tunnel = {
       Unit = {
         Description = "ssh-tunnel naar linny-mcp op ${cfg.host}";
-        # `network-online.target` bestaat NIET in de user-manager -- zie de
-        # opmerking in home/module/nextcloud-sync. Restart=always doet het werk.
+        # `network-online.target` bestaat NIET in de user-manager (een user-unit
+        # die erop wacht, wacht eeuwig). Restart=always doet het werk.
       };
 
       Service = {
