@@ -7,7 +7,7 @@ priority: normal
 tags:
     - handmatig
 created_at: 2026-11-04T21:10:32Z
-updated_at: 2026-11-04T21:54:34Z
+updated_at: 2026-11-05T07:56:25Z
 parent: nixos-kzxu
 blocked_by:
     - nixos-h295
@@ -31,3 +31,6 @@ NIET door de agent.
 - ZapZap en Signal gekoppeld (QR) door Maaike.
 
 - `home/profiles/maaike/defaults/ZapZap.conf` vastgelegd (alleen instellingen; sessie in ~/.local/share/ZapZap niet). Signal bewust niet vastgelegd: config.json bevat encryptedKey; herstel = opnieuw koppelen.
+
+
+• 2026-11-05: Thunderbird met Gmail uitgesteld; Maaike gebruikt nu geen mailclient (geen Outlook-app of Thunderbird). Geen voorwaarde om o1ga af te ronden.
