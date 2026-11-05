@@ -474,6 +474,11 @@
   checks.x86_64-linux.immich-ml-catchup =
     nixpkgs.legacyPackages.x86_64-linux.callPackage ./modules/immich-ml-catchup/test.nix { };
 
+  # Immich: VAAPI-patch (format=nv12 vóór hwupload, modules/immich-vaapi-patch.nix).
+  checks.x86_64-linux.immich-vaapi-patch =
+    let u = import unstable { system = "x86_64-linux"; config.allowUnfree = true; };
+    in u.callPackage ./modules/immich-vaapi-patch_test.nix { };
+
   checks.x86_64-linux.nebula =
     nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
       imports = [ ./modules/nebula_vmtest.nix ];

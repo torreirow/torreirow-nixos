@@ -23,7 +23,7 @@ Immich-app / browser / reisapps --> nginx photos.toorren.net (geen forward-auth)
 | JuiceFS-data  | `s3://wto-s3-bucket/immich/`, IAM-user `juicefs-immich` (alleen `immich/`)   |
 | Secrets JFS   | `juicefs-immich-env.age` (S3), `-passphrase.age` (`JFS_RSA_PASSPHRASE`), `-rsa-key.age` (PEM) |
 | ML            | op lobos via Nebula (`http://10.77.0.2:3003`), zie "Machine learning" hieronder |
-| Video         | CPU (`ffmpeg.accel = "disabled"`), zie "VAAPI" hieronder                    |
+| Video         | VAAPI op de HD 500 (iHD, hw-decode), met patch; zie "VAAPI" hieronder       |
 
 ## Waarom zo
 
@@ -120,13 +120,35 @@ Verdwijnt het bij een upgrade, dan faalt de dienst met een HTTP-fout.
   Slim zoeken en Gezichtsdetectie, met lobos aan het net.
 - **Geheugen:** modellen gaan na 10 minuten zonder werk uit het RAM (`MACHINE_LEARNING_MODEL_TTL`).
 
-## VAAPI (nog niet werkend)
+## VAAPI (video via de HD 500)
 
-Getest 2026-11-02 met iHD (intel-media-driver) en i965: losse `ffmpeg -c:v h264_vaapi`-tests op
-`/dev/dri/renderD128` slagen, maar Immich's eigen transcode faalt met "Error encoding a frame"
-(CQP, B-frames), ook met `accelDecode = false`. Immich viel dan terug op de CPU. Daarom nu
-meteen CPU. Vervolg: bean `nixos-umuq`. Aanzetten vraagt `hardware.graphics` (+ driver),
-`accelerationDevices = [ "/dev/dri/renderD128" ]` en `ffmpeg.accel = "vaapi"`.
+Sinds 2026-11-05 (OpenSpec `immich-vaapi`, bean `nixos-umuq`): `ffmpeg.accel = "vaapi"`,
+`accelDecode = true`, `hardware.graphics` met `intel-media-driver` (iHD), `LIBVA_DRIVER_NAME=iHD`
+en alleen `/dev/dri/renderD128` voor immich-server.
+
+**Waarom het op 2026-11-02 faalde:** bij software-decode zonder schaling (bron ≤ 720p, of een bron
+die de GPU niet kan decoderen) maakt Immich `-vf hwupload` zonder `format=nv12`. Het yuv420p-frame
+gaat onomgezet naar de encoder en iHD en i965 weigeren dat ("Failed to end picture encode issue:
+24 (internal encoding error)", "Error encoding a frame"). Met schaling zet `scale_vaapi=…:format=nv12`
+het wel om, daarom slaagden losse tests. Fix: `modules/immich-vaapi-patch.nix` zet `format=nv12`
+vóór `hwupload` (kopie van `unstable.immich` met één gewijzigd bestand; geen herbouw).
+Test: `nix build .#checks.x86_64-linux.immich-vaapi-patch -L`. Bij een Immich-upgrade faalt de build
+als de patchplek verandert: dan kijken of upstream het heeft opgelost en de patch weghalen.
+
+Gemeten op malandro met Immich's eigen commando (doel 720p H.264):
+
+| Bron                  | CPU   | VAAPI hw-decode | VAAPI sw-decode |
+|-----------------------|-------|-----------------|-----------------|
+| 1080p H.264 High, 3 s | 4,4 s | 1,3 s           | 3,4 s           |
+| 4K HEVC 10-bit, 2 s   | 8,7 s | 2,1 s           | 9,9 s           |
+
+GPU-decode lukt niet voor mpeg4 en H.264 Baseline (o.a. de motion photos); Immich valt dan zelf
+terug op software-decode + VAAPI-encode, en pas daarna op de CPU. In de journal:
+`Transcoding video … with VAAPI-accelerated encoding and decoding` → `Successfully encoded`.
+Mis-loopt het: `Retrying with VAAPI acceleration disabled`.
+
+Testgereedschap (scratch, niet in de repo): Immich's `BaseConfig` in node aanroepen met een
+`ffprobe`-json levert exact het ffmpeg-commando; zo is de fout op malandro nagebootst.
 
 ## Controle
 

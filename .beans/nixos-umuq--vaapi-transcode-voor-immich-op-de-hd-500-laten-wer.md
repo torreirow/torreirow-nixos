@@ -1,11 +1,11 @@
 ---
 # nixos-umuq
 title: VAAPI-transcode voor Immich op de HD 500 laten werken
-status: todo
+status: in-progress
 type: task
 priority: low
 created_at: 2026-11-02T22:58:32Z
-updated_at: 2026-11-02T23:07:11Z
+updated_at: 2026-11-05T12:51:49Z
 parent: nixos-ypet
 ---
 
