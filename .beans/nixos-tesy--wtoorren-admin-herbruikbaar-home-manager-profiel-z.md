@@ -5,7 +5,7 @@ status: completed
 type: epic
 priority: normal
 created_at: 2026-11-04T20:39:33Z
-updated_at: 2026-11-05T07:42:31Z
+updated_at: 2026-11-05T07:48:09Z
 ---
 
 Herbruikbaar home-manager-profiel **wtoorren-admin**: de shell-omgeving van Wouter (zsh, tmux, nixvim,
