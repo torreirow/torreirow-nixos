@@ -1,13 +1,13 @@
 ---
 # nixos-bupo
 title: 'wtoorren-admin: handmatig deployen en controleren op mpenzi'
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
     - handmatig
 created_at: 2026-11-04T20:39:33Z
-updated_at: 2026-11-04T20:52:08Z
+updated_at: 2026-11-05T07:42:31Z
 parent: nixos-tesy
 blocked_by:
     - nixos-682w
@@ -22,3 +22,8 @@ NIET door de agent.
 
 
 4. nixhost: inloggen met ssh, dan `home-manager switch --flake .#wtoorren@admin -b backup`; controleer `rbw unlock`, `bmc` met MFA (`rbw code`), en dat de TOTP-code via tmux/OSC 52 op het clipboard van lobos komt.
+
+
+## Resultaat (2026-11-05)
+
+Door Wouter gecontroleerd: rbw, tmux en atuin werken; `home-manager switch --flake .#wtoorren@admin` op nixhost geslaagd. Stap 3 (profiel op andere servers) is een latere keuze per server.
