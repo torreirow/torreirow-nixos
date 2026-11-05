@@ -10,8 +10,8 @@
 
 ## 3. Verifiëren (live)
 
-- [ ] 3.1 Na rebuild: `PUT /api/jobs/videoConversion` (force) → "Successfully encoded" zonder "acceleration disabled"
-- [ ] 3.2 `vainfo`/journal toont iHD; immich-server heeft alleen renderD128
+- [x] 3.1 Na rebuild: `PUT /api/jobs/videoConversion` (force) → "Successfully encoded" zonder "acceleration disabled"
+- [x] 3.2 `vainfo`/journal toont iHD; immich-server heeft alleen renderD128
 
 ## 4. Documentatie
 

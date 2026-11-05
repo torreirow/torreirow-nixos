@@ -61,12 +61,15 @@ Het systeem SHALL thumbnails en omgezette video's op de lokale schijf
 - **WHEN** Immich een thumbnail maakt
 - **THEN** staat die onder `/data/external/immich` en niet in S3
 
-### Requirement: Machine learning uit, video op de CPU
+### Requirement: Machine learning op lobos, video via VAAPI
 Het systeem SHALL de machine-learningdienst van Immich NIET op malandro draaien (de J3455 heeft
 geen AVX), maar op lobos: alleen `immich-machine-learning` (zelfde versie als de server), op poort
 3003, bereikbaar via de Nebula-mesh en alleen voor host `malandro`. Immich op malandro SHALL ML
-gebruiken via `http://10.77.0.2:3003`. Video SHALL op de CPU worden omgezet
-(`ffmpeg.accel = "disabled"`); VAAPI op de HD 500 is een vervolgtaak.
+gebruiken via `http://10.77.0.2:3003`. Video SHALL via VAAPI op de HD 500 worden omgezet
+(`ffmpeg.accel = "vaapi"`, `accelDecode = true`, driver iHD), met Immich's eigen terugval op
+software-decode en daarna de CPU. Immich SHALL alleen toegang hebben tot `/dev/dri/renderD128`.
+Het Immich-pakket MUST de patch bevatten die bij software-decode `format=nv12` vóór `hwupload`
+zet.
 
 #### Scenario: Geen ML-dienst
 - **WHEN** de diensten op malandro worden bekeken
@@ -87,6 +90,14 @@ gebruiken via `http://10.77.0.2:3003`. Video SHALL op de CPU worden omgezet
 #### Scenario: Video wordt omgezet
 - **WHEN** een video in een niet-ondersteund formaat wordt geüpload
 - **THEN** maakt Immich een omgezette `.mp4` onder `/data/external/immich/encoded-video`
+
+#### Scenario: Omzetten via de GPU
+- **WHEN** Immich een video omzet
+- **THEN** logt hij "with VAAPI-accelerated encoding" en "Successfully encoded", zonder "Retrying with VAAPI acceleration disabled"
+
+#### Scenario: Kleine of niet-hardware-decodeerbare bron
+- **WHEN** de bron 720p of kleiner is, of de GPU hem niet kan decoderen (mpeg4, H.264 Baseline)
+- **THEN** slaagt VAAPI-encoding na software-decode (dankzij `format=nv12`)
 
 ### Requirement: Reisapps koppelen via API-sleutel
 Het systeem SHALL toestaan dat MarkMySteps en OwnSteps met een Immich-API-sleutel foto's
