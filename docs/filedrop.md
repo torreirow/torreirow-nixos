@@ -197,13 +197,13 @@ curl -s https://nxc.toorren.net/s/<token> | grep -o 'files_sharing-view" value="
 
 ## Als opslaan mislukt
 
-bobadela1, en daarmee Nextcloud, staat elke nacht van 23:00 tot 09:00 uit. De proxy op
+bobadela1, en daarmee Nextcloud, staat elke nacht van 23:00 tot 09:00 (zondag 08:00) uit. De proxy op
 `nxc.toorren.net` antwoordt dan binnen ongeveer 3 s met 503 (zie `modules/nextcloud-proxy.nix`),
 dus er treedt geen time-out op.
 
 | Antwoord van de opslag                    | HTTP aan inzender | Melding                                                                 |
 |-------------------------------------------|-------------------|-------------------------------------------------------------------------|
-| verbindingsfout of 502/503/504 (MKCOL/PUT) | 503               | "De opslag is nu niet bereikbaar. Die staat elke nacht van 23:00 tot 09:00 uit; probeer het daarna opnieuw." |
+| verbindingsfout of 502/503/504 (MKCOL/PUT) | 503               | "De opslag is nu niet bereikbaar. Die staat elke nacht van 23:00 tot 09:00 uit (op zondag tot 08:00); probeer het daarna opnieuw." |
 | een andere fout                           | 502               | "Er ging iets mis bij het opslaan. Probeer het later opnieuw."          |
 
 Beide meldingen eindigen met "Gebeurt dit opnieuw? Neem dan contact op via

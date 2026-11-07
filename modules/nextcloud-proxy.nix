@@ -4,7 +4,7 @@
 # Upstream: http://192.168.2.67:11000 (gewoon HTTP; TLS termineert hier op malandro).
 # Domein: https://nxc.toorren.net (valt onder de *.toorren.net wildcard-cert).
 #
-# bobadela1 (de upstream-host) gaat elke avond 23:00 bewust uit en wordt 09:00 door
+# bobadela1 (de upstream-host) gaat elke avond 23:00 bewust uit en wordt 09:00 (zondag 08:00) door
 # wake-bobadela1 gewekt. Tussendoor is de upstream onbereikbaar. Daarom:
 #   - korte proxy_connect_timeout (3s): de TCP-handshake faalt snel i.p.v. tot de
 #     lange upload-timeout te blijven hangen (zie beslissing in de OpenSpec-change
@@ -113,15 +113,17 @@
         </div>
         <script>
             (function () {
-                var h = new Date().getHours();
-                var sleeping = (h >= 23 || h < 9);
+                // Browserklok; wake-bobadela1 wekt om 09:00, op zondag al om 08:00.
+                var now = new Date(), h = now.getHours();
+                var wakeHour = now.getDay() === 0 ? 8 : 9;
+                var sleeping = (h >= 23 || h < wakeHour);
                 var icon = document.getElementById("icon");
                 var title = document.getElementById("title");
                 var msg = document.getElementById("msg");
                 if (sleeping) {
                     icon.innerHTML = "&#128564;";
                     title.textContent = "Nextcloud slaapt";
-                    msg.textContent = "De cloud is 's nachts uitgeschakeld en komt rond 09:00 vanzelf weer online. Probeer het straks opnieuw.";
+                    msg.textContent = "De cloud is 's nachts uitgeschakeld en komt rond " + (wakeHour === 8 ? "08:00" : "09:00") + " vanzelf weer online. Probeer het straks opnieuw.";
                 } else {
                     icon.innerHTML = "&#9729;";
                     title.textContent = "Nextcloud is onverwacht onbereikbaar";

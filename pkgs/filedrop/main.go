@@ -67,7 +67,7 @@ var (
 	amsterdam, _  = time.LoadLocation("Europe/Amsterdam")
 	errValidation = errors.New("validation")
 	// Nextcloud is unreachable: a connection error or the proxy's 502/503/504. bobadela1 is
-	// switched off every night from 23:00 to 09:00; the clock itself is never consulted.
+	// switched off every night from 23:00 to 09:00 (Sunday 08:00); the clock itself is never consulted.
 	errStorageDown = errors.New("storage unreachable")
 )
 
@@ -320,7 +320,7 @@ func fail(w http.ResponseWriter, u *upload, err error) {
 		status, msg := http.StatusBadGateway, "Er ging iets mis bij het opslaan. Probeer het later opnieuw."
 		if errors.Is(err, errStorageDown) {
 			status, msg = http.StatusServiceUnavailable, "De opslag is nu niet bereikbaar. "+
-				"Die staat elke nacht van 23:00 tot 09:00 uit; probeer het daarna opnieuw."
+				"Die staat elke nacht van 23:00 tot 09:00 uit (op zondag tot 08:00); probeer het daarna opnieuw."
 		}
 		writeJSON(w, status, false, msg+" Gebeurt dit opnieuw? Neem dan contact op via "+contact+".")
 	}

@@ -2,7 +2,8 @@
 
 # Ochtend-wake van bobadela1 (Nextcloud AIO) vanaf de altijd-aan host malandro.
 # bobadela1 gaat elke avond 23:00 uit (hosts/bobadela1/nightly-shutdown.*); deze
-# service is het complement: elke ochtend 09:00 wekken via Wake-on-LAN, 30 min
+# service is het complement: elke ochtend 09:00 (zondag 08:00, voor de kerkdienst)
+# wekken via Wake-on-LAN, 30 min
 # blijven proberen (burst/5 min), pas klaar als Nextcloud gezond is, en bij falen
 # een Signal-melding sturen. Zie OpenSpec-change add-bobadela1-wake.
 #
@@ -37,10 +38,13 @@ in
   };
 
   systemd.timers.wake-bobadela1 = {
-    description = "Dagelijkse ochtend-wake van bobadela1 (09:00)";
+    description = "Dagelijkse ochtend-wake van bobadela1 (09:00, zondag 08:00)";
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnCalendar = "*-*-* 09:00:00";
+      OnCalendar = [
+        "Mon..Sat *-*-* 09:00:00 Europe/Amsterdam"
+        "Sun *-*-* 08:00:00 Europe/Amsterdam"
+      ];
       Persistent = true;
     };
   };
