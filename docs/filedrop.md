@@ -30,6 +30,12 @@ het insturen?" (standaard dicht), en dan de secties 1 Jouw gegevens, 2 Bestanden
 3 Videolinks, 4 Bericht (optioneel, max 1000 tekens) en 5 Versturen ("Ik ben geen robot" net
 boven de knop).
 
+- Naam en e-mail onthoudt de browser na een geslaagde inzending (`localStorage`, sleutel
+  `egh-gegevens`), zolang het vinkje "Onthoud mijn naam en e-mailadres op dit apparaat" aan staat
+  (standaard aan). Uitvinken wist ze. Bewust geen cookie: de server hoeft ze niet terug te krijgen.
+  Het vinkje heeft geen `name` en wordt dus niet meegestuurd.
+- De handleiding zegt dat je na een fout opnieuw moet beginnen: een inzending is achteraf
+  niet aan te passen (de share mag alleen aanmaken).
 - Groter dan 25 MB: de inzender neemt contact op met het Scherm Team en krijgt dan een
   persoonlijk Erugo-instuurverzoek (`filesender.toorren.net`). Bewust geen grotere open upload:
   zo blijft de ruimte voor upload-spam klein.

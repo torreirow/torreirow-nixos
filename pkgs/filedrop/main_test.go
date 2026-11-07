@@ -365,8 +365,8 @@ func TestReceivedMessage(t *testing.T) {
 // above the button, and a closed help block.
 func TestPageLayout(t *testing.T) {
 	markers := []string{
-		`<details class="help">`, "Handleiding: hoe werkt het insturen?",
-		"Jouw gegevens", "alleen voor deze inzending", "Bestanden</h2>", "Bestanden kiezen",
+		`<details class="help">`, "Handleiding: hoe werkt het insturen?", "fout gemaakt bij het insturen",
+		"Jouw gegevens", "alleen voor deze inzending", `id="onthoud"`, "Bestanden</h2>", "Bestanden kiezen",
 		`class="andor">en/of`, "Videolinks</h2>", "Bericht", `name="bericht"`, "Versturen</h2>", "<cap-widget", `id="submit"`, `<dialog id="msg"`,
 	}
 	pos := -1

@@ -72,6 +72,8 @@
 
   label { display: block; font-weight: 600; margin: 1rem 0 .3rem; }
   label.hint { font-weight: 400; margin-top: .25rem; }
+  label.check { display: flex; align-items: center; gap: .5rem; font-weight: 400; margin-top: .75rem; }
+  label.check input { width: 1.1rem; height: 1.1rem; margin: 0; accent-color: var(--oker); }
   input[type=text], input[type=email], input[type=url], textarea { width: 100%; padding: .65rem .75rem;
          font: inherit; color: inherit; background: var(--field); border: 1px solid var(--line); border-radius: 6px; }
   input:focus, textarea:focus { outline: 2px solid var(--oker); outline-offset: 1px; }
@@ -144,6 +146,8 @@
             video op YouTube, Facebook, Instagram of Vimeo.</li>
           <li>Druk op Versturen.</li>
         </ol>
+        <p><strong>Heb je een fout gemaakt bij het insturen?</strong> Dan moet je helaas opnieuw
+          beginnen. Ververs deze pagina en begin opnieuw: <a href="/">klik hier om te verversen</a>.</p>
         <p><strong>Een link kopiëren:</strong> open de video, tik op "Delen" en kies "Link kopiëren".
           Plak de link daarna in het vak Link.</p>
         <p><strong>Groter dan {{MAX_MB}} MB?</strong> Neem dan contact op met het Scherm Team via
@@ -162,6 +166,9 @@
         <label for="email">E-mailadres</label>
         <input type="email" id="email" name="email" required maxlength="200" autocomplete="email">
         <div class="hint">We gebruiken je naam en e-mailadres alleen voor deze inzending.</div>
+        <!-- No name attribute: the choice stays in the browser and is never sent. -->
+        <label class="check"><input type="checkbox" id="onthoud" checked>
+          Onthoud mijn naam en e-mailadres op dit apparaat</label>
         <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       </section>
 
@@ -279,6 +286,34 @@
     fileList.hidden = fileInput.files.length === 0;
   });
 
+  // Name and e-mail are remembered in this browser only (localStorage, not a cookie: the server
+  // never needs them back). Unticking the box forgets them. Storage may be blocked; then the
+  // page just works without it.
+  const remember = document.getElementById("onthoud");
+  const storeKey = "egh-gegevens";
+  function loadDetails() {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(storeKey)); } catch (_) {}
+    if (saved) {
+      document.getElementById("naam").value = saved.naam || "";
+      document.getElementById("email").value = saved.email || "";
+    }
+  }
+  function saveDetails() {
+    try {
+      if (remember.checked) {
+        localStorage.setItem(storeKey, JSON.stringify({
+          naam: document.getElementById("naam").value.trim(),
+          email: document.getElementById("email").value.trim(),
+        }));
+      } else {
+        localStorage.removeItem(storeKey);
+      }
+    } catch (_) {}
+  }
+  remember.addEventListener("change", saveDetails);
+  loadDetails();
+
   const message = document.getElementById("bericht");
   const counter = document.getElementById("bericht-teller");
   const updateCounter = () => {
@@ -314,7 +349,11 @@
       try { res = JSON.parse(xhr.responseText); } catch (_) {}
       if (xhr.status === 200 && res.ok) {
         popup(true, res.message);
+        saveDetails();
+        const keep = remember.checked;
         form.reset();
+        remember.checked = keep;
+        loadDetails();
         linksBox.querySelectorAll(".linkrow").forEach((r, i) => { r.hidden = i > 0; });
         fileList.replaceChildren();
         updateCounter();
