@@ -5,7 +5,7 @@
     backend = "docker";
 
     containers.vaultwarden = {
-      image = "vaultwarden/server:latest";
+      image = "vaultwarden/server:1.37.5";
       environment = {
         DOMAIN = "https://vw.toorren.net";
         ROCKET_PORT = "8080";
