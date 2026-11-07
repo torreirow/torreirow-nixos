@@ -48,6 +48,7 @@
 - **Een nieuwe eindgebruikers-laptop toevoegen (zoals mpenzi): installeren, eerste deploy vanaf lobos, Nebula-certificaat tekenen met de CA uit Vaultwarden, `sysadmin` weghalen, of de valkuilen (`command nixos-rebuild`, `ragenx -e` via stdin)** → lees `docs/nieuwe-laptop.md`
 - **Vragen over Immich, `photos.toorren.net`, de telefoon-fotobackup, het JuiceFS-volume `immich` (`/data/juicefs-immich`, prefix `immich/`), de Authelia-OIDC-client `immich`, API-sleutels voor MarkMySteps/OwnSteps, de ML-dienst op lobos (`modules/immich-ml.nix`, poort 3003 via Nebula), VAAPI-videotranscode met de nv12-patch of waarom Immich uit unstable komt** → lees `docs/immich.md`
 - **Vragen over AI-crawlers weren, `ai-blocklist.service/.timer/.path`, `$ai_bot`, de gegenereerde robots.txt per site (`/var/lib/ai-blocklist`), noindex van boaz/cv-jolijn of een bot die onterecht 403 krijgt** → lees `docs/ai-blocklist.md`
+- **Vragen over Diun, meldingen over nieuwe container-images, `diun.service`, de `diun.*`-labels of waarom een gepinde tag geen melding geeft** → lees `docs/diun.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 
