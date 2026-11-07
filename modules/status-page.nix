@@ -36,8 +36,7 @@ let
     "prometheus"
     "alertmanager"
     "vulnix-exporter"
-    # PHP-FPM-pools (bookstack = stwvwiki, castopod = podcast, mailer, portal = toorren.net)
-    "phpfpm-bookstack"
+    # PHP-FPM-pools (castopod = podcast, mailer, portal = toorren.net)
     "phpfpm-castopod"
     "phpfpm-mailer"
     "phpfpm-portal"

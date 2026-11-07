@@ -261,7 +261,7 @@
 
           # Diensten BUITEN forward-auth (eigen login/OIDC of publiek) hebben hier
           # geen regel nodig: vw-app, adresses (Baikal DAV), homeassistant,
-          # nextcloud, vikunja, bookstack, wallos (eigen OIDC-client), erugo,
+          # nextcloud, vikunja, wallos (eigen OIDC-client), erugo,
           # chhoto, opsknight, en de publieke statische/redirect/API-sites.
         ];
       };

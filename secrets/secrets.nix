@@ -42,8 +42,6 @@ in
   "invoiceplane-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "invoiceplane-oidc.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "vikunja-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "bookstack-appkey.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
-  "bookstack-db-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "grafana-secret-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
   # OIDC client-secret waarmee Grafana zich als generic_oauth-client bij Authelia
