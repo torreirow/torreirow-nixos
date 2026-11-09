@@ -38,6 +38,12 @@ Builder). De bestaande nginx-jails zagen niets: die matchen auth-/limit-fouten u
 - **Logformaat:** nginx logt sinds dezelfde wijziging `combined` + `host=$host` **aan het eind** van
   de regel (`modules/nginx.nix`). Zet de host nooit vooraan: dan breken de `^<HOST>`-regexen.
 - **Testen:** `fail2ban-regex /var/log/nginx/access.log /etc/fail2ban/filter.d/nginx-scanner.conf`
+- **Evaluatie 2026-11-09 (3 weken live):** 427 bans, 353 unieke IP's, 86 tegelijk gebanned. Geen
+  eigen IP's (82.170.93.180 thuis-WAN, 82.172.137.171, LAN, Nebula) en geen HA-`ip_bans.yaml`.
+  "Legitiem" ogende 2xx/3xx van gebande IP's waren scanners die redirects volgen of de Authelia-
+  loginpagina laden; de Googlebot/DuckAssistBot-user-agents kwamen van GCP/hosting (34.x, 45.138.x),
+  niet van echte crawlers. Meest getroffen vhosts: toorren.net, auth, stichtingwittevelden.nl,
+  grafana.dutchyland.net, docs. Conclusie: jail ongewijzigd laten.
 
 ## Commandos
 

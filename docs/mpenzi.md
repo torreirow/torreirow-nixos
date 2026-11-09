@@ -27,8 +27,11 @@ Bestanden: `hosts/mpenzi/{configuration,hardware-configuration,plasma,apps,rustd
 ## Updaten (vanaf lobos)
 
 ```bash
-nixos-rebuild switch --flake .#mpenzi --target-host wtoorren@mpenzi --sudo --ask-sudo-password
+command nixos-rebuild switch --flake .#mpenzi --target-host wtoorren@mpenzi --sudo --ask-sudo-password
 ```
+
+- `command` omzeilt de alias `nixos-rebuild` = `sudo nixos-rebuild`; als root ontbreekt de
+  rbw-ssh-agent (`Permission denied (publickey)`). Zie de valkuilen in `docs/nieuwe-laptop.md`.
 
 - `wtoorren@mpenzi` werkt thuis via `mpenzi.local` (avahi), onderweg via `10.77.0.3` (Nebula).
 - `@wheel` is trusted user op mpenzi; anders weigert de nix-daemon de ongesigneerde closure.
@@ -126,6 +129,9 @@ vraagt Windows).
   toets voor logind/Plasma; logind negeert hem vlak na het wekken (`HoldoffTimeoutSec`).
 - Controle: `lsmod | grep tiny_power_button` geeft niets; na wekken met de knop blijft hij aan
   (getest 2026-11-05).
+- Hibernate werd geblokkeerd door Bitwarden Desktop: die houdt geheime data in `memfd_secret`
+  (secretmem), en zolang dat geheugen bestaat weigert de kernel hibernate. Opgelost door een
+  instelling in Bitwarden Desktop aan te passen (2026-11-09).
 - Werkt dit niet: het verborgen BIOS-menu kan naar S3 schakelen (ArchWiki "Lenovo IdeaPad 5
   14are05"). Handwerk in het BIOS, alleen als laatste stap.
 
