@@ -200,3 +200,27 @@ sinds 2026-04-28 uitgeschakeld (companion-app), dus hij vuurde al maanden niet. 
 wifi niet (include-filter), dus "waar was ik / welk netwerk" is achteraf niet na te gaan.
 
 Backups: `automations.yaml.pre-thuiszone`, `automations.yaml.pre-knipper`, `.storage/zone.pre-thuiszone`.
+
+## Opruimronde automations (2026-11-09)
+
+Van 65 automations waren er 19 dood. Verwijderd (via `DELETE /api/config/automation/config/<id>`):
+
+- **Knop bestaat niet meer** (oude TRADFRI-remote `0xbc026efffec80bec`, Hue-dimmer
+  `0x5cc7c1fffe87f1c2`): eetkamer_normal, aanrechtlamp_normaal, aanrechtlamp_dimmed, Bedtijd Knop.
+- **Apparaat helemaal weg:** Ventilator Knop Aan, Voorzolderactie, eetkamer_full_on, eetkamer_dimmed,
+  eetkamerlamp toggle dim / restore, Voorzolder_schakelaar_aan, voorzolder_schakelaar_off, Geur random 30.
+- **Oude entity-namen:** wouterlampaan (`light.eetkamerlamp_eetkamerlamp`), Randomised geur zolder
+  (`switch.geur_werkkamer_schakelaar`).
+- **Lang uit of overbodig:** Aanrecht aan bij online, Restart HA daily, Wifi = thuis detectie,
+  Schedule cert renewal (cert-sensor bestaat niet meer; certificaten via nginx/ACME).
+
+Hun functie zit nu in de RODRET-knoppen (AllesUit, Werkkamerlamp knop aan, zolderlampen tijdelijk aan).
+**Randomised Light at Night** is gerepareerd: `target_light` `light.eetkamer_lamp` → `light.eetkamerlamp`.
+Daarnaast 5 verweesde registry-entries (`unavailable`, zonder config, uit 2024) weg via websocket
+`config/entity_registry/remove`. Let op: "Achterdeur ingang" heet als entity `automation.buienalarm`.
+
+Resultaat: 47 automations, alle `on`. Ook de oude mobile_app-koppeling "Phone WTO" (Samsung SM-A526B)
+is verwijderd. Recorder bewaart nu `device_tracker.a059` en `sensor.a059_geocoded_location` (1 jaar).
+
+Backups: `automations.yaml.pre-opruimen`, `.storage/core.entity_registry.pre-opruimen`,
+`configuration.yaml.pre-locatie`.
