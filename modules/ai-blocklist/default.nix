@@ -12,6 +12,9 @@
 #     server-niveau, anders zou robots.txt ook geblokkeerd worden
 #   - noindex = true: ook een `User-agent: *`/`Disallow: /` als de site die nog niet
 #     heeft, plus X-Robots-Tag: noindex
+#   - allowAgents: bots die op déze site wel mogen (bijv. facebookexternalhit voor
+#     link-previews). De site toetst dan $ai_bot_<vhost>, een map die $ai_bot overneemt
+#     maar deze namen op 0 zet; in robots.txt krijgen ze geen Disallow.
 #
 # Een nieuwe robots.txt in een webroot (release.sh) wordt via ai-blocklist.path direct
 # opgepikt. Zonder netwerk bij de eerste boot dekt een startlijst uit de store de map af.
@@ -28,6 +31,7 @@ let
       inherit (site) noindex;
       webroot = toString vhosts.${vhost}.root;
       sitemap = if site.sitemap then "https://${vhost}/sitemap.xml" else null;
+      inherit (site) allowAgents;
     })
     cfg.sites));
 
@@ -43,8 +47,21 @@ let
     exec ${pkgs.python3}/bin/python3 ${./update-ai-blocklist.py}
   '';
 
-  blockIf = ''
-    if ($ai_bot) { return 403; }
+  # Variabele die een site toetst: de gedeelde $ai_bot, of een afgeleide als de site
+  # bots vrijgeeft (nginx kent geen && in if, dus de uitzondering moet in de map).
+  botVar = vhost: site:
+    if site.allowAgents == [ ] then "$ai_bot"
+    else "$ai_bot_${lib.replaceStrings [ "." "-" ] [ "_" "_" ] (lib.toLower vhost)}";
+
+  allowMap = vhost: site: ''
+    map $http_user_agent ${botVar vhost site} {
+        default $ai_bot;
+        "~*\b(?:${lib.concatMapStringsSep "|" lib.escapeRegex site.allowAgents})\b" 0;
+    }
+  '';
+
+  blockIf = vhost: site: ''
+    if (${botVar vhost site}) { return 403; }
   '';
 in
 {
@@ -68,6 +85,12 @@ in
           default = [ ];
           description = "Andere content-locations (naast \"/\") die ook de 403 moeten krijgen.";
         };
+        allowAgents = lib.mkOption {
+          type = lib.types.listOf (lib.types.strMatching "[A-Za-z0-9._-]+");
+          default = [ ];
+          example = [ "facebookexternalhit" ];
+          description = "Botnamen uit de lijst die op deze site géén 403 en geen Disallow krijgen.";
+        };
       };
     });
   };
@@ -75,7 +98,8 @@ in
   config = lib.mkIf (cfg.sites != { }) {
     services.nginx.commonHttpConfig = ''
       include ${stateDir}/ai-bots-map.conf;
-    '';
+    '' + lib.concatStrings (lib.mapAttrsToList allowMap
+      (lib.filterAttrs (_: site: site.allowAgents != [ ]) cfg.sites));
 
     services.nginx.virtualHosts = lib.mapAttrs
       (vhost: site: {
@@ -88,7 +112,7 @@ in
               default_type text/plain;
             '';
           };
-        } // lib.genAttrs ([ "/" ] ++ site.extraLocations) (_: { extraConfig = blockIf; });
+        } // lib.genAttrs ([ "/" ] ++ site.extraLocations) (_: { extraConfig = blockIf vhost site; });
         extraConfig = lib.optionalString site.noindex ''
           add_header X-Robots-Tag "noindex, nofollow" always;
         '';

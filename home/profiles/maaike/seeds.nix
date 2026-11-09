@@ -20,6 +20,15 @@ let
     hwdec=auto
   '';
 
+  # Audacity neemt op van de podcastbron (ALSA-apparaat `podcast` = "Podcast (2 mics)", links mic 1,
+  # rechts mic 2; modules/podcast-opname). Alleen [AudioIO]; de rest vult Audacity zelf aan.
+  audacityCfg = pkgs.writeText "audacity.cfg" ''
+    [AudioIO]
+    Host=ALSA
+    RecordingDevice=podcast
+    RecordChannels=2
+  '';
+
   # files: pad onder $HOME -> bron. process: pkill -f-patroon (hoofdletterongevoelig).
   apps = {
     nextcloud = {
@@ -37,6 +46,10 @@ let
     smplayer = {
       files.".config/smplayer/smplayer.ini" = smplayerIni;
       process = "smplayer";
+    };
+    audacity = {
+      files.".config/audacity/audacity.cfg" = audacityCfg;
+      process = "audacity";
     };
   };
 

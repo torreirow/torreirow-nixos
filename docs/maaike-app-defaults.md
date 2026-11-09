@@ -6,7 +6,7 @@ daarna hooguit een wachtwoord in of scant een QR-code. OpenSpec-change `maaike-a
 
 ```bash
 # vanaf lobos
-ssh wtoorren@10.77.0.3 sudo herstel-app maaike nextcloud     # of: bitwarden zapzap smplayer spotify signal all
+ssh wtoorren@10.77.0.3 sudo herstel-app maaike nextcloud     # of: bitwarden zapzap smplayer audacity spotify signal all
 ```
 
 ## Per app
@@ -17,6 +17,7 @@ ssh wtoorren@10.77.0.3 sudo herstel-app maaike nextcloud     # of: bitwarden zap
 | Bitwarden | server `https://vw.toorren.net`                 | seed terug (kluis lokaal weg)  | e-mail + master-wachtwoord            |
 | ZapZap    | instellingen uit de gouden config               | seed terug (sessie blijft)     | niets; zo nodig QR-code scannen       |
 | SMPlayer  | hardware-decodering (`hwdec=auto`)              | seed terug                     | niets                                 |
+| Audacity  | opnemen van `podcast` ("Podcast (2 mics)"), 2 kanalen | seed terug              | niets (zie `docs/podcast-mpenzi.md`)  |
 | Spotify   | login via agenix (`spotify-maaike.age`)         | symlink naar het secret        | niets                                 |
 | Signal    | geen (config bevat een sleutel)                 | alleen uitleg                  | opnieuw koppelen met QR-code          |
 | Firefox   | policy: Bitwarden + uBlock Origin               | altijd actief                  | Bitwarden-extensie inloggen           |
@@ -33,7 +34,7 @@ Er zijn drie mechanismen:
    Maaike kan de extensies niet weghalen.
 2. **agenix met `path`** (Spotify), zelfde patroon als `spotifywto` op lobos. Een deploy zet het
    bestand terug.
-3. **Seed + herstel** (Nextcloud, Bitwarden, ZapZap, SMPlayer):
+3. **Seed + herstel** (Nextcloud, Bitwarden, ZapZap, SMPlayer, Audacity):
    - `home/profiles/maaike/seeds.nix` bevat de lijst en het script `seed-apps`.
    - De home-manager-activatie van maaike (`home-manager-maaike.service`, bij boot en bij elke
      switch) kopieert een bestand alleen als het ontbreekt. Het wordt een gewoon, schrijfbaar

@@ -266,14 +266,6 @@ in
           group = "Technative";
         };
 
-        "profile ActiFlow" = {
-          role_arn = "arn:aws:iam::337810061405:role/TechnativeFullAccessRole";
-          region = "eu-north-1";
-          group = "ActiFlow";
-          output = "json";
-          source_profile = "technative";
-        };
-
         "499164406685-wouter" = {
           region = "eu-central-1";
           output = "json";

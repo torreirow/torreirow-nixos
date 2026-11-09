@@ -110,7 +110,9 @@
   services.aiBlocklist.sites = {
     "toorren.net" = { sitemap = true; extraLocations = [ "~ \\.php$" ]; };
     "wereldvanbegrip.nl".sitemap = true;
-    "cckafe.com" = { };
+    # facebookexternalhit staat in de AI-lijst, maar zonder krijgen gedeelde links op
+    # Facebook/Messenger/Instagram geen Open Graph-preview.
+    "cckafe.com".allowAgents = [ "facebookexternalhit" ];
     # Niet indexeerbaar, ook niet voor gewone zoekmachines.
     "boaz.toorren.net".noindex = true;
     "cv-jolijn.toorren.net".noindex = true;

@@ -14,7 +14,7 @@ vorige versie terug (exit 1), bij succes een reload.
 
 Omgeving:
   STATE_DIR   uitvoermap (bijv. /var/lib/ai-blocklist)
-  SITES_JSON  pad naar JSON-lijst {vhost, webroot, sitemap, noindex} (uit Nix)
+  SITES_JSON  pad naar JSON-lijst {vhost, webroot, sitemap, noindex, allowAgents} (uit Nix)
 """
 import json
 import os
@@ -137,7 +137,9 @@ def render_robots(site, names):
         out += ["User-agent: *", "Disallow: /", ""]
         has_star = True
 
-    missing = [n for n in names if n.lower() not in agents]
+    # allowAgents: op deze site toegestaan (nginx laat ze via een eigen map door)
+    allowed = {a.lower() for a in site.get("allowAgents", [])}
+    missing = [n for n in names if n.lower() not in agents and n.lower() not in allowed]
     if missing:
         out.append("# AI-crawlers — toegevoegd door ai-blocklist.service")
         out += [f"User-agent: {n}" for n in missing]
@@ -188,7 +190,11 @@ def main():
     names = bot_names(data)
     log(f"{len(names)} AI-bots (allowlist: {', '.join(sorted(ALLOWLIST)) or '-'})")
 
+    known = {n.lower() for n in names}
     for site in sites:
+        for a in site.get("allowAgents", []):
+            if a.lower() not in known:
+                log(f"WAARSCHUWING: allowAgents {a!r} van {site['vhost']} staat niet in de botlijst")
         path = os.path.join(ROBOTS_DIR, f"{site['vhost']}.txt")
         content = render_robots(site, names)
         if read(path) != content:
