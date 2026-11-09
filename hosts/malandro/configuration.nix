@@ -112,6 +112,7 @@
     # facebookexternalhit staat in de AI-lijst, maar zonder krijgen gedeelde links op
     # Facebook/Messenger/Instagram geen Open Graph-preview.
     "cckafe.com".allowAgents = [ "facebookexternalhit" ];
+    "test.cckafe.com".noindex = true;
     # Niet indexeerbaar, ook niet voor gewone zoekmachines.
     "boaz.toorren.net".noindex = true;
     "cv-jolijn.toorren.net".noindex = true;
