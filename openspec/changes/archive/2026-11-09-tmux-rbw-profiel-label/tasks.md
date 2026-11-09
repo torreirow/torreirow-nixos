@@ -12,5 +12,5 @@
 ## 3. Testen
 
 - [x] 3.1 Bouw de home-manager configuratie (`home-manager build`) en controleer op Nix-fouten
-- [ ] 3.2 Activeer met `home-manager switch` en controleer de statusbar zonder `RBW_PROFILE` gezet (verwacht: `🔒 bw WT` of `🔓 bw WT`)
-- [ ] 3.3 Stel `export RBW_PROFILE=technative` in en wacht op statusbar-refresh (verwacht: `🔓 bw TN` of `🔒 bw TN`)
+- [x] 3.2 Activeer met `home-manager switch` en controleer de statusbar zonder `RBW_PROFILE` gezet (2026-11-09: `🔓WT`; het formaat is later ingekort tot `<icon><label>`, spec bijgewerkt)
+- [x] 3.3 Profiel `technative` geeft `TN` (2026-11-09: `🔒TN`). Een `export` in de shell bereikt de tmux-server niet; het script leest daarom ook `~/.config/rbw/active-profile` (gezet door `rbwsel`)

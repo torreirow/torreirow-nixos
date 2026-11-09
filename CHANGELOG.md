@@ -32,6 +32,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   gezond, kapot of orphan. Als HTML en als `/status.json`, achter Authelia.
 - **Wallos op `subscriptions.toorren.net`** (`modules/wallos.nix`). Self-hosted overzicht van
   abonnementen en terugkerende uitgaven, met login via Authelia-OIDC.
+- **Solidtime in de wayle-balk op lobos.** Een knop met dropdown vervangt het oude
+  `solidtime-waybar`-script: projecten kiezen en een timer starten en stoppen vanuit de balk,
+  via de eigen `soltty`-CLI.
+- **rbw-profiel in de tmux-statusbar.** Toont welke Bitwarden-kluis actief is en of die open is:
+  `🔓WT` of `🔒TN`. Het profiel komt uit `$RBW_PROFILE` of anders uit het bestand dat `rbwsel`
+  schrijft; nieuwe profielen voeg je toe in `rbwProfiles` in `home/tmux.nix`.
+- **Contactformulier-mailer voor statische sites** (`modules/mailer.nix`, `mailer.toorren.net`).
+  Verstuurt formulieren van wereldvanbegrip.nl, cckafe.com, devos en noraly per mail naar een
+  adres per domein. Afgeschermd met een origin-whitelist, Cap-captcha, een honeypot en een
+  limiet van 5 verzoeken per minuut per IP.
 - **MIDI-piano op lobos** (`hosts/lobos/midi.nix`). FluidSynth met de Salamander Grand
   Piano-soundfont en het commando `piano`, met PipeWire op lage latency voor live spelen met het
   Nektar Impact GX61-keyboard.

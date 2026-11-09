@@ -56,4 +56,4 @@
 - [x] 5.2 Deploy naar malandro: `sudo nixos-rebuild switch --flake .#malandro`
 - [x] 5.3 Controleer PHP-FPM pool status: `systemctl status phpfpm-mailer.service`
 - [x] 5.4 E2E geverifieerd op cckafe.com (mail aangekomen op hello@cckafe.com, redirect ?verzonden=1). wereldvanbegrip-form omgezet naar cap-widget; nog te testen.
-- [ ] 5.5 Test beveiligingslagen: rate limiting (>5 requests/min), Origin mismatch (403), honeypot (stille negatie)
+- [x] 5.5 Test beveiligingslagen: rate limiting (>5 requests/min), Origin mismatch (403), honeypot (stille negatie); 2026-11-09 live op `mailer.toorren.net/send`: Origin `evil.example` → 403, honeypot → 200 met lege body, 10× POST binnen een minuut → 4× 403 en daarna 503

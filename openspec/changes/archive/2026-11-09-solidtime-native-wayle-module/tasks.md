@@ -46,6 +46,6 @@
 ## 7. NixOS rebuild en verificatie
 
 - [x] 7.1 Run `home-manager switch --flake .#wtoorren@linuxdesktop --extra-experimental-features nix-command -b backup-$(date +%s) --impure` en fix eventuele Nix evaluatie fouten
-- [ ] 7.2 Verifieer dat de solidtime bar knop verschijnt in de wayle balk op de juiste positie
-- [ ] 7.3 Verifieer dat klikken op de bar knop de solidtime dropdown opent
-- [ ] 7.4 Verifieer dat de dropdown projecten laadt, een timer kan starten en stoppen, en de bar knop bijwerkt
+- [x] 7.2 Verifieer dat de solidtime bar knop verschijnt in de wayle balk op de juiste positie
+- [x] 7.3 Verifieer dat klikken op de bar knop de solidtime dropdown opent
+- [x] 7.4 Verifieer dat de dropdown projecten laadt, een timer kan starten en stoppen, en de bar knop bijwerkt
