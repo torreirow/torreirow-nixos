@@ -27,6 +27,6 @@ label laat de container bij de deploy opnieuw starten.
 
 ```bash
 journalctl -u diun -f                 # laatste controle bekijken
-sudo diun notif test                  # testmelding (dienst moet draaien)
-sudo diun image list                  # wat Diun kent
+diun notif test                       # testmelding (dienst moet draaien)
+diun image list                       # wat Diun kent
 ```
