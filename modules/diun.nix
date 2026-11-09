@@ -44,6 +44,9 @@ in
     };
   };
 
+  # Voor `diun image list` e.d.; die praten via gRPC met de draaiende dienst.
+  environment.systemPackages = [ pkgs.diun ];
+
   systemd.services.diun = {
     description = "Diun: melding bij nieuwe container-images";
     after = [ "network-online.target" "docker.service" ];
@@ -52,6 +55,8 @@ in
     wantedBy = [ "multi-user.target" ];
     environment = {
       TZ = "Europe/Amsterdam";
+      # Standaard luistert de gRPC-server op alle interfaces.
+      GRPC_AUTHORITY = "127.0.0.1:42286";
       DIUN_DB_PATH = "/var/lib/diun/diun.db";
       # Dagelijks om 07:30; geen melding bij de eerste controle van een image.
       DIUN_WATCH_SCHEDULE = "30 7 * * *";
