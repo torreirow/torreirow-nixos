@@ -33,11 +33,6 @@
       '';
     };
 
-    locations."/errors/" = {
-      root = "/var/www";
-      extraConfig = "internal;";
-    };
-
     locations."~* ^/errors/.*\\.png$" = {
       root = "/var/www";
     };

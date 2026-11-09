@@ -55,6 +55,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `/Documents/reMarkable`.
 
 ### Fixed
+- **Eigen 403/404-pagina's op alle sites** (`modules/nginx-error-pages.nix`). De foutpagina's uit
+  `modules/nginx.nix` werkten alleen op de catch-all en toorren.net; elders gaf een door nginx
+  geweigerd verzoek een kale pagina of een verkeerde statuscode (een GET op
+  `mailer.toorren.net/send` gaf 404 in plaats van 403). Elke vhost heeft nu een interne
+  location `/_nginx-errors/`. Sites met een eigen `error_page`, zoals cckafe.com, houden die.
 - **mpenzi gaat niet meer uit bij het wekken uit de slaapstand**. Met de aan/uit-knop wakker
   maken zette de laptop uit en bleef daarbij hangen op "power off". Een kernelmodule die bij elke
   druk op de knop meteen uitzette staat nu uit; de knop werkt weer via Plasma.

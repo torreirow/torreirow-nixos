@@ -2,6 +2,8 @@
 
 # Fixed HTTPS support for catch-all server
 {
+  imports = [ ./nginx-error-pages.nix ];
+
   services.nginx = {
     enable = true;
     #sslCertificate = "/var/lib/acme/toorren.net/fullchain.pem";
@@ -25,9 +27,9 @@
                                '"$http_referer" "$http_user_agent" host=$host';
       access_log /var/log/nginx/access.log combined_host;
 
-      # Generieke error pages voor alle sites
-      error_page 403 /errors/403.html;
-      error_page 404 /errors/404.html;
+      # Generieke error pages voor alle sites; de location staat in nginx-error-pages.nix
+      error_page 403 /_nginx-errors/403.html;
+      error_page 404 /_nginx-errors/404.html;
     '';
 
     virtualHosts."wildcard-placeholder" = {
@@ -42,13 +44,6 @@
 
       locations."/" = {
         tryFiles = "$uri $uri/ =404";
-      };
-
-      locations."/errors/" = {
-        root = "/var/www";
-        extraConfig = ''
-          internal;
-        '';
       };
 
 
