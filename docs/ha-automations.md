@@ -158,5 +158,45 @@ neemt dezelfde `message`/`title` aan en stuurt zonder `chat_id` naar de eerste t
 - Backups: `automations.yaml.pre-telegram`, `scripts.yaml.pre-telegram`, `configuration.yaml.pre-telegram`.
 - Getest: `telegram_bot.send_message` en `script.send_message_to_phone` via de API, `check_config`
   zonder nieuwe fouten.
-- Bestaand, niet aangepast: de automation met de woon-werk-melding roept de actie eerst één keer aan
-  met `data: {}` (geen `message`); die stap faalt en stopt de rest van die actielijst.
+- De lege `data: {}`-aanroep in de woon-werk-melding is daarna opgelost (zie hieronder).
+
+## Woon-werk-melding "Waze WTO Commute" (2026-11-09)
+
+Id `1756821093824`. Deed sinds minstens 5 nov niets: de eerste actie was een melding met
+`data: {}` ("required key not provided at 'message'"), wat de hele automation stopte. Daarnaast las
+hij `sensor.commute_wto_to_office_office`, die niet meer bestaat. Herschreven met trigger-id's,
+ma/wo/do:
+
+| Tijd  | Id      | Actie                                                                |
+|-------|---------|----------------------------------------------------------------------|
+| 06:45 | `heen`  | Telegram "Reistijd naar kantoor" uit `sensor.wtoho` (thuis → kantoor) |
+| 16:00 | `terug` | `script.send_message_to_phone` "wouter komt naar huis" (`sensor.wtooh`) |
+
+Het togglen van de Werkkamer Lamp is op verzoek vervallen. Backup: `automations.yaml.pre-commute`.
+
+## Aankomst met de auto: zone, knipperen, wifi-detectie (2026-11-09)
+
+**Oorzaak "gaat niet altijd af":** naast `zone.home` (Toorrenaer, 100 m) bestond een UI-zone
+`zone.thuis` ("Thuis", 7,8 m) op bijna hetzelfde punt. HA kiest de kleinste zone, dus viel de
+gps-fix binnen 8 m dan werd `device_tracker.a059` → `Thuis` i.p.v. `home`, en faalde
+`condition: state … home`. Bewaarde traces van 31 okt 17:41 en 2 nov 11:03 lieten precies dat zien.
+`zone.thuis` is verwijderd (websocket `zone/delete`); werd nergens gebruikt. Na een
+`request_location_update` staat de tracker op `home`.
+
+**"Auto Gearriveerd – Aanrechtlamp Aan"** (id `1746825600000`), trigger
+`binary_sensor.a059_android_auto` on → off, conditie `device_tracker.a059` = `home`:
+
+- altijd: Signal naar Maria "Wouter thuis aangekomen met de auto." (voorheen alleen in het donker);
+- aanrechtlamp brandt al → 3× knipperen (uit/aan, `transition: 0`, 0,6 s pauze), helderheid blijft;
+- anders, zon onder → aanrechtlamp + voorzolderlamp aan.
+
+De dubbele automation **"wouterauto"** (id `1778166889978`, zelfde Signal-bericht) is verwijderd.
+
+**"Wifi = thuis detectie"** (id `1774388940379`) staat uit: `sensor.a059_wi_fi_connection` is
+sinds 2026-04-28 uitgeschakeld (companion-app), dus hij vuurde al maanden niet. Hij zette alleen
+`input_boolean.wto_home`, dat nergens als conditie dient (nog wel via `/wto` en 22:00-uit).
+
+**Geschiedenis van de telefoon:** de recorder bewaart `device_tracker.a059`, de geocoded location en
+wifi niet (include-filter), dus "waar was ik / welk netwerk" is achteraf niet na te gaan.
+
+Backups: `automations.yaml.pre-thuiszone`, `automations.yaml.pre-knipper`, `.storage/zone.pre-thuiszone`.
