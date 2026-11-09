@@ -1,11 +1,11 @@
 ---
 # nixos-3no7
 title: Uitrollen en meten dat het werkt
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-09-29T20:00:28Z
-updated_at: 2026-09-29T20:08:48Z
+updated_at: 2026-11-09T20:49:12Z
 parent: nixos-b25k
 ---
 
@@ -21,12 +21,12 @@ alleen over tijd vast te stellen, dus meet het nulpunt en kom terug.
         select count(*) from oauth2_authorization_code_session
           where client_id='claude-connector';
 
-- [ ] Connector opnieuw koppelen; daarna toont de eerste ronde nog wél een
+- [x] Connector opnieuw koppelen; daarna toont de eerste ronde nog wél een
       toestemmingsscherm (de onthouden toestemming moet eerst ontstaan)
-- [ ] Na enkele dagen hertellen: bij dagelijks gebruik hoort het aantal
+- [x] Na enkele dagen hertellen: bij dagelijks gebruik hoort het aantal
       autorisatiecodes NIET te stijgen. Stijgt het wel, dan klopt de aanname over
       rotatie niet en moet dat in `design.md`
-- [ ] Redis-sessies opnieuw tellen: het aantal hoort te stabiliseren in plaats
+- [x] Redis-sessies opnieuw tellen: het aantal hoort te stabiliseren in plaats
       van door te groeien
 
 
@@ -59,3 +59,9 @@ Uitgerold en geverifieerd voor zover dat nu kan.
     te stijgen. Stijgt het wel, dan klopt de aanname over rotatie niet en hoort
     dat in design.md van `tune-connector-session` — niet weggepoetst. Tel ook de
     redis-sessies: die horen te stabiliseren in plaats van door te groeien.
+
+## Stand 2026-11-09
+
+Hertelling: 10 autorisatiecodes (laatste 13 okt, daarna 27 dagen geen), 282 refresh-tokens
+gebruikt, redis stabiel op 1329 sessies. Schrijftest via LinnyTRW geslaagd. De autorisaties van
+1 en 13 okt zijn niet verklaard.

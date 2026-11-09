@@ -33,8 +33,8 @@
       subscriptions 302 — alle zoals voorheen
 - [x] 4.4 Wallos-autorisatie geeft 303 naar de inlogpagina (geen fout), en erft het
       lifespan-profiel niet. De login zélf doorlopen is handwerk voor de eigenaar
-- [ ] 4.5 Connector opnieuw koppelen; de eerste ronde toont nog een toestemmingsscherm
-- [ ] 4.6 **Na enkele dagen hertellen.** Bij dagelijks gebruik hoort het aantal autorisatiecodes
+- [x] 4.5 Connector opnieuw koppelen; de eerste ronde toont nog een toestemmingsscherm (2026-09-30)
+- [x] 4.6 **Na enkele dagen hertellen.** Bij dagelijks gebruik hoort het aantal autorisatiecodes
       niet te stijgen. Stijgt het wel, dan klopt de aanname over rotatie niet en hoort dat in
       `design.md` — niet weggepoetst
 
@@ -44,3 +44,14 @@
       waarvan is, en waarom de sessie-cookie er bewust buiten blijft
 - [x] 5.2 Vastleggen dat "onthoud mij" de juiste hefboom is voor de browsersessie
 - [x] 5.3 `CHANGELOG.md` onder `## NEXT VERSION`
+
+## Hertelling 2026-11-09
+
+    nulpunt 29 sep      7 autorisatiecodes · 9 toestemmingen · 1324 redis-sessies
+    9 nov               10 autorisatiecodes · 16 toestemmingen · 1329 redis-sessies
+    nieuwe codes        30 sep (opnieuw koppelen, 4.5) · 1 okt · 13 okt; daarna 27 dagen geen
+    refresh-tokens      282 gebruikt, laatste 9 nov 18:40 UTC
+    schrijftest         create_doc + get_doc + archive via LinnyTRW geslaagd
+
+De bewering houdt stand sinds 13 okt; redis groeit niet meer door. De autorisaties van 1 en 13 okt
+zijn niet verklaard en niet weggepoetst.
