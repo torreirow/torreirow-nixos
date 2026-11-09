@@ -83,8 +83,7 @@ boot.binfmt.preferStaticEmulators = true;
     enable = true;
     dhcp = "internal";
     wifi.powersave = false;
-    # DNS komt van DHCP (thuis: KPN-router 192.168.2.254); 1.1.1.1 als vangnet.
-    appendNameservers = [ "1.1.1.1" ];
+    # DNS komt van DHCP (thuis: 192.168.2.52).
     plugins = [
       pkgs.networkmanager-openvpn
     ];

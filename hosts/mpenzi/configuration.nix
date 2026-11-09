@@ -17,6 +17,7 @@
     ../../modules/printer-thuis.nix
     ../../modules/nebula.nix
     ../../modules/maaike-apps.nix
+    ../../modules/podcast-opname
   ];
 
   ########## BOOT ##########
@@ -85,6 +86,14 @@
     enable = true;
     alsa.enable = true;
     pulse.enable = true;
+  };
+
+  # Podcast met 2x NZXT Capsule (zelfde serienummer, dus herkend op poort). Beide poorten zitten
+  # rechts: bij het scherm = mic 1, bij de gebruiker = mic 2. Zie docs/podcast-mpenzi.md.
+  toorren.podcast = {
+    enable = true;
+    mic1Path = "pci-0000:04:00.3-usb-0:2:1.0";
+    mic2Path = "pci-0000:04:00.4-usb-0:2:1.0";
   };
 
   ########## ONDERHOUD ##########

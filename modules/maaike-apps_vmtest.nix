@@ -29,6 +29,8 @@
         machine.succeed("grep -q 'https://vw.toorren.net' /home/maaike/.config/Bitwarden/data.json")
         machine.succeed("test -f /home/maaike/.config/ZapZap/ZapZap.conf")
         machine.succeed("grep -qx 'hwdec=auto' /home/maaike/.config/smplayer/smplayer.ini")
+        machine.succeed("grep -qx 'RecordingDevice=podcast' /home/maaike/.config/audacity/audacity.cfg")
+        machine.succeed("grep -qx 'RecordChannels=2' /home/maaike/.config/audacity/audacity.cfg")
 
     with subtest("tweede activatie overschrijft niets"):
         machine.succeed(f"su maaike -c 'echo eigen-keuze >> {cfg}'")
@@ -61,6 +63,12 @@
     with subtest("signal en spotify zonder secret: alleen uitleg"):
         assert "QR-code" in machine.succeed("herstel-app maaike signal")
         machine.succeed("herstel-app maaike spotify 2>&1 | grep -q 'logt zelf in'")
+
+    with subtest("herstel-app audacity"):
+        machine.succeed("su maaike -c 'echo RecordChannels=1 > /home/maaike/.config/audacity/audacity.cfg'")
+        machine.succeed("herstel-app maaike audacity")
+        machine.succeed("grep -qx 'RecordChannels=2' /home/maaike/.config/audacity/audacity.cfg")
+        machine.succeed("grep -qx 'RecordChannels=1' /home/maaike/.config/audacity/audacity.cfg.bak-*")
 
     with subtest("all"):
         machine.succeed("rm /home/maaike/.config/ZapZap/ZapZap.conf")

@@ -479,6 +479,16 @@
     let u = import unstable { system = "x86_64-linux"; config.allowUnfree = true; };
     in u.callPackage ./modules/immich-vaapi-patch_test.nix { };
 
+  # Podcast op mpenzi: podrec-script met nep-PipeWire (modules/podcast-opname).
+  checks.x86_64-linux.podrec =
+    nixpkgs.legacyPackages.x86_64-linux.callPackage ./modules/podcast-opname/test.nix { };
+
+  # Podcast op mpenzi: namen per poort, stereobron, ALSA-apparaat en podrec met snd-aloop.
+  checks.x86_64-linux.podcast-opname =
+    nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
+      imports = [ ./modules/podcast-opname/vmtest.nix ];
+    };
+
   checks.x86_64-linux.nebula =
     nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {
       imports = [ ./modules/nebula_vmtest.nix ];
