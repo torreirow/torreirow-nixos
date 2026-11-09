@@ -20,14 +20,14 @@ timer afloopt gaat de helper weer uit. De Signal-melding wordt onderdrukt zolang
   nooit → helper blijft eeuwig aan → monitor blijft eeuwig uit (zelfde les als afzuiging/geurhal).
 - **Telegram Commando Handler** (`automations.yaml`, id `202411192011005`): drie nieuwe `choose`-branches
   (alle `command == '/aircraft'`, **volgorde-afhankelijk** — `choose` pakt de eerste match):
-  - **`/aircraft status`** (args[0] == 'status', staat als eerste branch) → `notify.wouter` met een
+  - **`/aircraft status`** (args[0] == 'status', staat als eerste branch) → `telegram_bot.send_message` met een
     Jinja-template (`>-` folded scalar). Begint met de **meldingsstatus op basis van de helper**
     (`input_boolean.disable_aircraft_monitor` aan → "Meldingen: ONDERDRUKT", uit → "ACTIEF") — dat is
     de daadwerkelijke suppress-schakelaar — gevolgd door de timerstand: active → eindtijd + resterend,
     paused → resterend, idle → "Geen timer loopt" + default-duur. Moet vóór de min-branch staan,
     anders crasht `'status' | int`.
   - args aanwezig → `timer.start` met `duration: '{{ trigger.event.data.args[0] | int * 60 }}'` (min→sec),
-    helper aan, bevestiging via `notify.wouter`.
+    helper aan, bevestiging via `telegram_bot.send_message`.
   - args leeg → `timer.start` zonder `duration` (gebruikt HA-native de default-duur van de helper =
     "de huidige waarde"), helper aan, bevestiging met `state_attr('timer.aircraft_monitor','duration')`.
   - `/aircraft [min|status]` ook toegevoegd aan de `/start`-hulptekst (toont ACTIEF/UIT).
@@ -58,7 +58,7 @@ geheugenkopie. `automations.yaml` mag altijd bewerkt worden (reload/herstart pik
 = off, alle drie automations `on`, geen configfouten (`hass --script check_config` schoon op de wijzigingen).
 
 **Status:** ✅ Live. Let op: de Signal-melding gaat naar `notify.signal_maria`; de commando-bevestiging
-naar `notify.wouter` (Telegram).
+naar `telegram_bot.send_message` (Telegram).
 
 ## Geurhal (WC) ir_detector-automation + timer restore
 
@@ -144,3 +144,19 @@ de badkamer (1e verdieping) en de WC. De box staat op een Tuya-stekker en kent i
 - Backups: `automations.yaml.bak-claude-20260823-212801`, `.storage/timer.bak-claude-20260823-212801`.
 
 **Status:** ⏳ Config-verbeteringen live; hele keten werkt pas weer als Tuya opnieuw is gekoppeld.
+
+## Telegram-meldingen: `notify.wouter` → `telegram_bot.send_message` (2026-11-09)
+
+Met HA 2026.11.1 start de oude YAML-notify `platform: telegram` (`notify.wouter`) niet meer
+("Failed to initialize notification service telegram"); HA waarschuwde sinds 2025.11 met
+`migrate_notify`. Alle 17 aanroepen (16 in `automations.yaml`, 1 in `scripts.yaml`, waaronder de
+`reply` van de Telegram Commando Handler) zijn vervangen door `telegram_bot.send_message`. Die
+neemt dezelfde `message`/`title` aan en stuurt zonder `chat_id` naar de eerste toegestane chat
+(1522117) van de `telegram_bot`-config-entry. Het `platform: telegram`-blok is uit
+`configuration.yaml` weg.
+
+- Backups: `automations.yaml.pre-telegram`, `scripts.yaml.pre-telegram`, `configuration.yaml.pre-telegram`.
+- Getest: `telegram_bot.send_message` en `script.send_message_to_phone` via de API, `check_config`
+  zonder nieuwe fouten.
+- Bestaand, niet aangepast: de automation met de woon-werk-melding roept de actie eerst één keer aan
+  met `data: {}` (geen `message`); die stap faalt en stopt de rest van die actielijst.
