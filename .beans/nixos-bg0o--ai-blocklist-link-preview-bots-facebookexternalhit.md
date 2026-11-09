@@ -1,14 +1,14 @@
 ---
 # nixos-bg0o
 title: 'ai-blocklist: link-preview-bots (facebookexternalhit) per site toestaan'
-status: in-progress
+status: completed
 type: epic
 priority: normal
 tags:
     - ai-blocklist
     - cckafe
 created_at: 2026-11-09T19:17:50Z
-updated_at: 2026-11-09T20:08:58Z
+updated_at: 2026-11-09T20:16:05Z
 ---
 
 ## Probleem
@@ -37,10 +37,10 @@ Gemeten op 2026-11-09 (`curl -A <ua> https://cckafe.com/`):
 
 ## Klaar wanneer
 
-- [ ] `curl -A "facebookexternalhit/1.1" https://cckafe.com/` geeft 200
-- [ ] `https://cckafe.com/robots.txt` bevat geen Disallow voor facebookexternalhit
-- [ ] Andere sites houden de 403 voor facebookexternalhit
-- [ ] Facebook Sharing Debugger toont de OG-afbeelding van cckafe.com
+- [x] `curl -A "facebookexternalhit/1.1" https://cckafe.com/` geeft 200
+- [x] `https://cckafe.com/robots.txt` bevat geen Disallow voor facebookexternalhit
+- [x] Andere sites houden de 403 voor facebookexternalhit
+- [x] Facebook Sharing Debugger toont de OG-afbeelding van cckafe.com
 
 ## Context
 

@@ -6,6 +6,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## NEXT VERSION
 
+### Added
+- **Link-previews van cckafe.com op Facebook, Messenger en Instagram** (`modules/ai-blocklist`).
+  Gedeelde links toonden geen afbeelding of tekst, omdat de AI-crawlerblokkade ook de
+  preview-bot van Facebook (`facebookexternalhit`) weerde. Per site kunnen nu bots worden
+  vrijgegeven met `services.aiBlocklist.sites.<vhost>.allowAgents`; voor cckafe.com is dat
+  `facebookexternalhit`.
+  - Alleen op die site: op de andere sites krijgt de bot nog steeds een 403.
+  - De vrijgegeven bot staat niet meer in de Disallow-groep van de `robots.txt` van de site.
+  - Andere AI-bots van Meta (`meta-externalagent`, `FacebookBot`) blijven geblokkeerd.
+- **Eigen 404-pagina op cckafe.com** (`modules/cckafe.nix`). Een niet-bestaande pagina toont nu
+  de 404 in de huisstijl van de site in plaats van de kale nginx-pagina.
+
 ### Removed
 - **Headless Nextcloud-sync en staleness-monitor op lobos** (`home/module/nextcloud-sync/`,
   `home/module/staleness-monitor/`). `/Documents` stond dubbel lokaal (GUI-client in `~/Documents`
