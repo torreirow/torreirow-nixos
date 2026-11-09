@@ -32,8 +32,15 @@
       tryFiles = "$uri $uri/ =404";
     };
 
+    # Eigen 404-pagina van de (Hugo-)site; alleen via error_page, niet direct als 200.
+    # Zolang 404.html ontbreekt valt nginx terug op zijn eigen 404.
+    locations."= /404.html".extraConfig = ''
+      internal;
+    '';
+
     extraConfig = ''
       index index.html;
+      error_page 404 /404.html;
     '';
   };
 
