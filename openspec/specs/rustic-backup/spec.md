@@ -1,7 +1,7 @@
 # rustic-backup Specification
 
 ## Purpose
-TBD - created by archiving change add-rustic-s3-backup. Update Purpose after archive.
+Dagelijkse versleutelde off-site backup van malandro naar AWS S3 met rustic: databases eerst logisch gedumpt, credentials via agenix en retentie via forget/prune.
 
 ## Requirements
 
@@ -83,13 +83,20 @@ Het systeem SHALL bij het falen van een dump- of backup-service een Signal-meldi
 Het systeem SHALL de JuiceFS-metadata van de Nextcloud-opslag op bobadela1 dekken in de dagelijkse
 rustic→S3 backup, via twee onafhankelijke representaties: de gerepliceerde metadata-DB
 `juicefs_meta_replica` op malandro (via `pg_dumpall`) én een engine-onafhankelijke, `juicefs load`-bare
-**plaintext JSON-export**. Omdat bobadela1 tijdens de backup (03:00) is uitgeschakeld, SHALL de
-JSON-export NIET live tegen bobadela1 worden gegenereerd; ook SHALL de client-side versleutelde
-`--backup-meta`-export uit de object-store NIET rauw worden gekopieerd (dat levert ciphertext, geen
-bruikbare JSON). In plaats daarvan SHALL het systeem `juicefs dump` draaien tegen de lokale
-`juicefs_meta_replica`-DB (Postgres-metadata is niet versleuteld) en de JSON naar de staging-dir
-schrijven zodat die in de snapshot belandt. De backup SHALL NIET de JuiceFS-mount zelf als bron
-opnemen (voorkomt S3→S3-recursie).
+**plaintext JSON-export**.
+
+#### Scenario: Gerepliceerde metadata-DB in de cluster-dump
+- **WHEN** `pg-dump.service` de PostgreSQL-cluster dumpt
+- **THEN** bevat `pg-all.sql.zst` ook de gerepliceerde `juicefs_meta_replica`-database
+
+
+### Requirement: De JSON-export komt uit de lokale replica-DB
+
+Omdat bobadela1 tijdens de backup (03:00) uit staat, SHALL de JSON-export NIET live tegen bobadela1
+worden gemaakt, en SHALL de versleutelde `--backup-meta`-export uit de object-store NIET rauw worden
+gekopieerd (dat is ciphertext). Het systeem SHALL `juicefs dump` draaien tegen de lokale
+`juicefs_meta_replica`-DB (niet versleuteld) en de JSON naar de staging-dir schrijven, zodat die in de
+snapshot belandt.
 
 #### Scenario: Engine-onafhankelijke metadata-dump in de backup
 - **WHEN** de dagelijkse backup draait
@@ -104,13 +111,15 @@ opnemen (voorkomt S3→S3-recursie).
 - **THEN** faalt alleen `juicefs-meta-dump.service` (met een Signal-melding via `OnFailure=`) en draait
   `rustic-backup.service` alsnog door met de overige bronnen (`Wants=`, geen `Requires=`)
 
-#### Scenario: Gerepliceerde metadata-DB in de cluster-dump
-- **WHEN** `pg-dump.service` de PostgreSQL-cluster dumpt
-- **THEN** bevat `pg-all.sql.zst` ook de gerepliceerde `juicefs_meta_replica`-database
+
+### Requirement: De JuiceFS-mount is geen backupbron
+
+De backup SHALL NIET de JuiceFS-mount zelf als bron opnemen (voorkomt S3→S3-recursie).
 
 #### Scenario: Geen S3-naar-S3-recursie
 - **WHEN** de backup-bronnen (het manifest) worden geïnspecteerd
 - **THEN** staat de JuiceFS-mount NIET in de bronnen, zodat de in S3 opgeslagen JuiceFS-data niet nogmaals naar S3 wordt geback-upt
+
 
 ### Requirement: Blocky-overlays worden geback-upt
 De rustic-manifest SHALL `/data/external/blocky` als bron bevatten, zodat de mutabel bewerkte

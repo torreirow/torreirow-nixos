@@ -1,7 +1,7 @@
 # linny-frontmatter-guard Specification
 
 ## Purpose
-TBD - created by archiving change add-frontmatter-guard. Update Purpose after archive.
+Een controle op de frontmatter van de torrlinny-notities die afwijkingen van de taxonomie meldt in dezelfde termvorm als de indexer, zonder bestanden te wijzigen of de publicatie te blokkeren.
 
 ## Requirements
 

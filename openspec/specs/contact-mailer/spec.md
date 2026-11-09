@@ -1,7 +1,7 @@
 # contact-mailer Specification
 
 ## Purpose
-TBD - created by archiving change wereldvanbegrip-contact-mailer. Update Purpose after archive.
+Een herbruikbare mailer voor contactformulieren van statische websites op malandro: verstuurt het formulier per mail, met een origin-whitelist, Cap-validatie en rate limiting.
 
 ## Requirements
 

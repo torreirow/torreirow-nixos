@@ -1,7 +1,7 @@
 # service-failure-notifications Specification
 
 ## Purpose
-TBD - created by archiving change add-signal-failure-notifications. Update Purpose after archive.
+Een melding via Signal wanneer een user-service faalt, met genoeg context om de oorzaak te zien; het meldkanaal is ook bruikbaar voor andere meldingen.
 
 ## Requirements
 

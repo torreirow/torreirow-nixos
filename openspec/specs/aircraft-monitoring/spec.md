@@ -145,8 +145,7 @@ De integratie SHALL een custom event `aircraft_monitor.aircraft_approaching` afv
 vliegtuig nieuw de alert-zone binnenkomt. Hetzelfde vliegtuig (geïdentificeerd via `hex`) SHALL tijdens
 dezelfde nadering niet herhaaldelijk een event veroorzaken. Nadat het vliegtuig de zone heeft verlaten
 (met hysterese) of gedurende een cooldown niet meer nadert, SHALL een nieuwe nadering opnieuw een event
-mogen afvuren. De eventdata SHALL minimaal bevatten: icao, callsign, latitude, longitude, altitude_ft,
-speed_knots, track, current_distance_m, closest_distance_m, eta_seconds.
+mogen afvuren.
 
 #### Scenario: Eerste keer approaching vuurt één event
 
@@ -162,6 +161,19 @@ speed_knots, track, current_distance_m, closest_distance_m, eta_seconds.
 
 - **WHEN** een vliegtuig de alert-zone heeft verlaten en later opnieuw de alert-voorwaarden vervult
 - **THEN** SHALL opnieuw één event worden afgevuurd
+
+
+### Requirement: Approaching-event bevat de vluchtgegevens
+
+De eventdata van `aircraft_monitor.aircraft_approaching` SHALL minimaal bevatten: icao, callsign,
+latitude, longitude, altitude_ft, speed_knots, track, current_distance_m, closest_distance_m,
+eta_seconds.
+
+#### Scenario: Eventdata is volledig
+
+- **WHEN** een `aircraft_monitor.aircraft_approaching` event wordt afgevuurd
+- **THEN** SHALL de eventdata alle genoemde velden bevatten
+
 
 ### Requirement: UI-configuratie met validatie en meerdere locaties
 

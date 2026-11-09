@@ -1,7 +1,7 @@
 # linny-mcp-oidc Specification
 
 ## Purpose
-TBD - created by archiving change add-linny-mcp-oidc. Update Purpose after archive.
+Toegang tot de publieke linny-mcp-route via Authelia als OpenID Connect-provider, met het interne token buiten de nix-store en een beperking tot een benoemde autorisatiepolicy.
 
 ## Requirements
 

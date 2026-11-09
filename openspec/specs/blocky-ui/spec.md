@@ -1,7 +1,7 @@
 # blocky-ui Specification
 
 ## Purpose
-TBD - created by archiving change add-blocky-dns-ui. Update Purpose after archive.
+Een webinterface voor Blocky op `blocky.toorren.net` (achter Authelia) met live statistieken via de Blocky-API en de historische query-log uit MariaDB.
 
 ## Requirements
 

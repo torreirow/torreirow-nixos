@@ -1,7 +1,7 @@
 # vaultwarden-restore-test Specification
 
 ## Purpose
-TBD - created by archiving change add-vaultwarden-restore-test. Update Purpose after archive.
+Een restore-test van de Vaultwarden-backup in een wegwerp-container, met keuze van snapshot, een optionele geïsoleerde rbw-crypto-test en betrouwbaar opruimen.
 ## Requirements
 ### Requirement: Script gedeployed via home-manager
 Het script SHALL als bron in de repo leven (`home/module/vaultwarden-restore-test/`) en via home-manager (`home.file."bin/vaultwarden-restoretest.sh"`, executable) naar `~/bin/vaultwarden-restoretest.sh` gedeployed worden, geïmporteerd via `home/linux-server.nix`.

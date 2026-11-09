@@ -1,7 +1,7 @@
 # blocky-dns Specification
 
 ## Purpose
-TBD - created by archiving change add-blocky-dns-ui. Update Purpose after archive.
+Blocky als DNS-resolver met ad-blocking voor het thuisnetwerk op malandro: alleen lokaal bereikbaar, met denylists, eigen domeinlijsten uit bestanden en een query-log in MariaDB.
 
 ## Requirements
 
@@ -79,9 +79,7 @@ in git versiebeheerd zijn.
 Elke eigen groep SHALL naast de baseline een mutabel overlay-bestand hebben op
 `/data/external/blocky/denylists.d/<groep>.txt` (en een allowlist-overlay-bestand op
 `/data/external/blocky/allowlists.d/<groep>.txt`). blocky SHALL de bronnen van een groep
-samenvoegen. (blocky accepteert als bron alleen een bestand, geen directory of glob.) De
-overlay-bestanden SHALL bestaan (leeg aangemaakt via tmpfiles, `root:root 0644`, bewerkbaar met
-`sudo`) en door blocky gelezen worden onder `DynamicUser` + `ProtectSystem=strict`.
+samenvoegen. (blocky accepteert als bron alleen een bestand, geen directory of glob.)
 
 #### Scenario: Overlay voegt een blokkade toe zonder rebuild
 - **WHEN** een beheerder een domein in de denylist-overlay van een groep zet en de lijsten herlaadt
@@ -94,6 +92,17 @@ overlay-bestanden SHALL bestaan (leeg aangemaakt via tmpfiles, `root:root 0644`,
 #### Scenario: Baseline overleeft verlies van de overlay
 - **WHEN** het overlay-bestand leeg is of ontbreekt
 - **THEN** SHALL de baseline uit git na een rebuild gewoon weer actief zijn en SHALL blocky starten
+
+
+### Requirement: Overlay-bestanden bestaan en zijn leesbaar voor blocky
+De overlay-bestanden SHALL bestaan (leeg aangemaakt via tmpfiles, `root:root 0644`, bewerkbaar met
+`sudo`) en door blocky gelezen worden onder `DynamicUser` + `ProtectSystem=strict`.
+
+#### Scenario: Overlay-bestanden na een rebuild
+- **WHEN** `nixos-rebuild switch` is uitgevoerd op een systeem zonder overlay-bestanden
+- **THEN** SHALL elk overlay-bestand bestaan als leeg bestand met `root:root 0644`
+- **AND** SHALL blocky starten en de overlay-bestanden kunnen lezen
+
 
 ### Requirement: Lijsten live herlaadbaar via een helper
 Er SHALL een `blocky-refresh`-commando zijn dat `POST http://127.0.0.1:4000/api/lists/refresh`

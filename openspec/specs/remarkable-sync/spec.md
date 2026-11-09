@@ -1,7 +1,7 @@
 # remarkable-sync Specification
 
 ## Purpose
-TBD - created by archiving change add-remarkable-nextcloud-sync. Update Purpose after archive.
+Het reMarkable-archief via USB naar lobos halen: een ruwe backup plus een PDF-export per document in de eigen mappenboom, waarbij alleen gewijzigde documenten opnieuw worden geëxporteerd.
 
 ## Requirements
 
@@ -116,7 +116,7 @@ het apparaat binnen enkele minuten tot een sync leidt zonder handmatige actie.
 
 ### Requirement: Configureerbaar via home-manager
 Het systeem SHALL de sync aanbieden als home-manager-module met losse schakelaars voor de backup-
-en de export-stap, in dezelfde stijl als `services.nextcloud-sync`.
+en de export-stap.
 
 #### Scenario: Module uitgeschakeld
 - **WHEN** `services.remarkable-sync.enable = false` is

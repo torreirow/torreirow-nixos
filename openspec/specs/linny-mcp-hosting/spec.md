@@ -1,7 +1,7 @@
 # linny-mcp-hosting Specification
 
 ## Purpose
-TBD - created by archiving change add-linny-mcp-hosting. Update Purpose after archive.
+linny-mcp op malandro: het torrlinny-notitieboek als MCP-server voor Claude, met een eigen schrijfbare corpus-clone, git-sync in twee richtingen en een index die meeloopt.
 
 ## Requirements
 
