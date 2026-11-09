@@ -38,6 +38,10 @@ aiohttp) — **geen HA-herstart nodig**, i.t.t. de `.storage` stop-edit-start-we
 Backups: `.storage/lovelace.dashboard_toorren.bak-claude-{plant,deur,deur2}-*`, `configuration.yaml.bak-claude-deur-*`.
 
 Melding: HA-automation "Plantwater droog - Signal melding" (`notify.signal_maria`) bij `_dry` off→on.
+Sinds 2026-11-09 met twee anti-klapper-condities: `_dry` moet daarvóór ≥ 6 u `off` zijn geweest
+(echt gegoten) én de vorige melding ≥ 24 u geleden. Aanleiding: rond de drempel sprong het
+bodemvocht 20↔21 % en kwam er bij elke korte `off` een nieuwe melding (9 nov: 06:05, 07:03, 07:41).
+Backup: `automations.yaml.bak-claude-plantflap-20261109-093141`.
 
 ## Grafana + alerts (in de repo)
 
