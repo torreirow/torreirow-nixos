@@ -32,6 +32,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   gezond, kapot of orphan. Als HTML en als `/status.json`, achter Authelia.
 - **Wallos op `subscriptions.toorren.net`** (`modules/wallos.nix`). Self-hosted overzicht van
   abonnementen en terugkerende uitgaven, met login via Authelia-OIDC.
+- **Schermstand kiezen met SUPER+SHIFT+P** (lobos, Hyprland). Een menu met Uitgebreid, Klonen,
+  Alleen extern en Alleen laptop, op elk scherm tegelijk. Zonder extern scherm verschijnt een
+  melding; valt het externe scherm weg, dan gaat het laptopscherm vanzelf weer aan.
+- **Planify in de wayle-balk.** Een badge met het aantal open taken en een dropdown met verlopen
+  (rood), vandaag en komende taken.
+- **Airco werkkamer met één knop op adviestemperatuur** (Home Assistant). De adviestemperatuur is
+  buitentemperatuur min 4 graden, tussen 22 en 25 °C; de knop staat in de Airco-view van het
+  Toorren-dashboard.
 - **Solidtime in de wayle-balk op lobos.** Een knop met dropdown vervangt het oude
   `solidtime-waybar`-script: projecten kiezen en een timer starten en stoppen vanuit de balk,
   via de eigen `soltty`-CLI.
@@ -47,6 +55,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Nektar Impact GX61-keyboard.
 
 ### Removed
+- **formrelay en `forms.toorren.net`** (`modules/formrelay.nix`, `pkgs/formrelay/`). De
+  form-to-email-relay met hCaptcha is nooit in gebruik genomen (de tokens stonden nog op
+  `VERVANG_MET_TOKEN_…`); de contactformulier-mailer (`mailer.toorren.net`) doet dit werk. Het
+  hCaptcha-secret is ook weg.
 - **Headless Nextcloud-sync en staleness-monitor op lobos** (`home/module/nextcloud-sync/`,
   `home/module/staleness-monitor/`). `/Documents` stond dubbel lokaal (GUI-client in `~/Documents`
   én headless in `~/Nextcloud/Documents`, 6,9 GB); de rest van de server hoeft niet naar lobos.

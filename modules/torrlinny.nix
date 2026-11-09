@@ -58,7 +58,7 @@ in {
     };
 
     # De deploy-key staat in /run/keys (root:keys 0750); de build-user moet in de
-    # 'keys'-groep zitten om 'm te lezen (zelfde patroon als formrelay). De gedeelde
+    # 'keys'-groep zitten om 'm te lezen. De gedeelde
     # module zet dit niet, dus we vullen het hier aan op de build-service.
     systemd.services.linny-web-build.serviceConfig.SupplementaryGroups = [ "keys" ];
 

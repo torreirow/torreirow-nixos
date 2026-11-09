@@ -44,7 +44,6 @@ let
     "vikunja"
     "vikunja-signal"
     "chhoto-url"
-    "formrelay"
     "filedrop"
     "linny-mcp"
     "linny-mcp-authz"

@@ -137,7 +137,7 @@ die mee moet.
 - **`go` vereist in de service-PATH** voor `hugo mod get` (Hugo-modules resolven via de
   Go-toolchain). Module-cache in de persistente werkmap zodat niet elke build opnieuw fetcht.
 - **`keys`-groep vereist**: de build-user leest de agenix deploy-key uit `/run/keys`
-  (`root:keys 0750`) → `SupplementaryGroups = [ "keys" ]` (zoals formrelay).
+  (`root:keys 0750`) → `SupplementaryGroups = [ "keys" ]`.
 - **createHome uit + werkmap 0750 + nginx in de torrlinny-groep**: anders 0700 en kan nginx niet lezen.
 - **Deploy key = read-only** op GitHub; privé-repo → site achter Authelia (nooit publiek).
 - **`--configDir doesnotexist`** is essentieel om de Linny-JSON-config buiten de web-build te houden.

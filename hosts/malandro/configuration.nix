@@ -58,7 +58,6 @@
  ../../modules/vikunja-signal
  ../../modules/diun.nix
  ../../modules/docker-registry-mirror.nix
- ../../modules/formrelay.nix
  ../../modules/wallos.nix
  ../../modules/status-page.nix
  ../../modules/umami.nix
@@ -553,33 +552,6 @@ services.xscreensaver = {
 #    '';
 #  };
 #};
-
-services.formrelay = {
-  enable = true;
-  forms = {
-    # Genereer nieuwe tokens met: openssl rand -hex 16
-    "VERVANG_MET_TOKEN_WERELDVANBEGRIP" = {
-      name = "Wereldvanbegrip";
-      to = "info@wereldvanbegrip.nl";
-      allowedOrigins = [ "https://wereldvanbegrip.nl" ];
-    };
-    "VERVANG_MET_TOKEN_BOAZ" = {
-      name = "Boaz Toorren";
-      to = "boaz@toorren.net";
-      allowedOrigins = [ "https://boaz.toorren.net" ];
-    };
-    "VERVANG_MET_TOKEN_NORALY" = {
-      name = "Noraly Toorren";
-      to = "noraly@toorren.net";
-      allowedOrigins = [ "https://noraly.toorren.net" ];
-    };
-    "VERVANG_MET_TOKEN_JOLIJN" = {
-      name = "CV Jolijn";
-      to = "jolijn@toorren.net";
-      allowedOrigins = [ "https://cv-jolijn.toorren.net" ];
-    };
-  };
-};
 
 services.authelia.users = [
   # Privileged admin-account, gescheiden van dagelijks gebruik. Komt bij de
