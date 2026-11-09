@@ -66,7 +66,10 @@ in
       };
 
       cap = {
-        image = "tiago2/cap:latest";
+        # Gepind op de build van 2026-10-12: de build van 2026-11-09 crasht op
+        # malandro's Celeron J3455 met "Illegal instruction" (Bun vereist AVX).
+        # Pas bijwerken nadat een nieuwe build hier getest is.
+        image = "tiago2/cap@sha256:7327a1447d88f7ddd3304359e7095afb4efd00f1f9a1d5de2d00eb27715fa02b";
         # Alleen op loopback; nginx doet TLS + reverse proxy.
         ports = [ "127.0.0.1:3009:3000" ];
         environment = {
