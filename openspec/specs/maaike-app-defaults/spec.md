@@ -15,8 +15,8 @@ app-config. Het MUST GEEN Plasma-instellingen beheren en GEEN nixvim installeren
 - **THEN** heeft maaike een HM-generatie zonder plasma-manager en zonder nixvim
 
 ### Requirement: Seeds overschrijven niets
-Het systeem SHALL de standaardconfig van Nextcloud, Bitwarden, ZapZap en SMPlayer als gewoon,
-schrijfbaar bestand van de gebruiker neerzetten, en alleen als het bestand ontbreekt.
+Het systeem SHALL de standaardconfig van Nextcloud, Bitwarden, ZapZap, SMPlayer en Audacity als
+gewoon, schrijfbaar bestand van de gebruiker neerzetten, en alleen als het bestand ontbreekt.
 
 #### Scenario: Eerste activatie
 - **WHEN** home-manager voor maaike voor het eerst activeert
@@ -26,6 +26,11 @@ schrijfbaar bestand van de gebruiker neerzetten, en alleen als het bestand ontbr
 #### Scenario: Gewijzigd bestand blijft staan
 - **WHEN** maaike een seed-bestand heeft aangepast en home-manager opnieuw activeert
 - **THEN** blijft haar versie staan
+
+#### Scenario: Audacity staat op de podcastbron
+- **WHEN** home-manager voor maaike activeert en Audacity nog geen config heeft
+- **THEN** neemt Audacity standaard op van "Podcast (2 mics)" met 2 kanalen
+- **AND** kan `sudo herstel-app maaike audacity` die standaard terugzetten
 
 ### Requirement: Standaard terugzetten met herstel-app
 Het systeem SHALL `herstel-app <gebruiker> <app|all>` bieden. Het MUST de app van die gebruiker

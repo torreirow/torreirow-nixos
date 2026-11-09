@@ -17,6 +17,24 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Andere AI-bots van Meta (`meta-externalagent`, `FacebookBot`) blijven geblokkeerd.
 - **Eigen 404-pagina op cckafe.com** (`modules/cckafe.nix`). Een niet-bestaande pagina toont nu
   de 404 in de huisstijl van de site in plaats van de kale nginx-pagina.
+- **Podcast opnemen op mpenzi met twee microfoons** (`modules/podcast-opname/`). De twee NZXT
+  Capsule-microfoons hebben dezelfde naam en hetzelfde serienummer; ze heten nu "Podcast mic 1"
+  en "Podcast mic 2" op basis van de USB-poort.
+  - Audacity staat standaard op de bron "Podcast (2 mics)": mic 1 links, mic 2 rechts.
+  - `podrec` neemt beide microfoons op als losse FLAC-bestanden in `~/Podcast/<datum-tijd>/` en
+    meldt het als er een ontbreekt.
+- **Nix-builds op lobos wijken voor interactief werk** (`hosts/lobos/configuration.nix`). Een
+  `nix build`/`nixos-rebuild` liet de laptop thermisch terugvallen en maakte andere sessies traag.
+  - De nix-daemon draait met CPU- en I/O-prioriteit `idle`.
+  - Parallelisme begrensd: `max-jobs = 6`, `cores = 3`.
+- **Statusdashboard op `status.toorren.net`** (`modules/status-page.nix`). Zet per applicatie op
+  malandro wat geconfigureerd is af tegen wat echt draait (containers, services, poorten):
+  gezond, kapot of orphan. Als HTML en als `/status.json`, achter Authelia.
+- **Wallos op `subscriptions.toorren.net`** (`modules/wallos.nix`). Self-hosted overzicht van
+  abonnementen en terugkerende uitgaven, met login via Authelia-OIDC.
+- **MIDI-piano op lobos** (`hosts/lobos/midi.nix`). FluidSynth met de Salamander Grand
+  Piano-soundfont en het commando `piano`, met PipeWire op lage latency voor live spelen met het
+  Nektar Impact GX61-keyboard.
 
 ### Removed
 - **Headless Nextcloud-sync en staleness-monitor op lobos** (`home/module/nextcloud-sync/`,
