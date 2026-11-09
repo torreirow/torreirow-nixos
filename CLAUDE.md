@@ -27,7 +27,7 @@
 - **Vragen over trage/vastlopende sessies tijdens een `nix build`/`nixos-rebuild`, de nix-daemon-throttling (SCHED_IDLE), `max-jobs`/`cores` of de eval-fase-alias** → lees `docs/nix-build-throttling.md`
 - **Vragen over het agenda-wandpaneel, de HA-kiosk, kiosk-mode.js, de read-only user `paneel` of het `/calendar`-dashboard** → lees `docs/agenda-wandpaneel.md`
 - **Vragen over de rustic S3-backup, `rustic-backup.service/.timer`, de pg/mariadb/vaultwarden-dumps, het repo-wachtwoord of de backup-manifest** → lees `docs/rustic-s3-backup.md`
-- **Vragen over HA-automations die buiten de repo leven (aircraft-monitor/`/aircraft`, geurhal/WC, centrale afzuiging), timer `restore: true` of de `.storage` stop-edit-start-werkwijze** → lees `docs/ha-automations.md`
+- **Vragen over HA-automations die buiten de repo leven (aircraft-monitor/`/aircraft`, geurhal/WC, centrale afzuiging, woon-werk-melding, aankomst met de auto/`zone.home`, Telegram-meldingen), timer `restore: true` of de `.storage` stop-edit-start-werkwijze** → lees `docs/ha-automations.md`
 - **Vragen over msmtp, mail versturen via SES, of waarom een agenix-secret niet op `/run/secrets/<naam>` verschijnt (`path` vereist)** → lees `docs/msmtp-agenix.md`
 - **Vragen over de speedtest, `ookla_speedtest`, `sensor.speedtest_*`, `SpeedtestStale`/`InternetKapot` of waarom de speedtest-metrics een device_class-customize nodig hebben** → lees `docs/speedtest.md`
 - **Vragen over de plantwater-sensor (vrouwentong), `sensor.plantwater_*`, de droog-drempel, de Helpers-view/achterdeurkaart in HA, het Grafana-dashboard `plantwater` of de `Plantwater*`-alerts** → lees `docs/plantwater.md`
