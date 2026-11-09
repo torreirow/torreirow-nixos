@@ -16,7 +16,7 @@
 
 ## 4. Integratie op malandro
 
-- [ ] 4.1 Na `sudo nixos-rebuild switch` (door de gebruiker) en `sudo systemctl start ai-blocklist.service`: `curl -s -o /dev/null -w '%{http_code}\n' -A 'facebookexternalhit/1.1' https://cckafe.com/` → 200; zelfde UA op `https://toorren.net/` → 403; `-A 'GPTBot/1.2' https://cckafe.com/` → 403; `curl -s https://cckafe.com/robots.txt | grep -i facebookexternalhit` → geen uitvoer; `curl -s https://toorren.net/robots.txt | grep -i facebookexternalhit` → wel
+- [x] 4.1 Na `sudo nixos-rebuild switch` (door de gebruiker) en `sudo systemctl start ai-blocklist.service`: `curl -s -o /dev/null -w '%{http_code}\n' -A 'facebookexternalhit/1.1' https://cckafe.com/` → 200; zelfde UA op `https://toorren.net/` → 403; `-A 'GPTBot/1.2' https://cckafe.com/` → 403; `curl -s https://cckafe.com/robots.txt | grep -i facebookexternalhit` → geen uitvoer; `curl -s https://toorren.net/robots.txt | grep -i facebookexternalhit` → wel
 - [ ] 4.2 Facebook Sharing Debugger (`https://developers.facebook.com/tools/debug/`) op `https://cckafe.com/`, "Scrape Again"; verificatie: de debugger toont respons 200 en de OG-afbeelding
 
 ## Workflow follow-up

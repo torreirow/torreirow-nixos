@@ -1,14 +1,14 @@
 ---
 # nixos-bg0o
 title: 'ai-blocklist: link-preview-bots (facebookexternalhit) per site toestaan'
-status: todo
+status: in-progress
 type: epic
 priority: normal
 tags:
     - ai-blocklist
     - cckafe
 created_at: 2026-11-09T19:17:50Z
-updated_at: 2026-11-09T19:17:50Z
+updated_at: 2026-11-09T20:08:58Z
 ---
 
 ## Probleem
