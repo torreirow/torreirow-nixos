@@ -130,8 +130,8 @@ vraagt Windows).
 - Controle: `lsmod | grep tiny_power_button` geeft niets; na wekken met de knop blijft hij aan
   (getest 2026-11-05).
 - Hibernate werd geblokkeerd door Bitwarden Desktop: die houdt geheime data in `memfd_secret`
-  (secretmem), en zolang dat geheugen bestaat weigert de kernel hibernate. Opgelost door een
-  instelling in Bitwarden Desktop aan te passen (2026-11-09).
+  (secretmem), en zolang dat geheugen bestaat weigert de kernel hibernate. Opgelost via de
+  instelling **System authentication** in Bitwarden Desktop (2026-11-09).
 - Werkt dit niet: het verborgen BIOS-menu kan naar S3 schakelen (ArchWiki "Lenovo IdeaPad 5
   14are05"). Handwerk in het BIOS, alleen als laatste stap.
 
