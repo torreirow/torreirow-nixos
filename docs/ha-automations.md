@@ -72,7 +72,7 @@ device). Geen entity heet letterlijk `ir_detector`.
 
 **HA-opzet geurhal (WC):**
 - PIR/trigger: **WCsensor** → `binary_sensor.wcsensor_occupancy` (type `occupied`)
-- Plug: **Tuya Smart Plug** `switch.kerstoom3hoek_stopcontact_1` (naam "Geurhalwc", device `bfbc2e57cddcfdd03dvncw`, area hal)
+- Plug: **Tuya Smart Plug** `switch.geurhalwc` (tot 2026-11-09 `switch.kerstoom3hoek_stopcontact_1`; naam "Geurhalwc", device `bfbc2e57cddcfdd03dvncw`, area hal)
 - Timer: `timer.geurhaltimer` (UI-helper in `.storage/timer`, duur 1u)
 - Automations in `/var/lib/homeassistant/automations.yaml`:
   - `1732536224233` "WC geur aan" → occupancy on → plug aan + `timer.geurhaltimer` start
@@ -224,3 +224,22 @@ is verwijderd. Recorder bewaart nu `device_tracker.a059` en `sensor.a059_geocode
 
 Backups: `automations.yaml.pre-opruimen`, `.storage/core.entity_registry.pre-opruimen`,
 `configuration.yaml.pre-locatie`.
+
+## Entity-namen Tuya en de Boaz-plug die vanzelf aanging (2026-11-09)
+
+Hernoemd (websocket `config/entity_registry/update`, verwijzingen in `automations.yaml` en dashboard
+`dashboard-toorren` mee):
+
+| Oud                                  | Nieuw                                  |
+|--------------------------------------|----------------------------------------|
+| `light.boaz_plafond`                 | `light.werkkamer_plafond`              |
+| `switch.boaz_plafond_niet_storen`    | `switch.werkkamer_plafond_niet_storen` |
+| `switch.kerstoom3hoek_stopcontact_1` | `switch.geurhalwc`                     |
+
+**Boaz-plug ging vanzelf aan:** "Bloembak geur on" (id `1773868989481`) had als target naast
+`switch.geur_bovenverdieping` ook `device_id: f031e0f8…` = het device **Boaz-plug**. Een device-target
+zet alle switches van dat apparaat aan, dus elke keer dat de bloembakkeukenplug aanging, ging de
+Boaz-plug mee (o.a. 9 nov 23:15). De `device_id` is weg; "Geur bloembak uit" had dit probleem niet.
+
+Backups: `automations.yaml.pre-hernoem`, `automations.yaml.pre-boazplug`,
+`.storage/core.entity_registry.pre-hernoem`, `.storage/lovelace.dashboard_toorren.pre-hernoem`.
