@@ -1,4 +1,9 @@
-## ADDED Requirements
+# power-profile-cycle Specification
+
+## Purpose
+Een knop in de snelle acties van het wayle-dashboard op lobos die bij elke klik naar het volgende power profile gaat en het actieve profiel met icoon en label toont.
+
+## Requirements
 
 ### Requirement: Cycle door power profiles via dashboard knop
 De dashboard quick actions knop SHALL door alle beschikbare power profiles fietsen bij elke klik, in volgorde PowerSaver → Balanced → Performance → PowerSaver. Als Performance niet beschikbaar is op het systeem, SHALL de knop alleen tussen PowerSaver en Balanced wisselen.

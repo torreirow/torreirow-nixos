@@ -1,4 +1,9 @@
-## ADDED Requirements
+# console-group-selector Specification
+
+## Purpose
+Interactieve keuze van een AWS-profiel voor `bmc console -p` in twee stappen (eerst de accountgroep, dan het profiel), met recent gebruikte groepen en profielen bovenaan.
+
+## Requirements
 
 ### Requirement: Group-aware two-step interactive selector for console
 When `bmc console -p` is invoked without a profile name, the system SHALL present a two-step interactive selector: first a list of AWS account groups, then a list of profiles within the selected group.

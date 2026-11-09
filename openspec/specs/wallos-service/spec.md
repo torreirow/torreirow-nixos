@@ -27,12 +27,18 @@ De service SHALL bereikbaar zijn via HTTPS op subscriptions.toorren.net met een 
 - **WHEN** een gebruiker http://subscriptions.toorren.net opent
 - **THEN** wordt hij doorgestuurd naar HTTPS
 
-### Requirement: Wallos gebruikt MariaDB als database
-De container SHALL verbinding maken met de host MariaDB via `host.docker.internal:3306` met credentials uit de agenix env-file.
+### Requirement: Wallos gebruikt SQLite in het db-volume
+Wallos SHALL zijn gegevens opslaan in de SQLite-database `wallos.db` in het gemounte db-volume
+(`/data/external/wallos/db/wallos.db` op de host). Wallos ondersteunt geen andere database; er is
+geen MariaDB-database voor Wallos.
 
-#### Scenario: Database verbinding bij opstarten
-- **WHEN** de container opstart
-- **THEN** verbindt Wallos met de MariaDB `wallos` database via `DB_DRIVER=mysql`
+#### Scenario: Gegevens staan in wallos.db
+- **WHEN** een gebruiker een abonnement toevoegt
+- **THEN** staat dat abonnement in `/data/external/wallos/db/wallos.db`
+
+#### Scenario: Geen MariaDB-afhankelijkheid
+- **WHEN** MariaDB op malandro niet draait
+- **THEN** start Wallos en toont het de bestaande abonnementen
 
 ### Requirement: Login uitsluitend via Authelia OIDC
 Wallos SHALL geconfigureerd zijn met `OIDC_ENABLED=true` en `OIDC_DISABLE_PASSWORD_LOGIN=true`, zodat gebruikers uitsluitend via Authelia kunnen inloggen.
@@ -57,8 +63,8 @@ Alle Wallos data SHALL opgeslagen worden buiten de container op `/data/external/
 - **THEN** zijn alle abonnementen, instellingen en geüploade logo's nog aanwezig
 
 ### Requirement: Secrets geladen via agenix
-Alle gevoelige configuratie (database credentials, OIDC client secret) SHALL geladen worden via `--env-file` vanuit een agenix secret, niet hardcoded in de Nix config.
+Alle gevoelige configuratie (het OIDC client secret) SHALL geladen worden via `--env-file` vanuit een agenix secret, niet hardcoded in de Nix config.
 
 #### Scenario: Secret aanwezig bij container start
 - **WHEN** de container start
-- **THEN** zijn DB_DRIVER, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, OIDC_CLIENT_SECRET en TZ beschikbaar als environment variabelen
+- **THEN** is OIDC_CLIENT_SECRET beschikbaar als environment variabele

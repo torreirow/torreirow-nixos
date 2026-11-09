@@ -1,19 +1,28 @@
-## ADDED Requirements
+# quarto-pandoc-pin Specification
 
-### Requirement: Quarto on malandro uses pandoc 3.6
-Quarto on malandro SHALL use pandoc 3.6 (from nixpkgs-2505) instead of the system pandoc 3.7.0.2, so that the `syntax-highlighting` writer option is accepted.
+## Purpose
+Quarto op malandro en lobos rendert presentaties zonder pandoc-fouten, doordat quarto een eigen, compatibele pandoc-versie gebruikt terwijl de systeem-pandoc ongewijzigd blijft.
 
-#### Scenario: RevealJS presentation renders without error
-- **WHEN** quarto renders a `.qmd` file with RevealJS format on malandro
-- **THEN** pandoc does not produce `Unknown option "syntax-highlighting"` and the presentation renders successfully
+## Requirements
 
-#### Scenario: R and Python packages remain available
-- **WHEN** quarto is invoked on malandro
-- **THEN** the `reticulate` R package and Python packages (plotly, numpy, pandas, matplotlib, tabulate) are available in the quarto environment
+### Requirement: Quarto gebruikt een eigen, compatibele pandoc
+Quarto (1.9.38) op malandro en lobos SHALL een eigen pandoc 3.8.3 gebruiken in plaats van de
+systeem-pandoc, omdat de pandoc uit nixpkgs niet samenwerkt met deze quarto-versie
+(`Unknown option "syntax-highlighting"`).
 
-### Requirement: System pandoc is unaffected
-The system pandoc package on malandro SHALL remain at 3.7.0.2; only quarto's internal pandoc reference SHALL be pinned to 3.6.
+#### Scenario: RevealJS-presentatie rendert zonder fout
+- **WHEN** quarto op malandro een `.qmd`-bestand met RevealJS-formaat rendert
+- **THEN** geeft pandoc geen `Unknown option "syntax-highlighting"` en wordt de presentatie gemaakt
 
-#### Scenario: System pandoc version unchanged
-- **WHEN** `pandoc --version` is run on malandro
-- **THEN** the output shows pandoc 3.7.0.2 (not 3.6)
+#### Scenario: R- en Python-pakketten blijven beschikbaar
+- **WHEN** quarto op malandro wordt aangeroepen
+- **THEN** zijn het R-pakket `reticulate` en de Python-pakketten plotly, numpy, pandas, matplotlib
+  en tabulate beschikbaar in de quarto-omgeving
+
+### Requirement: Systeem-pandoc blijft ongemoeid
+De systeem-pandoc SHALL de versie uit nixpkgs blijven; alleen quarto SHALL de eigen pandoc
+gebruiken.
+
+#### Scenario: Systeem-pandoc ongewijzigd
+- **WHEN** `pandoc --version` op malandro wordt uitgevoerd
+- **THEN** toont de uitvoer de nixpkgs-versie (nu 3.7.0.2), niet 3.8.3

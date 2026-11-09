@@ -1,7 +1,12 @@
-## ADDED Requirements
+# workspace-monitor-binding Specification
+
+## Purpose
+Vaste koppeling van Hyprland-workspaces aan schermen op lobos (extern scherm en laptopscherm), met workspaces die blijven bestaan als ze leeg zijn.
+
+## Requirements
 
 ### Requirement: Workspaces zijn persistent en altijd aanwezig
-Alle workspaces 1 t/m 10 MOETEN altijd bestaan, ook als ze geen vensters bevatten. Ze MOGEN niet verdwijnen na sluiten van het laatste venster.
+Alle workspaces 1 t/m 10 SHALL altijd bestaan, ook als ze geen vensters bevatten; ze MUST NOT verdwijnen na het sluiten van het laatste venster.
 
 #### Scenario: Lege workspace blijft zichtbaar
 - **WHEN** alle vensters op workspace 5 worden gesloten
