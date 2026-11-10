@@ -66,6 +66,11 @@ bestaand account, dan heeft dat account al een eigen waarde in `~/.config/<besta
   `wg.toorren.net:4242`.
 - De host-firewall vertrouwt `nebula.toorren`; de Nebula-firewall is de enige poortwachter. Op
   wifi/LAN gaat niets extra open.
+- **Tunnel dood na een herstart van Nebula.** Starten malandro en lobos op hetzelfde moment elk
+  een handshake, dan kan elke kant een andere tunnel aanhouden; beide melden na ~30 s
+  `Tunnel status ... state:dead` en ping/ssh over de mesh hangen, terwijl het LAN gewoon werkt.
+  Gezien op 2026-11-10 na een deploy van malandro. Oplossing: `sudo systemctl restart
+  nebula@toorren` op één van beide kanten (hier lobos).
 - **Zonder certificaten staat Nebula uit.** De module kijkt of `secrets/nebula-ca.crt.age` en
   `secrets/nebula-<host>.{crt,key}.age` bestaan. Ontbreken ze, dan bouwt de host gewoon en meldt
   de evaluatie `toorren.nebula: ... ontbreken`.
