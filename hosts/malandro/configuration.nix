@@ -295,7 +295,7 @@
     LC_ALL = "";
     LC_ADDRESS = "nl_NL.UTF-8";
     LC_IDENTIFICATION = "nl_NL.UTF-8";
-    LC_MEASUREMENT = "nl.UTF-8";
+    LC_MEASUREMENT = "nl_NL.UTF-8";
     LC_MONETARY = "nl_NL.UTF-8";
     LC_NAME = "nl_NL.UTF-8";
     LC_NUMERIC = "nl_NL.UTF-8";

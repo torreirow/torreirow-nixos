@@ -55,6 +55,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Nektar Impact GX61-keyboard.
 
 ### Removed
+- **Restanten uit de repo**: de host `karlapi` uit `flake.nix` (de map bestond al niet meer, waardoor
+  `nix flake check` faalde), `hosts/malandro.new/`, `hosts/mealhada/`, `hosts/lobos/programs.wouter`
+  en de lege `modules/general-desktop.nix`. `system = "x86_64-linux"` staat nog maar één keer in
+  `flake.nix`. Geen gedragsverandering: alle hosts, home-configs en checks bouwen exact hetzelfde.
 - **formrelay en `forms.toorren.net`** (`modules/formrelay.nix`, `pkgs/formrelay/`). De
   form-to-email-relay met hCaptcha is nooit in gebruik genomen (de tokens stonden nog op
   `VERVANG_MET_TOKEN_…`); de contactformulier-mailer (`mailer.toorren.net`) doet dit werk. Het
@@ -67,6 +71,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `/Documents/reMarkable`.
 
 ### Fixed
+- **Locale op malandro**: `LC_MEASUREMENT` stond op het niet-bestaande `nl.UTF-8`; nu `nl_NL.UTF-8`.
 - **Aan/uit-knop op lobos: korte druk is standby, wekken zet hem niet meer uit.** Wekken met de
   knop zette de laptop uit, doordat een kernelmodule (`tiny_power_button`) bij elke druk zelf
   afsloot. Die staat nu op de blacklist, en een korte druk zet lobos in standby in plaats van uit.

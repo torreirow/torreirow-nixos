@@ -112,7 +112,7 @@ Volledige chronologie van Wayland en Qt configuratiewijzigingen:
 #### **18 februari 2026** - Eerste Qt Wayland poging (commit `87e61ec`)
 **Clementine wrapper met QT_QPA_PLATFORM**
 
-- **Benadering:** Wrapper in `hosts/lobos/programs.wouter` die Clementine start met `QT_QPA_PLATFORM=wayland`
+- **Benadering:** Wrapper in `hosts/lobos/programs.wouter` (bestand verwijderd op 2026-11-10; zie commit `87e61ec`) die Clementine start met `QT_QPA_PLATFORM=wayland`
 - **Status:** Experimenteel, niet de uiteindelijke oplossing
 
 #### **24 februari 2026** - Definitieve Qt oplossing (commit `2c85dce`)

@@ -80,7 +80,6 @@
   nixosConfigurations.lobos = nixpkgs.lib.nixosSystem {
     modules =
       let
-        system = "x86_64-linux";
         defaults = { pkgs, ... }: {
           nixpkgs.overlays = [
             (final: prev: { rbw = inputs.rbw.packages.${system}.rbw; })
@@ -140,7 +139,6 @@
         ./hosts/lobos/configuration.nix
         { environment.systemPackages = [ huphop.packages.${system}.default ]; }
         ./modules/tnaws.nix
-        ./modules/general-desktop.nix
         ./modules/jiratui.nix
       ];
     };
@@ -149,7 +147,6 @@
   nixosConfigurations.malandro = nixpkgs.lib.nixosSystem {
     modules =
       let
-        system = "x86_64-linux";
         defaults = { pkgs, ... }: {
           nixpkgs.overlays = [
             (final: prev: { rbw = inputs.rbw.packages.${system}.rbw; })
@@ -220,21 +217,6 @@
     };
 ### MALANDRO config END
 
-  ## KARLAPI config START
-  nixosConfigurations.karlapi = nixpkgs.lib.nixosSystem {
-    modules =
-      let
-        system = "x86_64-linux";
-        defaults = { pkgs, ... }: {
-          _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
-        };
-      in [
-        defaults
-        ./hosts/karlapi/configuration.nix
-        ./modules/tnaws.nix
-      ];
-    };
-### KARLAPI config END
 
   ## MPENZI config START
   # Laptop van Maaike: kaal host-blok, geen extraPkgs/overlays (zie docs/mpenzi.md). Wouter
@@ -243,7 +225,6 @@
   nixosConfigurations.mpenzi = nixpkgs.lib.nixosSystem {
     modules =
       let
-        system = "x86_64-linux";
         defaults = { pkgs, ... }: {
           _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
         };
@@ -259,7 +240,6 @@
   ### LINUX HOMEMANAGER START ROOT
   homeConfigurations."root@linuxdesktop" = home-manager.lib.homeManagerConfiguration(
     let
-      system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       linux-defaults = {pkgs,config,homeage,...}: {
         home = { 
@@ -323,7 +303,6 @@
   # defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
   homeConfigurations."wtoorren@linuxdesktop" = home-manager.lib.homeManagerConfiguration(
     let
-      system = "x86_64-linux";
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
@@ -382,7 +361,6 @@
   # defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
   homeConfigurations."wtoorren@linuxserver" = home-manager.lib.homeManagerConfiguration(
     let
-      system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       linux-defaults = {pkgs,config,...}: {
         home = {
@@ -416,9 +394,7 @@
   #   home-manager switch --flake .#wtoorren@admin -b backup
   # NixOS-hosts gebruiken modules/wtoorren-admin.nix. Zie docs/wtoorren-admin.md.
   homeConfigurations."wtoorren@admin" = home-manager.lib.homeManagerConfiguration (
-    let
-      system = "x86_64-linux";
-    in {
+    {
       pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
       modules = [
         ./home/profiles/wtoorren-admin
@@ -454,7 +430,7 @@
       imports = [ ./modules/wtoorren-admin_vmtest.nix ];
       defaults = {
         imports = [ (import ./modules/wtoorren-admin.nix { inherit home-manager nixvim bmc race; }) ];
-        _module.args.unstable = import unstable { system = "x86_64-linux"; config.allowUnfree = true; };
+        _module.args.unstable = import unstable { inherit system; config.allowUnfree = true; };
       };
     };
 
@@ -476,7 +452,7 @@
 
   # Immich: VAAPI-patch (format=nv12 vóór hwupload, modules/immich-vaapi-patch.nix).
   checks.x86_64-linux.immich-vaapi-patch =
-    let u = import unstable { system = "x86_64-linux"; config.allowUnfree = true; };
+    let u = import unstable { inherit system; config.allowUnfree = true; };
     in u.callPackage ./modules/immich-vaapi-patch_test.nix { };
 
   # Podcast op mpenzi: podrec-script met nep-PipeWire (modules/podcast-opname).
