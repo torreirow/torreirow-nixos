@@ -4,7 +4,7 @@
 #
 # Controleert het toegangsbeleid uit de hosts-tabel: lobos komt via de mesh bij ssh (22) en
 # RustDesk (21118) op mpenzi, malandro niet; malandro komt bij Immich-ML (3003) op lobos, mpenzi
-# niet; ICMP mag overal; en 21118/3003 staan op het gewone netwerk (de underlay) dicht. De certificaten zijn wegwerp, alleen voor deze test gemaakt.
+# niet; ssh (22) op lobos mag vanaf elke mesh-host; ICMP mag overal; en 21118/3003 staan op het gewone netwerk (de underlay) dicht. De certificaten zijn wegwerp, alleen voor deze test gemaakt.
 { pkgs, ... }:
 
 let
@@ -40,6 +40,7 @@ in
         wantedBy = [ "multi-user.target" ];
         serviceConfig.ExecStart = "${pkgs.netcat}/bin/nc -lk 3003";
       };
+      services.openssh.enable = true;
     };
     mpenzi = { pkgs, ... }: {
       imports = [ (node "mpenzi") ];
@@ -59,6 +60,7 @@ in
     mpenzi.wait_for_unit("sshd.service")
     mpenzi.wait_for_open_port(21118)
     lobos.wait_for_open_port(3003)
+    lobos.wait_for_unit("sshd.service")
 
     with subtest("mesh is opgebouwd: ICMP mag overal"):
         lobos.wait_until_succeeds("ping -c1 -W2 10.77.0.1", timeout=60)
@@ -76,6 +78,10 @@ in
     with subtest("malandro mag bij Immich-ML op lobos, mpenzi niet"):
         malandro.succeed("nc -z -w5 10.77.0.2 3003")
         mpenzi.fail("nc -z -w5 10.77.0.2 3003")
+
+    with subtest("ssh op lobos mag vanaf elke mesh-host"):
+        malandro.succeed("nc -z -w5 10.77.0.2 22")
+        mpenzi.succeed("nc -z -w5 10.77.0.2 22")
 
     with subtest("RustDesk en Immich-ML staan op de underlay dicht"):
         lobos.fail("nc -z -w5 ${nodes.mpenzi.networking.primaryIPAddress} 21118")

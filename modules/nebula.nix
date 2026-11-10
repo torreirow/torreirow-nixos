@@ -24,6 +24,7 @@ let
       ip = "10.77.0.2";
       inbound = [
         { port = 3003; proto = "tcp"; host = "malandro"; } # Immich-ML (modules/immich-ml.nix)
+        { port = 22; proto = "tcp"; host = "any"; }        # ssh vanaf elke mesh-host
       ];
     };
     mpenzi = {
