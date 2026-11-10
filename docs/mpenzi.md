@@ -53,11 +53,11 @@ bestaand account, dan heeft dat account al een eigen waarde in `~/.config/<besta
 
 ## Nebula-mesh
 
-| Host     | Nebula-IP | Rol                       | Inbound (naast ICMP)              |
-|----------|-----------|---------------------------|-----------------------------------|
-| malandro | 10.77.0.1 | lighthouse + relay (4242) | geen                              |
-| lobos    | 10.77.0.2 | node                      | tcp 22 van elke host; 3003 van malandro |
-| mpenzi   | 10.77.0.3 | node                      | tcp 22 en 21118, alleen van lobos |
+| Host     | Nebula-IP | Rol                       | Inbound (naast ICMP)            |
+|----------|-----------|---------------------------|---------------------------------|
+| malandro | 10.77.0.1 | lighthouse + relay (4242) | geen                            |
+| lobos    | 10.77.0.2 | node                      | tcp 22 elke host, 3003 malandro |
+| mpenzi   | 10.77.0.3 | node                      | tcp 22 en 21118, alleen lobos   |
 
 - Het beleid staat in de `hosts`-tabel bovenin `modules/nebula.nix`. Een host erbij: regel
   toevoegen, cert maken, module importeren.
