@@ -245,6 +245,12 @@ environment.variables.EDITOR = "vim";
     isNormalUser = true;
     description = "Wouter van der Toorren";
     extraGroups = [ "networkmanager" "wheel" "keys" ];
+    # `toorren-lobos-ed25519` uit de rbw-agent (vault), o.a. voor ssh over Nebula (10.77.0.2).
+    # Zelfde sleutel als `wtoorrenKey` in modules/wtoorren-admin.nix. ~/.ssh/authorized_keys
+    # blijft daarnaast gewoon gelezen.
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFH+KiVBYLoBByXonUb7Hq7JfZpJJYag1eK5/EQEQKvp wtoorren@lobos"
+    ];
     # packages = with pkgs; [
     #  thunderbird
     # ];
