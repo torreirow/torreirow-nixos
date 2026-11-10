@@ -65,6 +65,21 @@
         tmux setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR"
       fi
 
+      # Omgekeerd: panes die vóór (of tijdens een herstart van) Hyprland zijn
+      # gestart, halen voor elke prompt WAYLAND_DISPLAY/DISPLAY opnieuw uit de
+      # tmux-sessie. Anders valt wl-paste terug op wayland-0 en werkt bijv.
+      # image-paste in Claude Code niet meer (Hyprland kan op wayland-1 zitten).
+      if [[ -n "$TMUX" ]]; then
+        _tmux_refresh_display() {
+          local line
+          for line in "''${(@f)$(tmux show-environment WAYLAND_DISPLAY 2>/dev/null; tmux show-environment DISPLAY 2>/dev/null)}"; do
+            [[ "$line" == [A-Z]*=?* ]] && export "$line"
+          done
+        }
+        autoload -Uz add-zsh-hook
+        add-zsh-hook precmd _tmux_refresh_display
+      fi
+
       ${import ./zsh-rbwsel.nix}
 
       # spotdl / yt-dlp met YouTube PO-token-provider (bgutil).
