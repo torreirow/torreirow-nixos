@@ -186,6 +186,8 @@ environment.variables.EDITOR = "vim";
   services.avahi.enable = true;
   services.avahi.nssmdns4 = true;
   services.avahi.openFirewall = true;
+  # lobos.local op het LAN (zoals mpenzi); zonder publish kon alleen lobos zelf anderen vinden.
+  services.avahi.publish = { enable = true; addresses = true; };
 
 
   services.pulseaudio.enable = false;
