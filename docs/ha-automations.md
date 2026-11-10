@@ -113,6 +113,11 @@ de badkamer (1e verdieping) en de WC. De box staat op een Tuya-stekker en kent i
 - **Valkuil (2026-11-02):** een *device-actie* (`type: turn_on` + `device_id`) volgt het apparaat,
   niet de entity-ID. Na de stekkerwissel zette "Centrale afzuiging aan" daardoor de Boaz-plug aan.
   Gebruik in automations altijd `action: switch.turn_on` met `entity_id`.
+  Ook een `target` met `device_id` náást `entity_id` volgt het apparaat: "Bloembak geur on" had
+  `device_id: f031e0f8…` (de oude afzuigingsstekker, nu Boaz-plug) naast
+  `switch.geur_bovenverdieping` en zette zo bij elke bloembak-trigger de Boaz-plug aan. Op
+  2026-11-09 weggehaald; zoek na een stekkerwissel `automations.yaml` op het device-id van de oude
+  stekker. De Boaz-plug staat sindsdien op opstartgedrag `last` (`select.boaz_plug_opstartgedrag`).
 - **Timer liep nooit af (2026-11-02):** de state-trigger `to: 'on'` vuurde ook bij `unavailable → on`
   (Tuya-cloud kwam terug, een paar keer per uur), waardoor `timer.start` de timer steeds op 1 uur
   zette. Eerst opgelost met `not_from: [unavailable, unknown]`; later dezelfde avond is de timer
