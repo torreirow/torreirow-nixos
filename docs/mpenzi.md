@@ -53,12 +53,13 @@ bestaand account, dan heeft dat account al een eigen waarde in `~/.config/<besta
 
 ## Nebula-mesh
 
-| Host     | Nebula-IP | Rol                       | Inbound (naast ICMP)            |
-|----------|-----------|---------------------------|---------------------------------|
-| malandro | 10.77.0.1 | lighthouse + relay (4242) | geen                            |
-| lobos    | 10.77.0.2 | node                      | tcp 22 elke host, 3003 malandro |
-| mpenzi   | 10.77.0.3 | node                      | tcp 22 en 21118, alleen lobos   |
+| Host     | Nebula-IP | Rol                       | Inbound (naast ICMP + ssh) |
+|----------|-----------|---------------------------|----------------------------|
+| malandro | 10.77.0.1 | lighthouse + relay (4242) | geen                       |
+| lobos    | 10.77.0.2 | node                      | tcp 3003 van malandro      |
+| mpenzi   | 10.77.0.3 | node                      | tcp 21118 van lobos        |
 
+- ICMP en ssh (tcp 22) staan op elke host open voor de hele mesh, voor beheer over en weer.
 - Het beleid staat in de `hosts`-tabel bovenin `modules/nebula.nix`. Een host erbij: regel
   toevoegen, cert maken, module importeren.
 - Lighthouse-adressen: eerst `192.168.2.52:4242` (thuis, geen hairpin), daarna
@@ -68,8 +69,8 @@ bestaand account, dan heeft dat account al een eigen waarde in `~/.config/<besta
 - **Zonder certificaten staat Nebula uit.** De module kijkt of `secrets/nebula-ca.crt.age` en
   `secrets/nebula-<host>.{crt,key}.age` bestaan. Ontbreken ze, dan bouwt de host gewoon en meldt
   de evaluatie `toorren.nebula: ... ontbreken`.
-- Test: `nix build .#checks.x86_64-linux.nebula -L` (drie VM's met wegwerp-certs: lobos mag wel
-  22/21118 op mpenzi, malandro niet, 21118 dicht op de underlay).
+- Test: `nix build .#checks.x86_64-linux.nebula -L` (drie VM's met wegwerp-certs: ssh tussen
+  alle hosts, lobos mag 21118 op mpenzi en malandro niet, 21118/3003 dicht op de underlay).
 
 ### Certificaten maken (handmatig, op lobos)
 
