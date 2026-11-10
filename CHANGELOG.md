@@ -78,6 +78,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **linny-mcp `search` met koppelteken** (`flake.lock`, input `linny-mcp`). Een
   zoekterm als `Connector-test` gaf `SQL logic error: no such column: test`. De fork
   probeert een door FTS5 geweigerde query nu opnieuw als letterlijke tekst.
+- **linny-mcp verbergt het archief** (`flake.lock`, input `linny-mcp`). Omdat
+  `notebook.yml` `archive.default_hidden: true` zet, laten `search`, `docs_by_term`,
+  `starred_docs` en `changed_since` documenten met `archive: true` weg;
+  `include_archived: true` toont ze toch. `get_doc` blijft ze gewoon openen.
 - **Locale op malandro**: `LC_MEASUREMENT` stond op het niet-bestaande `nl.UTF-8`; nu `nl_NL.UTF-8`.
 - **Aan/uit-knop op lobos: korte druk is standby, wekken zet hem niet meer uit.** Wekken met de
   knop zette de laptop uit, doordat een kernelmodule (`tiny_power_button`) bij elke druk zelf

@@ -343,11 +343,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794309294,
-        "narHash": "sha256-p0zKLsqFjY+3GOU18oveFVrWsK7v8CBWmBQ0hnSs4dA=",
+        "lastModified": 1794311089,
+        "narHash": "sha256-Ma+JS0D5B7THf4ISTtnaMbGJERL3Cm8qLnLb/PUtjP4=",
         "owner": "torreirow",
         "repo": "linny-mcp-server",
-        "rev": "90d1c408a2d4beff71d20358a17427eac015395c",
+        "rev": "67162b27a67dbe6d1d1754d33fd89f6101ca570e",
         "type": "github"
       },
       "original": {
