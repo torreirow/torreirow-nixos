@@ -434,7 +434,7 @@
       };
     };
 
-  # Nebula-mesh: toegangsbeleid lobos/malandro -> mpenzi (modules/nebula.nix).
+  # Nebula-mesh: toegangsbeleid tussen malandro, lobos en mpenzi (modules/nebula.nix).
   # App-standaarden van maaike: seeds en herstel-app (modules/maaike-apps.nix).
   checks.x86_64-linux.maaike-apps =
     nixpkgs.legacyPackages.x86_64-linux.testers.runNixOSTest {

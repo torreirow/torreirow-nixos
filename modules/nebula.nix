@@ -16,21 +16,20 @@ let
 
   lighthouse = "malandro";
 
-  # IP per host plus de extra inbound-regels bovenop ICMP. Nebula-firewall matcht op de
-  # naam in het certificaat (`host`), dus `nebula-cert sign -name lobos` is hier lobos.
+  # IP per host plus de extra inbound-regels bovenop ICMP en ssh (die gelden op elke host,
+  # zie `firewall.inbound`). Nebula-firewall matcht op de naam in het certificaat (`host`),
+  # dus `nebula-cert sign -name lobos` is hier lobos.
   hosts = {
     malandro = { ip = "10.77.0.1"; inbound = [ ]; };
     lobos = {
       ip = "10.77.0.2";
       inbound = [
         { port = 3003; proto = "tcp"; host = "malandro"; } # Immich-ML (modules/immich-ml.nix)
-        { port = 22; proto = "tcp"; host = "any"; }        # ssh vanaf elke mesh-host
       ];
     };
     mpenzi = {
       ip = "10.77.0.3";
       inbound = [
-        { port = 22; proto = "tcp"; host = "lobos"; }      # ssh voor beheer
         { port = 21118; proto = "tcp"; host = "lobos"; }   # RustDesk direct IP
       ];
     };
@@ -118,8 +117,11 @@ in
         settings.punchy = { punch = true; respond = true; };
         firewall = {
           outbound = [{ port = "any"; proto = "any"; host = "any"; }];
-          inbound = [{ port = "any"; proto = "icmp"; host = "any"; }]
-            ++ hosts.${host}.inbound;
+          # ICMP en ssh staan op elke host open voor de hele mesh, voor beheer over en weer.
+          inbound = [
+            { port = "any"; proto = "icmp"; host = "any"; }
+            { port = 22; proto = "tcp"; host = "any"; }
+          ] ++ hosts.${host}.inbound;
         };
       };
 
