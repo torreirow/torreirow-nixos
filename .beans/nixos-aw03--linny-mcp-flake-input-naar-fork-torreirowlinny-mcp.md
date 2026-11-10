@@ -1,13 +1,14 @@
 ---
 # nixos-aw03
 title: 'linny-mcp: flake-input naar fork torreirow/linny-mcp-server'
-status: todo
+status: completed
 type: feature
+priority: normal
 tags:
     - linny-mcp
     - fork
 created_at: 2026-10-01T22:03:45Z
-updated_at: 2026-10-01T22:03:45Z
+updated_at: 2026-11-10T11:07:00Z
 parent: nixos-m0vn
 ---
 
