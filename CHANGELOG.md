@@ -75,6 +75,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   input wijst nu naar de fork `torreirow/linny-mcp-server`. Daar leest de `archive`-tool
   het veld uit `lindenConfig/notebook.yml` (`archive.field`). Voorheen schreef hij
   `archived: true`, wat linny.vim en linny-web niet als gearchiveerd zien.
+- **linny-mcp `search` met koppelteken** (`flake.lock`, input `linny-mcp`). Een
+  zoekterm als `Connector-test` gaf `SQL logic error: no such column: test`. De fork
+  probeert een door FTS5 geweigerde query nu opnieuw als letterlijke tekst.
 - **Locale op malandro**: `LC_MEASUREMENT` stond op het niet-bestaande `nl.UTF-8`; nu `nl_NL.UTF-8`.
 - **Aan/uit-knop op lobos: korte druk is standby, wekken zet hem niet meer uit.** Wekken met de
   knop zette de laptop uit, doordat een kernelmodule (`tiny_power_button`) bij elke druk zelf
