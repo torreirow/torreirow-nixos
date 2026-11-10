@@ -67,6 +67,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `/Documents/reMarkable`.
 
 ### Fixed
+- **Aan/uit-knop op lobos: korte druk is standby, wekken zet hem niet meer uit.** Wekken met de
+  knop zette de laptop uit, doordat een kernelmodule (`tiny_power_button`) bij elke druk zelf
+  afsloot. Die staat nu op de blacklist, en een korte druk zet lobos in standby in plaats van uit.
+  Lang indrukken blijft de harde uitschakeling van de firmware.
 - **Eigen 403/404-pagina's op alle sites** (`modules/nginx-error-pages.nix`). De foutpagina's uit
   `modules/nginx.nix` werkten alleen op de catch-all en toorren.net; elders gaf een door nginx
   geweigerd verzoek een kale pagina of een verkeerde statuscode (een GET op

@@ -53,4 +53,18 @@
   # 0x1022:0x1669) de volgende verdachte.
   #
   # LID en SLPB blijven gearmeerd: deksel open en de slaapknop horen te wekken.
+
+  # Aan/uit-knop: wekken mag hem niet uitzetten. udev laadt naast `button` ook
+  # `tiny_power_button` (alias acpi*:LNXPWRBN:*), en die stuurt bij elke druk zelf
+  # SIGRTMIN+4 (poweroff) naar PID 1, buiten logind en Hyprland om -- ook bij de
+  # wek-druk. Gezien 2026-11-09 23:51: "PM: suspend entry" en 15 s later
+  # "Received SIGRTMIN+4". Zonder de module is de knop een gewone KEY_POWER voor
+  # logind, dat hem vlak na het wekken negeert (HoldoffTimeoutSec). Zelfde fix
+  # als op mpenzi (hosts/mpenzi/power.nix).
+  boot.blacklistedKernelModules = [ "tiny_power_button" ];
+
+  # Korte druk = standby i.p.v. uitzetten; de wek-druk negeert logind (HoldoffTimeoutSec),
+  # dus wekken zet hem niet direct weer in standby. Lang indrukken (~4 s) is de harde
+  # uitschakeling van de firmware; logind's LongPress (5 s) komt daar nooit aan toe.
+  services.logind.settings.Login.HandlePowerKey = "suspend";
 }

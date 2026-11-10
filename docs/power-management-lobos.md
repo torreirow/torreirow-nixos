@@ -12,6 +12,26 @@ Laptop kan ALLEEN S0ix/s2idle (geen S3). power-management.nix met resume-service
 
 > Verplaatst uit CLAUDE.md (Huidige Status) om de sessie-context slank te houden.
 
+## Aan/uit-knop (sinds 2026-11-10)
+
+`hosts/lobos/suspend-wakeup.nix`:
+
+| Situatie          | Korte druk  | Lang (~4 s)              |
+| ----------------- | ----------- | ------------------------ |
+| lobos aan         | standby     | hard uit (firmware)      |
+| lobos in standby  | wekken      | hard uit (firmware)      |
+
+- Wekken met de knop zette lobos uit: `tiny_power_button` stuurt bij elke druk zelf `SIGRTMIN+4`
+  (poweroff) naar PID 1. Gezien 2026-11-09 23:51 (`PM: suspend entry`, 15 s later
+  `Received SIGRTMIN+4`). Fix: module op de blacklist, net als op mpenzi.
+- Korte druk: `services.logind.settings.Login.HandlePowerKey = "suspend"`. De wek-druk negeert
+  logind (`HoldoffTimeoutSec`), dus wekken zet hem niet direct weer in standby.
+- Lang indrukken is de harde uitschakeling van de firmware; logind's `HandlePowerKeyLongPress`
+  (5 s) komt daar nooit aan toe. Afsluiten gaat via het menu of `systemctl poweroff`.
+- Wekbronnen naast de knop: deksel, intern toetsenbord (`serio0`) en touchpad (`ELAN0688`);
+  USB (dongle, dock) staat uit, zie de XHC-regels in hetzelfde bestand.
+- Controle: `lsmod | grep tiny_power_button` geeft niets; `grep HandlePowerKey /etc/systemd/logind.conf`.
+
 ### Sessie 2026-04-09 - Suspend/Standby probleem - OPGELOST
 
 **Probleem:** Laptop ging niet correct in standby. WiFi/netwerk adapter werd uitgeschakeld maar de laptop suspendeerde niet volledig.
