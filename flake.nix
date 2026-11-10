@@ -22,7 +22,7 @@
     openspec.url = "github:Fission-AI/OpenSpec";
     parsh.url = "github:torreirow/parsh";
     linny-web.url = "github:torreirow/linny-web-theme";
-    linny-mcp.url = "github:linden-project/linny-mcp-server";
+    linny-mcp.url = "github:torreirow/linny-mcp-server";
     linny-mcp.inputs.nixpkgs.follows = "nixpkgs";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";

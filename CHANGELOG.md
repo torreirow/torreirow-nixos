@@ -71,6 +71,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `/Documents/reMarkable`.
 
 ### Fixed
+- **linny-mcp archiveert met `archive: true`** (`flake.nix`, input `linny-mcp`). De
+  input wijst nu naar de fork `torreirow/linny-mcp-server`. Daar leest de `archive`-tool
+  het veld uit `lindenConfig/notebook.yml` (`archive.field`). Voorheen schreef hij
+  `archived: true`, wat linny.vim en linny-web niet als gearchiveerd zien.
 - **Locale op malandro**: `LC_MEASUREMENT` stond op het niet-bestaande `nl.UTF-8`; nu `nl_NL.UTF-8`.
 - **Aan/uit-knop op lobos: korte druk is standby, wekken zet hem niet meer uit.** Wekken met de
   knop zette de laptop uit, doordat een kernelmodule (`tiny_power_button`) bij elke druk zelf

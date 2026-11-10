@@ -343,15 +343,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1789730439,
-        "narHash": "sha256-VTlBqtQzaCUfeFcRjWYVrPs7uutl0J5QoscBd0GSV7c=",
-        "owner": "linden-project",
+        "lastModified": 1794306661,
+        "narHash": "sha256-//je7GJnKN6qY7wKEDbUmg0axJTzAAYEaWPLENdZmac=",
+        "owner": "torreirow",
         "repo": "linny-mcp-server",
-        "rev": "ee628a0b08a126fba8b166f31eabd3b59e55938e",
+        "rev": "9bb22e083bebbdfffc0385b94337541e146b2877",
         "type": "github"
       },
       "original": {
-        "owner": "linden-project",
+        "owner": "torreirow",
         "repo": "linny-mcp-server",
         "type": "github"
       }

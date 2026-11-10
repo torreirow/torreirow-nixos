@@ -4,8 +4,9 @@ Ontsluit hetzelfde notitieboek als `linny.toorren.net`, maar dan voor **agents**
 schrijven via MCP op **https://linny-mcp.toorren.net**, voor Claude Online en Mobile.
 
 > Module: `modules/linny-mcp.nix`, ingeschakeld met `services.linny-mcp-host.enable = true` in
-> `hosts/malandro/configuration.nix`. Wrapper rond de upstream `services.linny-mcp`
-> (flake-input `linny-mcp` → `github:linden-project/linny-mcp-server`).
+> `hosts/malandro/configuration.nix`. Wrapper rond `services.linny-mcp` uit de fork
+> (flake-input `linny-mcp` → `github:torreirow/linny-mcp-server`; afwijkingen van upstream
+> in `FORK.md` daar). De `archive`-tool schrijft het veld uit `lindenConfig/notebook.yml`.
 
 ## Twee werkmappen, en waarom dat moet
 

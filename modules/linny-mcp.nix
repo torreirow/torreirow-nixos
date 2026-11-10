@@ -2,8 +2,9 @@
 
 # linny-mcp — het torrlinny-notitieboek als SCHRIJFBAAR tweede brein voor Claude.
 #
-# Dunne wrapper rond de upstream `services.linny-mcp` (flake-input linny-mcp,
-# github:linden-project/linny-mcp-server), naar het model van modules/torrlinny.nix.
+# Dunne wrapper rond `services.linny-mcp` uit de fork (flake-input linny-mcp,
+# github:torreirow/linny-mcp-server; afwijkingen van upstream staan in FORK.md
+# daar), naar het model van modules/torrlinny.nix.
 # De wrapper voegt het malandro-specifieke toe: een eigen corpus-clone, de
 # bidirectionele git-sync, de indexer, de agenix-secrets en de publieke vhost.
 #
