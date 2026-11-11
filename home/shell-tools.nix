@@ -50,6 +50,16 @@ programs.fzf = {
         "^export.*KEY"
         "^export.*TOKEN"
       ];
+
+      # Atuin Threads: sessies van AI-agents (Claude Code, opencode, codex) worden door de
+      # daemon vastgelegd in de encrypted record store en meegesynct, zodat je ze op de
+      # andere machine kunt doorzoeken (atuin threads) en hervatten (atuin resume).
+      threads = {
+        capture = true;
+        # Ook tool-calls met input/output bewaren (secrets geredigeerd); zonder dit blijft
+        # alleen de toolnaam over en is een hervatte thread niet meer dan een samenvatting.
+        capture_tools = true;
+      };
     };
   };
 }

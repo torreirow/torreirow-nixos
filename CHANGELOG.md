@@ -7,6 +7,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Atuin Threads op lobos en malandro** (`home/shell-tools.nix`). De atuin-daemon legt de sessies
+  van AI-agents (Claude Code, opencode, codex) vast in de encrypted record store, inclusief
+  tool-calls (secrets geredigeerd). Via sync zijn ze op beide machines te doorzoeken met
+  `atuin threads` en te hervatten met `atuin resume`.
 - **Quiqr als alias en launcher-entry** (`home/hyprland/quiqr.nix`, `home/zsh.nix`).
   Quiqr 0.19.9 (AppImage, Electron 9) kent geen Wayland en stopte door de globale
   `GDK_BACKEND=wayland` met `cannot open display: :0`. Alias `quiqr` en de desktop-entry
