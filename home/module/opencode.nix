@@ -12,10 +12,17 @@
         '';
       };
       agents = { };
-      commands = { };
+      context = ./codevibing/global-rules.md;
+      commands = (import ./codevibing/_cc-commands.nix) // {
+        i-have-adhd = ./codevibing/i-have-adhd-command.md;
+      };
       settings = {
         share = "manual";
         update = "notify";
+        permissions = [
+          { action = "read"; resource = "*.env"; effect = "allow"; }
+          { action = "read"; resource = "*.env.*"; effect = "allow"; }
+        ];
         plugins = [
           "@tarquinen/opencode-dcp@latest"
           "opencode-snip@latest"
@@ -68,4 +75,6 @@
         }
       }
     '';
+    xdg.configFile."opencode/skills/i-have-adhd/SKILL.md".source = ./codevibing/skills/i-have-adhd/SKILL.md;
+    xdg.configFile."opencode/plugins/rtk.js".source = ./codevibing/opencode-rtk-plugin.js;
 }
