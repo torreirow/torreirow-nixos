@@ -15,10 +15,11 @@
   },
   {
     "host": "malandro",
-    "hostname": "192.168.2.52",
+    "hostname": "10.77.0.1",
     "user": "wtoorren",
     "identity_file": "toorren-lobos-ed25519",
-    "port": 22
+    "port": 22,
+    "extra_options": ["HostKeyAlias malandro"]
   },
   {
     "host": "lobos",
