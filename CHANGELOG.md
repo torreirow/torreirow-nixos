@@ -7,6 +7,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **Quiqr als alias en launcher-entry** (`home/hyprland/quiqr.nix`, `home/zsh.nix`).
+  Quiqr 0.19.9 (AppImage, Electron 9) kent geen Wayland en stopte door de globale
+  `GDK_BACKEND=wayland` met `cannot open display: :0`. Alias `quiqr` en de desktop-entry
+  starten hem via `appimage-run` met `GDK_BACKEND=x11` (Xwayland), inclusief icoon.
 - **Link-previews van cckafe.com op Facebook, Messenger en Instagram** (`modules/ai-blocklist`).
   Gedeelde links toonden geen afbeelding of tekst, omdat de AI-crawlerblokkade ook de
   preview-bot van Facebook (`facebookexternalhit`) weerde. Per site kunnen nu bots worden
