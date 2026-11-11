@@ -22,10 +22,25 @@
     "extra_options": ["HostKeyAlias malandro"]
   },
   {
+    "host": "mpenzi",
+    "hostname": "10.77.0.3",
+    "user": "wtoorren",
+    "identity_file": "toorren-lobos-ed25519",
+    "port": 22,
+    "extra_options": ["HostKeyAlias mpenzi"]
+  },
+  {
     "host": "lobos",
+    "hostname": "10.77.0.2",
+    "user": "wtoorren",
+    "identity_file": "toorren-lobos-ed25519",
+    "port": 22
+  },
+  {
+    "host": "lobos-lan",
     "hostname": "192.168.2.25",
     "user": "wtoorren",
-    "identity_file": "~/.ssh/ssh-my-server.pub",
+    "identity_file": "toorren-lobos-ed25519",
     "port": 22
   },
   {
