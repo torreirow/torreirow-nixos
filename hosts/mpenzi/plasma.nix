@@ -7,6 +7,14 @@
 
 {
   services.desktopManager.plasma6.enable = true;
+
+  # Bluetooth (koptelefoon koppelen). De plasma6-module zet BlueDevil — het Bluetooth-icoon in
+  # de systeembalk en de pagina in Systeeminstellingen — er zelf bij zodra dit aan staat;
+  # PipeWire/WirePlumber pakt de audio-profielen (A2DP/HFP) op.
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
   services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
