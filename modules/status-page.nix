@@ -96,6 +96,17 @@ in
       DOCKER_BIN = "${pkgs.docker}/bin/docker";
       SYSTEMCTL_BIN = "${pkgs.systemd}/bin/systemctl";
       SS_BIN = "${pkgs.iproute2}/bin/ss";
+      # Ping-doelen voor /nebula, uit de hosts-tabel van modules/nebula.nix. `local` is
+      # deze host zelf: een ping naar het eigen Nebula-IP zegt niets over de mesh.
+      NEBULA_HOSTS = builtins.toJSON (
+        lib.mapAttrsToList (name: h: {
+          inherit name;
+          inherit (h) ip;
+          lighthouse = builtins.elem name config.toorren.nebula.lighthouses;
+          relay = name == config.toorren.nebula.relayHost;
+          local = name == config.networking.hostName;
+        }) config.toorren.nebula.hosts
+      );
     };
 
     serviceConfig = {

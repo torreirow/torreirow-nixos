@@ -6,7 +6,8 @@ gebakken door de NixOS-module) af tegen de live runtime-status (ist:
 `docker ps -a`, `systemctl is-active`, `ss -tlnp`) en rendert per applicatie
 een gezondheidsoordeel: gezond / kapot / orphan.
 
-Serveert HTML op `/` en machine-leesbare JSON op `/status.json`.
+Serveert HTML op `/`, machine-leesbare JSON op `/status.json` en de
+Nebula-meshstatus (live ICMP, HTML-only) op `/nebula`.
 Stdlib-only, luistert uitsluitend op 127.0.0.1. Elke databron zit in een
 try/except zodat een uitgevallen bron de pagina niet sloopt (HTTP 200 met
 een 'onbeschikbaar'-markering i.p.v. HTTP 500).
@@ -16,7 +17,11 @@ import html
 import json
 import os
 import re
+import socket
+import struct
 import subprocess
+import time
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 CONFIGURED_JSON = os.environ.get("CONFIGURED_JSON", "/etc/status-page/configured.json")
@@ -25,6 +30,9 @@ BIND = os.environ.get("STATUS_BIND", "127.0.0.1")
 DOCKER = os.environ.get("DOCKER_BIN", "docker")
 SYSTEMCTL = os.environ.get("SYSTEMCTL_BIN", "systemctl")
 SS = os.environ.get("SS_BIN", "ss")
+# [{"name": "lobos", "ip": "10.77.0.2"}, ...] uit modules/nebula.nix.
+NEBULA_HOSTS = json.loads(os.environ.get("NEBULA_HOSTS", "[]"))
+NEBULA_PING_TIMEOUT = float(os.environ.get("NEBULA_PING_TIMEOUT", "1.0"))
 
 # Oordeel-constanten
 HEALTHY = "gezond"
@@ -263,6 +271,70 @@ def build_report():
     return report
 
 
+# --- nebula ------------------------------------------------------------------
+
+def _checksum(data):
+    """Internet checksum over de ICMP-header + payload."""
+    if len(data) % 2:
+        data += b"\x00"
+    total = sum(struct.unpack("!%dH" % (len(data) // 2), data))
+    total = (total >> 16) + (total & 0xFFFF)
+    total += total >> 16
+    return ~total & 0xFFFF
+
+
+def ping(ip, timeout=NEBULA_PING_TIMEOUT):
+    """Eén ICMP-echo via een datagram-socket (net.ipv4.ping_group_range).
+
+    Geen CAP_NET_RAW nodig; de payload herkent ons eigen antwoord.
+    Return (up, rtt_ms, error).
+    """
+    ident = os.getpid() & 0xFFFF
+    payload = b"nebula-status" + struct.pack("!d", time.time())
+    header = struct.pack("!BBHHH", 8, 0, 0, ident, 1)
+    packet = struct.pack("!BBHHH", 8, 0, _checksum(header + payload), ident, 1) + payload
+    started = time.perf_counter()
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_ICMP) as sock:
+            sock.settimeout(timeout)
+            sock.sendto(packet, (ip, 0))
+            while True:
+                data, _ = sock.recvfrom(2048)
+                if data[0] == 0 and data.endswith(payload):
+                    return True, (time.perf_counter() - started) * 1000.0, None
+    except socket.timeout:
+        return False, None, "timeout"
+    except OSError as exc:
+        return False, None, str(exc)
+
+
+def collect_nebula():
+    """Ping alle mesh-hosts parallel, alleen op het moment van de request."""
+    if not NEBULA_HOSTS:
+        return [], "geen hosts geconfigureerd"
+    def probe(target):
+        # Deze host zelf niet pingen: dat antwoordt altijd, ook als de mesh stuk is.
+        if target.get("local"):
+            return True, None, None
+        return ping(target.get("ip", ""))
+
+    with ThreadPoolExecutor(max_workers=len(NEBULA_HOSTS)) as pool:
+        results = list(pool.map(probe, NEBULA_HOSTS))
+    hosts = []
+    for target, (up, rtt, error) in zip(NEBULA_HOSTS, results):
+        roles = [r for r in ("lighthouse", "relay") if target.get(r)]
+        hosts.append({
+            "name": target.get("name", ""),
+            "ip": target.get("ip", ""),
+            "role": " + ".join(roles) or "node",
+            "local": bool(target.get("local")),
+            "up": up,
+            "rtt": rtt,
+            "error": error,
+        })
+    return hosts, None
+
+
 # --- render -----------------------------------------------------------------
 
 VERDICT_STYLE = {
@@ -283,6 +355,10 @@ def _badge(verdict):
 
 def _row(cells):
     return "<tr>" + "".join(f"<td>{c}</td>" for c in cells) + "</tr>"
+
+
+def _head_row(cells):
+    return "<tr>" + "".join(f"<th>{c}</th>" for c in cells) + "</tr>"
 
 
 def render_html(report):
@@ -312,7 +388,8 @@ def render_html(report):
         "code{background:#eaeef2;padding:.1rem .3rem;border-radius:4px}",
         "</style></head><body>",
         "<h1>Service-status malandro</h1>",
-        "<p class='sub'>soll (Nix-config) × ist (live) — live per request</p>",
+        "<p class='sub'>soll (Nix-config) × ist (live) — live per request · "
+        "<a href='/nebula'>Nebula-status</a></p>",
         "<p class='sum'>",
         f"<span style='color:#1a7f37'>✓ {s[HEALTHY]} gezond</span>",
         f"<span style='color:#cf222e'>✗ {s[BROKEN]} kapot</span>",
@@ -367,6 +444,57 @@ def render_html(report):
     return "".join(parts)
 
 
+def render_nebula_html(hosts, error=None):
+    up = sum(1 for h in hosts if h["up"])
+    parts = [
+        "<!DOCTYPE html><html lang='nl'><head><meta charset='utf-8'>",
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>",
+        "<title>Nebula-status — malandro</title>",
+        "<style>",
+        "body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;",
+        "background:#f6f8fa;color:#1f2328;margin:0;padding:2rem}",
+        "h1{font-size:1.5rem;margin:0 0 .25rem}",
+        ".sub{color:#57606a;margin:0 0 1.5rem;font-size:.9rem}",
+        "table{border-collapse:collapse;width:100%;background:#fff;",
+        "border:1px solid #d0d7de;border-radius:6px;overflow:hidden}",
+        "th,td{text-align:left;padding:.5rem .75rem;border-bottom:1px solid #eaeef2;",
+        "font-size:.9rem}",
+        "th{background:#f6f8fa;font-weight:600}",
+        "tr:last-child td{border-bottom:none}",
+        ".badge{color:#fff;padding:.1rem .5rem;border-radius:999px;",
+        "font-size:.8rem;white-space:nowrap}",
+        "code{background:#eaeef2;padding:.1rem .3rem;border-radius:4px}",
+        "a{color:#0969da}",
+        "</style></head><body>",
+        "<h1>Nebula-mesh toorren</h1>",
+        "<p class='sub'>live gemeten bij openen van deze pagina — "
+        f"{up}/{len(hosts)} online · <a href='/'>service-status</a></p>",
+    ]
+    if error:
+        parts.append(f"<p class='sub'>Let op: <code>{html.escape(error)}</code></p>")
+    parts.append("<table>")
+    parts.append(_head_row(["Host", "Rol", "Nebula-IP", "Status", "RTT"]))
+    for h in hosts:
+        if h["local"]:
+            badge = "<span class='badge' style='background:#57606a'>● lokaal</span>"
+        elif h["up"]:
+            badge = "<span class='badge' style='background:#1a7f37'>✓ online</span>"
+        else:
+            badge = "<span class='badge' style='background:#cf222e'>✗ offline</span>"
+        if h["error"]:
+            badge += f" <span class='sub'>({html.escape(h['error'])})</span>"
+        rtt = f"{h['rtt']:.1f} ms" if h["up"] and h["rtt"] is not None else "—"
+        parts.append(_row([
+            html.escape(h["name"]),
+            html.escape(h["role"]),
+            f"<code>{html.escape(h['ip'])}</code>",
+            badge,
+            rtt,
+        ]))
+    parts.append("</table></body></html>")
+    return "".join(parts)
+
+
 # --- http -------------------------------------------------------------------
 
 class Handler(BaseHTTPRequestHandler):
@@ -384,6 +512,15 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):  # noqa: N802 - stdlib API
         path = self.path.split("?", 1)[0]
+        if path == "/nebula":
+            # Alleen hier en nu pingen; geen achtergrondpoll en geen JSON-variant.
+            try:
+                hosts, error = collect_nebula()
+                body = render_nebula_html(hosts, error)
+            except Exception as exc:  # noqa: BLE001 - laatste vangnet
+                body = render_nebula_html([], str(exc))
+            self._send(200, body, "text/html; charset=utf-8")
+            return
         try:
             report = build_report()
         except Exception as exc:  # noqa: BLE001 - laatste vangnet
