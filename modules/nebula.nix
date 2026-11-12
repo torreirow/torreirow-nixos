@@ -198,6 +198,10 @@ in
         # relay nodig; dat lost een vaste poort niet op.
         listen.port = 4242;
         settings.punchy = { punch = true; respond = true; };
+        # Grotere UDP-socketbuffers. Met de kernel-default (208 KiB) liep de buffer op mpenzi
+        # over bij een `nix copy` vanaf lobos (RcvbufErrors, ~0,7% verlies): TCP door de tunnel
+        # haalde 8-11 Mbit/s tegen 81 Mbit/s direct over het LAN (gemeten 2026-11-12).
+        settings.listen = { read_buffer = 10485760; write_buffer = 10485760; };
         firewall = {
           outbound = [{ port = "any"; proto = "any"; host = "any"; }];
           # ICMP en ssh staan op elke host open voor de hele mesh, voor beheer over en weer.
@@ -214,6 +218,9 @@ in
       # NetworkManager liet de tun-interface "disconnected" staan en haalde er het adres
       # van af (lobos, 2026-11-12): de service draaide door, maar zonder IP/route geen mesh.
       # Nebula beheert zijn eigen adres; NM blijft eraf. mkIf: malandro/farol hebben geen NM.
+      # Nebula vraagt 10 MiB socketbuffers (zie settings.listen); de kernel kapt af op *_max.
+      boot.kernel.sysctl."net.core.rmem_max" = lib.mkDefault 10485760;
+      boot.kernel.sysctl."net.core.wmem_max" = lib.mkDefault 10485760;
       networking.networkmanager.unmanaged =
         lib.mkIf config.networking.networkmanager.enable [ "interface-name:nebula.*" ];
       # Underlay-poort open op elke host (de nixpkgs-module doet dat niet zelf). Nebula neemt
