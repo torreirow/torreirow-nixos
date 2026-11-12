@@ -70,6 +70,7 @@
  ../../modules/immich-ml-catchup
  ../../modules/torrlinny.nix
  ../../modules/linny-mcp.nix
+ ../../modules/dindoa.nix
  ../../modules/grainwork.nix
  ../../modules/nebula.nix
  ./malandro-secrets.nix

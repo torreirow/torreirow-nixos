@@ -7,6 +7,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **dindoa: wedstrijdagenda van Boaz (J4) op `toorren.net/dindoa`** (`modules/dindoa.nix`, flake-input
+  `dindoa`). `dindoa-boaz.timer` genereert de ics op maandag en donderdag om 06:00, met een foutmail
+  via postfix/SES. Een Apps Script (`docs/dindoa/`) zet de feed elk uur over in de eigen
+  Google-agenda. Zie `docs/dindoa.md`.
 - **farol: Nebula-lighthouse op AWS EC2** (`hosts/farol/`, `modules/nebula.nix`). `t3a.nano`
   in `eu-central-1` op de officiële NixOS-AMI, Elastic IP `18.184.203.107` en
   `farol.toorren.net` (A, TTL 60), eigen certificaat (`10.77.0.4`). `lighthouses = [ "farol"

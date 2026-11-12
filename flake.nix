@@ -24,6 +24,8 @@
     linny-web.url = "github:torreirow/linny-web-theme";
     linny-mcp.url = "github:torreirow/linny-mcp-server";
     linny-mcp.inputs.nixpkgs.follows = "nixpkgs";
+    dindoa.url = "github:torreirow/dindoa";
+    dindoa.inputs.nixpkgs.follows = "nixpkgs";
     specgetty.url = "github:mipmip/specgetty";
     soltty.url = "github:torreirow/soltty";
     ragenx.url = "github:torreirow/ragenx/v0.2.0";
@@ -57,7 +59,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp, huphop, lif, wayle-src}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp, dindoa, huphop, lif, wayle-src}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -211,6 +213,7 @@
         agenix.nixosModules.default
         inputs.linny-web.nixosModules.linny-web
         inputs.linny-mcp.nixosModules.linny-mcp
+        inputs.dindoa.nixosModules.default
         # Immich uit unstable (3.x): 26.05 heeft alleen 2.7.5, dat geen updates meer krijgt
         # en als insecure gemarkeerd is. Module en pakket komen samen uit dezelfde input.
         {

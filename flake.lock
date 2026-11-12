@@ -101,6 +101,26 @@
         "type": "github"
       }
     },
+    "dindoa": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794519876,
+        "narHash": "sha256-KjokL2mTZ9Z+n2x05nM+uIpYn5EHf9X4ECE3RaR+4EM=",
+        "owner": "torreirow",
+        "repo": "dindoa",
+        "rev": "4f76756475a7a23b6bbaecf760e2cdfcc582cfa6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "torreirow",
+        "repo": "dindoa",
+        "type": "github"
+      }
+    },
     "dirty-repo-scanner": {
       "inputs": {
         "nixpkgs": "nixpkgs_4"
@@ -906,6 +926,7 @@
         "agenix": "agenix",
         "bmc": "bmc",
         "brigit": "brigit",
+        "dindoa": "dindoa",
         "dirty-repo-scanner": "dirty-repo-scanner",
         "home-manager": "home-manager",
         "homeage": "homeage",
