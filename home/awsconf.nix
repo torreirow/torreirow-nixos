@@ -77,7 +77,7 @@ groups = {
   technative.shortname = "tn";
   innofaith.color="03a5fc";
   innofaith.shortname="inf";
-  innofaith.ignore = true;
+  innofaith.ignore = false;
 };
 
 account_names = {
