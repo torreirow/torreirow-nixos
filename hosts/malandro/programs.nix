@@ -90,7 +90,6 @@
     translate-shell
     vista-fonts
     vlc
-    vscode
     wget
     xclip
     xbacklight

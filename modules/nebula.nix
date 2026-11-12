@@ -1,4 +1,4 @@
-# Nebula-mesh "toorren": lighthouse malandro, nodes lobos en mpenzi (zie docs/mpenzi.md).
+# Nebula-mesh "toorren": lighthouses (primair + backup) en nodes (zie docs/mpenzi.md).
 #
 # Alleen eigen overlay-verkeer over 10.77.0.0/24; het gewone internetverkeer van een host
 # loopt er niet doorheen. Het host-adres en de inbound-regels staan centraal in `hosts`
@@ -14,13 +14,26 @@ let
   netName = "toorren";
   host = config.networking.hostName;
 
-  lighthouse = "malandro";
+  # Lighthouses in voorkeursorde. Nebula kent geen echte prioriteit — elke node vraagt
+  # ze allemaal — maar hier staat de altijd-aan primaire (farol, EC2) vooraan en malandro
+  # als backup. Valt farol weg, dan pakken nodes malandro.
+  lighthouses = [ "farol" "malandro" ];
+
+  # Eén relay voor nodes die achter NAT/CGNAT geen directe tunnel krijgen. Bewust niet
+  # elke lighthouse: relayen kost egress (op EC2 $0,09/GB).
+  relayHost = "malandro";
 
   # IP per host plus de extra inbound-regels bovenop ICMP en ssh (die gelden op elke host,
   # zie `firewall.inbound`). Nebula-firewall matcht op de naam in het certificaat (`host`),
-  # dus `nebula-cert sign -name lobos` is hier lobos.
+  # dus `nebula-cert sign -name lobos` is hier lobos. `endpoints` zijn de underlay-adressen
+  # waarop andere hosts een lighthouse bereiken; alleen lighthouses hebben die nodig.
   hosts = {
-    malandro = { ip = "10.77.0.1"; inbound = [ ]; };
+    malandro = {
+      ip = "10.77.0.1";
+      # LAN eerst (thuis, geen NAT-hairpin nodig), daarna het publieke adres.
+      endpoints = [ "192.168.2.52:4242" "wg.toorren.net:4242" ];
+      inbound = [ ];
+    };
     lobos = {
       ip = "10.77.0.2";
       inbound = [
@@ -33,10 +46,31 @@ let
         { port = 21118; proto = "tcp"; host = "lobos"; }   # RustDesk direct IP
       ];
     };
+    farol = {
+      # AWS EC2 (eu-central-1, t3a.nano); altijd-aan lighthouse. Komt in `lighthouses`
+      # zodra het certificaat er is.
+      ip = "10.77.0.4";
+      endpoints = [ "farol.toorren.net:4242" ];
+      inbound = [ ];
+    };
   };
 
-  isLighthouse = host == lighthouse;
-  lighthouseIp = hosts.${lighthouse}.ip;
+  isLighthouse = builtins.elem host lighthouses;
+  isRelay = host == relayHost;
+
+  # De andere lighthouses: nodes vragen hen naar hosts, en dit is de static_host_map
+  # waarmee elke host ze kan bereiken (een naam mag, Nebula resolvet hem periodiek).
+  otherLighthouses = builtins.filter (n: n != host) lighthouses;
+  lighthouseIps = map (n: cfg.hosts.${n}.ip) otherLighthouses;
+  # Endpoints per lighthouse: de tabel hierboven is de default, deze optie kan ze per
+  # host overschrijven (de VM-test doet dat, want daar is het adres dynamisch).
+  endpointsOf = n:
+    if cfg.lighthouseEndpoints ? ${n} then cfg.lighthouseEndpoints.${n}
+    else cfg.hosts.${n}.endpoints;
+  lighthouseMap = lib.listToAttrs (map
+    (n: lib.nameValuePair cfg.hosts.${n}.ip (endpointsOf n))
+    (builtins.filter (n: endpointsOf n != [ ]) otherLighthouses));
+  relayIp = cfg.hosts.${relayHost}.ip;
 
   ageFiles = {
     ca = ../secrets/nebula-ca.crt.age;
@@ -62,11 +96,53 @@ in
   options.toorren.nebula = {
     enable = lib.mkEnableOption "de Nebula-mesh toorren";
 
-    lighthouseEndpoints = lib.mkOption {
+    # De tabel staat hier zodat andere modules (de statuspagina op malandro) niet
+    # een tweede kopie van de IP's hoeft bij te houden. `internal` houdt hem uit
+    # de documentatie; de waarden zijn gewoon leesbaar via `config`.
+    hosts = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule {
+        options = {
+          ip = lib.mkOption { type = lib.types.str; };
+          endpoints = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+            description = "Underlay-adressen (host:poort) waarop deze lighthouse bereikbaar is.";
+          };
+          inbound = lib.mkOption {
+            type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
+            default = [ ];
+          };
+        };
+      });
+      default = hosts;
+      internal = true;
+      description = "Hosts in de mesh met hun Nebula-IP, lighthouse-endpoints en inbound-regels.";
+    };
+
+    # Alleen-lezen spiegels van de let-bindings hierboven, voor de rol-kolom op de
+    # statuspagina. Aanpassen gebeurt in het let-blok, niet via deze opties.
+    lighthouses = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      # LAN-adres eerst (thuis, geen NAT-hairpin nodig), daarna het publieke adres.
-      default = [ "192.168.2.52:4242" "wg.toorren.net:4242" ];
-      description = "Underlay-adressen (host:poort) waarop de lighthouse bereikbaar is.";
+      default = lighthouses;
+      readOnly = true;
+      internal = true;
+    };
+
+    relayHost = lib.mkOption {
+      type = lib.types.str;
+      default = relayHost;
+      readOnly = true;
+      internal = true;
+    };
+
+    lighthouseEndpoints = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.listOf lib.types.str);
+      default = { };
+      description = ''
+        Per lighthouse (hostnaam) de underlay-adressen waarop hij bereikbaar is.
+        Overschrijft de `endpoints` uit de hosts-tabel; bedoeld voor tests en
+        omgevingen waar het adres niet vaststaat.
+      '';
     };
 
     pki = lib.mkOption {
@@ -81,10 +157,16 @@ in
 
   config = lib.mkIf cfg.enable (lib.mkMerge [
     {
-      assertions = [{
-        assertion = hosts ? ${host};
-        message = "toorren.nebula: host '${host}' staat niet in de hosts-tabel van modules/nebula.nix.";
-      }];
+      assertions = [
+        {
+          assertion = cfg.hosts ? ${host};
+          message = "toorren.nebula: host '${host}' staat niet in de hosts-tabel van modules/nebula.nix.";
+        }
+        {
+          assertion = lib.all (n: cfg.hosts ? ${n} && endpointsOf n != [ ]) lighthouses;
+          message = "toorren.nebula: elke lighthouse in `lighthouses` moet in de hosts-tabel staan met een niet-lege `endpoints`-lijst.";
+        }
+      ];
       warnings = lib.optional (!active)
         "toorren.nebula: secrets/nebula-{ca,${host}}.*.age ontbreken; Nebula staat uit tot de certificaten er zijn (zie docs/mpenzi.md).";
     }
@@ -103,12 +185,13 @@ in
       services.nebula.networks.${netName} = {
         enable = true;
         inherit (pki) ca cert key;
-        inherit isLighthouse;
-        # malandro is ook relay, voor als twee laptops achter NAT elkaar niet direct vinden.
-        isRelay = isLighthouse;
-        lighthouses = lib.optional (!isLighthouse) lighthouseIp;
-        relays = lib.optional (!isLighthouse) lighthouseIp;
-        staticHostMap = { ${lighthouseIp} = cfg.lighthouseEndpoints; };
+        inherit isLighthouse isRelay;
+        # Elke host vraagt alle lighthouses (behalve zichzelf) en kan ze via de
+        # static_host_map bereiken; `relays` is één host, zodat nodes achter CGNAT
+        # niet van elke lighthouse een relay maken.
+        lighthouses = lighthouseIps;
+        relays = lib.optional (!isRelay) relayIp;
+        staticHostMap = lighthouseMap;
         # Alle hosts luisteren vast op 4242. Met een willekeurige poort (0) hield de host-firewall
         # van de nodes de eerste pakketten tegen, waardoor lobos en mpenzi zelfs op hetzelfde LAN
         # pas na 5-8 s via de relay verbonden (gemeten 2026-11-04). Achter CGNAT (5G) blijft de
@@ -121,7 +204,7 @@ in
           inbound = [
             { port = "any"; proto = "icmp"; host = "any"; }
             { port = 22; proto = "tcp"; host = "any"; }
-          ] ++ hosts.${host}.inbound;
+          ] ++ cfg.hosts.${host}.inbound;
         };
       };
 

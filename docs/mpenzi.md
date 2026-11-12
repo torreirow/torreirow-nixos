@@ -53,17 +53,29 @@ bestaand account, dan heeft dat account al een eigen waarde in `~/.config/<besta
 
 ## Nebula-mesh
 
-| Host     | Nebula-IP | Rol                       | Inbound (naast ICMP + ssh) |
-|----------|-----------|---------------------------|----------------------------|
-| malandro | 10.77.0.1 | lighthouse + relay (4242) | geen                       |
-| lobos    | 10.77.0.2 | node                      | tcp 3003 van malandro      |
-| mpenzi   | 10.77.0.3 | node                      | tcp 21118 van lobos        |
+| Host     | Nebula-IP | Rol                          | Inbound (naast ICMP + ssh) |
+|----------|-----------|------------------------------|----------------------------|
+| farol    | 10.77.0.4 | lighthouse (primair, EC2)    | geen                       |
+| malandro | 10.77.0.1 | lighthouse (backup) + relay  | geen                       |
+| lobos    | 10.77.0.2 | node                         | tcp 3003 van malandro      |
+| mpenzi   | 10.77.0.3 | node                         | tcp 21118 van lobos        |
 
 - ICMP en ssh (tcp 22) staan op elke host open voor de hele mesh, voor beheer over en weer.
+- Status: `https://status.toorren.net/nebula` (achter Authelia) pingt de drie hosts op het
+  moment dat de pagina opent — geen achtergrondpoll, dus een momentopname, geen historie. De
+  lijst komt uit de `hosts`-tabel hierboven (via de interne optie `toorren.nebula.hosts`).
 - Het beleid staat in de `hosts`-tabel bovenin `modules/nebula.nix`. Een host erbij: regel
   toevoegen, cert maken, module importeren.
-- Lighthouse-adressen: eerst `192.168.2.52:4242` (thuis, geen hairpin), daarna
-  `wg.toorren.net:4242`.
+- **Lighthouses** staan in de lijst `lighthouses` (eerste = primair, rest backup) en hun
+  underlay-adressen in `endpoints` per host. Nebula kent geen prioriteit: elke node vraagt ze
+  allemaal, dus een dode primaire valt vanzelf terug op de backup. `relayHost` is één host
+  (malandro); relayen kost egress, dus farol is bewust geen relay.
+- Farol is een `t3a.nano` in `eu-central-1` met Elastic IP `18.184.203.107` en
+  `farol.toorren.net` (A, TTL 60). Deployen: `nixos-rebuild switch --flake .#farol
+  --target-host root@farol.toorren.net`. Omdat het adres een EIP is, is er geen DNS-updater
+  nodig — ook niet met de zone in een ander AWS-account.
+- Malandro's endpoints: eerst `192.168.2.52:4242` (thuis, geen hairpin), daarna
+  `wg.toorren.net:4242`. Een endpoint mag een DNS-naam zijn; Nebula her-resolvet hem periodiek.
 - De host-firewall vertrouwt `nebula.toorren`; de Nebula-firewall is de enige poortwachter. Op
   wifi/LAN gaat niets extra open.
 - **Tunnel dood na een herstart van Nebula.** Starten malandro en lobos op hetzelfde moment elk

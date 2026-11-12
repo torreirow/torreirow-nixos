@@ -7,6 +7,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## NEXT VERSION
 
 ### Added
+- **farol: Nebula-lighthouse op AWS EC2** (`hosts/farol/`, `modules/nebula.nix`). `t3a.nano`
+  in `eu-central-1` op de officiële NixOS-AMI, Elastic IP `18.184.203.107` en
+  `farol.toorren.net` (A, TTL 60), eigen certificaat (`10.77.0.4`). `lighthouses = [ "farol"
+  "malandro" ]`: farol primair, malandro backup; relay blijft malandro. Bijwerken met
+  `nixos-rebuild switch --flake .#farol --target-host root@farol.toorren.net`.
+- **Nebula: meerdere lighthouses** (`modules/nebula.nix`). `lighthouses` is nu een lijst
+  (eerste = primair, rest backup) met per host een `endpoints`-lijst; `relayHost` staat los
+  van het lighthouse-zijn, zodat een tweede lighthouse geen relay (en dus geen egress) wordt.
+  Gedrag met alleen malandro is ongewijzigd; de VM-test overschrijft het dynamische adres via
+  `toorren.nebula.lighthouseEndpoints`.
+- **Nebula-statuspagina op malandro** (`modules/status-page.py`, `modules/status-page.nix`).
+  `https://status.toorren.net/nebula` pingt de drie mesh-hosts (ICMP, 1s timeout) op het
+  moment dat de pagina opent — geen achtergrondpoll, geen extra service of poort. De hosts
+  komen uit de `hosts`-tabel van `modules/nebula.nix`; die tabel is nu als interne optie
+  `toorren.nebula.hosts` leesbaar.
 - **Atuin Threads op lobos en malandro** (`home/shell-tools.nix`). De atuin-daemon legt de sessies
   van AI-agents (Claude Code, opencode, codex) vast in de encrypted record store, inclusief
   tool-calls (secrets geredigeerd). Via sync zijn ze op beide machines te doorzoeken met

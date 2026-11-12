@@ -38,6 +38,12 @@
       inputs.nixpkgs.follows = "unstable";
     };
     walker.url = "github:abenz1267/walker";
+    # Eigen wayle-fork, gepind in flake.lock: home-manager bouwt hem alleen opnieuw na
+    # `nix flake update wayle-src` (zie overlays/wayle.nix).
+    wayle-src = {
+      url = "github:torreirow/wayle";
+      flake = false;
+    };
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -51,7 +57,7 @@
 
 
 
-  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp, huphop, lif}:
+  outputs = inputs@{ self, nixpkgs, unstable, home-manager, agenix, nixvim, bmc, homeage, dirty-repo-scanner, race, brigit, jsonify-aws-dotfiles, nixpkgs-2505, nixpkgs-2511, nixpkgs-luca, openspec, teejay, parsh, specgetty, soltty, ragenx, rme, walker, solidtime-waybar, hyprquickframe, rbw, linny-web, linny-mcp, huphop, lif, wayle-src}:
   let 
     system = "x86_64-linux";
     extraPkgs= { pkgs, ...}: {
@@ -237,6 +243,19 @@
     };
 ### MPENZI config END
 
+  ## FAROL config START
+  # AWS EC2 lighthouse (eu-central-1, t3a.nano): officiële NixOS-AMI, bijgewerkt met
+  # `nixos-rebuild switch --flake .#farol --target-host root@farol.toorren.net`.
+  # Geen home-manager of overlays: alleen sshd, nix en Nebula.
+  nixosConfigurations.farol = nixpkgs.lib.nixosSystem {
+    modules = [
+      "${nixpkgs}/nixos/modules/virtualisation/amazon-image.nix"
+      agenix.nixosModules.default
+      ./hosts/farol/configuration.nix
+    ];
+  };
+  ### FAROL config END
+
   ### LINUX HOMEMANAGER START ROOT
   homeConfigurations."root@linuxdesktop" = home-manager.lib.homeManagerConfiguration(
     let
@@ -306,7 +325,7 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [(final: prev: { rbw = inputs.rbw.packages.${system}.rbw; }) (import ./overlays) (import ./overlays/cooklang.nix) (import ./overlays/wayle.nix) (import ./overlays/hyprlock.nix)];
+        overlays = [(final: prev: { rbw = inputs.rbw.packages.${system}.rbw; }) (import ./overlays) (import ./overlays/cooklang.nix) (import ./overlays/wayle.nix wayle-src) (import ./overlays/hyprlock.nix)];
       };
 
       linux-defaults = {pkgs,config,homeage,...}: {

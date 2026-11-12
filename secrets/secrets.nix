@@ -11,6 +11,10 @@ let
   nonprod = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMRZYXbx6yNqp7wCxztD2pHILbe+Kou+s15GnNaq0+b1";
 
   systems = [ nonprod prod wtoorren_workstation malandro_workstation];
+
+  # farol: AWS EC2 lighthouse (eu-central-1). Alleen recipient van het CA-certificaat
+  # en zijn eigen cert/key, niet van de rest van de secrets.
+  farol = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIDSbNwW9zXKKMIv6bZ9rQSw3D7tKNtOs6z35fNHBTbm";
   
 in
 
@@ -158,13 +162,15 @@ in
 
   # Nebula-mesh toorren (modules/nebula.nix, docs/mpenzi.md). Alleen het CA-certificaat, nooit
   # de CA-sleutel (die staat in Vaultwarden). Per host alleen die host + users als recipient.
-  "nebula-ca.crt.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation mpenzi ];
+  "nebula-ca.crt.age".publicKeys       = users ++ [ wtoorren_workstation malandro_workstation mpenzi farol ];
   "nebula-malandro.crt.age".publicKeys = users ++ [ malandro_workstation ];
   "nebula-malandro.key.age".publicKeys = users ++ [ malandro_workstation ];
   "nebula-lobos.crt.age".publicKeys    = users ++ [ wtoorren_workstation ];
   "nebula-lobos.key.age".publicKeys    = users ++ [ wtoorren_workstation ];
   "nebula-mpenzi.crt.age".publicKeys   = users ++ [ mpenzi ];
   "nebula-mpenzi.key.age".publicKeys   = users ++ [ mpenzi ];
+  "nebula-farol.crt.age".publicKeys    = users ++ [ farol ];
+  "nebula-farol.key.age".publicKeys    = users ++ [ farol ];
 
   # Spotify-login van Maaike op mpenzi (epic nixos-kzxu): volledige prefs incl. autologin-token,
   # landt via agenix op /home/maaike/.config/spotify/prefs. Alleen mpenzi + users.

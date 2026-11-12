@@ -23,7 +23,7 @@ let
     imports = [ ./nebula.nix ];
     toorren.nebula = {
       enable = true;
-      lighthouseEndpoints = [ "${nodes.malandro.networking.primaryIPAddress}:4242" ];
+      lighthouseEndpoints.malandro = [ "${nodes.malandro.networking.primaryIPAddress}:4242" ];
       pki = { ca = "${pki}/ca.crt"; cert = "${pki}/${name}.crt"; key = "${pki}/${name}.key"; };
     };
     environment.systemPackages = [ pkgs.netcat ];
