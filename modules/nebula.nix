@@ -211,6 +211,11 @@ in
       # De Nebula-firewall hierboven is de poortwachter voor de overlay; de host-firewall
       # vertrouwt de tun-interface zodat er geen tweede, afwijkende regelset ontstaat.
       networking.firewall.trustedInterfaces = [ "nebula.${netName}" ];
+      # NetworkManager liet de tun-interface "disconnected" staan en haalde er het adres
+      # van af (lobos, 2026-11-12): de service draaide door, maar zonder IP/route geen mesh.
+      # Nebula beheert zijn eigen adres; NM blijft eraf. mkIf: malandro/farol hebben geen NM.
+      networking.networkmanager.unmanaged =
+        lib.mkIf config.networking.networkmanager.enable [ "interface-name:nebula.*" ];
       # Underlay-poort open op elke host (de nixpkgs-module doet dat niet zelf). Nebula neemt
       # alleen handshakes met een certificaat van de eigen CA aan.
       networking.firewall.allowedUDPPorts = [ 4242 ];
