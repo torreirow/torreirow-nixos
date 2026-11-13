@@ -195,6 +195,60 @@ curl -s https://nxc.toorren.net/s/<token> | grep -o 'files_sharing-view" value="
   | sed 's/.*value="//' | base64 -d   # moet "public-file-drop" geven
 ```
 
+## Cap-server (capd)
+
+De captcha draait lokaal op malandro (`modules/cap.nix`), niet bij een derde partij.
+
+| Onderdeel | Waarde |
+|-----------|--------|
+| Image     | `tiago2/cap@sha256:e9cd4884…` (4.0.12); de server heet sinds v4 `capd` |
+| Store     | `cap-valkey` (valkey 9) in `/data/external/cap/valkey` — site-keys, secrets, sessies |
+| Events    | DuckDB in `/data/external/cap/events` (uid 1000), `DUCKDB_MEMORY_LIMIT=128MB` |
+| Poort     | `127.0.0.1:3009`; nginx doet TLS op `cap.toorren.net` |
+| Proxy     | nginx stuurt `X-Forwarded-For $remote_addr`; zet in het dashboard onder *Instance settings → Visitor location* de proxy op nginx, anders delen alle bezoekers één rate-limit-bucket |
+| Health    | `GET /health` (200 = Valkey bereikbaar), `GET /health/live` |
+| Admin     | dashboard op `https://cap.toorren.net` met `ADMIN_KEY` uit `cap-admin-key.age` (`/run/keys/wouter/cap-admin-key`) |
+
+De container gebruikt `VALKEY_URL` (v4; v3 heette dat `REDIS_URL`) en mount het event-volume op
+`/usr/src/app/data`. Zonder die mount is de analytics-historie weg bij elke container-herstart.
+
+### Site-secret roteren
+
+Het secret van een site-key staat alleen als hash in Valkey, dus een nieuwe waarde moet altijd in
+twee stappen:
+
+1. Dashboard → key openen → **Settings → Danger zone → Reset secret** (waarde wordt één keer getoond).
+2. Agenix bijwerken: `cap-mailer-secret.age` (mailer) of `CAP_SECRET` in `filedrop-env.age`, dan
+   `nixos-rebuild switch`. De mailer leest het bestand per request; **filedrop leest de env bij
+   start**, dus `sudo systemctl restart filedrop` als de switch hem niet al herstartte.
+
+Controleren zonder een captcha op te lossen: `POST /<key>/siteverify` met het secret en een
+nep-token. `{"error":"Token not found"}` (404) betekent dat het secret klopt; `403 Invalid site key
+or secret` betekent dat agenix nog de oude waarde heeft.
+
+## Cap upgraden of terugrollen
+
+Twee agenix-bestanden hangen aan Cap: `secrets/cap-mailer-secret.age` (contactmailer) en
+`CAP_SECRET` in `secrets/filedrop-env.age` (deze dienst). Beide horen bij een eigen site-key op
+`cap.toorren.net`.
+
+Terugrolpad na een Cap-upgrade:
+
+```bash
+# op malandro, vóór de upgrade: snapshot van Valkey (keys, secrets, sessies)
+sudo docker exec cap-valkey valkey-cli SAVE
+sudo cp /data/external/cap/valkey/dump.rdb /data/external/cap/backup-$(date +%F).rdb
+
+# terugrollen: digest in modules/cap.nix terugzetten, switch, en de snapshot terugplaatsen
+sudo install -o 999 -g 999 -m 600 /data/external/cap/backup-<datum>.rdb \
+  /data/external/cap/valkey/dump.rdb
+sudo nixos-rebuild switch --flake .#malandro
+```
+
+Een op Cap 4 geroteerd secret kan Cap 3 niet lezen: na een terugrol moeten beide secrets opnieuw
+gezet worden (in het dashboard van de draaiende versie) en daarna in `cap-mailer-secret.age` en
+`filedrop-env.age`, gevolgd door een `switch`.
+
 ## Als opslaan mislukt
 
 bobadela1, en daarmee Nextcloud, staat elke nacht van 23:00 tot 09:00 (zondag 08:00) uit. De proxy op

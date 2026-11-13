@@ -3,12 +3,14 @@
 # Cap — self-hosted, privacy-first proof-of-work CAPTCHA (https://trycap.dev).
 # Bedoeld als vervanger van Cloudflare Turnstile in modules/mailer.nix.
 #
-# Opzet (spike):
-#   - cap        : de standalone server (Bun), image tiago2/cap:latest, poort 3000
-#   - cap-valkey : Valkey 9 (Redis-compatible) store voor challenges/tokens/site-keys
+# Opzet:
+#   - cap        : de standalone server (Bun, heet sinds v4 `capd`), image tiago2/cap, poort 3000
+#   - cap-valkey : Valkey 9 (Redis-compatible) store voor challenges/tokens/site-keys/sessies
 #   Beide draaien op een eigen docker-netwerk `cap-net` zodat cap Valkey via de
 #   containernaam kan bereiken. Valkey heeft een persistent volume, want de
 #   site-key + secret worden dáár bewaard (anders ben je ze kwijt bij een restart).
+#   Sinds v4 schrijft capd events (analytics) naar DuckDB in DATA_DIR; dat pad is
+#   een eigen volume, anders is de historie weg bij elke container-herstart.
 #
 # BOOTSTRAP (eenmalig, imperatief — Cap kent geen declaratieve key-provisioning):
 #   1. Deploy deze module + het cap-admin-key secret, rebuild op malandro.
@@ -38,6 +40,8 @@ in
     # beschrijfbaar zijn, anders faalt de RDB-snapshot (Permission denied) en
     # blokkeert Valkey alle writes (stop-writes-on-bgsave-error).
     "d ${dataDir}/valkey 0755 999 999 - -"
+    # capd draait als uid 1000 (bun) en schrijft DuckDB + IP-databases in DATA_DIR.
+    "d ${dataDir}/events 0755 1000 1000 - -"
   ];
 
   # Maak het user-defined netwerk aan zodat containers elkaar op naam vinden.
@@ -66,14 +70,21 @@ in
       };
 
       cap = {
-        # Gepind op de build van 2026-10-12: de build van 2026-11-09 crasht op
-        # malandro's Celeron J3455 met "Illegal instruction" (Bun vereist AVX).
-        # Pas bijwerken nadat een nieuwe build hier getest is.
-        image = "tiago2/cap@sha256:7327a1447d88f7ddd3304359e7095afb4efd00f1f9a1d5de2d00eb27715fa02b";
+        # Gepind op 4.0.12 (2026-11-12). De 4.0-build van 2026-11-09 crashte op
+        # malandro's Celeron J3455 met "Illegal instruction": niet Bun, maar de
+        # meegeleverde DuckDB 2.0 vereist AVX2+FMA. Sinds 4.0.10 gebruikt capd
+        # DuckDB 1.4.5, dat zonder AVX2 werkt. Pas bijwerken nadat een nieuwe
+        # build hier getest is.
+        image = "tiago2/cap@sha256:e9cd4884f35ca6bcedb6a27fa92be55813bfe64fe2cae93a084ec8d20e1aebd5";
         # Alleen op loopback; nginx doet TLS + reverse proxy.
         ports = [ "127.0.0.1:3009:3000" ];
+        volumes = [ "${dataDir}/events:/usr/src/app/data" ];
         environment = {
-          REDIS_URL = "redis://cap-valkey:6379";
+          # v4 hernoemde REDIS_URL naar VALKEY_URL; zonder deze regel valt capd
+          # terug op redis://localhost:6379 en werkt het zonder foutmelding niet.
+          VALKEY_URL = "redis://cap-valkey:6379";
+          # DuckDB-limiet (default 256MB) klein houden: malandro swapt al.
+          DUCKDB_MEMORY_LIMIT = "128MB";
         };
         extraOptions = [
           "--network=${netName}"
@@ -101,7 +112,10 @@ in
       extraConfig = ''
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # capd rate-limit per client-IP. De documentatie schrijft $remote_addr voor
+        # (niet $proxy_add_x_forwarded_for: dat is door de client aan te vullen) en
+        # vraagt daarnaast de proxy-instelling in het dashboard.
+        proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
       '';
     };

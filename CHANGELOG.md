@@ -81,6 +81,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Piano-soundfont en het commando `piano`, met PipeWire op lage latency voor live spelen met het
   Nektar Impact GX61-keyboard.
 
+### Changed
+- **Cap van 3.1.15 naar 4.0.12** (`modules/cap.nix`). De pin op de digest van 2026-10-12 was nodig
+  omdat elke 4.0-build met `Illegal instruction` crashte op malandro's Celeron J3455: niet Bun,
+  maar de meegeleverde DuckDB 2.0 vereist AVX2+FMA. Sinds 4.0.10 gebruikt capd DuckDB 1.4.5 en
+  draait het hier; getest vóór de upgrade (HTTP 200, 52 MB) en daarna (healthy, 199 MB).
+  - v4 hernoemt `REDIS_URL` naar `VALKEY_URL`; zonder die regel start capd zonder Valkey en zonder
+    foutmelding.
+  - Nieuw event-volume `/data/external/cap/events` → `/usr/src/app/data` (uid 1000) voor de
+    DuckDB-analytics, met `DUCKDB_MEMORY_LIMIT=128MB`.
+  - **Breaking**: v4 hasht secrets opnieuw, dus beide site-keys (`eaa5abea30` mailer,
+    `92c7e198d7` filedrop) zijn gereset en `cap-mailer-secret.age` + `CAP_SECRET` in
+    `filedrop-env.age` zijn bijgewerkt; dashboardsessies van v3 zijn vervallen.
+  - nginx stuurt nu `X-Forwarded-For $remote_addr` (was `$proxy_add_x_forwarded_for`, door de
+    client aan te vullen); de proxy moet in het dashboard onder *Visitor location* op nginx staan.
+  - Valkey-snapshot als terugweg staat in `docs/filedrop.md`, samen met het roteren van een
+    site-secret.
+
 ### Removed
 - **Restanten uit de repo**: de host `karlapi` uit `flake.nix` (de map bestond al niet meer, waardoor
   `nix flake check` faalde), `hosts/malandro.new/`, `hosts/mealhada/`, `hosts/lobos/programs.wouter`
