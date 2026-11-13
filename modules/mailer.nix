@@ -184,12 +184,12 @@ let
 
       // Verstuur via Postfix (lokale MTA)
       if ($soort === "signup") {
-          $subject = "Aanmelding: " . ($meetup !== "" ? $meetup : "meet-up") . " - " . $domain;
-          $body    = "Aanmelding voor: " . ($meetup !== "" ? $meetup : "(onbekende meet-up)") . "\n"
-                   . "Naam: $naam\nE-mail: $email\n\n$bericht";
+          $subject = "Signup: " . ($meetup !== "" ? $meetup : "meet-up") . " - " . $domain;
+          $body    = "Signup for: " . ($meetup !== "" ? $meetup : "(unknown meet-up)") . "\n"
+                   . "Name: $naam\nEmail: $email\n\n$bericht";
       } else {
-          $subject = "Contactformulier - " . $domain;
-          $body    = "Naam: $naam\nE-mail: $email\n\n$bericht";
+          $subject = "Contact form - " . $domain;
+          $body    = "Name: $naam\nEmail: $email\n\n$bericht";
       }
       $headers = implode("\r\n", [
           "From: noreply@toorren.net",
