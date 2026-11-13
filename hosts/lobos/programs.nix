@@ -157,7 +157,6 @@ environment.systemPackages = with pkgs; [
     # nixvim wordt toegevoegd via extraPkgs in flake.nix
     nerdfetch
     nmap
-    openai-whisper
     openssl
     pandoc
     pavucontrol
@@ -202,6 +201,9 @@ environment.systemPackages = with pkgs; [
     vista-fonts
     vlc
     wget
+    # meetrec transcribe: whisper.cpp met Vulkan-backend, dus op de 780M in
+    # plaats van PyTorch op de CPU.
+    whisper-cpp-vulkan
     zapzap
     xclip
     autocutsel

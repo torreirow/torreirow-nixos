@@ -42,6 +42,17 @@ let
 
   mergeScript = ./merge-transcripts.py;
 
+  # whisper.cpp leest ggml-modellen en nixpkgs levert die niet mee, dus hier een
+  # vastgepinde download. `large-v3-turbo` is hetzelfde model dat openai-whisper
+  # `turbo` noemt; f16 kost 1,6 GB in de store, maar past op deze iGPU volledig
+  # in het Vulkan-buffer en was in de meting vrijwel even snel als de q5_0-variant
+  # (5,5 s tegen 5,0 s op 60 s audio) -- dan liever het onverkorte model.
+  whisperModelDefault = pkgs.fetchurl {
+    name = "ggml-large-v3-turbo.bin";
+    url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin";
+    hash = "sha256-H8cPd0046xaZk6w5Huo1fvR8iHV+9y7llDh5t+jivGk=";
+  };
+
   # lib.escapeShellArg laat "veilige" strings ongequoteerd staan, waardoor
   # bijvoorbeeld `WHISPER_LANGUAGE=nl` ontstaat -- en `nl` is een commando, dus
   # shellcheck (SC2209) breekt de build. Altijd quoten dus.
@@ -70,8 +81,9 @@ let
       OPUS_CHANNELS=${shq cfg.opusChannels}
       MIX_WEIGHTS=${shq cfg.mixWeights}
       WHISPER_CMD=${shq cfg.whisperCommand}
-      WHISPER_MODEL=${shq cfg.whisperModel}
+      WHISPER_MODEL=${shq (toString cfg.whisperModel)}
       WHISPER_LANGUAGE=${shq cfg.whisperLanguage}
+      WHISPER_GPU=${if cfg.whisperGpu then "1" else "0"}
       ECHO_FILTER=${if cfg.echoFilter.enable then "1" else "0"}
       ECHO_WINDOW=${shq cfg.echoFilter.window}
       ECHO_THRESHOLD=${shq cfg.echoFilter.threshold}
@@ -404,20 +416,38 @@ let
         local dir
         dir=$(resolve_dir "''${1:-}")
         command -v "$WHISPER_CMD" >/dev/null 2>&1 \
-          || die "$WHISPER_CMD niet gevonden -- staat openai-whisper wel in systemPackages?"
+          || die "$WHISPER_CMD niet gevonden -- staat whisper-cpp-vulkan wel in systemPackages?"
+        [ -f "$WHISPER_MODEL" ] \
+          || die "whisper-model $WHISPER_MODEL ontbreekt -- zie services.meeting-record.whisperModel"
 
-        local track found=0
-        local args=()
+        local track found=0 wav args
         for track in anderen ik; do
           [ -f "$dir/$track.opus" ] || continue
           found=1
-          args=(--model "$WHISPER_MODEL" --output_format srt --output_dir "$dir")
+
+          # whisper.cpp leest zelf WAV/FLAC/MP3/OGG maar geen Opus, en wil 16 kHz
+          # mono: het model doet geen eigen herschaling. Tijdelijk bestand naast
+          # de opname, zodat een afgebroken run zichtbaar blijft in plaats van
+          # ergens in /tmp te verdwijnen.
+          wav="$dir/.$track.transcribe.wav"
+          ffmpeg -nostdin -v error -y -i "$dir/$track.opus" \
+            -ar 16000 -ac 1 -c:a pcm_s16le "$wav" \
+            || die "omzetten van $track.opus naar WAV mislukt"
+
+          args=(-m "$WHISPER_MODEL" -f "$wav" -osrt -of "$dir/$track")
           if [ -n "$WHISPER_LANGUAGE" ]; then
-            args+=(--language "$WHISPER_LANGUAGE")
+            args+=(-l "$WHISPER_LANGUAGE")
           fi
+          # Zonder -ng draait whisper.cpp op de eerste Vulkan-GPU; de vlag is er
+          # om te kunnen meten (en om terug te vallen als de driver dwarszit).
+          if [ "$WHISPER_GPU" != 1 ]; then
+            args+=(-ng)
+          fi
+
           echo "meetrec: transcriberen van $track.opus ..."
-          nice -n 15 ionice -c3 "$WHISPER_CMD" "$dir/$track.opus" "''${args[@]}" \
+          nice -n 15 ionice -c3 "$WHISPER_CMD" "''${args[@]}" \
             || die "whisper faalde op $track.opus"
+          rm -f "$wav"
         done
         [ "$found" = 1 ] || die "geen .opus-sporen in $dir -- is de opname gestopt?"
 
@@ -554,21 +584,40 @@ in
 
     whisperCommand = mkOption {
       type = types.str;
-      default = "whisper";
+      default = "whisper-cli";
       description = ''
         Commando voor transcriptie, gezocht op `$PATH`. Bewust geen pakket-optie:
         whisper is een closure van honderden MB's die je alleen bij `transcribe`
-        nodig hebt, en `openai-whisper` staat al in `hosts/lobos/programs.nix`.
+        nodig hebt, en `whisper-cpp-vulkan` staat al in `hosts/lobos/programs.nix`.
 
-        `whisper-cpp` en `whisper-ctranslate2` zitten ook in nixpkgs en zijn op CPU
-        een andere orde -- meten, niet aannemen.
+        Dit verwacht de CLI van whisper.cpp (`whisper-cli`), niet `openai-whisper`:
+        dat laatste draait via PyTorch en heeft op deze AMD-iGPU geen GPU-pad. De
+        module roept de CLI aan met `-m <model> -f <wav> -osrt -of <spoor>`.
+      '';
+    };
+
+    whisperGpu = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Laat whisper.cpp de eerste Vulkan-GPU gebruiken. Zet dit uit om op CPU te
+        draaien (de aanroep krijgt dan `-ng`), bijvoorbeeld om te meten of om terug
+        te vallen als een driver-update dwarszit.
       '';
     };
 
     whisperModel = mkOption {
-      type = types.str;
-      default = "turbo";
-      description = "Whisper-model. `turbo` is de standaard van openai-whisper zelf.";
+      type = types.either types.str types.path;
+      default = whisperModelDefault;
+      description = ''
+        Pad naar een ggml-model voor whisper.cpp. De standaard is
+        `ggml-large-v3-turbo` (f16, 1,6 GB), vastgepind op hash en daarmee gewoon
+        in de Nix-store; `turbo` is hetzelfde model dat openai-whisper aanbiedt.
+
+        Een lichter model kan met een eigen pad: `ggml-large-v3-turbo-q5_0.bin`
+        (547 MB) scheelde op de 780M maar ~10% tijd en is iets eerder geneigd
+        woorden weg te laten.
+      '';
     };
 
     whisperLanguage = mkOption {

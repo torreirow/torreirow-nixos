@@ -93,7 +93,8 @@ services.meeting-record = {
   # targetDir       = "~/Meetings";  # default
   # opusBitrate     = "32k";         # spraak; ~15 MB/uur per spoor
   # mixWeights      = "1 1";         # volgorde: anderen ik
-  # whisperModel    = "turbo";
+  # whisperModel    = "/nix/store/...-ggml-large-v3-turbo.bin";  # default: large-v3-turbo
+  # whisperGpu      = true;         # false = CPU (-ng)
   # whisperLanguage = "nl";
 };
 

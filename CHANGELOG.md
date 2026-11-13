@@ -82,6 +82,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Nektar Impact GX61-keyboard.
 
 ### Changed
+- **`meetrec transcribe` draait op de GPU via whisper.cpp/Vulkan** (`home/module/meeting-record`,
+  `hosts/lobos/programs.nix`). `openai-whisper` is PyTorch en heeft op de AMD 780M geen GPU-pad,
+  dus transcriptie liep volledig op de CPU (0,23× realtime). De module roept nu `whisper-cli` uit
+  `whisper-cpp-vulkan` aan, met `ggml-large-v3-turbo` (f16, vastgepind op hash, 1,6 GB in de
+  store). Gemeten op 60 s echte audio: **5,5 s** in plaats van 4 m 18 s (~11× realtime), kwaliteit
+  gelijk -- zelfde segmenten, tijdstempels op 20 ms na. Nieuwe opties `whisperModel` (pad naar een
+  ggml-model) en `whisperGpu` (`false` = `-ng`, terugval op CPU); Opus wordt voor whisper.cpp
+  eerst omgezet naar 16 kHz mono WAV.
 - **cckafe.com: cache-headers en gefingerprinte JS** (`modules/cckafe.nix`). De
   Hugo-site stuurt nu `Cache-Control` mee: `site.min.<hash>.css` en
   `app.min.<hash>.js` een jaar `immutable`, HTML `no-cache` (release.sh rsynct
@@ -105,6 +113,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     site-secret.
 
 ### Removed
+- **`openai-whisper` van lobos** (`hosts/lobos/programs.nix`): vervangen door `whisper-cpp-vulkan`
+  (zie *Changed*). Op malandro blijft het pakket staan.
 - **Restanten uit de repo**: de host `karlapi` uit `flake.nix` (de map bestond al niet meer, waardoor
   `nix flake check` faalde), `hosts/malandro.new/`, `hosts/mealhada/`, `hosts/lobos/programs.wouter`
   en de lege `modules/general-desktop.nix`. `system = "x86_64-linux"` staat nog maar één keer in

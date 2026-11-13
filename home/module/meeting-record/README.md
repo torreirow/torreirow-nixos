@@ -8,7 +8,8 @@ services.meeting-record = {
   # targetDir       = "~/Meetings";  # default
   # opusBitrate     = "32k";
   # mixWeights      = "1 1";         # volgorde: anderen ik
-  # whisperModel    = "turbo";
+  # whisperModel    = "/nix/store/...-ggml-large-v3-turbo.bin";  # default: large-v3-turbo
+  # whisperGpu      = true;          # false = CPU (-ng)
   # whisperLanguage = "nl";
   # echoFilter.enable    = true;    # zie "Overspraak van de speakers"
   # echoFilter.threshold = 0.65;
@@ -98,9 +99,43 @@ Encoden of transcriberen *tijdens* de call is een verkeerde ruil: deze 7840U zak
 aanhoudende last van ~5041 naar ~3418 MHz (zie change `throttle-nix-builds`), en beide draaien
 op normale prioriteit -- ze concurreren dus rechtstreeks met je gesprek.
 
-Gemeten op lobos: `whisper` met het `turbo`-model deed er **78 s** over voor 2 × 35 s audio op
-CPU (~1,1× realtime per spoor). `whisper-cpp` en `whisper-ctranslate2` zitten ook in nixpkgs en
-zijn een andere orde -- meten, niet aannemen.
+Gemeten op lobos: `openai-whisper` met het `turbo`-model deed er **78 s** over voor 2 × 35 s audio
+op CPU (~1,1× realtime per spoor) -- reden om transcriptie nooit tijdens het gesprek te draaien.
+Zie "Transcriptie op de GPU" hieronder voor wat het daarna is geworden.
+
+## Transcriptie op de GPU
+
+`meetrec transcribe` gebruikt de CLI van **whisper.cpp** (`whisper-cli`, met de Vulkan-backend),
+niet `openai-whisper`. Dat laatste draait via PyTorch en heeft op deze AMD 780M geen GPU-pad --
+geen CUDA, en ROCm is in nixpkgs geen begaanbare weg -- dus alles belandt op de CPU. whisper.cpp
+praat Vulkan, en RADV ziet de iGPU gewoon.
+
+Gemeten op lobos met `large-v3-turbo` op dezelfde 60 s audio uit een echte opname (780M,
+RADV/Mesa 26.1, 8 cores):
+
+| Opstelling                     | 60 s audio | t.o.v. realtime |
+|--------------------------------|------------|-----------------|
+| `openai-whisper` (PyTorch, CPU) | 4 m 18 s  | 0,23×           |
+| whisper.cpp `-ng` (CPU)         | 24 s      | 2,5×            |
+| whisper.cpp Vulkan, q5_0        | 5,0 s     | 12×             |
+| whisper.cpp Vulkan, f16         | 5,5 s     | 11×             |
+
+Een uur vergadering kost dus ~11 minuten voor beide sporen samen, in plaats van uren. Dat is de
+hele reden dat dit kon verhuizen: `transcribe` blijft een losse stap na het gesprek, maar je hoeft
+er niet meer omheen te plannen.
+
+De standaard is de **f16**-variant van 1,6 GB, vastgepind op hash in de module en dus gewoon in de
+Nix-store. Op een UMA-iGPU past het model volledig in het Vulkan-buffer (`Vulkan0 total size =
+1623.92 MB`), waardoor f16 nauwelijks trager is dan q5_0 (547 MB) -- en q5_0 liet op het
+proeffragment twee woorden weg. Kwaliteit weegt hier zwaarder dan 10% tijd.
+
+whisper.cpp leest zelf geen Opus, dus elk spoor wordt eerst omgezet naar 16 kHz mono WAV (tijdelijk
+bestand in de opnamemap, daarna opgeruimd). De SRT's die eruit komen zijn regel voor regel
+uitwisselbaar met die van `openai-whisper`: zelfde segmenten, tijdstempels op 20 ms na. Alleen de
+CLI-vlaggen verschillen, en dat is precies wat de module aanpast.
+
+Zit je ooit met een driver die dwarsligt: `whisperGpu = false` zet de aanroep terug op CPU (`-ng`),
+ongeveer 4× langzamer maar het werkt altijd.
 
 ## Het neemt nooit uit zichzelf op
 
