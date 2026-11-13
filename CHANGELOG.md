@@ -82,6 +82,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Nektar Impact GX61-keyboard.
 
 ### Changed
+- **cckafe.com: cache-headers en gefingerprinte JS** (`modules/cckafe.nix`). De
+  Hugo-site stuurt nu `Cache-Control` mee: `site.min.<hash>.css` en
+  `app.min.<hash>.js` een jaar `immutable`, HTML `no-cache` (release.sh rsynct
+  imperatief, dus een oude pagina mag niet blijven hangen) en fonts/afbeeldingen/
+  audio een week. Daarvoor fingerprint de site nu ook `app.js`; dat gebeurde in de
+  repo `cckafe-website`.
 - **Cap van 3.1.15 naar 4.0.12** (`modules/cap.nix`). De pin op de digest van 2026-10-12 was nodig
   omdat elke 4.0-build met `Illegal instruction` crashte op malandro's Celeron J3455: niet Bun,
   maar de meegeleverde DuckDB 2.0 vereist AVX2+FMA. Sinds 4.0.10 gebruikt capd DuckDB 1.4.5 en

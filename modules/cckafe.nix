@@ -18,6 +18,12 @@
 let
   # Statische Hugo-site met eigen 404-pagina (alleen via error_page, niet direct als
   # 200). Zolang 404.html ontbreekt valt nginx terug op zijn eigen 404.
+  #
+  # Caching: CSS en JS zijn door Hugo gefingerprint (`site.min.<hash>.css`,
+  # `app.min.<hash>.js`), dus die mogen een jaar immutable. De HTML krijgt
+  # `no-cache`: release.sh rsynct de site imperatief, en zonder dat blijft een
+  # oude pagina in de browsercache hangen. Fonts/afbeeldingen/audio hebben geen
+  # hash in de naam en krijgen daarom een week.
   hugoSite = root: {
     forceSSL = true;
     useACMEHost = "cckafe.com";
@@ -25,7 +31,18 @@ let
 
     locations."/" = {
       tryFiles = "$uri $uri/ =404";
+      extraConfig = ''
+        add_header Cache-Control "no-cache";
+      '';
     };
+
+    locations."~* \\.(css|js)$".extraConfig = ''
+      add_header Cache-Control "public, max-age=31536000, immutable";
+    '';
+
+    locations."~* \\.(woff2|png|jpe?g|webp|svg|ico|mp3)$".extraConfig = ''
+      add_header Cache-Control "public, max-age=604800";
+    '';
 
     locations."= /404.html".extraConfig = ''
       internal;
