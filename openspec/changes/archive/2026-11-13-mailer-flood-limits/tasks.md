@@ -27,15 +27,15 @@
 
 ## 3. Verificatie
 
-- [ ] 3.1 `sudo nixos-rebuild switch --flake .#malandro` en controleren dat de module
+- [x] 3.1 `sudo nixos-rebuild switch --flake .#malandro` en controleren dat de module
       bouwt en de pool herstart.
-- [ ] 3.2 Regen-test met `curl` vanaf één IP: 4× `contact` in een uur → de 4e geeft
+- [x] 3.2 Regen-test met `curl` vanaf één IP: 4× `contact` in een uur → de 4e geeft
       429; 31× `signup` → de 31e geeft 429; 9× POST → de 9e geeft 429.
-- [ ] 3.3 Zonder `soort`-veld: gedrag identiek aan voor de wijziging (3/10).
-- [ ] 3.4 Twee keer dezelfde `email` + `meetup` binnen 24 uur: tweede keer 200 zonder
+- [x] 3.3 Zonder `soort`-veld: gedrag identiek aan voor de wijziging (3/10).
+- [x] 3.4 Twee keer dezelfde `email` + `meetup` binnen 24 uur: tweede keer 200 zonder
       mail (controleren in `ratelimit.json` en postfix-log).
-- [ ] 3.5 `disabled` aanmaken → 503; verwijderen → weer 200.
-- [ ] 3.6 Controleren dat `ratelimit.json` geen leesbare IP-adressen bevat.
+- [x] 3.5 `disabled` aanmaken → 503; verwijderen → weer 200.
+- [x] 3.6 Controleren dat `ratelimit.json` geen leesbare IP-adressen bevat.
 
 ## Workflow follow-up
 
