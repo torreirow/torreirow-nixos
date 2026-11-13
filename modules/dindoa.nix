@@ -6,7 +6,7 @@
   services.dindoa = {
     outputDir = "/var/www/toorren.net/dindoa";
     group = "users"; # handmatig een bestand neerzetten blijft mogelijk
-    calendars.boaz = {
+    calendars.j4 = {
       team = "j4";
       email = "wvdtoorren@gmail.com";
     };

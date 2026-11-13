@@ -108,11 +108,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794519876,
-        "narHash": "sha256-KjokL2mTZ9Z+n2x05nM+uIpYn5EHf9X4ECE3RaR+4EM=",
+        "lastModified": 1794609876,
+        "narHash": "sha256-H9yuAI5TNubA/pBQKDqO5xyaZJQUMYpBtWQT8BoL3mw=",
         "owner": "torreirow",
         "repo": "dindoa",
-        "rev": "4f76756475a7a23b6bbaecf760e2cdfcc582cfa6",
+        "rev": "de4801bb8176ca46184e55d9ca9b6fa3cd8ebd8b",
         "type": "github"
       },
       "original": {

@@ -5,12 +5,13 @@
 // removed. Only events this script created are ever touched; they carry a
 // private extended property (TAG_KEY=TAG_VALUE).
 
-const FEED_URL = 'https://toorren.net/dindoa/dindoa-boaz.ics';
+const FEED_URL = 'https://toorren.net/dindoa/dindoa-j4.ics';
 const CALENDAR_ID = 'primary'; // or the calendar ID from its settings page
 const TAG_KEY = 'dindoa';
-const TAG_VALUE = 'boaz';
+const TAG_VALUE = 'j4';
 
 function sync() {
+  adoptOldTag_();
   const feed = fetchFeed_();
   const existing = listTagged_();
   const seen = new Set();
@@ -71,6 +72,26 @@ function fetchFeed_() {
   // season; refuse instead of deleting every match.
   if (events.length === 0) throw new Error('Feed contains no events; nothing changed');
   return events;
+}
+
+// Events created before the calendar was renamed from boaz to j4 carry the old
+// marker. Adopt them once, so they are updated instead of imported twice.
+function adoptOldTag_() {
+  if (TAG_VALUE === 'boaz') return;
+  let pageToken;
+  do {
+    const page = Calendar.Events.list(CALENDAR_ID, {
+      privateExtendedProperty: TAG_KEY + '=boaz',
+      maxResults: 2500,
+      pageToken: pageToken,
+    });
+    for (const item of page.items || []) {
+      Calendar.Events.patch({
+        extendedProperties: { private: { [TAG_KEY]: TAG_VALUE } },
+      }, CALENDAR_ID, item.id);
+    }
+    pageToken = page.nextPageToken;
+  } while (pageToken);
 }
 
 function listTagged_() {
