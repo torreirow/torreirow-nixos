@@ -54,6 +54,16 @@ function sync() {
   console.log(`dindoa sync: ${feed.length} in feed, +${added} ~${updated} -${removed}`);
 }
 
+// One-off cleanup: a sync run with the new TAG_VALUE, but without
+// adoptOldTag_, imported the feed next to the events tagged dindoa=boaz. This
+// removes the events carrying the current tag. Run it once, then run sync;
+// sync adopts the old events and patches them instead of importing.
+function removeTagged() {
+  const tagged = listTagged_();
+  for (const [, item] of tagged) Calendar.Events.remove(CALENDAR_ID, item.id);
+  console.log('Removed ' + tagged.size + ' events tagged ' + TAG_KEY + '=' + TAG_VALUE);
+}
+
 // Run once by hand to schedule sync() every hour.
 function installTrigger() {
   for (const t of ScriptApp.getProjectTriggers()) {
