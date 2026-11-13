@@ -1,6 +1,6 @@
 { pkgs, config, ... }:
 
-# Fixed HTTPS support for catch-all server
+# Catch-all: onbekende Host-headers worden met 444 afgekapt (geen antwoord).
 {
   imports = [ ./nginx-error-pages.nix ];
 
@@ -32,6 +32,10 @@
       error_page 404 /_nginx-errors/404.html;
     '';
 
+    # Alles wat geen eigen vhost heeft (verzonnen subdomeinen via de wildcard-DNS
+    # *.toorren.net, direct-IP-bezoek) krijgt 444: nginx sluit de verbinding zonder
+    # antwoord. Geen body, geen "site bestaat"-signaal, geen 2,3 kB errorpagina per
+    # probe. ACME draait via DNS-01 (Route53), dus er hoeft geen challenge-pad open.
     virtualHosts."wildcard-placeholder" = {
       default = true;
       serverName = "_";
@@ -40,53 +44,19 @@
       sslCertificate = "/var/lib/acme/toorren.net/fullchain.pem";
       sslCertificateKey = "/var/lib/acme/toorren.net/key.pem";
 
-      root = "/var/www/default";
-
       locations."/" = {
-        tryFiles = "$uri $uri/ =404";
+        return = "444";
       };
 
-
+      # Eigen logbestand: de junk-Host-namen blijven zichtbaar, maar de
+      # nginx-scanner-jail (die /var/log/nginx/access.log leest) ziet ze niet.
       extraConfig = ''
-        index index.html;
+        access_log /var/log/nginx/unknown-host.log combined_host;
       '';
-
     };
   };
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
-
-  environment.etc."nginx-default/index.html".text = ''
-    <!DOCTYPE html>
-    <html lang="nl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            body, html {
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
-            }
-            body {
-                background-image: url('/landing.png');
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-            }
-        </style>
-    </head>
-    <body>
-    </body>
-    </html>
-  '';
 
   environment.etc."nginx-errors/404.html".text = ''
     <!DOCTYPE html>
@@ -200,7 +170,7 @@
     </html>
   '';
 
-  # Landing page image
+  # Landing page image (ook gebruikt door toorren.net en de 403-pagina)
   environment.etc."nginx-default/landing.png" = {
     source = ./static/landing.png;
     mode = "0644";
@@ -213,9 +183,6 @@
   };
 
   systemd.tmpfiles.rules = [
-    "d /var/www/default 0755 nginx nginx -"
-    "L /var/www/default/index.html - - - - /etc/nginx-default/index.html"
-    "L /var/www/default/landing.png - - - - /etc/nginx-default/landing.png"
     "d /var/www/errors 0755 nginx nginx -"
     "L /var/www/errors/403.html - - - - /etc/nginx-errors/403.html"
     "L /var/www/errors/404.html - - - - /etc/nginx-errors/404.html"
