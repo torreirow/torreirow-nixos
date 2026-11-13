@@ -150,6 +150,12 @@ in
     after = [ "postfix-sasl-setup.service" ];
     requires = [ "postfix-sasl-setup.service" ];
 
+    # Bij een nieuwe sleutel verandert de hash van het .age-bestand, daardoor verandert de unit en
+    # herstart een switch Postfix vanzelf. Zonder dit blijft de oude kopie in
+    # /etc/postfix/sasl_passwd staan tot de volgende handmatige herstart (gebeurd 2026-11-13).
+    # Bewust de hash en niet het pad: dat pad ligt in de flake-bron en verandert bij elke commit.
+    restartTriggers = [ (builtins.hashFile "sha256" config.age.secrets.postfix-sasl-password.file) ];
+
     # Run SASL setup script before starting/restarting postfix
     serviceConfig.ExecStartPre = [
       # Wacht op agenix secret
