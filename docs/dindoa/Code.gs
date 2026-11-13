@@ -2,18 +2,19 @@
 //
 // Events are matched on their ICS UID: changed matches are updated in place,
 // new ones are added, and future matches that disappeared from the feed are
-// removed. Only events this script created are ever touched; they carry a
-// private extended property (TAG_KEY=TAG_VALUE).
+// removed. Ownership is decided by the UID suffix, not by a private property,
+// so a renamed calendar or a re-import cannot create a second copy: duplicates
+// with the same UID are cleaned up on the next run.
 
 const FEED_URL = 'https://toorren.net/dindoa/dindoa-j4.ics';
 const CALENDAR_ID = 'primary'; // or the calendar ID from its settings page
+const UID_SUFFIX = '@dindoa.nl';
 const TAG_KEY = 'dindoa';
 const TAG_VALUE = 'j4';
 
 function sync() {
-  adoptOldTag_();
   const feed = fetchFeed_();
-  const existing = listTagged_();
+  const existing = listOurs_();
   const seen = new Set();
   let added = 0, updated = 0, removed = 0;
 
@@ -54,16 +55,6 @@ function sync() {
   console.log(`dindoa sync: ${feed.length} in feed, +${added} ~${updated} -${removed}`);
 }
 
-// One-off cleanup: a sync run with the new TAG_VALUE, but without
-// adoptOldTag_, imported the feed next to the events tagged dindoa=boaz. This
-// removes the events carrying the current tag. Run it once, then run sync;
-// sync adopts the old events and patches them instead of importing.
-function removeTagged() {
-  const tagged = listTagged_();
-  for (const [, item] of tagged) Calendar.Events.remove(CALENDAR_ID, item.id);
-  console.log('Removed ' + tagged.size + ' events tagged ' + TAG_KEY + '=' + TAG_VALUE);
-}
-
 // Run once by hand to schedule sync() every hour.
 function installTrigger() {
   for (const t of ScriptApp.getProjectTriggers()) {
@@ -84,36 +75,35 @@ function fetchFeed_() {
   return events;
 }
 
-// Events created before the calendar was renamed from boaz to j4 carry the old
-// marker. Adopt them once, so they are updated instead of imported twice.
-function adoptOldTag_() {
-  if (TAG_VALUE === 'boaz') return;
+// All events this script owns, keyed by ICS UID. Events with the same UID
+// (a re-import, or an import next to an existing event) are reduced to one:
+// the most recently updated copy wins.
+function listOurs_() {
+  const map = new Map();
+  const now = Date.now();
   let pageToken;
   do {
     const page = Calendar.Events.list(CALENDAR_ID, {
-      privateExtendedProperty: TAG_KEY + '=boaz',
+      timeMin: new Date(now - 120 * 864e5).toISOString(),
+      timeMax: new Date(now + 500 * 864e5).toISOString(),
       maxResults: 2500,
+      showDeleted: false,
       pageToken: pageToken,
     });
     for (const item of page.items || []) {
-      Calendar.Events.patch({
-        extendedProperties: { private: { [TAG_KEY]: TAG_VALUE } },
-      }, CALENDAR_ID, item.id);
+      const uid = item.iCalUID || '';
+      if (!uid.endsWith(UID_SUFFIX)) continue;
+      const prev = map.get(uid);
+      if (!prev) {
+        map.set(uid, item);
+        continue;
+      }
+      const keep = new Date(item.updated) >= new Date(prev.updated) ? item : prev;
+      const drop = keep === item ? prev : item;
+      Calendar.Events.remove(CALENDAR_ID, drop.id);
+      console.log('Removed duplicate ' + uid);
+      map.set(uid, keep);
     }
-    pageToken = page.nextPageToken;
-  } while (pageToken);
-}
-
-function listTagged_() {
-  const map = new Map();
-  let pageToken;
-  do {
-    const page = Calendar.Events.list(CALENDAR_ID, {
-      privateExtendedProperty: TAG_KEY + '=' + TAG_VALUE,
-      maxResults: 2500,
-      pageToken: pageToken,
-    });
-    for (const item of page.items || []) map.set(item.iCalUID, item);
     pageToken = page.nextPageToken;
   } while (pageToken);
   return map;
