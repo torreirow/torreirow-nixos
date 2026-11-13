@@ -2,27 +2,27 @@
 
 ## 1. Opties
 
-- [ ] 1.1 Voeg `limits.kinds` toe (`attrsOf (submodule { perHour; perDay; })`) met
+- [x] 1.1 Voeg `limits.kinds` toe (`attrsOf (submodule { perHour; perDay; })`) met
       defaults `contact = { 3; 10; }` en `signup = { 30; 80; }`; houd `totalPerDay`
       (nieuwe default 150) en verwijder de impliciete per-ontvanger-rem uit de
       documentatie zodra de buckets hem vervangen.
-- [ ] 1.2 Voeg `limits.perIpPerDay` toe (default 8) en een `stateDir/salt`
+- [x] 1.2 Voeg `limits.perIpPerDay` toe (default 8) en een `stateDir/salt`
       (mode 0400, eenmalig aangemaakt met `openssl rand -hex 16` of `pkgs.openssl`).
-- [ ] 1.3 Verhoog `totalPerDay` naar 150 in `hosts/malandro/configuration.nix` als de
+- [x] 1.3 Verhoog `totalPerDay` naar 150 in `hosts/malandro/configuration.nix` als de
       default daarvan afwijkt.
 
 ## 2. PHP-script
 
-- [ ] 2.1 Lees `soort` (whitelist `contact`/`signup`, default `contact`) en kies de
+- [x] 2.1 Lees `soort` (whitelist `contact`/`signup`, default `contact`) en kies de
       bucket uit `limits.kinds`.
-- [ ] 2.2 Houd regels bij als `{t, to, k, ip, d}`: `to` = ontvanger, `k` = soort,
+- [x] 2.2 Houd regels bij als `{t, to, k, ip, d}`: `to` = ontvanger, `k` = soort,
       `ip` = `hash(salt + remote_addr)`, `d` = `hash(email + soort + meetup)`.
-- [ ] 2.3 Tel per bucket (`perHour`, `perDay`), per IP (`perIpPerDay`) en over alles
+- [x] 2.3 Tel per bucket (`perHour`, `perDay`), per IP (`perIpPerDay`) en over alles
       (`totalPerDay`); bij overschrijding 429 met de bestaande melding en een
       `error_log`-regel met de reden.
-- [ ] 2.4 Sla de mail over bij een bestaande `d`-hash binnen 24 uur en antwoord 200.
-- [ ] 2.5 Voeg de kill switch toe: bestaat `${stateDir}/disabled`, dan 503.
-- [ ] 2.6 Zet `soort` en `meetup` in de `error_log`-regels bij een weigering, zonder
+- [x] 2.4 Sla de mail over bij een bestaande `d`-hash binnen 24 uur en antwoord 200.
+- [x] 2.5 Voeg de kill switch toe: bestaat `${stateDir}/disabled`, dan 503.
+- [x] 2.6 Zet `soort` en `meetup` in de `error_log`-regels bij een weigering, zonder
       naam, e-mail of bericht mee te loggen.
 
 ## 3. Verificatie

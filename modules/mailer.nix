@@ -24,6 +24,12 @@ let
           fail(405, "Ongeldig verzoek. / Invalid request.");
       }
 
+      // Noodstop: bestand in de state-map laat de mailer alles weigeren tot het
+      // weer weg is. Zo kan een beheerder de mailer stilzetten zonder rebuild.
+      if (file_exists('${cfg.stateDir}/disabled')) {
+          fail(503, "Het formulier is tijdelijk uitgeschakeld. / The form is temporarily disabled.");
+      }
+
       // Honeypot: stil negeren als het veld ingevuld is
       if (!empty($_POST['website'])) {
           http_response_code(200);
@@ -89,6 +95,33 @@ let
           fail(400, "Vul alle verplichte velden in. / Please fill in all required fields.");
       }
 
+      // Formuliersoort: bepaalt de limietbucket (contact = streng, signup = ruimer
+      // voor een meet-up piek). Onbekende waarden gelden als contact.
+      $kinds = json_decode('${builtins.toJSON (lib.mapAttrs (_: v: { perHour = v.perHour; perDay = v.perDay; }) cfg.limits.kinds)}', true);
+      $soort = $_POST['soort'] ?? "contact";
+      if (!is_string($soort) || !isset($kinds[$soort])) {
+          $soort = "contact";
+      }
+      $meetup = preg_replace("/[^a-z0-9-]/", "", strtolower($_POST["meetup"] ?? ""));
+
+      // Salt voor de hashes van IP en dedupe; eenmalig aangemaakt, 0400.
+      $saltFile = "${cfg.stateDir}/salt";
+      $salt = @file_get_contents($saltFile);
+      if ($salt === false || trim($salt) === "") {
+          $h = @fopen($saltFile, "x");
+          if ($h !== false) {
+              $salt = bin2hex(random_bytes(16));
+              fwrite($h, $salt);
+              fclose($h);
+              @chmod($saltFile, 0400);
+          } else {
+              $salt = trim((string)@file_get_contents($saltFile));
+          }
+      }
+      $salt = trim($salt);
+      $ipHash = hash("sha256", $salt . ":" . ($_SERVER["REMOTE_ADDR"] ?? ""));
+      $dedupe = $meetup === "" ? "" : hash("sha256", $salt . ":" . $email . ":" . $soort . ":" . $meetup);
+
       // Limieten: harde plafonds zodat misbruik nooit veel (SES-)mail oplevert.
       // Sliding window van 24 uur, bijgehouden in één JSON-bestand onder flock.
       $stateFile = "${cfg.stateDir}/ratelimit.json";
@@ -102,25 +135,46 @@ let
       $sent = array_values(array_filter($sent, function ($e) use ($now) {
           return $e["t"] > $now - 86400;
       }));
-      $toDay  = 0;
-      $toHour = 0;
-      foreach ($sent as $e) {
-          if ($e["to"] === $toEmail) {
-              $toDay++;
-              if ($e["t"] > $now - 3600) {
-                  $toHour++;
+
+      // Al aangemeld voor deze meet-up? Dan stil 200 zonder tweede mail.
+      if ($dedupe !== "") {
+          foreach ($sent as $e) {
+              if (($e["d"] ?? "") === $dedupe) {
+                  flock($fh, LOCK_UN);
+                  fclose($fh);
+                  http_response_code(200);
+                  header("Location: " . ($_SERVER['HTTP_REFERER'] ?? "https://$domain/") . "?verzonden=1");
+                  exit;
               }
           }
       }
+
+      $kindDay = 0;
+      $kindHour = 0;
+      $ipDay = 0;
+      foreach ($sent as $e) {
+          if (($e["k"] ?? "contact") === $soort) {
+              $kindDay++;
+              if ($e["t"] > $now - 3600) {
+                  $kindHour++;
+              }
+          }
+          if (($e["ip"] ?? "") === $ipHash) {
+              $ipDay++;
+          }
+      }
+      $limits = $kinds[$soort];
       if (count($sent) >= ${toString cfg.limits.totalPerDay}
-          || $toDay >= ${toString cfg.limits.perRecipientPerDay}
-          || $toHour >= ${toString cfg.limits.perRecipientPerHour}) {
+          || $kindDay >= $limits["perDay"]
+          || $kindHour >= $limits["perHour"]
+          || $ipDay >= ${toString cfg.limits.perIpPerDay}) {
           flock($fh, LOCK_UN);
           fclose($fh);
-          error_log("mailer: limiet bereikt voor $toEmail (totaal=" . count($sent) . " dag=$toDay uur=$toHour)");
+          error_log("mailer: limiet bereikt soort=$soort meetup=$meetup totaal=" . count($sent)
+              . " soortDag=$kindDay soortUur=$kindHour ipDag=$ipDay");
           fail(429, "Er zijn op dit moment te veel berichten verstuurd. Probeer het later opnieuw. / Too many messages right now. Please try again later.");
       }
-      $sent[] = ["t" => $now, "to" => $toEmail];
+      $sent[] = ["t" => $now, "to" => $toEmail, "k" => $soort, "ip" => $ipHash, "d" => $dedupe];
       ftruncate($fh, 0);
       rewind($fh);
       fwrite($fh, json_encode($sent));
@@ -129,8 +183,14 @@ let
       fclose($fh);
 
       // Verstuur via Postfix (lokale MTA)
-      $subject = "Contactformulier - " . $domain;
-      $body    = "Naam: $naam\nE-mail: $email\n\n$bericht";
+      if ($soort === "signup") {
+          $subject = "Aanmelding: " . ($meetup !== "" ? $meetup : "meet-up") . " - " . $domain;
+          $body    = "Aanmelding voor: " . ($meetup !== "" ? $meetup : "(onbekende meet-up)") . "\n"
+                   . "Naam: $naam\nE-mail: $email\n\n$bericht";
+      } else {
+          $subject = "Contactformulier - " . $domain;
+          $body    = "Naam: $naam\nE-mail: $email\n\n$bericht";
+      }
       $headers = implode("\r\n", [
           "From: noreply@toorren.net",
           "Reply-To: $email",
@@ -186,18 +246,37 @@ in
     limits = {
       totalPerDay = lib.mkOption {
         type = lib.types.ints.positive;
-        default = 30;
-        description = "Maximaal aantal berichten per 24 uur, alle sites samen.";
+        default = 150;
+        description = "Maximaal aantal berichten per 24 uur, alle soorten en sites samen.";
       };
-      perRecipientPerDay = lib.mkOption {
+      perIpPerDay = lib.mkOption {
         type = lib.types.ints.positive;
-        default = 10;
-        description = "Maximaal aantal berichten per ontvanger per 24 uur.";
+        default = 8;
+        description = "Maximaal aantal berichten per IP-adres per 24 uur (IP wordt gehasht opgeslagen).";
       };
-      perRecipientPerHour = lib.mkOption {
-        type = lib.types.ints.positive;
-        default = 3;
-        description = "Maximaal aantal berichten per ontvanger per uur.";
+      kinds = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule {
+          options = {
+            perHour = lib.mkOption {
+              type = lib.types.ints.positive;
+              description = "Maximaal aantal berichten van deze soort per uur.";
+            };
+            perDay = lib.mkOption {
+              type = lib.types.ints.positive;
+              description = "Maximaal aantal berichten van deze soort per 24 uur.";
+            };
+          };
+        });
+        default = {
+          contact = { perHour = 3; perDay = 10; };
+          signup = { perHour = 30; perDay = 80; };
+        };
+        description = ''
+          Limieten per formuliersoort (het veld `soort` in het formulier).
+          Onbekende soorten vallen terug op `contact`. Het formulier van de
+          wachtlijst en het contactformulier sturen geen `soort` mee; het
+          meet-up-aanmeldformulier stuurt `signup`.
+        '';
       };
     };
   };
