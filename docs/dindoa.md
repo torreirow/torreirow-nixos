@@ -36,6 +36,19 @@ dan rebuilden. Zonder die update blijft malandro op de versie uit `flake.lock`.
 
 ## Google-agenda (Apps Script)
 
+Het script doet meerdere feeds, elk naar een eigen agenda. De lijst staat bovenaan `Code.gs`:
+
+| feed               | bron                                                          | agenda                 |
+| ------------------ | ------------------------------------------------------------- | ---------------------- |
+| `dindoa-j4`        | `toorren.net/dindoa/dindoa-j4.ics`                            | `primary`              |
+| `nevobo-meiden-a`  | `api.nevobo.nl/export/team/CKL8X8J/meiden-a/2/programma.ics`  | `Nevobo Meiden A`      |
+
+`calendar` mag `primary`, een agenda-ID of een agendanaam zijn; een onbekende naam wordt aangemaakt.
+De Nevobo-feed komt van de volleybal.nl-export; de `versie`-parameter daarvan verandert de inhoud
+niet (getest met een oude datum: identiek bestand), het is een cache-buster. Het script zet er zelf
+een verse tijd aan.
+
+
 Een URL-abonnement in Google Calendar wordt altijd een aparte, alleen-lezen agenda, en Google
 ververst die maar eens per 8 à 24 uur. Daarom zet het project "Dindoa-Calendar" op
 script.google.com (account `wvdtoorren@gmail.com`) de feed over in de eigen agenda. De bron staat in
