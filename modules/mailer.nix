@@ -44,6 +44,13 @@ let
       }
       $toEmail = $recipients[$domain];
 
+      // CORS: de site verstuurt het formulier met fetch en leest de status van
+      // het antwoord, zodat hij zelf "limiet bereikt" (429) kan tonen in plaats
+      // van deze foutpagina. Alleen voor de whitelisted origin.
+      if (preg_match('#^https?://[^/]+$#', $origin)) {
+          header("Access-Control-Allow-Origin: " . $origin);
+      }
+
       // Cap (self-hosted) server-side validatie.
       // De widget levert een hidden veld 'cap-token'; wij verifiëren dat via
       // de reCAPTCHA-compatibele siteverify-API met een JSON-body

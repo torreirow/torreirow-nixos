@@ -98,6 +98,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `/Documents/reMarkable`.
 
 ### Fixed
+- **Contactformulier-mailer geeft een CORS-header** (`modules/mailer.nix`) voor
+  origins uit de whitelist. Een site die het formulier met `fetch` verstuurt, kan
+  daardoor de status van het antwoord lezen en zelf de melding tonen als de limiet
+  bereikt is (HTTP 429), in plaats van de foutpagina van de mailer.
 - **linny-mcp archiveert met `archive: true`** (`flake.nix`, input `linny-mcp`). De
   input wijst nu naar de fork `torreirow/linny-mcp-server`. Daar leest de `archive`-tool
   het veld uit `lindenConfig/notebook.yml` (`archive.field`). Voorheen schreef hij

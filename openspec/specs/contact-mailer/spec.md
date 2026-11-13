@@ -49,6 +49,15 @@ Het PHP script MUST de `HTTP_ORIGIN` of `HTTP_REFERER` header valideren tegen de
 - **WHEN** de Origin header niet overeenkomt met een geconfigureerd domein
 - **THEN** geeft het script HTTP 403 terug en verstuurt geen email
 
+#### Scenario: Site leest de status van het antwoord
+
+- **WHEN** een request van een toegestaan domein een foutstatus krijgt (bijvoorbeeld
+  429 als de limiet bereikt is)
+- **THEN** bevat de response `Access-Control-Allow-Origin` met de origin van dat
+  domein, zodat de site de status kan lezen en zelf de melding kan tonen
+- **AND** geldt dat ook voor de redirect na een geslaagde POST, zodat de site die
+  met `fetch` kan afhandelen
+
 ### Requirement: Cap (self-hosted) token wordt server-side gevalideerd
 
 Het PHP script MUST het `cap-token` (geleverd door de Cap-widget) server-side valideren via de self-hosted Cap siteverify-API (`${capBaseUrl}/${capSiteKey}/siteverify`) met de key-secret uit `capSecretFile`. De request MUST een JSON-body `{"secret": ..., "response": ...}` (het widget-token gaat mee als `response`) met `Content-Type: application/json` gebruiken. Requests zonder geldig token MUST geweigerd worden.
