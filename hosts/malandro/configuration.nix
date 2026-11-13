@@ -161,6 +161,11 @@
       "wereldvanbegrip.nl" = "wereldvanbegrip@toorren.net";
       # LET OP: pas dit ontvangstadres aan indien gewenst.
       "cckafe.com" = "hello@cckafe.com";
+      # Testomgeving: het formulier op test.cckafe.com wordt nu ook geaccepteerd.
+      # Zet hier een bestaand adres (ImprovMX-alias of bestaand postvak) voor een
+      # aparte bestemming; het onderwerp is "Contactformulier - test.cckafe.com",
+      # dus ook met hetzelfde adres is testpost te herkennen.
+      "test.cckafe.com" = "hello@cckafe.com";
       "devos.dutchyland.net" = "dailydevo@dutchyland.net";
       "noraly.toorren.net" = "noraly@toorren.net";
     };
