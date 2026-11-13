@@ -41,7 +41,7 @@ Het script doet meerdere feeds, elk naar een eigen agenda. De lijst staat bovena
 | feed               | bron                                                          | agenda                 |
 | ------------------ | ------------------------------------------------------------- | ---------------------- |
 | `dindoa-j4`        | `toorren.net/dindoa/dindoa-j4.ics`                            | `primary`              |
-| `nevobo-meiden-a`  | `api.nevobo.nl/export/team/CKL8X8J/meiden-a/2/programma.ics`  | `Nevobo Meiden A`      |
+| `pauwervoll-ma-2`  | `api.nevobo.nl/export/team/CKL8X8J/meiden-a/2/programma.ics`  | `Pauwervoll MA 2`      |
 
 `calendar` mag `primary`, een agenda-ID of een agendanaam zijn; een onbekende naam wordt aangemaakt.
 De Nevobo-feed komt van de volleybal.nl-export; de `versie`-parameter daarvan verandert de inhoud

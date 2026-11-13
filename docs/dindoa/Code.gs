@@ -16,9 +16,11 @@ const FEEDS = [
     uidSuffix: '@dindoa.nl',
   },
   {
-    name: 'nevobo-meiden-a',
+    name: 'pauwervoll-ma-2',
     feedUrl: 'https://api.nevobo.nl/export/team/CKL8X8J/meiden-a/2/programma.ics',
-    calendar: 'Nevobo Meiden A',
+    // Vul hier het agenda-ID in (Instellingen -> [agenda] -> Agenda-ID).
+    // Laat je een naam staan, dan maakt het script die agenda aan en logt het ID.
+    calendar: 'Pauwervoll MA 2',
     uidSuffix: '',
   },
 ];
