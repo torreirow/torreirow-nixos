@@ -49,7 +49,6 @@ let
     "/data/external/erugo"
     "/data/external/wallos"
     "/data/external/invoiceplane-docker"
-    "/data/external/pihole"
     "/data/external/castopod"
     "/data/external/dockerlibs/volumes"
     "/data/external/paperless-ngx"

@@ -78,7 +78,7 @@
         #
         # Gemeten op 2026-09-25: met alleen `mcp` hieronder gaf /api/verify een
         # 404, en daarmee gaven ALLE bestaande vhosts (linny, status-page,
-        # pihole, hassio, ...) een 500 -- die gebruiken stuk voor stuk nog het
+        # hassio, ...) een 500 -- die gebruiken stuk voor stuk nog het
         # legacy-endpoint. Haal `legacy` hier dus niet weg zonder eerst elke
         # auth_request in modules/ om te bouwen.
         endpoints.authz = {

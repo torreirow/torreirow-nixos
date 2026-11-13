@@ -45,7 +45,6 @@
  ../../modules/blocky
  ../../modules/opsknight.nix
  ../../modules/paperless.nix
- # ../../modules/pihole.nix
  ../../modules/postgres.nix
  ../../modules/postfix.nix
  ../../modules/vaultwarden.nix
