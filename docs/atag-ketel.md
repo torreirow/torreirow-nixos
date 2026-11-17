@@ -191,8 +191,9 @@ dagen (11 en 15 nov) ontstaan door setpointwissels binnen een paar uur, niet doo
 CV-water kwam deze week tot 57–60 °C, ook zonder tapwatervraag. Dus of de ketel gebruikt een eigen
 (installateur)parameter, of `ch_temp_max` is alleen een doelwaarde. Uitzoeken op de ketel zelf.
 
-**13 nov 21:04–21:09:** het setpoint sprong ±20 keer tussen 13,5 en 26,5 °C. Vermoedelijk een
-vastgelopen app/cloud-sessie; geen spoor van een automaat in HA.
+**13 nov 21:04–21:09:** het setpoint sprong ±20 keer tussen 13,5 en 26,5 °C. Dat was handmatig
+gedoe in de ATAG-app (bevestigd door de gebruiker), geen fout in HA of de ketel. Zo'n reeks
+setpointwissels kost extra starts; niet nodig om te repareren.
 
 ## Opnieuw meten
 
