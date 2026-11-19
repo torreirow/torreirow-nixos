@@ -1,23 +1,23 @@
 # nebula-mesh Specification
 
 ## Purpose
-Het Nebula-netwerk `toorren` (10.77.0.0/24) tussen malandro (lighthouse/relay), lobos en mpenzi,
-met het toegangsbeleid per host in `modules/nebula.nix`.
+Het Nebula-netwerk `toorren` (10.77.0.0/24) tussen farol (lighthouse/relay), malandro, lobos en
+mpenzi, met het toegangsbeleid per host in `modules/nebula.nix`.
 
 ## Requirements
 
 ### Requirement: Mesh tussen malandro, lobos en mpenzi
-Het systeem SHALL een Nebula-mesh `toorren` op 10.77.0.0/24 bieden met malandro (10.77.0.1) als
-lighthouse en relay op UDP 4242, en lobos (10.77.0.2) en mpenzi (10.77.0.3) als nodes. Alleen
-overlay-verkeer MUST via de mesh lopen.
+Het systeem SHALL een Nebula-mesh `toorren` op 10.77.0.0/24 bieden met farol (10.77.0.4) als
+enige lighthouse en relay op UDP 4242, en malandro (10.77.0.1), lobos (10.77.0.2) en mpenzi
+(10.77.0.3) als nodes. Alleen overlay-verkeer MUST via de mesh lopen.
 
 #### Scenario: Bereikbaar via de mesh
 - **WHEN** alle drie de hosts draaien met geldige certificaten
 - **THEN** kan elke host de andere pingen op hun 10.77.0.x-adres
 
-#### Scenario: Lighthouse thuis en onderweg
+#### Scenario: Lighthouse altijd bereikbaar
 - **WHEN** een node verbinding zoekt met de lighthouse
-- **THEN** probeert hij 192.168.2.52:4242 en wg.toorren.net:4242
+- **THEN** probeert hij 18.184.203.107:4242 en farol.toorren.net:4242
 
 ### Requirement: Toegangsbeleid op mpenzi
 Op mpenzi MUST de mesh tcp 22 (ssh) en tcp 21118 (RustDesk) alleen toestaan vanaf host lobos.

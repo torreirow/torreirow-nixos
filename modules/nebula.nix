@@ -14,14 +14,18 @@ let
   netName = "toorren";
   host = config.networking.hostName;
 
-  # Lighthouses in voorkeursorde. Nebula kent geen echte prioriteit — elke node vraagt
-  # ze allemaal — maar hier staat de altijd-aan primaire (farol, EC2) vooraan en malandro
-  # als backup. Valt farol weg, dan pakken nodes malandro.
-  lighthouses = [ "farol" "malandro" ];
+  # Alleen farol is lighthouse: publiek bereikbaar en altijd aan. Malandro staat hier
+  # bewust niet in. Als lighthouse komt hij in de static_host_map van elke node, en dan
+  # dialen nodes hem direct in plaats van farol om zijn relay te vragen. Zit malandro
+  # achter NAT zonder werkende UDP-forward, dan blijft de tunnel dus dood. Als gewone
+  # node leert farol zijn adres én relay (farol) aan de andere nodes.
+  lighthouses = [ "farol" ];
 
-  # Eén relay voor nodes die achter NAT/CGNAT geen directe tunnel krijgen. Bewust niet
-  # elke lighthouse: relayen kost egress (op EC2 $0,09/GB).
-  relayHost = "malandro";
+  # Eén relay voor nodes die achter NAT/CGNAT geen directe tunnel krijgen. Farol, niet
+  # malandro: malandro zit achter de KPN-router en is van buiten niet op UDP 4242
+  # bereikbaar, waardoor hij als relay onbruikbaar is. Relayen via farol kost
+  # EC2-egress ($0,09/GB), maar alleen als een directe tunnel niet tot stand komt.
+  relayHost = "farol";
 
   # IP per host plus de extra inbound-regels bovenop ICMP en ssh (die gelden op elke host,
   # zie `firewall.inbound`). Nebula-firewall matcht op de naam in het certificaat (`host`),
@@ -30,8 +34,6 @@ let
   hosts = {
     malandro = {
       ip = "10.77.0.1";
-      # LAN eerst (thuis, geen NAT-hairpin nodig), daarna het publieke adres.
-      endpoints = [ "192.168.2.52:4242" "wg.toorren.net:4242" ];
       inbound = [ ];
     };
     lobos = {
@@ -50,7 +52,9 @@ let
       # AWS EC2 (eu-central-1, t3a.nano); altijd-aan lighthouse. Komt in `lighthouses`
       # zodra het certificaat er is.
       ip = "10.77.0.4";
-      endpoints = [ "farol.toorren.net:4242" ];
+      # EIP eerst: DNS op kantoor/lobos valt soms weg, en een lighthouse moet altijd
+      # bereikbaar zijn. De naam blijft als tweede optie staan.
+      endpoints = [ "18.184.203.107:4242" "farol.toorren.net:4242" ];
       inbound = [ ];
     };
   };

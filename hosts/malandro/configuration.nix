@@ -256,7 +256,7 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  # Nebula-lighthouse + relay; de module zet UDP 4242 open (docs/mpenzi.md).
+  # Nebula-node (geen lighthouse); de module zet UDP 4242 open (docs/mpenzi.md).
   toorren.nebula.enable = true;
 
   ## Spotify discovery devices

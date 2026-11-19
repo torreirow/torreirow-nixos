@@ -6,6 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## NEXT VERSION
 
+### Changed
+- **Nebula: farol is nu de enige lighthouse en relay** (`modules/nebula.nix`). Malandro is een
+  gewone node. Als lighthouse stond hij in de `static_host_map` van elke node, waardoor nodes
+  hem direct dialden en farol nooit om zijn relay vroegen; achter NAT zonder UDP-forward bleef
+  die tunnel dood. Farol heeft `am_relay: true`, alle nodes `relays: [10.77.0.4]`. Het
+  lighthouse-endpoint is het EIP `18.184.203.107:4242` (DNS als fallback), zodat een
+  DNS-storing de mesh niet blokkeert. Docs, spec en statuspagina-rollen bijgewerkt.
+
 ### Added
 - **dindoa: wedstrijdagenda van J4 op `toorren.net/dindoa`** (`modules/dindoa.nix`, flake-input
   `dindoa`). `dindoa-j4.timer` genereert de ics op maandag en donderdag om 06:00, met een foutmail
