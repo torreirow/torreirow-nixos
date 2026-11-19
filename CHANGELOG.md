@@ -139,6 +139,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `/Documents/reMarkable`.
 
 ### Fixed
+- **AI-blokkade dekt nu ook regex-locations** (`hosts/malandro/configuration.nix`). De
+  403-`if` stond alleen in `location /` en in de opgegeven `extraLocations`, maar een
+  `location ~ …` gaat in nginx vóór `/`: AI-bots kregen op cckafe.com/test.cckafe.com
+  de CSS/JS en op toorren.net `/errors/*.png` gewoon met 200. Die locations staan nu
+  in `extraLocations`; cache-headers en de facebook-uitzondering blijven werken. Zie
+  `docs/ai-blocklist.md`.
 - **Contactformulier-mailer geeft een CORS-header** (`modules/mailer.nix`) voor
   origins uit de whitelist. Een site die het formulier met `fetch` verstuurt, kan
   daardoor de status van het antwoord lezen en zelf de melding tonen als de limiet

@@ -106,13 +106,28 @@
 
   # AI-crawlers weren (modules/ai-blocklist): 403 in nginx + aanvulling op de bestaande
   # robots.txt. Alleen publieke sites; achter Authelia en de catch-all blijven buiten.
+  #
+  # Let op: de blokkade staat in "/" en in de locations uit extraLocations. Een
+  # regex-location gaat in nginx vóór "/" en erft de if niet, dus elke regex-location
+  # van een geblokkeerde vhost moet hier expliciet bij (anders serveert nginx die
+  # bestanden gewoon aan AI-bots).
   services.aiBlocklist.sites = {
-    "toorren.net" = { sitemap = true; extraLocations = [ "~ \\.php$" ]; };
+    "toorren.net" = {
+      sitemap = true;
+      extraLocations = [ "~ \\.php$" "~* ^/errors/.*\\.png$" ];
+    };
     "wereldvanbegrip.nl".sitemap = true;
     # facebookexternalhit staat in de AI-lijst, maar zonder krijgen gedeelde links op
     # Facebook/Messenger/Instagram geen Open Graph-preview.
-    "cckafe.com".allowAgents = [ "facebookexternalhit" ];
-    "test.cckafe.com".noindex = true;
+    "cckafe.com" = {
+      allowAgents = [ "facebookexternalhit" ];
+      # Asset-locations van de Hugo-vhost in modules/cckafe.nix.
+      extraLocations = [ "~* \\.(css|js)$" "~* \\.(woff2|png|jpe?g|webp|svg|ico|mp3)$" ];
+    };
+    "test.cckafe.com" = {
+      noindex = true;
+      extraLocations = [ "~* \\.(css|js)$" "~* \\.(woff2|png|jpe?g|webp|svg|ico|mp3)$" ];
+    };
     # Niet indexeerbaar, ook niet voor gewone zoekmachines.
     "boaz.toorren.net".noindex = true;
     "cv-jolijn.toorren.net".noindex = true;

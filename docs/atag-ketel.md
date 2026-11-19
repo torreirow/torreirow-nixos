@@ -1,6 +1,6 @@
 # ATAG One — ketelgedrag, pendelen en afstelling
 
-**Aangemaakt:** 2026-10-22 · **Status:** stap 2 (`average`) en stap 3 (max CV 50 °C) geëvalueerd: runlengte blijft ~5 min. Stap 3 blijft staan (minder starts en stookminuten); volgende stap nog te kiezen (zie "Evaluatie max CV 50 °C")
+**Aangemaakt:** 2026-10-22 · **Status:** bij koud weer (11–17 nov) is het doel gehaald: 13,2 min/start. Pendelen speelt vooral in het schouderseizoen. Actief sinds 17 nov: verwarmingstype `radiator_underfloor` (lagere stooklijn) en ochtendblok zo/ma/di 05:45 → 06:30; meten t/m 22 nov (`~/scripts/atag-eval.sh 2026-11-17 2026-11-22`)
 
 `temperatuurinvloed` wijzigt alleen **hoe** de ketel de aanvoertemperatuur kiest (stooklijn vs. puur
 kamer); het tijdschema (preset `auto`, nacht 15 / ochtend 20,5 °C) blijft gewoon werken.
@@ -50,15 +50,16 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 
 **Doel:** min/start omhoog (≥ 10), starts per dag omlaag, bij vergelijkbare buitentemperatuur.
 
-## Huidige instellingen (2026-10-22)
+## Huidige instellingen (2026-11-17)
 
 | Instelling                          | Waarde            | Via HA instelbaar? |
 |-------------------------------------|-------------------|--------------------|
-| `select.atag_one_temperatuurinvloed`| `room_regulation` | ja (`off`/`less`/`average`/`more`/`room_regulation`) |
+| `select.atag_one_temperatuurinvloed`| `average`         | ja (`off`/`less`/`average`/`more`/`room_regulation`) |
 | `select.atag_one_isolatieniveau`    | `good`            | ja                 |
 | `select.atag_one_gebouwgrootte`     | `medium`          | ja                 |
-| `sensor.atag_one_max_boiler_temp`   | 60 °C             | **nee** (alleen sensor → ATAG-app/thermostaat) |
-| Nachtstand / ochtend                | 15 °C / 20,5 °C om 07:15 | programma in ATAG |
+| `select.atag_one_verwarmingstype`   | `radiator_underfloor` (was `radiator`, 17 nov) | ja |
+| `sensor.atag_one_max_boiler_temp`   | 50 °C             | **nee** (API `ch_temp_max`; wordt niet gerespecteerd, zie evaluatie) |
+| Weekprogramma                       | zie "Weekprogramma" hieronder | **nee** in HA; wel via de ATAG-API |
 | `switch.atag_one_zomer_eco_mode`    | aan               | ja                 |
 | `number.atag_one_zomer_eco_temp`    | 18 °C (was 20)    | ja (10–25 °C)      |
 
@@ -66,6 +67,37 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 werken. Niet zichtbaar in de ATAG-app. De integratie `atagone` noemde de drempel ten onrechte
 `number.atag_one_temp_vakantieperiode` (unique_id eindigt op `summer_eco_temp`); hernoemd
 2026-11-03. De echte vakantietemperatuur is `number.atag_one_vakantie_temp`.
+
+## Weekprogramma (2026-11-17, via de ATAG-API)
+
+| Dag           | Blokken (tijd @ temperatuur)                                                        |
+|---------------|-------------------------------------------------------------------------------------|
+| zo, ma, di    | 00:00–06:30 @15 · 06:30–07:30 @20,5 · 07:30–16:30 @16 · 16:30–21:45 @20,5 · 21:45–23:30 @17 · 23:30–24:00 @16 |
+| wo, do        | 00:00–07:15 @15 · 07:15–09:00 @20,5 · 09:00–16:30 @16 · 16:30–21:45 @20,5 · 21:45–23:30 @17 · 23:30–24:00 @16 |
+| vr            | 00:00–08:00 @16 · 08:00–21:45 @20,0 · 21:45–24:00 @17                              |
+| za            | 00:00–08:00 @16 · 08:00–09:40 @20,0 · 09:40–12:00 @17 · 12:00–21:45 @20,0 · 21:45–24:00 @17 |
+
+Het voorverwarmen begint ± 1 uur vóór het eerste blok (gemeten: eerste start 04:46 bij een blok om
+05:45). Daarom is op 17 nov het ochtendblok van zo/ma/di naar 06:30 geschoven: dat verplaatst het
+nachtelijke start/stop een uur.
+
+### De ATAG-API (poort 10000)
+
+De thermostaat heeft een lokale JSON-API op `http://192.168.2.1:10000`. Home Assistant gebruikt die
+via de integratie `atagone`, maar die kan alleen sensoren en `select`/`number`/`switch` zetten —
+het weekprogramma niet. Direct op de API kan dat wel:
+
+```bash
+# lezen (info 127 = alle secties)
+curl -s -X POST http://192.168.2.1:10000/retrieve -H 'Content-Type: application/json' \
+  -d '{"retrieve_message":{"seqnr":0,"account_auth":{"user_account":"","mac_address":"01:23:45:67:89:01"},"info":127}'
+# schrijven: /update met dezelfde account_auth en de gewijzigde sectie, bijv. schedules.ch_schedule
+```
+
+`schedules.ch_schedule` bestaat uit `base_temp` plus `entries`: 7 dagen (zo=0 … za=6), elk een lijst
+`[start_min, eind_min, temperatuur]` met minuten na middernacht (`390` = 06:30). `~/scripts/atag-schedule.sh`
+print het huidige programma en de belangrijkste configuratie in leesbare vorm. Altijd eerst de
+respons opslaan vóór een wijziging: de thermostaat kent geen ongedaan maken.
 
 ## Aanbevelingen (in volgorde, één tegelijk, elk ≥ 5 dagen meten)
 
@@ -85,6 +117,8 @@ werken. Niet zichtbaar in de ATAG-app. De integratie `atagone` noemde de drempel
 |-------|-----------|---------------|-----------------------------------|
 | 2026-10-22 21:52 | `temperatuurinvloed` → `average` (aanbeveling 2) | `room_regulation` (nooit eerder gewijzigd) | **geen verbetering:** 5,3 min/start (gelijk), 27,4 starts/dag (was 23,0) |
 | 2026-10-28 ~19:20 | Max CV-aanvoertemperatuur 60 → 50 °C op de ketel zelf (E325EC, installateursparameter; aanbeveling 3). `average` blijft staan. CV bijgevuld 1,4 → 2,0 bar | 60 °C | **runs niet langer:** 5,3 min/start (gelijk), 19,8 starts/dag (was 23,0 baseline, 27,4 `average`), 105 stookmin/dag (was 122). HA-sensor `max_boiler_temp` toonde pas na herstart van HA (reboot malandro 28 okt 19:35) 50 °C: de integratie leest deze waarde alleen bij opstarten |
+| 2026-11-17 11:54 | `verwarmingstype` `radiator` → `radiator_underfloor` (lagere stooklijn, betere condensatie). API: `ch_heating_type` 3 → 4 | `radiator` | meten 17–22 nov |
+| 2026-11-17 13:05 | Ochtendblok zo/ma/di 05:45 → 06:30 (voorverwarmen begon om 04:46). Einde 07:30 blijft | 05:45 | meten 17–22 nov |
 | 2026-11-03 11:17 | Zomer-eco-drempel 20 → 18 °C (goed geïsoleerd huis: boven 18 °C buiten geen warmtevraag, alleen korte runs). Geen effect in de winter | 20 °C | pas te zien in lente/herfst |
 
 ### Observaties `average`
@@ -133,6 +167,33 @@ Max CV 50 °C blijft staan. De oorzaak lijkt het minimale vermogen van de ketel,
 warmtevraag; instellingen in HA veranderen daar niets aan. Opties voor de volgende stap:
 aanbeveling 4 (nachtstand), of bij de installateur vragen naar minimaal vermogen en
 anti-pendeltijd (installateursparameters).
+
+### Evaluatie koude week (2026-11-17, 11–17 nov)
+
+`~/scripts/atag-eval.sh 2026-11-11 2026-11-17`:
+
+| Datum  | Starts | Stookmin | Min/start | Runs < 5 min | Buiten | Eerste start |
+|--------|-------:|---------:|----------:|-------------:|-------:|-------------:|
+| 11 nov |     52 |      456 |       8,8 |           17 |   3,9° |        04:46 |
+| 12 nov |     17 |      464 |      27,3 |            1 |   5,8° |        06:16 |
+| 13 nov |     19 |      389 |      20,5 |            8 |   6,4° |        06:16 |
+| 14 nov |     33 |      387 |      11,7 |            8 |   4,3° |        07:01 |
+| 15 nov |     32 |      431 |      13,5 |           14 |   4,7° |        07:01 |
+| 16 nov |     36 |      358 |       9,9 |            8 |   4,8° |        04:47 |
+| 17 nov |     13 |      182 |      14,0 |            0 |   2,6° |        04:47 |
+| **Gem.** | **28,9** | **381** | **13,2** |    8/dag | 4,7° | |
+
+**Conclusie:** bij echte warmtevraag brandt de ketel lang genoeg (doel ≥ 10 min gehaald). Het
+pendelen van oktober is een schouderseizoensprobleem: kleine warmtevraag, dus korte runs. Slechte
+dagen (11 en 15 nov) ontstaan door setpointwissels binnen een paar uur, niet door de ketel.
+
+**De 50 °C-grens wordt niet gerespecteerd:** `configuration.ch_temp_max` staat op 50,0 maar het
+CV-water kwam deze week tot 57–60 °C, ook zonder tapwatervraag. Dus of de ketel gebruikt een eigen
+(installateur)parameter, of `ch_temp_max` is alleen een doelwaarde. Uitzoeken op de ketel zelf.
+
+**13 nov 21:04–21:09:** het setpoint sprong ±20 keer tussen 13,5 en 26,5 °C. Dat was handmatig
+gedoe in de ATAG-app (bevestigd door de gebruiker), geen fout in HA of de ketel. Zo'n reeks
+setpointwissels kost extra starts; niet nodig om te repareren.
 
 ## Opnieuw meten
 

@@ -23,19 +23,26 @@ Module: `modules/ai-blocklist/` (`default.nix` + `update-ai-blocklist.py`), site
 
 ## Sites
 
-| vhost                    | sitemap | noindex | extra                               |
-| ------------------------ | ------- | ------- | ----------------------------------- |
-| toorren.net              | ja      | nee     | `~ \.php$`                          |
-| wereldvanbegrip.nl       | ja      | nee     |                                     |
-| cckafe.com               | nee     | nee     | `allowAgents`: facebookexternalhit  |
-| boaz.toorren.net         | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`   |
-| cv-jolijn.toorren.net    | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`   |
-| grainwork.dutchyland.net | nee     | nee     | publieke paden (`/welkom/`, assets) |
+| vhost                    | sitemap | noindex | extra                                             |
+| ------------------------ | ------- | ------- | ------------------------------------------------- |
+| toorren.net              | ja      | nee     | `~ \.php$`, `~* ^/errors/.*\.png$`                 |
+| wereldvanbegrip.nl       | ja      | nee     |                                                   |
+| cckafe.com               | nee     | nee     | `allowAgents`: facebookexternalhit; asset-regexen |
+| boaz.toorren.net         | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`                 |
+| cv-jolijn.toorren.net    | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`                 |
+| grainwork.dutchyland.net | nee     | nee     | publieke paden (`/welkom/`, assets)               |
 
 Bewust niet: alles achter Authelia (wouter), de catch-all `_`, mailer, nxc.
 
 ## Valkuilen
 
+- **Regex-locations erven de `if` niet.** De blokkade staat in `location /` en in de locations
+  uit `extraLocations`. Een `location ~ …` / `~* …` gaat in nginx vóór `location /` en heeft de
+  `if` dus niet: die bestanden gaan gewoon met 200 naar AI-bots. Daarom staan de asset-locations
+  van cckafe.com/test.cckafe.com (uit `modules/cckafe.nix`) en `~* ^/errors/.*\.png$` van
+  toorren.net expliciet in `extraLocations`. Komt er een regex-location bij op een geblokkeerde
+  vhost, zet die daar dan ook bij; controleer met
+  `curl -A 'GPTBot/1.2' https://<host>/<asset>` → 403 en met een browser-UA → 200.
 - **Open `User-agent: *`-groep.** toorren.net had alleen `User-agent: *` zonder regel. Direct
   daarachter `User-agent: GPTBot` + `Disallow: /` maakt er één groep van → Google ook geblokkeerd.
   Het script sluit zo'n groep af met `Allow: /`.
@@ -64,6 +71,10 @@ curl -s -A 'GPTBot/1.2' https://toorren.net/robots.txt | head                  #
 curl -s -o /dev/null -w '%{http_code}\n' -A 'facebookexternalhit/1.1' https://cckafe.com/  # 200
 curl -s -o /dev/null -w '%{http_code}\n' -A 'facebookexternalhit/1.1' https://toorren.net/ # 403
 curl -s https://cckafe.com/robots.txt | grep -i facebookexternalhit             # niets
+# assets: regex-locations staan in extraLocations, anders 200 i.p.v. 403
+asset=$(curl -s https://cckafe.com/ | grep -oE '/css/[^"]+\.css' | head -1)
+curl -s -o /dev/null -w '%{http_code}\n' -A 'GPTBot/1.2' "https://cckafe.com$asset"    # 403
+curl -s -o /dev/null -w '%{http_code}\n' -A 'Mozilla/5.0' "https://cckafe.com$asset"   # 200
 ```
 
 ## Terugdraaien
