@@ -56,6 +56,18 @@ in
         accel = "vaapi";
         accelDecode = true;
       };
+      # De fotogalerij op cckafe.com haalt `preview` op. `size` is de KORTE zijde
+      # (fit: outside), dus 800 geeft ~1205x800 bij 3:2 liggend. Zonder
+      # extractEmbedded = false pakt Immich de embedded preview en doet `size` niets.
+      image = {
+        extractEmbedded = false;
+        preview = {
+          format = "webp";
+          size = 800;
+          quality = 82;
+          effort = "medium";
+        };
+      };
       passwordLogin.enabled = true; # admin-reserve naast OIDC
       oauth = {
         enabled = true;
