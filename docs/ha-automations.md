@@ -4,6 +4,29 @@ HA-runtime-automations die buiten deze repo leven (/var/lib/homeassistant). Gede
 
 > Verplaatst uit CLAUDE.md (Huidige Status) om de sessie-context slank te houden.
 
+## Buitenverlichting en kerstverlichting (2026-11-20)
+
+**Keten (alle tijden lokaal, `automations.yaml`):**
+
+| Automation | Id | Trigger | Actie |
+|---|---|---|---|
+| Verlichting Huis voorkant aan | `1697297312893` | sunset +20 min | `light.voordeur_lamp` aan 40%, **alleen als `adventkerst` = off** |
+| Verlichting Huis voorkant uit | `1697473891258` | sunrise −20 min | voordeurlamp uit |
+| Verlichting Huis voorkant - Dim | `1730668369287` | 23:55 | advent aan → outdoorplug + bloembakkeukenplug uit; daarna voordeurlamp naar 5% |
+| Kerstverlichting voorkamt | `1764536451753` | sunset +20 min | **advent aan** → `switch.outdoorplug` + `switch.bloembakkeukenplug` aan |
+
+- Schakelaar: `/adventkerst` (Telegram/Signal via `script.command_router`) of de dashboard-toggle toggelt `input_boolean.adventkerst`.
+- Achterdeur: `1725992199701` (deur open 08:00-18:00 ma-vr → werkkamerlamp knipperen + Telegram) en `2024112801` (21:45-zonsopkomst → `light.eetkamerlamp3` 10 min aan).
+
+**Bug gefixt (2026-11-20):** "Kerstverlichting voorkamt" stuurde twee `device_id`'s aan
+(`7951660e…`, `f568b7e2…`) die sinds de ZHA→Zigbee2MQTT-migratie niet meer in de device-registry
+staan. Log: `Referenced devices … are missing or not currently available`. `7951660e…` was dezelfde
+fysieke plug (IEEE `a4:c1:38:c2:c1:e0:e5:08`) als `switch.outdoorplug`. Vervangen door `entity_id`'s,
+zodat een stekkerwissel/migratie de automation niet meer breekt.
+
+Ook opgeruimd: de 06:00-trigger (zette de kerstpluggen onbedoeld de hele dag aan) en de 01:00-trigger
+op de dim-automation zijn verwijderd. Backup: `automations.yaml.bak-claude-20261120-185219`.
+
 ## Aircraft-monitor uitzetten via /aircraft Telegram-commando
 
 ### Sessie 2026-08-26 - Aircraft-monitor tijdelijk uitzetten via /aircraft Telegram-commando - OPGELOST
