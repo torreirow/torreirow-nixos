@@ -44,9 +44,32 @@ let
       add_header Cache-Control "public, max-age=604800";
     '';
 
+    # Foto's van meet-ups (modules/cckafe-photos). Ze staan in /var/lib, niet in
+    # de webroot, omdat release.sh die met `rsync --delete` overschrijft. De alias
+    # wijst de URL /photos/ naar de bestanden op schijf.
+    #
+    # `^~` is nodig: zonder dat wint de regex-locatie hierboven voor .webp/.jpg en
+    # worden de foto's in de webroot gezocht (404) in plaats van via deze alias.
+    locations."^~ /photos/" = {
+      alias = "/var/lib/cckafe-photos/";
+      extraConfig = ''
+        autoindex off;
+        add_header Cache-Control "public, max-age=604800";
+      '';
+    };
+
     locations."= /404.html".extraConfig = ''
       internal;
     '';
+
+    # Lijst van meet-ups en hun albums (/meetups/index.txt, een TSV). De
+    # fotodienst (modules/cckafe-photos) leest dit bestand rechtstreeks van
+    # schijf; via HTTP is het niet nodig en dus niet bereikbaar.
+    locations."= /meetups/index.txt" = {
+      extraConfig = ''
+        return 404;
+      '';
+    };
 
     extraConfig = ''
       index index.html;
