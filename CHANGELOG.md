@@ -15,6 +15,22 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   DNS-storing de mesh niet blokkeert. Docs, spec en statuspagina-rollen bijgewerkt.
 
 ### Added
+- **FreshRSS als security-feedreader op `feeds.toorren.net`** (`modules/freshrss.nix`,
+  `modules/freshrss-security-feeds.opml`). Native NixOS-module (php-fpm + SQLite), Authelia
+  forward-auth met `http_auth` (SSO, API buiten Authelia voor Readrops), feed-TTL 15 min, de
+  streams Mijn stack/Kritiek/NGINX en feeds voor o.a. NCSC, AWS, CISA, NixOS, Debian, Ubuntu,
+  Wiz en Rapid7. Zie `docs/freshrss.md`.
+- **nginx 1.30.7 + HTTP/2 uit op malandro** (`modules/nginx.nix`,
+  `modules/nginx-no-http2.nix`). De override bevat de fix voor CVE-2026-123633/123007; HTTP/2
+  staat voor alle vhosts uit (assertion waarschuwt bij een nieuwe vhost).
+- **tmux-agent-wizard (taw): alle coding agents in één tmux-popup** (`pkgs/tmux-agent-wizard`,
+  `home/module/tmux-agent-wizard.nix`, geïmporteerd door `home/tmux.nix`). `prefix + A` opent de
+  popup met per pane de status (blocked/error/working/done/idle), `prefix + O` springt naar de
+  agent die wacht; `#{@agent_wizard_status}` staat achteraan `status-right`. De `taw`-binary komt
+  uit de GitHub-release (0.1.7, musl, x86_64-linux), de plugin uit dezelfde tag,
+  `@agent-wizard-auto-install off`. Geen `[machines]`: alleen de lokale tmux. De Claude-hook
+  (sessie-id voor `taw session restore`) staat declaratief in
+  `home/module/codevibing/claude.nix`, omdat `settings.json` een read-only symlink is.
 - **dindoa: wedstrijdagenda van J4 op `toorren.net/dindoa`** (`modules/dindoa.nix`, flake-input
   `dindoa`). `dindoa-j4.timer` genereert de ics op maandag en donderdag om 06:00, met een foutmail
   via postfix/SES. Een Apps Script (`docs/dindoa/`) zet de feed elk uur over in de eigen
@@ -89,7 +105,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Piano-soundfont en het commando `piano`, met PipeWire op lage latency voor live spelen met het
   Nektar Impact GX61-keyboard.
 
+### Removed
+- **tmux: `prefix + J` (lazyjj) weg** (`home/tmux.nix`). De popup sloot direct buiten een
+  jj-repo, omdat `display-popup -E` bij exit meegaat en lazyjj met "No jj repository found"
+  stopt. `lazyjj` blijft in `home/jj.nix` staan voor gebruik vanaf de CLI.
+
 ### Changed
+- **tmux 3.8 uit unstable** (`home/tmux.nix`, ook in de systemd-unit). In 3.7b geeft
+  `display-message -c <client> -p '#{client_width} #{client_height}'` een lege
+  `client_height`, waarop taw de popup-maat berekent; `prefix + A` faalde daardoor met
+  "could not open the popup". Vereist eenmalig een herstart van de tmux-server, omdat
+  client en server dezelfde versie moeten zijn.
 - **`meetrec transcribe` draait op de GPU via whisper.cpp/Vulkan** (`home/module/meeting-record`,
   `hosts/lobos/programs.nix`). `openai-whisper` is PyTorch en heeft op de AMD 780M geen GPU-pad,
   dus transcriptie liep volledig op de CPU (0,23× realtime). De module roept nu `whisper-cli` uit

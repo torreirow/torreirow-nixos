@@ -4,6 +4,22 @@
 {
   imports = [ ./nginx-error-pages.nix ];
 
+  # nginx 1.30.7: patchrelease van 18-11-2026 met de fix voor
+  # CVE-2026-123633/123007 (stable-drempel 1.30.7). De nixpkgs-pin staat nog op
+  # 1.30.6; `nginx` is een alias van `nginxStable`, dus deze override dekt zowel
+  # services.nginx als de include-paden. Weghalen zodra nixpkgs >= 1.30.7 levert.
+  nixpkgs.overlays = [
+    (final: prev: {
+      nginxStable = prev.nginxStable.overrideAttrs (_: {
+        version = "1.30.7";
+        src = prev.fetchurl {
+          url = "https://nginx.org/download/nginx-1.30.7.tar.gz";
+          hash = "sha256-JWW1yDcFDpWPcPsPc8SOK8pFQq00n9NW9G+wxyYQvG4=";
+        };
+      });
+    })
+  ];
+
   services.nginx = {
     enable = true;
     #sslCertificate = "/var/lib/acme/toorren.net/fullchain.pem";

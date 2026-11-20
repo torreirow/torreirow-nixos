@@ -1,5 +1,11 @@
-{ unstable, ... }:
+{ unstable, pkgs, ... }:
 
+let
+  # Hookscript van tmux-agent-wizard (zelfde als `taw integration install claude`
+  # schrijft). Declaratief, want settings.json is een home-manager-symlink en dus
+  # read-only voor de installer.
+  tawHook = (pkgs.callPackage ../../../pkgs/tmux-agent-wizard { }).claudeHook;
+in
 {
 
   programs.claude-code = {
@@ -37,6 +43,35 @@
             {
               type = "command";
               command = "rtk hook claude";
+            }
+          ];
+        }
+      ];
+
+      # tmux-agent-wizard: deze hook meldt in welke Claude-sessie de pane zit, zodat
+      # taw het gesprek kan hervatten na een reboot en API-fouten als `error` toont.
+      # Matchers zijn die van taw zelf (SessionStart-bronnen, StopFailure-kinds).
+      hooks.SessionStart = [
+        {
+          matcher = "^(startup|resume|clear|compact|fork)$";
+          hooks = [
+            {
+              type = "command";
+              command = "bash ${tawHook}/taw-agent-state.sh session";
+              timeout = 10;
+            }
+          ];
+        }
+      ];
+
+      hooks.StopFailure = [
+        {
+          matcher = "^(rate_limit|overloaded|authentication_failed|oauth_org_not_allowed|account_on_hold|verification_required|billing_error|invalid_request|model_not_found|server_error|cloud_credential_error|unknown)$";
+          hooks = [
+            {
+              type = "command";
+              command = "bash ${tawHook}/taw-agent-state.sh failure";
+              timeout = 10;
             }
           ];
         }

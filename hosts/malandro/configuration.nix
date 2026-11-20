@@ -19,6 +19,8 @@
  ../../modules/cockpit.nix
  ../../modules/erugo.nix
  ../../modules/filedrop.nix
+ ../../modules/freshrss.nix
+ ../../modules/nginx-no-http2.nix
  ../../modules/fail2ban.nix
  ../../modules/fail2bancontrol.nix
  ../../modules/hassio

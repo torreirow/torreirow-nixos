@@ -254,6 +254,7 @@
             domain = [
               "wouter.toorren.net"
               "agenda.toorren.net"
+              "feeds.toorren.net"
             ];
             policy = "two_factor";
             subject = [ "group:personal-wouter" ];

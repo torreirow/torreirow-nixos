@@ -69,6 +69,7 @@ in
   "vikunja-webhook-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "paperless-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "wg-easy-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  "freshrss-password.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "authelia-password-hashes.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "turnstile-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   "wallos-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];

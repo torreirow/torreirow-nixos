@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Security feeds</title>
+  </head>
+  <body>
+    <outline text="Security – Bronnen" title="Security – Bronnen">
+      <outline type="rss" text="NCSC-NL beveiligingsadviezen" title="NCSC-NL beveiligingsadviezen" xmlUrl="https://advisories.ncsc.nl/rss/advisories" htmlUrl="https://advisories.ncsc.nl/"/>
+      <outline type="rss" text="AWS Security Bulletins" title="AWS Security Bulletins" xmlUrl="https://aws.amazon.com/security/security-bulletins/rss/feed/" htmlUrl="https://aws.amazon.com/security/security-bulletins/"/>
+      <outline type="rss" text="CISA Advisories (incl. KEV)" title="CISA Advisories (incl. KEV)" xmlUrl="https://www.cisa.gov/cybersecurity-advisories/all.xml" htmlUrl="https://www.cisa.gov/news-events/cybersecurity-advisories"/>
+      <outline type="rss" text="NixOS Announcements (incl. security)" title="NixOS Announcements (incl. security)" xmlUrl="https://discourse.nixos.org/c/announcements/8.rss" htmlUrl="https://discourse.nixos.org/c/announcements/8"/>
+      <outline type="rss" text="Debian DSA (Security Advisories)" title="Debian DSA (Security Advisories)" xmlUrl="https://www.debian.org/security/dsa" htmlUrl="https://www.debian.org/security/"/>
+      <outline type="rss" text="Ubuntu USN (Security Notices)" title="Ubuntu USN (Security Notices)" xmlUrl="https://ubuntu.com/security/notices/rss.xml" htmlUrl="https://ubuntu.com/security/notices"/>
+    </outline>
+    <outline text="Security – Researchers" title="Security – Researchers">
+      <outline type="rss" text="Wiz Research (blog)" title="Wiz Research (blog)" xmlUrl="https://www.wiz.io/feed/rss.xml" htmlUrl="https://www.wiz.io/blog"/>
+      <outline type="rss" text="Rapid7 (blog)" title="Rapid7 (blog)" xmlUrl="https://www.rapid7.com/rss.xml" htmlUrl="https://www.rapid7.com/blog/"/>
+      <outline type="rss" text="Wiz (Mastodon)" title="Wiz (Mastodon)" xmlUrl="https://infosec.exchange/@wiz.rss" htmlUrl="https://infosec.exchange/@wiz"/>
+      <outline type="rss" text="Rapid7 (Mastodon)" title="Rapid7 (Mastodon)" xmlUrl="https://infosec.exchange/@rapid7.rss" htmlUrl="https://infosec.exchange/@rapid7"/>
+    </outline>
+    <outline text="Security – Aanvulling" title="Security – Aanvulling">
+      <outline type="rss" text="nginx releases (GitHub)" title="nginx releases (GitHub)" xmlUrl="https://github.com/nginx/nginx/releases.atom" htmlUrl="https://github.com/nginx/nginx/releases"/>
+      <outline type="rss" text="oss-sec (seclists.org)" title="oss-sec (seclists.org)" xmlUrl="https://seclists.org/rss/oss-sec.rss" htmlUrl="https://seclists.org/oss-sec/"/>
+    </outline>
+  </body>
+</opml>

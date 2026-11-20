@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, unstable, ... }:
 
 let
   # rbw profiel → label mapping; voeg hier extra profielen toe
@@ -56,6 +56,10 @@ let
 in
 
 {
+  imports = [
+    ./module/tmux-agent-wizard.nix
+  ];
+
   home.packages = [ beans-tui-popup ];
 
   # Systemd service om tmux server te starten bij login
@@ -65,7 +69,7 @@ in
       After = [ "default.target" ];
       X-RestartIfChanged = false;
     };
-    Service = let tmuxBin = "${pkgs.tmux}/bin/tmux"; in {
+    Service = let tmuxBin = "${unstable.tmux}/bin/tmux"; in {
       # forking: tmux daemoniseert zichzelf, systemd volgt het server-proces
       # Restart=on-failure: herstart als de server crasht of afsluit
       Type = "forking";
@@ -81,6 +85,14 @@ in
 
   programs.tmux = {
     enable = true;
+
+    # tmux 3.8 uit unstable i.p.v. 3.7b uit de nixpkgs-pin: in 3.7b geeft
+    # `display-message -c <client> -p '#{client_width} #{client_height}'` een lege
+    # client_height (alleen de breedte), en daarop berekent taw de popup-maat.
+    # Gevolg was `taw ui open` → "could not parse client dimensions" en dus
+    # "taw: could not open the popup". In 3.8 werken beide waarden wel.
+    package = unstable.tmux;
+
     clock24 = true;
 
     terminal = "xterm-256color";
@@ -122,7 +134,6 @@ in
       bind -n M-Down select-pane -D
 
       bind T popup -E -w 80% -h 80% 'tj --columns --sort-activity --no-sound --no-notify'
-      bind J popup -E -d '#{pane_current_path}' -w 90% -h 90% 'lazyjj'
       bind B popup -E -d '#{pane_current_path}' -w 90% -h 90% 'beans-tui-popup'
       bind C-c popup -E -w 90% -h 90% 'tmux has-session -t cockpit 2>/dev/null || (smug start spg --detach && tmux select-window -t cockpit:spg); TMUX= tmux attach-session -t cockpit'
 

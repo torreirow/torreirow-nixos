@@ -50,6 +50,7 @@
 - **Vragen over AI-crawlers weren, `ai-blocklist.service/.timer/.path`, `$ai_bot`, de gegenereerde robots.txt per site (`/var/lib/ai-blocklist`), noindex van boaz/cv-jolijn of een bot die onterecht 403 krijgt** → lees `docs/ai-blocklist.md`
 - **Vragen over Diun, meldingen over nieuwe container-images, `diun.service`, de `diun.*`-labels of waarom een gepinde tag geen melding geeft** → lees `docs/diun.md`
 - **Vragen over de Dindoa-wedstrijdagenda, `toorren.net/dindoa`, `dindoa-j4.service/.timer`, de flake-input `dindoa`, de foutmail of het Google Apps Script dat de feed in de eigen agenda zet** → lees `docs/dindoa.md`
+- **Vragen over FreshRSS, `feeds.toorren.net`, de security-feeds/OPML, de streams (Mijn stack/Kritiek/NGINX), de Google Reader-API voor Readrops, het API-wachtwoord of HTTP/2 dat uit staat op malandro** → lees `docs/freshrss.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 
