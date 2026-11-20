@@ -1,4 +1,4 @@
-{config, lib, pkgs,  agenix, ... }:
+{config, lib, pkgs,  agenix, vulnRadarOtherAssets ? null, ... }:
 
 
 {
@@ -20,6 +20,7 @@
  ../../modules/erugo.nix
  ../../modules/filedrop.nix
  ../../modules/freshrss.nix
+ ../../modules/vuln-radar.nix
  ../../modules/nginx-no-http2.nix
  ../../modules/fail2ban.nix
  ../../modules/fail2bancontrol.nix
@@ -42,6 +43,7 @@
  ../../modules/nginx-wouter.nix
  ../../modules/nginx.nix
  ../../modules/cckafe.nix
+ ../../modules/cckafe-photos
  ../../modules/nextcloud-proxy.nix
  ../../modules/ai-blocklist
  ../../modules/blocky
@@ -89,6 +91,45 @@
   }];
 
   services.torrlinny.enable = true;
+
+  # Version-aware CVE-dashboard (openspec/changes/vuln-radar). Eigen hosts komen
+  # uit de flake; de testassets hieronder dekken upstream en Debian+Nix.
+  services.vuln-radar = {
+    enable = true;
+    extraAssets = if vulnRadarOtherAssets == null then { } else vulnRadarOtherAssets;
+    assets.malandro = {
+      os = "nixos";
+      release = config.system.nixos.release;
+      nix = {
+        nginx = config.services.nginx.package.version;
+        php = config.services.phpfpm.phpPackage.version;
+        linux = config.boot.kernelPackages.kernel.version;
+        openssl = pkgs.openssl.version;
+      };
+    };
+    assets.test-upstream = {
+      os = "upstream";
+      release = "upstream";
+      upstream = {
+        nginx = "1.30.7";
+        php = "8.3.36";
+      };
+    };
+    assets.test-debian = {
+      os = "debian";
+      release = "trixie";
+      esm = false;
+      dpkg = {
+        openssl = "3.5.7-1~deb13u3";
+        mariadb = "1:11.8.6-0+deb13u1";
+        linux = "6.12.74-2";
+      };
+      nix = {
+        apache2 = "2.4.67";
+        php = "8.3.37";
+      };
+    };
+  };
 
   # GrainWork (modules/grainwork.nix): besloten studiesite achter Pocket ID. Elke schakelaar
   # gaat pas aan na de handmatige stap ervoor (zie de module-header):

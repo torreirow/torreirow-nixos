@@ -92,10 +92,28 @@ in {
       description = "Generate vulnix JSON";
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = ''
-          ${pkgs.coreutils}/bin/mkdir -p /var/lib/vulnix
-          ${pkgs.vulnix}/bin/vulnix --system --json > /var/lib/vulnix/vulnix.json
-        '';
+        StateDirectory = "vulnix";
+        ExecStart = "${pkgs.writeShellScript "vulnix-json" ''
+          set -eu
+          tmp="$(${pkgs.coreutils}/bin/mktemp /var/lib/vulnix/.vulnix.XXXXXX)"
+          trap '${pkgs.coreutils}/bin/rm -f "$tmp"' EXIT
+          set +e
+          ${pkgs.vulnix}/bin/vulnix --system --json > "$tmp"
+          rc=$?
+          set -e
+          if [ "$rc" -eq 0 ] || [ "$rc" -eq 2 ]; then
+            if [ ! -s "$tmp" ]; then
+              echo "vulnix produced no output" >&2
+              exit 1
+            fi
+            ${pkgs.coreutils}/bin/mv "$tmp" /var/lib/vulnix/vulnix.json
+            ${pkgs.coreutils}/bin/chmod 0644 /var/lib/vulnix/vulnix.json
+            trap - EXIT
+          else
+            echo "vulnix failed with exit code $rc" >&2
+            exit 1
+          fi
+        ''}";
       };
     };
 

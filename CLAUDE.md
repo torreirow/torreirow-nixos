@@ -47,10 +47,12 @@
 - **Een nieuwe eindgebruikers-laptop toevoegen (zoals mpenzi): installeren, eerste deploy vanaf lobos, Nebula-certificaat tekenen met de CA uit Vaultwarden, `sysadmin` weghalen, of de valkuilen (`command nixos-rebuild`, `ragenx -e` via stdin)** → lees `docs/nieuwe-laptop.md`
 - **Vragen over de podcast op mpenzi, de twee NZXT Capsule-microfoons, `podrec`, "Podcast (2 mics)"/`podcast-2mics`, de poortindeling (`toorren.podcast`), Audacity-opname in twee sporen of noise gate/nabewerking** → lees `docs/podcast-mpenzi.md`
 - **Vragen over Immich, `photos.toorren.net`, de telefoon-fotobackup, het JuiceFS-volume `immich` (`/data/juicefs-immich`, prefix `immich/`), de Authelia-OIDC-client `immich`, API-sleutels voor MarkMySteps/OwnSteps, de ML-dienst op lobos (`modules/immich-ml.nix`, poort 3003 via Nebula), VAAPI-videotranscode met de nv12-patch of waarom Immich uit unstable komt** → lees `docs/immich.md`
+- **Vragen over de meet-upfoto's op cckafe.com, het album `meetup-<slug>`, `cckafe-photos.service`, waarom de foto's in `/var/lib/cckafe-photos` staan en niet in de webroot, of waarom de dienst zelf verkleint naar 1200px WebP** → lees `docs/cckafe-photos.md`
 - **Vragen over AI-crawlers weren, `ai-blocklist.service/.timer/.path`, `$ai_bot`, de gegenereerde robots.txt per site (`/var/lib/ai-blocklist`), noindex van boaz/cv-jolijn of een bot die onterecht 403 krijgt** → lees `docs/ai-blocklist.md`
 - **Vragen over Diun, meldingen over nieuwe container-images, `diun.service`, de `diun.*`-labels of waarom een gepinde tag geen melding geeft** → lees `docs/diun.md`
 - **Vragen over de Dindoa-wedstrijdagenda, `toorren.net/dindoa`, `dindoa-j4.service/.timer`, de flake-input `dindoa`, de foutmail of het Google Apps Script dat de feed in de eigen agenda zet** → lees `docs/dindoa.md`
 - **Vragen over FreshRSS, `feeds.toorren.net`, de security-feeds/OPML, de streams (Mijn stack/Kritiek/NGINX), de Google Reader-API voor Readrops, het API-wachtwoord of HTTP/2 dat uit staat op malandro** → lees `docs/freshrss.md`
+- **Vragen over vuln-radar, `vulns.toorren.net`, het asset-schema, versiematching, Debian/Ubuntu/NVD/KEV-bronnen, de onbekend-telling of het toevoegen van een klant** → lees `docs/vuln-radar.md`
 
 ## Meetprincipe bij periodiek werk met geplande downtime
 

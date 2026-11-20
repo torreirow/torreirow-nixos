@@ -57,6 +57,7 @@ let
     "upload.toorren.net"
     "url.toorren.net"
     "vw.toorren.net"
+    "vulns.toorren.net"
     "wereldvanbegrip.nl"
     "wg.toorren.net"
     "wildcard-placeholder"

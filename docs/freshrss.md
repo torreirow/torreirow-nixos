@@ -93,6 +93,22 @@ Geen werkende feed:
 - **NixOS security** — geen aparte security-categorie/feed; de Announcements-feed bevat de
   security advisories. Een stream op `nixos OR security` filtert ze eruit.
 
+## Alleen relevante berichten
+
+Er staat een gebruikersfilter dat elk nieuw bericht dat **niet** over nginx, php, apache,
+nixos of de Linux-kernel gaat automatisch als gelezen markeert. De artikelen blijven bestaan
+(ze zijn alleen `read`), maar de ongelezen-stroom blijft schoon.
+
+- Filter (config.php → `filters`): `!(nginx OR php OR apache OR nixos OR "linux kernel" OR linux-kernel)`
+  met actie `read`.
+- Stream **Relevant**: dezelfde termen, `state = ongelezen`.
+- GUI: **Configuratie → Lezen → Filteracties** (markeer als gelezen bij match).
+- Aanpassen: `scripts/freshrss-relevant-filter.php` (termen bovenin) of de GUI. Het script
+  zet ook de stream en kan met `RETRO=1` bestaande onrelevante ongelezen berichten als
+  gelezen zetten.
+- De hoofdstroom staat op alleen ongelezen; Readrops laat met de filter "Unread" dus
+  hetzelfde relevante beeld zien.
+
 ## Feed of stream toevoegen
 
 - Feed: FreshRSS → **Abonnementen beheren** → *Nieuwe feed* (of importeer een OPML via

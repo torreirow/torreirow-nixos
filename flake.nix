@@ -80,8 +80,33 @@
     };
 
   in
+  let
+    # Inventaris van de overige eigen NixOS-hosts. Malandro zelf komt uit zijn
+    # eigen config; deze drie worden hier build-time verzameld en als attrs aan
+    # de malandro-module doorgegeven (geen runtime-agent).
+    vulnHost = name:
+      let
+        c = self.nixosConfigurations.${name}.config;
+      in
+      {
+        os = "nixos";
+        release = c.system.nixos.release;
+        dpkg = { };
+        nix = {
+          linux = c.boot.kernelPackages.kernel.version;
+          openssl = nixpkgs.legacyPackages.${system}.openssl.version;
+        }
+        // nixpkgs.lib.optionalAttrs c.services.nginx.enable {
+          nginx = c.services.nginx.package.version;
+        }
+        // nixpkgs.lib.optionalAttrs (c.services.phpfpm.pools != { }) {
+          php = c.services.phpfpm.phpPackage.version;
+        };
+        upstream = { };
+      };
+    vulnRadarOtherAssets = nixpkgs.lib.genAttrs [ "lobos" "mpenzi" "farol" ] vulnHost;
+  in
   {
-  ## wtremove inherit unstable;
 
 
   ## LOBOS config START
@@ -223,6 +248,7 @@
         ./hosts/malandro/configuration.nix
         ./modules/tnaws.nix
       ];
+      specialArgs = { inherit vulnRadarOtherAssets; };
     };
 ### MALANDRO config END
 
@@ -471,6 +497,10 @@
   # Immich: ML-jobs inhalen als lobos terug is (modules/immich-ml-catchup).
   checks.x86_64-linux.immich-ml-catchup =
     nixpkgs.legacyPackages.x86_64-linux.callPackage ./modules/immich-ml-catchup/test.nix { };
+
+  # cckafe.com: fotodienst haalt meet-upfoto's uit Immich (modules/cckafe-photos).
+  checks.x86_64-linux.cckafe-photos =
+    nixpkgs.legacyPackages.x86_64-linux.callPackage ./modules/cckafe-photos/test.nix { };
 
   # Immich: VAAPI-patch (format=nv12 vóór hwupload, modules/immich-vaapi-patch.nix).
   checks.x86_64-linux.immich-vaapi-patch =

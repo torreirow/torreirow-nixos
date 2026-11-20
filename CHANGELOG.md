@@ -15,6 +15,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   DNS-storing de mesh niet blokkeert. Docs, spec en statuspagina-rollen bijgewerkt.
 
 ### Added
+- **vuln-radar: versiebewust CVE-dashboard op `vulns.toorren.net`** (`modules/vuln-radar.nix`,
+  `modules/vuln-radar.py`, `docs/vuln-radar.md`). Leest een Nix+JSON-inventaris, matcht
+  `dpkg`/`nix`/`upstream`-packages tegen Debian-/Ubuntu-trackers, NVD/vendor-changelogs en
+  CISA KEV, en toont alleen `installed < fixed`. Achter Authelia (groep `monitoring`).
 - **FreshRSS als security-feedreader op `feeds.toorren.net`** (`modules/freshrss.nix`,
   `modules/freshrss-security-feeds.opml`). Native NixOS-module (php-fpm + SQLite), Authelia
   forward-auth met `http_auth` (SSO, API buiten Authelia voor Readrops), feed-TTL 15 min, de
