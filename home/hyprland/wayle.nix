@@ -89,9 +89,6 @@ in
 {
   home.packages = [ pkgs.wayle ];
 
-  xdg.dataFile."icons/hicolor/scalable/apps/solidtime-symbolic.svg".source =
-    ../../home/icons/solidtime-symbolic.svg;
-
   systemd.user.services.wayle = {
     Unit = {
       Description = "Wayle shell";
@@ -155,7 +152,7 @@ in
     [[bar.layout]]
     monitor = "*"
     left = ["dashboard", "hyprland-workspaces", "window-title"]
-    center = ["solidtime", "clock", "weather"]
+    center = ["clock", "weather"]
     right = ["custom-clipboard", "custom-planify", "media", "volume", "battery", "notifications", "systray"]
 
     [modules.dashboard]
@@ -203,9 +200,6 @@ in
 
     [osd]
     monitor = "focussed"
-
-    [modules.solidtime]
-    icon-name = "solidtime-symbolic"
 
     [modules.planify]
     project = "TN-ToDO"
