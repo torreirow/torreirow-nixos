@@ -175,8 +175,8 @@ in
     name = "Amersfoort"
 
     [[modules.weather.locations]]
-    location = "-14.4833,31.3167"
-    name = "Petauke"
+    location = "38.8243,-9.1650"
+    name = "Loures"
 
     [modules.media]
     icon-type = "default"

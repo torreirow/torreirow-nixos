@@ -97,6 +97,7 @@ in
   } // lib.genAttrs videoTypes (_: "smplayer.desktop");
 
   environment.systemPackages = with pkgs; [
+    openshot-qt
     google-chrome
     onlyoffice-desktopeditors
     nextcloud-client

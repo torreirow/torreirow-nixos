@@ -89,6 +89,7 @@ environment.systemPackages = with pkgs; [
     #cooklang
     #flameshot
     openai
+    openshot-qt
     unstable.lynis
     fastfetch
     go-mtpfs

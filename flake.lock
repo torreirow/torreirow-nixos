@@ -776,11 +776,11 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1793832445,
-        "narHash": "sha256-55b30ByL1NI7FCfs5dexNsgmzUuepUzYxHRwdk1uhC8=",
+        "lastModified": 1795463137,
+        "narHash": "sha256-eeEcrG6aX8ufTWHGNCeDKO7KW/kaWXZA7W6/10VIFoo=",
         "ref": "refs/heads/main",
-        "rev": "9a9bca3c29308fe7019057a6e89991009ce679db",
-        "revCount": 20,
+        "rev": "95137973d56e2de06db3844b0364928bed329015",
+        "revCount": 21,
         "type": "git",
         "url": "ssh://git@github.com/torreirow/nixvim"
       },
@@ -1113,11 +1113,11 @@
     "wayle-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1785502583,
-        "narHash": "sha256-3dTaFW4KBsHPhLaE9HZQfQ74/A0y6X4+KstMoG7l8GM=",
+        "lastModified": 1795437938,
+        "narHash": "sha256-kTJGWRztsHXId8VKccZV0pbsyz94HVC3zxtu7AkPQbI=",
         "owner": "torreirow",
         "repo": "wayle",
-        "rev": "e399b80f17bbbba59d72d6ef26ea8d97db3defa8",
+        "rev": "c5d519ad8a919b63979d6660554bfa3813eb9589",
         "type": "github"
       },
       "original": {
