@@ -6,6 +6,7 @@ This document provides an overview of all ports in use on the Malandro server.
 
 | Port | Service | Binding | Type | Description |
 |------|---------|---------|------|-------------|
+| 8000 | Solidtime | 127.0.0.1 | Docker | Tijdregistratie (solidtime.toorren.net) |
 | 8080 | Vaultwarden | 127.0.0.1 | Native | Password manager (Bitwarden compatible) |
 | 2283 | Immich | 127.0.0.1 | Native | Fotobackup + API voor de reisapps (photos.toorren.net), originelen op JuiceFS `immich` |
 | 8081 | Baikal | 127.0.0.1 | Docker | CalDAV/CardDAV server |

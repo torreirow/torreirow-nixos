@@ -62,6 +62,7 @@
  ../../modules/diun.nix
  ../../modules/docker-registry-mirror.nix
  ../../modules/wallos.nix
+ ../../modules/solidtime.nix
  ../../modules/status-page.nix
  ../../modules/umami.nix
  ../../modules/ownsteps.nix
@@ -91,6 +92,16 @@
   }];
 
   services.torrlinny.enable = true;
+
+  # Solidtime tijdregistratie (modules/solidtime.nix): app + scheduler + queue +
+  # gotenberg in containers, nginx op solidtime.toorren.net. Database is de
+  # inheemse PostgreSQL van malandro (geen db-container); DB_HOST in het
+  # env-bestand is 192.168.2.52. Migraties lopen bij start.
+  services.solidtime = {
+    enable = true;
+    enableDatabase = false;
+    manageLocalDatabase = true;
+  };
 
   # Version-aware CVE-dashboard (openspec/changes/vuln-radar). Eigen hosts komen
   # uit de flake; de testassets hieronder dekken upstream en Debian+Nix.

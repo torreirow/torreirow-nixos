@@ -47,6 +47,7 @@ let
     "podcast.toorren.net"
     "prometheus.toorren.net"
     "reis.toorren.net"
+    "solidtime.toorren.net"
     "stats.toorren.net"
     "status.toorren.net"
     "stichtingwittevelden.nl"
