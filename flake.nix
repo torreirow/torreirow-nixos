@@ -424,6 +424,7 @@
         modules = [
          #./home/default.nix
          ./home/linux-server.nix
+         ./home/module/opencode.nix
          nixvim.homeModules.default
          { home.packages = [ lif.packages.${system}.default ]; }
          linux-defaults
