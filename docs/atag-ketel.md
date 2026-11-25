@@ -291,3 +291,9 @@ script gebruikt `zoneinfo`, dus zomer-/wintertijd is geen probleem.
 
 Gas per dag uit `sensor.gas_meter_gasverbruik` (de echte meter). `sensor.atag_one_gas` zit niet in
 de recorder en `sensor.atag_one_gasverbruik` is een momentane schatting van de ketel zelf.
+
+Ochtendcontrole na een wijziging van `max_preheat`:
+`~/scripts/atag-morning-check.sh [YYYY-MM-DD] [--apply]`. Leest het ochtendblok van die dag uit de
+API en rapporteert de kamertemperatuur aan het einde ervan. Drempel is `doel − 0,5 °C`, omdat de
+kamer met `max_preheat 60` op 17–20 nov ook maar op 19,9–20,2 °C kwam. Met `--apply` zet het script
+`max_preheat` terug naar 45 als de drempel niet gehaald wordt.
