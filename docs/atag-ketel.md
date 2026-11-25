@@ -1,6 +1,6 @@
 # ATAG One — ketelgedrag, pendelen en afstelling
 
-**Aangemaakt:** 2026-10-22 · **Status:** bij koud weer (11–17 nov) is het doel gehaald: 13,2 min/start. Pendelen speelt vooral in het schouderseizoen. Actief sinds 17 nov: verwarmingstype `radiator_underfloor` (lagere stooklijn) en ochtendblok zo/ma/di 05:45 → 06:30; meten t/m 22 nov (`~/scripts/atag-eval.sh 2026-11-17 2026-11-22`)
+**Aangemaakt:** 2026-10-22 · **Status:** bij koud weer (≤ 1 °C) haalt de ketel het doel ruim (24 nov: 37,9 min/start). Het pendelen in het schouderseizoen is geen ketelfout maar het gevolg van een warmtevraag (~1,2 kW) die ver onder het minimumvermogen van de ketel ligt. Actief sinds 25 nov: dagblok ma–vr 16,0 → 18,5 °C en `max_preheat` 60 → 30 min; meten t/m 30 nov (`~/scripts/atag-eval.sh 2026-11-25 2026-11-30`).
 
 `temperatuurinvloed` wijzigt alleen **hoe** de ketel de aanvoertemperatuur kiest (stooklijn vs. puur
 kamer); het tijdschema (preset `auto`, nacht 15 / ochtend 20,5 °C) blijft gewoon werken.
@@ -50,7 +50,7 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 
 **Doel:** min/start omhoog (≥ 10), starts per dag omlaag, bij vergelijkbare buitentemperatuur.
 
-## Huidige instellingen (2026-11-17)
+## Huidige instellingen (2026-11-25)
 
 | Instelling                          | Waarde            | Via HA instelbaar? |
 |-------------------------------------|-------------------|--------------------|
@@ -58,7 +58,8 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 | `select.atag_one_isolatieniveau`    | `good`            | ja                 |
 | `select.atag_one_gebouwgrootte`     | `medium`          | ja                 |
 | `select.atag_one_verwarmingstype`   | `radiator_underfloor` (was `radiator`, 17 nov) | ja |
-| `sensor.atag_one_max_boiler_temp`   | 50 °C             | **nee** (API `ch_temp_max`; wordt niet gerespecteerd, zie evaluatie) |
+| `sensor.atag_one_max_boiler_temp`   | 50 °C             | **nee** (API `ch_temp_max`; CV-pieken daarboven zijn tapwater, zie 18–24 nov) |
+| `max_preheat`                       | 30 min (was 60, 25 nov) | **nee** in HA; wel via de ATAG-API |
 | Weekprogramma                       | zie "Weekprogramma" hieronder | **nee** in HA; wel via de ATAG-API |
 | `switch.atag_one_zomer_eco_mode`    | aan               | ja                 |
 | `number.atag_one_zomer_eco_temp`    | 18 °C (was 20)    | ja (10–25 °C)      |
@@ -68,18 +69,26 @@ werken. Niet zichtbaar in de ATAG-app. De integratie `atagone` noemde de drempel
 `number.atag_one_temp_vakantieperiode` (unique_id eindigt op `summer_eco_temp`); hernoemd
 2026-11-03. De echte vakantietemperatuur is `number.atag_one_vakantie_temp`.
 
-## Weekprogramma (2026-11-17, via de ATAG-API)
+## Weekprogramma (2026-11-25, via de ATAG-API)
 
-| Dag           | Blokken (tijd @ temperatuur)                                                        |
-|---------------|-------------------------------------------------------------------------------------|
-| zo, ma, di    | 00:00–06:30 @15 · 06:30–07:30 @20,5 · 07:30–16:30 @16 · 16:30–21:45 @20,5 · 21:45–23:30 @17 · 23:30–24:00 @16 |
-| wo, do        | 00:00–07:15 @15 · 07:15–09:00 @20,5 · 09:00–16:30 @16 · 16:30–21:45 @20,5 · 21:45–23:30 @17 · 23:30–24:00 @16 |
-| vr            | 00:00–08:00 @16 · 08:00–21:45 @20,0 · 21:45–24:00 @17                              |
-| za            | 00:00–08:00 @16 · 08:00–09:40 @20,0 · 09:40–12:00 @17 · 12:00–21:45 @20,0 · 21:45–24:00 @17 |
+| Dagen  | Blokken (start @ temperatuur; elk blok loopt tot de volgende start)             |
+|--------|----------------------------------------------------------------------------------|
+| ma–wo  | 06:30 @20,5 · 07:30 @18,5 · 16:30 @20,5 · 21:45 @17 · 23:30 @16                  |
+| do–vr  | 07:15 @20,5 · 09:00 @18,5 · 16:30 @20,5 · 21:45 @17 · 23:30 @16                  |
+| za     | 00:00 @16 · 08:00 @20,0 · 21:45 @17                                              |
+| zo     | 00:00 @16 · 08:00 @20,0 · 09:40 @17 · 12:00 @20,0 · 21:45 @17                    |
 
-Het voorverwarmen begint ± 1 uur vóór het eerste blok (gemeten: eerste start 04:46 bij een blok om
-05:45). Daarom is op 17 nov het ochtendblok van zo/ma/di naar 06:30 geschoven: dat verplaatst het
-nachtelijke start/stop een uur.
+Voor ma–vr geldt tussen 00:00 en het eerste blok de basis van 15 °C.
+
+**Let op: de API levert de dagen in de volgorde ma, di, wo, do, vr, za, zo** — niet zo…za. Dat is op
+25 nov 2026 gecontroleerd tegen de werkelijke blokwissels: woensdag gebruikte het 06:30-blok en
+zondag het 08:00-blok met de dip van 09:40–12:00 @17. Eerder stonden de labels in
+`~/scripts/atag-schedule.sh` en in dit document één dag verschoven; de wijziging van 17 nov
+(05:45 → 06:30) trof daardoor ma/di/**wo** en niet zo.
+
+Het voorverwarmen begint `max_preheat` minuten vóór het eerste blok: gemeten 59–60 min bij
+`max_preheat 60` (05:31 voor 06:30, 06:16 voor 07:15, 07:01 voor 08:00). Op 25 nov is dat naar
+30 min gezet.
 
 ### De ATAG-API (poort 10000)
 
@@ -111,14 +120,20 @@ respons opslaan vóór een wijziging: de thermostaat kent geen ongedaan maken.
    beter condenseren. Risico: trager opwarmen op koude dagen.
 4. **Nachtstand 15 → ~18,5 °C** of ochtendprogramma later. Klein effect, lage prioriteit.
 
+**Stand 2026-11-25:** 1–3 zijn uitgevoerd. Wat overblijft is het tapwater (zie "Warm water") en de
+vraag aan de installateur naar het minimumvermogen en de anti-pendeltijd — de enige knoppen die de
+runlengte bij kleine warmtevraag echt veranderen.
+
 ## Wijzigingslog
 
 | Datum | Wijziging | Vorige waarde | Resultaat (min/start, starts/dag) |
 |-------|-----------|---------------|-----------------------------------|
 | 2026-10-22 21:52 | `temperatuurinvloed` → `average` (aanbeveling 2) | `room_regulation` (nooit eerder gewijzigd) | **geen verbetering:** 5,3 min/start (gelijk), 27,4 starts/dag (was 23,0) |
 | 2026-10-28 ~19:20 | Max CV-aanvoertemperatuur 60 → 50 °C op de ketel zelf (E325EC, installateursparameter; aanbeveling 3). `average` blijft staan. CV bijgevuld 1,4 → 2,0 bar | 60 °C | **runs niet langer:** 5,3 min/start (gelijk), 19,8 starts/dag (was 23,0 baseline, 27,4 `average`), 105 stookmin/dag (was 122). HA-sensor `max_boiler_temp` toonde pas na herstart van HA (reboot malandro 28 okt 19:35) 50 °C: de integratie leest deze waarde alleen bij opstarten |
-| 2026-11-17 11:54 | `verwarmingstype` `radiator` → `radiator_underfloor` (lagere stooklijn, betere condensatie). API: `ch_heating_type` 3 → 4 | `radiator` | meten 17–22 nov |
-| 2026-11-17 13:05 | Ochtendblok zo/ma/di 05:45 → 06:30 (voorverwarmen begon om 04:46). Einde 07:30 blijft | 05:45 | meten 17–22 nov |
+| 2026-11-17 11:54 | `verwarmingstype` `radiator` → `radiator_underfloor` (lagere stooklijn, betere condensatie). API: `ch_heating_type` 3 → 4 | `radiator` | **−12 % gas** bij gelijk buitenweer (6,62 vs 7,55 m³/dag), aanvoer 5 K lager; min/start onveranderd (8,9) |
+| 2026-11-17 13:05 | Ochtendblok ma/di/wo 05:45 → 06:30 (voorverwarmen begon om 04:46). Einde 07:30 blijft. *NB: destijds als zo/ma/di geadministreerd; de API-dagvolgorde is ma…zo.* | 05:45 | voorverwarmen begint nu 59 min vóór het blok |
+| 2026-11-25 15:10 | Dagblok ma/di/wo (07:30–16:30) en do/vr (09:00–16:30) 16,0 → 18,5 °C. API: `schedules.ch_schedule` entries 0–4 | 16,0 °C | meten t/m 30 nov |
+| 2026-11-25 15:10 | `max_preheat` 60 → 30 min. API: `configuration.max_preheat` | 60 | nachtstart 05:31 → ~06:00, meten t/m 30 nov |
 | 2026-11-03 11:17 | Zomer-eco-drempel 20 → 18 °C (goed geïsoleerd huis: boven 18 °C buiten geen warmtevraag, alleen korte runs). Geen effect in de winter | 20 °C | pas te zien in lente/herfst |
 
 ### Observaties `average`
@@ -162,7 +177,8 @@ Per dag: 29 okt 15 starts / 4,9 min, 30 okt 29 / 5,0, 31 okt 11 / 5,2, 1 nov 16 
 **Conclusie:** minder starts (−14 % t.o.v. baseline) en minder stookminuten (−14 %) bij vrijwel
 hetzelfde buitenweer, maar de runlengte blijft 5,3 min: het pendelen zelf is niet opgelost. Het
 doel ≥ 10 min/start is niet gehaald. Opvallend: CV-water piekt nog boven 50 °C. Vermoedelijk is dat
-warm tapwater (combiketel, zelfde sensor) en niet de CV-aanvoer; niet nagekeken.
+warm tapwater (combiketel, zelfde sensor) en niet de CV-aanvoer; op 25 nov bevestigd (zie
+"Evaluatie 18–24 nov").
 Max CV 50 °C blijft staan. De oorzaak lijkt het minimale vermogen van de ketel, dat groter is dan de
 warmtevraag; instellingen in HA veranderen daar niets aan. Opties voor de volgende stap:
 aanbeveling 4 (nachtstand), of bij de installateur vragen naar minimaal vermogen en
@@ -187,41 +203,79 @@ anti-pendeltijd (installateursparameters).
 pendelen van oktober is een schouderseizoensprobleem: kleine warmtevraag, dus korte runs. Slechte
 dagen (11 en 15 nov) ontstaan door setpointwissels binnen een paar uur, niet door de ketel.
 
-**De 50 °C-grens wordt niet gerespecteerd:** `configuration.ch_temp_max` staat op 50,0 maar het
-CV-water kwam deze week tot 57–60 °C, ook zonder tapwatervraag. Dus of de ketel gebruikt een eigen
-(installateur)parameter, of `ch_temp_max` is alleen een doelwaarde. Uitzoeken op de ketel zelf.
+**De 50 °C-grens: opgelost op 25 nov.** `configuration.ch_temp_max` staat op 50,0 terwijl het
+CV-water tot 57–60 °C kwam. De CV-pieken vallen samen met tapwaterbedrijf: op 22 nov 07:00–07:19
+loopt `cv_water_temp` naar 58,6 °C terwijl `dhw_water_temp` van 20,8 → 49,8 °C stijgt. De
+CV-sensor zit in hetzelfde leidingcircuit als de warmwaterwisselaar. Op CV wordt de 50 °C dus wél
+gerespecteerd; de uitschieters zijn warm water.
 
 **13 nov 21:04–21:09:** het setpoint sprong ±20 keer tussen 13,5 en 26,5 °C. Dat was handmatig
 gedoe in de ATAG-app (bevestigd door de gebruiker), geen fout in HA of de ketel. Zo'n reeks
 setpointwissels kost extra starts; niet nodig om te repareren.
 
+### Evaluatie 18–24 nov (kouder, met `radiator_underfloor`)
+
+`~/scripts/atag-eval.sh 2026-11-18 2026-11-24`. Gemiddeld buiten 4,7 °C — gelijk aan 11–17 nov,
+dus goed vergelijkbaar. Gas uit `sensor.gas_meter_gasverbruik` (de echte meter, niet
+`sensor.atag_one_gas`).
+
+| Datum  | Starts | Stookmin | Min/start | Buiten | Gas (m³) |
+|--------|-------:|---------:|----------:|-------:|---------:|
+| 18 wo  |     57 |      322 |       5,7 |   9,0° |     6,00 |
+| 19 do  |     43 |      266 |       6,2 |   7,8° |     5,20 |
+| 20 vr  |     36 |      368 |      10,2 |   4,5° |     6,42 |
+| 21 za  |     19 |      162 |       8,5 |   4,9° |     4,06 |
+| 22 zo  |     52 |      362 |       7,0 |   3,9° |     6,12 |
+| 23 ma  |     56 |      503 |       9,0 |   2,5° |     9,74 |
+| 24 di  |     12 |      455 |  **37,9** |   0,4° |     8,80 |
+| **Gem.** | **39,3** | **348** | **8,9** | **4,7°** | **6,62** |
+
+| Periode                           | Starts/dag | Min/start | Gas/dag         |
+|-----------------------------------|-----------:|----------:|-----------------|
+| 11–17 nov (`radiator`)            |       28,9 |      13,2 | 7,55 m³         |
+| 18–24 nov (`radiator_underfloor`) |       39,3 |       8,9 | 6,62 m³ (−12 %) |
+
+**Conclusie:** het gasverbruik is 12 % lager bij hetzelfde gemiddelde buitenweer. De stooklijn is
+duidelijk lager: CV-aanvoer tijdens verwarmen mediaan 48,6–55,4 °C vóór, 42,0–49,5 °C erna;
+retour 40–45 → 33–41 °C. De retour zat met ~37 °C al onder het dauwpunt, dus de winst komt vooral
+van lagere watertemperaturen en minder stilstandsverlies, niet van spectaculair betere condensatie.
+
+**Het aantal starts steeg, maar niet door de ketel.** Van de 277 runs vielen er 96 in een periode
+waarin het setpoint handmatig van 16,0 naar 19,5–20,5 °C was gezet; de kamer bleef daar op hangen.
+De runlengte hangt vrijwel volledig samen met hoe ver de kamer van het setpoint zit:
+
+| Kamer − setpoint bij start | Runs | Mediaan |
+|----------------------------|-----:|--------:|
+| meer dan 0,5 °C onder      |   31 | 10,2 min |
+| 0,5–1,5 °C onder           |   24 |  9,7 min |
+| tussen −0,5 en +0,5 °C     |  221 | **5,1 min** |
+
+Het huis vraagt bij 2 °C buiten maar ~1,2 kW (CV-gas 1,5–4,4 m³/dag), terwijl de ketel niet lager
+kan dan ~5 kW. Temperatuur vasthouden op het setpoint geeft dus per definitie runs van 4–6 min. Bij
+echte kou verdwijnt het probleem: 24 nov (0,4°) 37,9 min/start met één run van 99 min. Dat is
+precies het gewenste gedrag en het bevestigt dat het pendulum een schouderseizoensverschijnsel is.
+
+**Comfort:** het dagblok van 16,0 °C liet de kamer op koude dagen naar 17,4–17,6 °C zakken, waarna
+handmatig naar 19,5 °C werd gezet (23 nov 15:29 → 31 min, 24 nov 16:01 → 99 min). Daarom is op
+25 nov het dagblok naar 18,5 °C gezet.
+
+### Warm water (openstaand punt)
+
+Ongeveer de helft van het gas gaat naar tapwater: met een schatting op basis van stijgend
+`dhw_water_temp` tijdens branden kwam dat op 2,1–3,8 m³/dag. `dhw_status` wisselt dagelijks om
+08:00/11:00 en 17:00/22:00 tussen 13 en 45 — dat zijn vaste comfortvensters die niet in
+`dhw_schedule` staan (die geeft 45 in de blokken 00:00–06:45, 10:30–19:00 en 21:30–24:00).
+`control.dhw_temp_setp` staat op 55 °C terwijl het schema 45 °C zegt.
+
+Te doen: in de ATAG-app controleren of een warmwater-comfortprogramma met die twee vensters aan
+staat, daarna `dhw_temp_setp` 55 → 50 °C via de API (`control`) en ≥ 5 dagen gas meten.
+Legionella staat al aan (`dhw_legion_enabled 1`, zondag 03:15), dus 50 °C is veilig.
+
 ## Opnieuw meten
 
-Op malandro. Pas de datums aan; schrijft per dag starts, stookminuten en buitentemperatuur.
+Op malandro: `~/scripts/atag-eval.sh [VAN] [TOT]` (standaard: laatste 7 dagen). Geeft per dag
+starts, stookminuten, min/start, runs ≥ 10 min, buitentemperatuur en het CV-/retourmaximum. Het
+script gebruikt `zoneinfo`, dus zomer-/wintertijd is geen probleem.
 
-```bash
-T=$(sudo cat /run/agenix/homeassistant-prometheus-token | tr -d '\n')
-curl -s -H "Authorization: Bearer $T" \
-  "http://127.0.0.1:8123/api/history/period/2026-10-15T00:00:00+02:00?end_time=2026-10-22T21:00:00%2B02:00&filter_entity_id=climate.atag_one,sensor.atag_one_buiten_temp" \
-| python3 -I -c '
-import json,sys
-from collections import defaultdict
-from datetime import datetime,timezone,timedelta
-tz=timezone(timedelta(hours=2)); d={s[0]["entity_id"]:s for s in json.load(sys.stdin)}
-t=lambda s: datetime.fromisoformat(s["last_changed"]).astimezone(tz)
-st=defaultdict(int); mn=defaultdict(float); bt=defaultdict(list); prev=t0=None
-for s in d.get("climate.atag_one",[]):
-    a=s["attributes"].get("hvac_action")
-    if a=="heating" and prev!="heating": st[t(s).date()]+=1; t0=t(s)
-    if a!="heating" and prev=="heating" and t0: mn[t0.date()]+=(t(s)-t0).total_seconds()/60
-    prev=a
-for s in d.get("sensor.atag_one_buiten_temp",[]):
-    try: bt[t(s).date()].append(float(s["state"]))
-    except ValueError: pass
-for k in sorted(set(st)|set(bt)):
-    n=st.get(k,0); m=mn.get(k,0); b=bt[k]
-    print(k, n, round(m), round(m/n,1) if n else "-", round(sum(b)/len(b),1) if b else "-")
-'
-```
-
-Let op zomer-/wintertijd: na 25 okt is lokale tijd UTC+1 → `+02:00` wordt `+01:00` (ook in `tz`).
+Gas per dag uit `sensor.gas_meter_gasverbruik` (de echte meter). `sensor.atag_one_gas` zit niet in
+de recorder en `sensor.atag_one_gasverbruik` is een momentane schatting van de ketel zelf.
