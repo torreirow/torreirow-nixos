@@ -82,9 +82,9 @@ Voor ma–vr geldt tussen 00:00 en het eerste blok de basis van 15 °C.
 
 **Let op: de API levert de dagen in de volgorde ma, di, wo, do, vr, za, zo** — niet zo…za. Dat is op
 25 nov 2026 gecontroleerd tegen de werkelijke blokwissels: woensdag gebruikte het 06:30-blok en
-zondag het 08:00-blok met de dip van 09:40–12:00 @17. Eerder stonden de labels in
-`~/scripts/atag-schedule.sh` en in dit document één dag verschoven; de wijziging van 17 nov
-(05:45 → 06:30) trof daardoor ma/di/**wo** en niet zo.
+zondag het 08:00-blok met de dip van 09:40–12:00 @17. De ATAG-app toont de dagen ook in die volgorde.
+Eerder stonden de labels in `~/scripts/atag-schedule.sh` en in dit document één dag verschoven; de
+wijziging van 17 nov (05:45 → 06:30) trof daardoor ma/di/**wo** en niet zo.
 
 Het voorverwarmen begint `max_preheat` minuten vóór het eerste blok: gemeten 59–60 min bij
 `max_preheat 60` (05:31 voor 06:30, 06:16 voor 07:15, 07:01 voor 08:00). Op 25 nov is dat naar
@@ -120,9 +120,9 @@ respons opslaan vóór een wijziging: de thermostaat kent geen ongedaan maken.
    beter condenseren. Risico: trager opwarmen op koude dagen.
 4. **Nachtstand 15 → ~18,5 °C** of ochtendprogramma later. Klein effect, lage prioriteit.
 
-**Stand 2026-11-25:** 1–3 zijn uitgevoerd. Wat overblijft is het tapwater (zie "Warm water") en de
-vraag aan de installateur naar het minimumvermogen en de anti-pendeltijd — de enige knoppen die de
-runlengte bij kleine warmtevraag echt veranderen.
+**Stand 2026-11-25:** 1–3 zijn uitgevoerd. Wat overblijft is de vraag aan de installateur naar het
+minimumvermogen en de anti-pendeltijd — de enige knoppen die de runlengte bij kleine warmtevraag
+echt veranderen. Het tapwaterprogramma is in orde (zie "Warm water").
 
 ## Wijzigingslog
 
@@ -259,17 +259,29 @@ precies het gewenste gedrag en het bevestigt dat het pendulum een schouderseizoe
 handmatig naar 19,5 °C werd gezet (23 nov 15:29 → 31 min, 24 nov 16:01 → 99 min). Daarom is op
 25 nov het dagblok naar 18,5 °C gezet.
 
-### Warm water (openstaand punt)
+### Warm water (2026-11-25: schema is actief)
 
-Ongeveer de helft van het gas gaat naar tapwater: met een schatting op basis van stijgend
-`dhw_water_temp` tijdens branden kwam dat op 2,1–3,8 m³/dag. `dhw_status` wisselt dagelijks om
-08:00/11:00 en 17:00/22:00 tussen 13 en 45 — dat zijn vaste comfortvensters die niet in
-`dhw_schedule` staan (die geeft 45 in de blokken 00:00–06:45, 10:30–19:00 en 21:30–24:00).
-`control.dhw_temp_setp` staat op 55 °C terwijl het schema 45 °C zegt.
+Het warmwaterprogramma (`schedules.dhw_schedule`) is actief. Bevestigd in de ATAG-app (25 nov) en
+in `sensor.atag_one_dhw_status`, die exact op de blokgrenzen schakelt:
 
-Te doen: in de ATAG-app controleren of een warmwater-comfortprogramma met die twee vensters aan
-staat, daarna `dhw_temp_setp` 55 → 50 °C via de API (`control`) en ≥ 5 dagen gas meten.
-Legionella staat al aan (`dhw_legion_enabled 1`, zondag 03:15), dus 50 °C is veilig.
+| Dagen | 45 °C (eco)                             | 55 °C (comfort)           |
+|-------|-----------------------------------------|---------------------------|
+| ma–vr | 00:00–06:45 · 10:30–19:00 · 21:30–24:00 | 06:45–10:30 · 19:00–21:30 |
+| za–zo | 00:00–08:00 · 11:00–17:00 · 22:00–24:00 | 08:00–11:00 · 17:00–22:00 |
+
+`control.dhw_temp_setp` = 55 is dus de basis-/comfortwaarde, geen constante target: buiten de
+comfortvensters geldt 45 °C. De ochtend- en avondpieken van 55–58 °C in `cv_water_temp` zijn dit
+programma, geen CV.
+
+Een exacte tapwater/CV-split is met de huidige sensoren niet te maken (`dhw_flow_rate` staat vast op
+0, `dhw_water_temp` stratificeert sterk); een ruwe schatting is 2–3 m³ gas/dag voor warm water.
+Belangrijker: het verlagen van 55 → 50 °C levert vrijwel niets op. Het warmwaterverbruik zelf
+(douchen) bepaalt de energie, niet de opslagtemperatuur; alleen het stilstandsverlies daalt, in de
+orde van 0,05 m³/dag. Legionella staat aan (`dhw_legion_enabled 1`, zondag 03:15).
+
+Conclusie: programma laten staan, geen meting nodig. Alleen aanpassen als het comfort tekortschiet
+(55 → 60) of als er echt gas bespaard moet worden — dat zit dan in douchegedrag of boilerisolatie,
+niet in het setpoint.
 
 ## Opnieuw meten
 
