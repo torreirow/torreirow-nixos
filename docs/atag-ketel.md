@@ -58,7 +58,7 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 | `select.atag_one_isolatieniveau`    | `good`            | ja                 |
 | `select.atag_one_gebouwgrootte`     | `medium`          | ja                 |
 | `select.atag_one_verwarmingstype`   | `radiator` (was `radiator_underfloor` 17–26 nov) | ja |
-| `sensor.atag_one_max_boiler_temp`   | 50 °C             | **nee**: `ch_temp_max` accepeert een update (`acc_status 2`) maar negeert hem; alleen op de ketel zelf (zie 26 nov) |
+| `sensor.atag_one_max_boiler_temp`   | 60 °C (50 van 28 okt–26 nov) | **nee**: API accepteert een update (`acc_status 2`) maar negeert hem; instellen op de ketel zelf. HA-sensor toont de nieuwe waarde pas na een HA-herstart |
 | `max_preheat`                       | 30 min (was 60, 25 nov) | **nee** in HA; wel via de ATAG-API |
 | Weekprogramma                       | zie "Weekprogramma" hieronder | **nee** in HA; wel via de ATAG-API |
 | `switch.atag_one_zomer_eco_mode`    | aan               | ja                 |
@@ -136,6 +136,7 @@ echt veranderen. Het tapwaterprogramma is in orde (zie "Warm water").
 | 2026-11-25 15:10 | `max_preheat` 60 → 30 min. API: `configuration.max_preheat` | 60 | nachtstart 05:31 → ~06:00, meten t/m 30 nov |
 | 2026-11-26 17:37 | `verwarmingstype` `radiator_underfloor` → `radiator`. API: `ch_heating_type` 4 → 3. Het huis heeft radiatoren, geen vloerverwarming | `radiator_underfloor` | stooklijn weer op radiator; zie "26 nov: koude kamer" |
 | 2026-11-26 17:45 | Poging `ch_temp_max` 50 → 60 via de API | 50 °C | **niet doorgevoerd:** `acc_status 2` maar de waarde blijft 50,0. Alleen op de ketel zelf (installateursmenu) of via de installateur |
+| 2026-11-26 ~18:10 | Max CV-aanvoertemperatuur 50 → 60 °C, door de gebruiker op de ketel zelf gezet | 50 °C | om 18:17 in de API: `ch_temp_max` en `details.max_boiler_temp` 60,0. `ch_setpoint` niet meer vastgepind op 50,0 (50,2–50,3) |
 | 2026-11-03 11:17 | Zomer-eco-drempel 20 → 18 °C (goed geïsoleerd huis: boven 18 °C buiten geen warmtevraag, alleen korte runs). Geen effect in de winter | 20 °C | pas te zien in lente/herfst |
 
 ### Observaties `average`
