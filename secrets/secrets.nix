@@ -112,6 +112,8 @@ in
   "cap-admin-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   # Cap CAPTCHA: key-secret voor server-side siteverify vanuit de mailer
   "cap-mailer-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+  # Cap CAPTCHA: key-secret voor de CV-downloadbroker (site key a9194a3d45)
+  "cap-cv-secret.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   # File Drop (eghupload.toorren.net): env-file met CAP_SECRET en NEXTCLOUD_SHARE_TOKEN
   "filedrop-env.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
   # Umami (stats.toorren.net): APP_SECRET, alleen de waarde (APP_SECRET_FILE)

@@ -40,6 +40,11 @@ in
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
+      # juicefs zoekt `fusermount` in PATH; de standaard service-PATH bevat die niet.
+      path = [
+        pkgs.fuse
+        pkgs.util-linux
+      ];
       EnvironmentFile = "/run/agenix/juicefs-malandro-env";
       ExecStart =
         "${pkgs.juicefs}/bin/juicefs mount --read-only "

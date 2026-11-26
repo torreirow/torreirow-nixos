@@ -114,6 +114,11 @@ in
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
+      # juicefs zoekt `fusermount` in PATH; de standaard service-PATH bevat die niet.
+      path = [
+        pkgs.fuse
+        pkgs.util-linux
+      ];
       EnvironmentFile = [
         config.age.secrets.juicefs-immich-env.path
         config.age.secrets.juicefs-immich-passphrase.path

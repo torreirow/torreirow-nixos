@@ -190,7 +190,7 @@ environment.systemPackages = with pkgs; [
     # subtitleedit is uit nixpkgs-unstable verwijderd (gtk2 EOL); haal het uit 25.11 stable
     pkgs-2511.subtitleedit
     tali # poker game
-    teams-for-linux
+    unstable.teams-for-linux
     telegram-desktop
     terraform
     terraform-docs

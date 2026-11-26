@@ -38,6 +38,7 @@
  ../../modules/nginx-boaz.nix
  ../../modules/nginx-portal.nix
  ../../modules/nginx-cv-jolijn.nix
+ ../../modules/nginx-wouter-resume.nix
  ../../modules/mailer.nix
  ../../modules/nginx-wereldvanbegrip.nix
  ../../modules/nginx-wouter.nix
@@ -63,6 +64,7 @@
  ../../modules/docker-registry-mirror.nix
  ../../modules/wallos.nix
  ../../modules/solidtime.nix
+ ../../modules/atuin.nix
  ../../modules/status-page.nix
  ../../modules/umami.nix
  ../../modules/ownsteps.nix
@@ -101,6 +103,15 @@
     enable = true;
     enableDatabase = false;
     manageLocalDatabase = true;
+  };
+
+  # Atuin shell-history sync (modules/atuin.nix), lokaal op 127.0.0.1:8888
+  # achter nginx op atuin.toorren.net. Registratie dicht; accounts aanmaken
+  # tijdelijk met openRegistration = true en daarna weer uitzetten.
+  services.atuin = {
+    enable = true;
+    nginx.enable = true;
+    openRegistration = true;
   };
 
   # Version-aware CVE-dashboard (openspec/changes/vuln-radar). Eigen hosts komen
@@ -185,6 +196,7 @@
     # Niet indexeerbaar, ook niet voor gewone zoekmachines.
     "boaz.toorren.net".noindex = true;
     "cv-jolijn.toorren.net".noindex = true;
+    "wouter-resume.toorren.net".noindex = true;
     # Publieke paden van grainwork (publicLocations in modules/grainwork.nix); de rest
     # staat achter Pocket ID.
     "grainwork.dutchyland.net".extraLocations = [

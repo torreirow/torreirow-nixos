@@ -23,14 +23,15 @@ Module: `modules/ai-blocklist/` (`default.nix` + `update-ai-blocklist.py`), site
 
 ## Sites
 
-| vhost                    | sitemap | noindex | extra                                             |
-| ------------------------ | ------- | ------- | ------------------------------------------------- |
-| toorren.net              | ja      | nee     | `~ \.php$`, `~* ^/errors/.*\.png$`                 |
-| wereldvanbegrip.nl       | ja      | nee     |                                                   |
-| cckafe.com               | nee     | nee     | `allowAgents`: facebookexternalhit; asset-regexen |
-| boaz.toorren.net         | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`                 |
-| cv-jolijn.toorren.net    | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`                 |
-| grainwork.dutchyland.net | nee     | nee     | publieke paden (`/welkom/`, assets)               |
+| vhost                     | sitemap | noindex | extra                                             |
+| ------------------------- | ------- | ------- | ------------------------------------------------- |
+| toorren.net               | ja      | nee     | `~ \.php$`, `~* ^/errors/.*\.png$`                 |
+| wereldvanbegrip.nl        | ja      | nee     |                                                   |
+| cckafe.com                | nee     | nee     | `allowAgents`: facebookexternalhit; asset-regexen |
+| boaz.toorren.net          | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`                 |
+| cv-jolijn.toorren.net     | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`                 |
+| wouter-resume.toorren.net | nee     | **ja**  | `X-Robots-Tag: noindex, nofollow`                 |
+| grainwork.dutchyland.net  | nee     | nee     | publieke paden (`/welkom/`, assets)               |
 
 Bewust niet: alles achter Authelia (wouter), de catch-all `_`, mailer, nxc.
 
