@@ -138,7 +138,7 @@ echt veranderen. Het tapwaterprogramma is in orde (zie "Warm water").
 | 2026-11-26 17:45 | Poging `ch_temp_max` 50 → 60 via de API | 50 °C | **niet doorgevoerd:** `acc_status 2` maar de waarde blijft 50,0. Alleen op de ketel zelf (installateursmenu) of via de installateur |
 | 2026-11-26 ~18:10 | Max CV-aanvoertemperatuur 50 → 60 °C, door de gebruiker op de ketel zelf gezet | 50 °C | om 18:17 in de API: `ch_temp_max` en `details.max_boiler_temp` 60,0. `ch_setpoint` niet meer vastgepind op 50,0 (50,2–50,3) |
 | 2026-11-26 18:22 | `temperatuurinvloed` `average` → `more` (door de gebruiker, via HA) | `average` | geen direct effect: `ch_setpoint` daalde 50,0 → 49,7 terwijl de kamer steeg. Op zachte dagen letten op meer pendelen |
-| 2026-11-26 18:33 | Tijdelijke boost setpoint 22 °C; `~/scripts/atag-boost-revert.sh` zet terug naar 20,5 bij kamer ≥ 20,3 of uiterlijk 20:30 | 20,5 | eenmalig |
+| 2026-11-26 18:33 | Tijdelijke boost setpoint 22 °C (`~/scripts/atag-boost-revert.sh` als vangnet) | 20,5 | **geen winst:** vraag 60 °C, modulatie 43 %, maar kamer 19,4 → 19,7 in 45 min (~0,4 K/h, gelijk aan zonder boost). Retour 56 °C → alert `ATAGReturnTempNotCondensing`. Om 19:21 gestopt, terug naar 20,5. Conclusie: de opwarmsnelheid wordt begrensd door radiatoren/huis, niet door de ketel |
 | 2026-11-03 11:17 | Zomer-eco-drempel 20 → 18 °C (goed geïsoleerd huis: boven 18 °C buiten geen warmtevraag, alleen korte runs). Geen effect in de winter | 20 °C | pas te zien in lente/herfst |
 
 ### Observaties `average`
