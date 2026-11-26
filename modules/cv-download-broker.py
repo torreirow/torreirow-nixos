@@ -65,8 +65,23 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self) -> None:
-        if self.path == "/health":
+        path = self.path.split("?", 1)[0]
+        if path == "/health":
             self._json(200, {"ok": True})
+        elif path == "/download":
+            # Fallback voor bezoekers zonder JavaScript: geen PDF, alleen uitleg.
+            html = (
+                "<!doctype html><html lang=nl><meta charset=utf-8>"
+                "<title>Download vereist JavaScript</title>"
+                "<p>Deze download is beveiligd met een browsercontrole. "
+                "Schakel JavaScript in en probeer het opnieuw.</p>"
+            ).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(html)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(html)
         else:
             self._json(405, {"success": False, "error": "method not allowed"})
 
