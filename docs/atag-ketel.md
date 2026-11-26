@@ -1,6 +1,6 @@
 # ATAG One — ketelgedrag, pendelen en afstelling
 
-**Aangemaakt:** 2026-10-22 · **Status:** bij koud weer (≤ 1 °C) haalt de ketel het doel ruim (24 nov: 37,9 min/start). Het pendelen in het schouderseizoen is geen ketelfout maar het gevolg van een warmtevraag (~1,2 kW) die ver onder het minimumvermogen van de ketel ligt. Actief sinds 25 nov: dagblok ma–vr 16,0 → 18,5 °C en `max_preheat` 60 → 30 min; meten t/m 30 nov (`~/scripts/atag-eval.sh 2026-11-25 2026-11-30`).
+**Aangemaakt:** 2026-10-22 · **Status:** bij koud weer (≤ 1 °C) haalt de ketel het doel ruim (24 nov: 37,9 min/start). Het pendelen in het schouderseizoen is geen ketelfout maar het gevolg van een warmtevraag (~1,2 kW) die ver onder het minimumvermogen van de ketel ligt. Actief sinds 26 nov: dagblok ma–vr 18,5 °C, `max_preheat` 30 min en verwarmingstype `radiator` (de `radiator_underfloor`-proef is teruggedraaid: het huis heeft radiatoren). Meten t/m 30 nov (`~/scripts/atag-eval.sh 2026-11-25 2026-11-30`).
 
 `temperatuurinvloed` wijzigt alleen **hoe** de ketel de aanvoertemperatuur kiest (stooklijn vs. puur
 kamer); het tijdschema (preset `auto`, nacht 15 / ochtend 20,5 °C) blijft gewoon werken.
@@ -57,8 +57,8 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 | `select.atag_one_temperatuurinvloed`| `average`         | ja (`off`/`less`/`average`/`more`/`room_regulation`) |
 | `select.atag_one_isolatieniveau`    | `good`            | ja                 |
 | `select.atag_one_gebouwgrootte`     | `medium`          | ja                 |
-| `select.atag_one_verwarmingstype`   | `radiator_underfloor` (was `radiator`, 17 nov) | ja |
-| `sensor.atag_one_max_boiler_temp`   | 50 °C             | **nee** (API `ch_temp_max`; CV-pieken daarboven zijn tapwater, zie 18–24 nov) |
+| `select.atag_one_verwarmingstype`   | `radiator` (was `radiator_underfloor` 17–26 nov) | ja |
+| `sensor.atag_one_max_boiler_temp`   | 50 °C             | **nee**: `ch_temp_max` accepeert een update (`acc_status 2`) maar negeert hem; alleen op de ketel zelf (zie 26 nov) |
 | `max_preheat`                       | 30 min (was 60, 25 nov) | **nee** in HA; wel via de ATAG-API |
 | Weekprogramma                       | zie "Weekprogramma" hieronder | **nee** in HA; wel via de ATAG-API |
 | `switch.atag_one_zomer_eco_mode`    | aan               | ja                 |
@@ -134,6 +134,8 @@ echt veranderen. Het tapwaterprogramma is in orde (zie "Warm water").
 | 2026-11-17 13:05 | Ochtendblok ma/di/wo 05:45 → 06:30 (voorverwarmen begon om 04:46). Einde 07:30 blijft. *NB: destijds als zo/ma/di geadministreerd; de API-dagvolgorde is ma…zo.* | 05:45 | voorverwarmen begint nu 59 min vóór het blok |
 | 2026-11-25 15:10 | Dagblok ma/di/wo (07:30–16:30) en do/vr (09:00–16:30) 16,0 → 18,5 °C. API: `schedules.ch_schedule` entries 0–4 | 16,0 °C | meten t/m 30 nov |
 | 2026-11-25 15:10 | `max_preheat` 60 → 30 min. API: `configuration.max_preheat` | 60 | nachtstart 05:31 → ~06:00, meten t/m 30 nov |
+| 2026-11-26 17:37 | `verwarmingstype` `radiator_underfloor` → `radiator`. API: `ch_heating_type` 4 → 3. Het huis heeft radiatoren, geen vloerverwarming | `radiator_underfloor` | stooklijn weer op radiator; zie "26 nov: koude kamer" |
+| 2026-11-26 17:45 | Poging `ch_temp_max` 50 → 60 via de API | 50 °C | **niet doorgevoerd:** `acc_status 2` maar de waarde blijft 50,0. Alleen op de ketel zelf (installateursmenu) of via de installateur |
 | 2026-11-03 11:17 | Zomer-eco-drempel 20 → 18 °C (goed geïsoleerd huis: boven 18 °C buiten geen warmtevraag, alleen korte runs). Geen effect in de winter | 20 °C | pas te zien in lente/herfst |
 
 ### Observaties `average`
@@ -258,6 +260,27 @@ precies het gewenste gedrag en het bevestigt dat het pendulum een schouderseizoe
 **Comfort:** het dagblok van 16,0 °C liet de kamer op koude dagen naar 17,4–17,6 °C zakken, waarna
 handmatig naar 19,5 °C werd gezet (23 nov 15:29 → 31 min, 24 nov 16:01 → 99 min). Daarom is op
 25 nov het dagblok naar 18,5 °C gezet.
+
+### 26 nov: koude kamer en de grens van de stooklijn
+
+De kamer bleef op 18,5 °C hangen terwijl het setpoint 20,5 was.
+
+- Het setpoint stond van 10:02 tot 16:00 op 17,0 °C (handmatig, niet het programma). Het huis koelde
+  in die uren naar 17,0 °C.
+- Om 16:00 begon de automatische voorverwarming van het avondblok (`max_preheat 30`) → 20,0, om
+  16:30 het blok zelf → 20,5.
+- Daarna liep de ketel 68 minuten onafgebroken op ~6,6–7 kW (CV 55,5 / retour 47, ΔT 8), goed voor
+  +1,5 K in het eerste uur en daarna ~0,9 K/h. Van 17,0 naar 20,5 duurt dus 4–5 uur.
+- De aanvoer wordt begrensd door `ch_temp_max` 50 °C: de ketel moduleert terug naar 9–18 % om
+  50–55 °C te houden. Sneller opwarmen vraagt een hogere aanvoertemperatuur, niet een hoger
+  setpoint.
+- `radiator_underfloor` stond hier sinds 17 nov als proef, maar het huis heeft radiatoren. Op 26 nov
+  teruggezet naar `radiator` (`ch_heating_type` 4 → 3). De API negeert `ch_temp_max` 60
+  (`acc_status 2`, waarde blijft 50,0); dat moet op de ketel zelf of via de installateur.
+
+**Les:** niet laten afkoelen is veel effectiever dan bijstellen. Met het dagblok op 17 °C kost het
+de rest van de avond om weer op 20,5 te komen; met 18,5 °C blijft het huis op temperatuur en is het
+avondblok een kleine stap.
 
 ### Warm water (2026-11-25: schema is actief)
 
