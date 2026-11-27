@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, unstable, ... }:
 
 # CV-site van Wouter van der Toorren.
 #
@@ -67,6 +67,12 @@ in
 
   # Anubis: proof-of-work voor elke request. De catch-all-regel vervangt de
   # standaardregels, omdat die gewone browsers juist zouden allowen.
+  services.anubis = {
+    # 1.26.2 in nixos-26.05 heeft een Firefox-probleem waarbij de challenge
+    # pas na een handmatige refresh doorkomt; 1.28.2 uit unstable lost dat op.
+    package = unstable.anubis;
+  };
+
   services.anubis.instances.cv = {
     settings = {
       BIND = "127.0.0.1:${toString anubisPort}";

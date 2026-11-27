@@ -7,7 +7,9 @@ Zie `proposal.md` voor de motivatie. De site draait als statische Hugo-build op
 beschermd door een Cap-broker op `127.0.0.1:8787`, waarbij directe
 `/uploads/*.pdf`-requests 404 geven. Er is nog geen bescherming op de HTML.
 
-Anubis is beschikbaar in nixpkgs (1.28.2) en heeft een NixOS-module. De module
+Anubis is beschikbaar in nixpkgs en heeft een NixOS-module. De module gebruikt
+versie 1.28.2 uit de `unstable`-input; de 1.26.2 uit nixos-26.05 vroeg in Firefox
+om een handmatige refresh voordat de challenge doorkwam. De module
 draait per instantie een systemd-service met een configureerbare bot-policy.
 Anubis luistert in deze opzet op loopback-TCP (`127.0.0.1:9301`), omdat de
 nginx-proxy naar een Unix-socket in deze nginx-versie dubbele proxyheaders
