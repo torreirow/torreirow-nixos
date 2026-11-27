@@ -1,9 +1,9 @@
 # ATAG One — ketelgedrag, pendelen en afstelling
 
-**Aangemaakt:** 2026-10-22 · **Status:** bij koud weer (≤ 1 °C) haalt de ketel het doel ruim (24 nov: 37,9 min/start). Het pendelen in het schouderseizoen is geen ketelfout maar het gevolg van een warmtevraag (~1,2 kW) die ver onder het minimumvermogen van de ketel ligt. Actief sinds 26 nov: dagblok ma–vr 18,5 °C, `max_preheat` 30 min en verwarmingstype `radiator` (de `radiator_underfloor`-proef is teruggedraaid: het huis heeft radiatoren). Meten t/m 30 nov (`~/scripts/atag-eval.sh 2026-11-25 2026-11-30`).
+**Aangemaakt:** 2026-10-22 · **Status:** bij koud weer (≤ 1 °C) haalt de ketel het doel ruim (24 nov: 37,9 min/start). Het pendelen in het schouderseizoen is geen ketelfout maar het gevolg van een warmtevraag (~1,2 kW) die ver onder het minimumvermogen van de ketel ligt. Actief sinds 27 nov: eis **19,5 °C uiterlijk om 06:45 (do/vr), 07:15 (ma–wo) en 08:00 (za/zo)**, daarna 20,5. Ochtendblok daarom een uur vóór die tijd, `max_preheat` 60 min, nacht 16 °C. Dagblok ma–vr 18,5 °C, verwarmingstype `radiator`, max aanvoer 60 °C, `temperatuurinvloed` `more`. Meten t/m 30 nov (`~/scripts/atag-eval.sh 2026-11-25 2026-11-30`).
 
 `temperatuurinvloed` wijzigt alleen **hoe** de ketel de aanvoertemperatuur kiest (stooklijn vs. puur
-kamer); het tijdschema (preset `auto`, nacht 15 / ochtend 20,5 °C) blijft gewoon werken.
+kamer); het tijdschema (preset `auto`, nacht 16 / ochtend 20,5 °C) blijft gewoon werken.
 
 Werknotitie om het stookgedrag van de ATAG One te volgen en instellingen **één voor één** te
 veranderen en te meten. Bron: Home Assistant op malandro (`climate.atag_one` + `sensor.atag_one_*`).
@@ -50,16 +50,16 @@ pollt per ~1–3 min, korte runs kunnen gemist of afgerond zijn.
 
 **Doel:** min/start omhoog (≥ 10), starts per dag omlaag, bij vergelijkbare buitentemperatuur.
 
-## Huidige instellingen (2026-11-25)
+## Huidige instellingen (2026-11-27)
 
 | Instelling                          | Waarde            | Via HA instelbaar? |
 |-------------------------------------|-------------------|--------------------|
-| `select.atag_one_temperatuurinvloed`| `average`         | ja (`off`/`less`/`average`/`more`/`room_regulation`) |
+| `select.atag_one_temperatuurinvloed`| `more` (26 nov)   | ja (`off`/`less`/`average`/`more`/`room_regulation`) |
 | `select.atag_one_isolatieniveau`    | `good`            | ja                 |
 | `select.atag_one_gebouwgrootte`     | `medium`          | ja                 |
 | `select.atag_one_verwarmingstype`   | `radiator` (was `radiator_underfloor` 17–26 nov) | ja |
 | `sensor.atag_one_max_boiler_temp`   | 60 °C (50 van 28 okt–26 nov) | **nee**: API accepteert een update (`acc_status 2`) maar negeert hem; instellen op de ketel zelf. HA-sensor toont de nieuwe waarde pas na een HA-herstart |
-| `max_preheat`                       | 30 min (was 60, 25 nov) | **nee** in HA; wel via de ATAG-API |
+| `max_preheat`                       | 60 min (30 van 25–27 nov) | **nee** in HA; wel via de ATAG-API |
 | Weekprogramma                       | zie "Weekprogramma" hieronder | **nee** in HA; wel via de ATAG-API |
 | `switch.atag_one_zomer_eco_mode`    | aan               | ja                 |
 | `number.atag_one_zomer_eco_temp`    | 18 °C (was 20)    | ja (10–25 °C)      |
@@ -69,16 +69,22 @@ werken. Niet zichtbaar in de ATAG-app. De integratie `atagone` noemde de drempel
 `number.atag_one_temp_vakantieperiode` (unique_id eindigt op `summer_eco_temp`); hernoemd
 2026-11-03. De echte vakantietemperatuur is `number.atag_one_vakantie_temp`.
 
-## Weekprogramma (2026-11-25, via de ATAG-API)
+## Weekprogramma (2026-11-27, via de ATAG-API)
 
-| Dagen  | Blokken (start @ temperatuur; elk blok loopt tot de volgende start)             |
-|--------|----------------------------------------------------------------------------------|
-| ma–wo  | 06:30 @20,5 · 07:30 @18,5 · 16:30 @20,5 · 21:45 @17 · 23:30 @16                  |
-| do–vr  | 07:15 @20,5 · 09:00 @18,5 · 16:30 @20,5 · 21:45 @17 · 23:30 @16                  |
-| za     | 00:00 @16 · 08:00 @20,0 · 21:45 @17                                              |
-| zo     | 00:00 @16 · 08:00 @20,0 · 09:40 @17 · 12:00 @20,0 · 21:45 @17                    |
+| Dagen | Blokken (start @ temperatuur; elk blok loopt tot de volgende start) |
+|-------|---------------------------------------------------------------------|
+| ma–wo | 06:15 @20,5 · 07:30 @18,5 · 16:30 @20,5 · 21:45 @17 · 23:30 @16     |
+| do    | 05:45 @20,5 · 09:00 @18,5 · 16:30 @20,5 · 21:45 @17 · 23:30 @16     |
+| vr    | 05:45 @20,5 · 09:00 @18,5 · 18:15 @20,5 · 21:45 @17 · 23:30 @16     |
+| za    | 07:00 @20,5 · 21:45 @17                                             |
+| zo    | 07:00 @20,5 · 09:45 @17 · 12:00 @20,5 · 21:45 @17                   |
 
-Voor ma–vr geldt tussen 00:00 en het eerste blok de basis van 15 °C.
+Tussen 00:00 en het eerste blok geldt de basis (`base_temp`) van 16 °C (tot 27 nov 15 °C).
+
+**Comforteis (27 nov):** 19,5 °C uiterlijk om 07:15 (ma–wo), 06:45 (do/vr) en 08:00 (za/zo); daarna
+20,5. Het huis warmt 's ochtends ~1,5 K/h op (23–25 nov: 17,2–17,8 → 18,8–19,4 in 60 min). Na een
+vriesnacht staat de kamer op 16,5–17 °C, dus 19,5 halen vraagt ~2 uur stoken. `max_preheat` gaat niet
+hoger dan 60, daarom begint het ochtendblok een uur vóór de eistijd.
 
 **Let op: de API levert de dagen in de volgorde ma, di, wo, do, vr, za, zo** — niet zo…za. Dat is op
 25 nov 2026 gecontroleerd tegen de werkelijke blokwissels: woensdag gebruikte het 06:30-blok en
@@ -139,6 +145,8 @@ echt veranderen. Het tapwaterprogramma is in orde (zie "Warm water").
 | 2026-11-26 ~18:10 | Max CV-aanvoertemperatuur 50 → 60 °C, door de gebruiker op de ketel zelf gezet | 50 °C | om 18:17 in de API: `ch_temp_max` en `details.max_boiler_temp` 60,0. `ch_setpoint` niet meer vastgepind op 50,0 (50,2–50,3) |
 | 2026-11-26 18:22 | `temperatuurinvloed` `average` → `more` (door de gebruiker, via HA) | `average` | geen direct effect: `ch_setpoint` daalde 50,0 → 49,7 terwijl de kamer steeg. Op zachte dagen letten op meer pendelen |
 | 2026-11-26 18:33 | Tijdelijke boost setpoint 22 °C (`~/scripts/atag-boost-revert.sh` als vangnet) | 20,5 | **geen winst:** vraag 60 °C, modulatie 43 %, maar kamer 19,4 → 19,7 in 45 min (~0,4 K/h, gelijk aan zonder boost). Retour 56 °C → alert `ATAGReturnTempNotCondensing`. Om 19:21 gestopt, terug naar 20,5. Conclusie: de opwarmsnelheid wordt begrensd door radiatoren/huis, niet door de ketel |
+| 2026-11-27 09:05 | `max_preheat` 30 → 45 door `atag-morning-check.sh --apply` (kamer 19,9 om 09:00) | 30 | meting vervuild: nacht 15 °C liet de kamer naar 16,4 zakken (buiten −4), voorverwarmen begon pas 06:45, om 06:40 handmatig 20,5 gezet, houtkachel aan |
+| 2026-11-27 ~10:30 | Comforteis 19,5 °C om 07:15 (ma–wo) / 06:45 (do/vr) / 08:00 (za/zo), eind 20,5. Ochtendblok ma–wo 06:30 → 06:15, do/vr 07:15 → 05:45, za/zo 08:00 → 07:00; weekend overdag 20,0 → 20,5; `base_temp` 15 → 16; `max_preheat` 45 → 60. Baseline `~/tmp/atag-baseline-2026-11-27.json` | zie vorige rijen | te controleren op de eerste koude ochtenden; meer gas verwacht (45–75 min langer stoken) |
 | 2026-11-03 11:17 | Zomer-eco-drempel 20 → 18 °C (goed geïsoleerd huis: boven 18 °C buiten geen warmtevraag, alleen korte runs). Geen effect in de winter | 20 °C | pas te zien in lente/herfst |
 
 ### Observaties `average`
@@ -318,7 +326,7 @@ script gebruikt `zoneinfo`, dus zomer-/wintertijd is geen probleem.
 Gas per dag uit `sensor.gas_meter_gasverbruik` (de echte meter). `sensor.atag_one_gas` zit niet in
 de recorder en `sensor.atag_one_gasverbruik` is een momentane schatting van de ketel zelf.
 
-Ochtendcontrole na een wijziging van `max_preheat`:
+Ochtendcontrole na een wijziging van `max_preheat` (NB: drempel en `--apply` gaan nog uit van het oude 30-minutenregime; niet meer inplannen zonder aanpassing):
 `~/scripts/atag-morning-check.sh [YYYY-MM-DD] [--apply]`. Leest het ochtendblok van die dag uit de
 API en rapporteert de kamertemperatuur aan het einde ervan. Drempel is `doel − 0,5 °C`, omdat de
 kamer met `max_preheat 60` op 17–20 nov ook maar op 19,9–20,2 °C kwam. Met `--apply` zet het script
