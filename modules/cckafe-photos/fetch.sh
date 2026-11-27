@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Haalt de foto's van de meet-ups op uit Immich en schrijft ze, samen met een
-# manifest, naar de fotomap van de website. Zie docs/cckafe-photos.md en
+# Haalt de foto's van de meet-ups op uit Immich en schrijft per album een
+# manifest naar de fotomap van de website. Zie docs/cckafe-photos.md en
 # modules/cckafe-photos/default.nix.
 #
 # Per meet-up (uit $MEETUPS_FILES, TSV: slug<TAB>albumnaam) wordt het album op
-# naam gezocht, de assets opgehaald en voor elke asset de preview gedownload.
-# Immich levert die als WebP op een korte zijde van 800 (modules/immich.nix),
-# dus meestal wordt het bestand ongewijzigd overgenomen. De bestanden en het manifest gaan naar een tijdelijke map en
-# worden daarna samen naar de fotomap verplaatst, zodat een onderbroken run
-# geen half manifest oplevert.
+# naam gezocht en worden de assets opgehaald. Er wordt niets gedownload: het
+# manifest verwijst met de asset-id naar Immich, waar nginx de preview ophaalt
+# (/immich/<id>.webp, zie modules/cckafe.nix). Het manifest gaat naar een
+# tijdelijke map en wordt daarna naar de fotomap verplaatst, zodat een
+# onderbroken run geen half manifest oplevert.
 #
 # De API-sleutel komt uit $CREDENTIALS_DIRECTORY/api-key en gaat via een
 # header-bestand, zodat hij niet in de proceslijst staat. Er wordt GEEN
@@ -25,12 +25,9 @@ PHOTOS_DIR="${PHOTOS_DIR:-/var/lib/cckafe-photos}"
 MEETUPS_FILES="${MEETUPS_FILES:-/var/www/cckafe.com/meetups/index.txt:/var/www/test.cckafe.com/meetups/index.txt}"
 KEY_FILE="${KEY_FILE:-${CREDENTIALS_DIRECTORY:-/nonexistent}/api-key}"
 CURL_OPTS=(--silent --show-error --fail --max-time 60 --max-time 30)
-# De galerij zet de foto's in een grid van maximaal 1200px breed. Sinds Immich
-# `preview` als WebP op korte zijde 800 levert, is dit alleen nog een vangnet:
-# het grijpt in bij een niet-WebP-preview (oude cache, of Immich viel terug op
-# het origineel) en bij panorama's die breder zijn dan 1200.
-MAX_W="${MAX_W:-1200}"
-QUALITY="${QUALITY:-82}"
+# De korte zijde van Immich's `preview`, uit modules/immich.nix (`image.preview.size`).
+# Het manifest rekent de afmetingen daarmee uit; er wordt niets gedownload of gemeten.
+PREVIEW_SIZE="${PREVIEW_SIZE:-800}"
 
 log() { echo "cckafe-photos: $*"; }
 fail() { echo "cckafe-photos: $*" >&2; exit 1; }
@@ -116,81 +113,40 @@ print(d.get("assets", {}).get("total", 0))
   outdir="$TMPROOT/$slug"
   mkdir -p "$outdir"
 
-  # De assets en hun metadata ophalen en per asset de preview downloaden.
-  python3 -c '
+  # De assets ophalen als regels met id, afmetingen van de preview, wijzigingstijd
+  # en de oorspronkelijke bestandsnaam. Niets downloaden: de browser haalt de foto
+  # via nginx bij Immich, op de asset-id.
+  python3 - "$assets_json" "$PREVIEW_SIZE" > "$TMPROOT/photos.jsonl" <<'PY' || true
 import json, sys
-d = json.loads(sys.argv[1])
-for a in d.get("assets", {}).get("items", []):
+
+assets_json, preview_size = sys.argv[1], int(sys.argv[2])
+for a in json.loads(assets_json).get("assets", {}).get("items", []):
     if a.get("type") != "IMAGE":
         continue
-    print("\t".join([a["id"], a.get("originalFileName") or "foto",
-                      str(a.get("width") or 0), str(a.get("height") or 0)]))
-' "$assets_json" > "$TMPROOT/assets.tsv" || true
+    w = int(a.get("width") or 0)
+    h = int(a.get("height") or 0)
+    if w > 0 and h > 0:
+        # Immich's preview is `fit: outside` op een vierkant van preview_size: de
+        # KORTE zijde wordt preview_size en de lange loopt door. Nooit vergroten.
+        scale = min(1.0, preview_size / min(w, h))
+        pw = int(round(w * scale))
+        ph = int(round(h * scale))
+    else:
+        pw = ph = 0
+    print(json.dumps({
+        "id": a["id"],
+        "width": pw,
+        "height": ph,
+        "v": a.get("updatedAt") or "",
+        "source": a.get("originalFileName") or "foto",
+    }, ensure_ascii=False))
+PY
 
   manifest_items=()
-  idx=0
-  while IFS=$'\t' read -r asset_id filename width height; do
-    [ -n "$asset_id" ] || continue
-    idx=$((idx + 1))
-    # Eerst onder een neutrale naam opslaan: het formaat blijkt uit de bytes, en
-    # de extensie van het origineel zegt daar niets over (Immich geeft WebP terug
-    # voor een bron die .jpg heet).
-    raw="$outdir/$(printf '%03d' "$idx").download"
-    if ! curl "${CURL_OPTS[@]}" -H "@$AUTH_HEADER" \
-        -o "$raw" \
-        "$IMMICH_URL/api/assets/$asset_id/thumbnail?size=preview"; then
-      log "preview van $filename ophalen mislukt; sla dit bestand over"
-      rm -f "$raw"
-      continue
-    fi
-    # Het formaat uit de bestands-signatuur halen, zodat het bestand de extensie
-    # krijgt die bij de inhoud hoort en nginx het juiste Content-Type serveert.
-    fmt="$(python3 -c '
-import sys
-head = open(sys.argv[1], "rb").read(12)
-if head[:2] == b"\xff\xd8":
-    print("jpg")
-elif head[:8] == b"\x89PNG\r\n\x1a\n":
-    print("png")
-elif head[:4] == b"RIFF" and head[8:12] == b"WEBP":
-    print("webp")
-elif head[:6] in (b"GIF87a", b"GIF89a"):
-    print("gif")
-else:
-    sys.exit(1)
-' "$raw" 2>/dev/null || true)"
-    if [ -z "$fmt" ]; then
-      log "$filename: preview is geen geldige afbeelding; sla over"
-      rm -f "$raw"
-      continue
-    fi
-    fname="$(printf '%03d' "$idx").$fmt"
-
-    # Is de preview al WebP en niet breder dan $MAX_W, dan is hercoderen alleen
-    # kwaliteitsverlies en CPU: verplaatsen volstaat. Anders doet magick het werk.
-    pix_w=0
-    if [ "$fmt" = webp ]; then
-      pix_w="$(magick identify -format '%w' "$raw" 2>/dev/null || echo 0)"
-    fi
-    if [ "$fmt" = webp ] && [ "${pix_w:-0}" -gt 0 ] 2>/dev/null \
-        && [ "${pix_w:-0}" -le "$MAX_W" ] 2>/dev/null; then
-      mv "$raw" "$outdir/$fname"
-    else
-      outwebp="${fname%.*}.webp"
-      if magick "$raw" -auto-orient -resize "${MAX_W}x>" \
-          -strip -quality "$QUALITY" "$outdir/$outwebp" 2>/dev/null; then
-        rm -f "$raw"
-        fname="$outwebp"
-      else
-        log "omzetten van $filename mislukt; preview blijft staan als $fname"
-        mv "$raw" "$outdir/$fname"
-      fi
-    fi
-    dims="$(magick identify -format '%w %h' "$outdir/$fname" 2>/dev/null || echo "${width:-0} ${height:-0}")"
-    mw="${dims% *}"; mh="${dims#* }"
-    manifest_items+=("$(printf '{"file":"%s","width":%s,"height":%s,"source":"%s"}' \
-      "$fname" "${mw:-0}" "${mh:-0}" "$filename")")
-  done < "$TMPROOT/assets.tsv"
+  while IFS= read -r item; do
+    [ -n "$item" ] || continue
+    manifest_items+=("$item")
+  done < "$TMPROOT/photos.jsonl"
 
   if [ "${#manifest_items[@]}" -eq 0 ]; then
     log "geen bruikbare foto's in '$album_name'; $slug blijft zonder galerij"
@@ -198,7 +154,7 @@ else:
     continue
   fi
 
-  # Het manifest: de metadata die de Hugo-layout nodig heeft.
+  # Het manifest: de index die app.js nodig heeft om de galerij te bouwen.
   {
     printf '{'
     printf '"slug":"%s","album":"%s","photos":[' "$slug" "$album_name"

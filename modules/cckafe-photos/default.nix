@@ -1,9 +1,9 @@
 { config, lib, pkgs, ... }:
 
-# Fotodienst voor de meet-ups van cckafe.com: haalt de foto's uit de Immich-
-# albums van de meet-ups op en schrijft ze, samen met een manifest, naar
-# /var/lib/cckafe-photos. Nginx serveert die map via een alias op /photos/.
-# Zie docs/cckafe-photos.md.
+# Fotodienst voor de meet-ups van cckafe.com: haalt per album de metadata uit
+# Immich op en schrijft alleen een manifest naar /var/lib/cckafe-photos. De
+# foto's zelf blijven in Immich; nginx proxyt ze op /immich/<asset-id>.webp
+# (zie modules/cckafe.nix). Zie docs/cckafe-photos.md.
 #
 # De albums krijgen GEEN share-link: ze worden alleen met de API-sleutel
 # opgehaald, dus er bestaat geen openbare Immich-URL die naar een meet-upalbum
@@ -29,7 +29,7 @@ lib.mkMerge [
   }
 
   (lib.mkIf haveKey {
-    # Eigen systeemgebruiker, in de groep nginx zodat nginx de foto's kan lezen.
+    # Eigen systeemgebruiker, in de groep nginx zodat nginx de manifesten kan lezen.
     users.users.cckafe-photos = {
       isSystemUser = true;
       group = "nginx";

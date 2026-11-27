@@ -4,18 +4,16 @@
 Drie endpoints, genoeg voor de fotodienst:
   GET  /api/albums                  -> de albums van het account
   POST /api/search/metadata         -> de assets van een album
-  GET  /api/assets/<id>/thumbnail   -> een JPEG, of de bytes uit preview.bin
+  GET  /api/assets/<id>/thumbnail   -> een JPEG (wordt door de dienst niet gebruikt)
 
 Het account is leeg tenzij een testalbum is aangemaakt; de test bestuurt dat
 met bestanden in de stub-map:
   album.json   -> het album dat GET /api/albums teruggeeft (of {} voor leeg)
   assets.json  -> het antwoord van POST /api/search/metadata
   calls        -> log van de aanroepen (methode pad sleutel)
-  preview.bin  -> optioneel: eigen preview-bytes (bijv. een echte WebP)
-  preview.type -> optioneel: het Content-Type daarbij (standaard image/webp)
+  thumb-fail   -> laat de thumbnail-endpoint 500 geven
 """
 
-import json
 import os
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -69,14 +67,6 @@ class Handler(BaseHTTPRequestHandler):
         if path.startswith("/api/assets/") and path.endswith("/thumbnail"):
             if os.path.exists(os.path.join(STUB, "thumb-fail")):
                 self._send(500, '{"message":"stub failure"}')
-                return
-            # Eigen bytes, zodat de test ook een echte WebP-preview kan nabootsen.
-            preview = os.path.join(STUB, "preview.bin")
-            if os.path.exists(preview):
-                with open(preview, "rb") as fh:
-                    data = fh.read()
-                ctype = read("preview.type", "image/webp").strip() or "image/webp"
-                self._send(200, data, ctype)
                 return
             self._send(200, JPEG, "image/jpeg")
             return

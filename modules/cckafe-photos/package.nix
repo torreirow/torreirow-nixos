@@ -1,7 +1,7 @@
-{ writeShellApplication, curl, coreutils, gnugrep, python3, imagemagick }:
+{ writeShellApplication, curl, coreutils, gnugrep, python3 }:
 
 writeShellApplication {
   name = "cckafe-photos";
-  runtimeInputs = [ curl coreutils gnugrep python3 imagemagick ];
+  runtimeInputs = [ curl coreutils gnugrep python3 ];
   text = builtins.readFile ./fetch.sh;
 }

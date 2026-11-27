@@ -44,16 +44,34 @@ let
       add_header Cache-Control "public, max-age=604800";
     '';
 
-    # Foto's van meet-ups (modules/cckafe-photos). Ze staan in /var/lib, niet in
-    # de webroot, omdat release.sh die met `rsync --delete` overschrijft. De alias
-    # wijst de URL /photos/ naar de bestanden op schijf.
+    # Foto's van meet-ups (modules/cckafe-photos). De dienst schrijft per album
+    # alleen een manifest; de foto's zelf blijven in Immich en worden hieronder
+    # geproxyt. De manifesten staan in /var/lib en niet in de webroot, omdat
+    # release.sh die met `rsync --delete` overschrijft.
     #
     # `^~` is nodig: zonder dat wint de regex-locatie hierboven voor .webp/.jpg en
-    # worden de foto's in de webroot gezocht (404) in plaats van via deze alias.
+    # worden de bestanden in de webroot gezocht (404) in plaats van via deze alias.
     locations."^~ /photos/" = {
       alias = "/var/lib/cckafe-photos/";
       extraConfig = ''
         autoindex off;
+        add_header Cache-Control "public, max-age=604800";
+      '';
+    };
+
+    # De foto's zelf: /immich/<asset-id>.webp haalt Immich's preview op, met de
+    # API-sleutel in een header uit een age-secret (een kant-en-klaar
+    # proxy_set_header-snippet, zodat de tokenwaarde nooit in de nix-store staat).
+    #
+    # De rewrite laat alleen een asset-id door: al het andere houdt zijn pad en
+    # loopt bij Immich op een 404 stuk, dus er is geen andere route naar de API.
+    locations."^~ /immich/" = {
+      proxyPass = "http://127.0.0.1:2283";
+      extraConfig = ''
+        rewrite "^/immich/([0-9a-f-]{36})\.webp$" /api/assets/$1/thumbnail?size=preview break;
+        include ${config.age.secrets.immich-cckafe-photos-nginx-key.path};
+        proxy_hide_header x-api-key;
+        proxy_hide_header set-cookie;
         add_header Cache-Control "public, max-age=604800";
       '';
     };
@@ -102,6 +120,16 @@ in
     useACMEHost = "cckafe.com";
 
     locations."/".return = "301 https://cckafe.com$request_uri";
+  };
+
+  # De API-sleutel voor de proxy op /immich/, als kant-en-klaar nginx-snippet.
+  # Eigendom van nginx, zodat de master het bij het opstarten kan lezen; de
+  # waarde staat nooit in een Nix-optie (die is wereldleesbaar in de nix-store).
+  age.secrets.immich-cckafe-photos-nginx-key = {
+    file = ../secrets/immich-cckafe-photos-nginx-key.age;
+    owner = "nginx";
+    group = "nginx";
+    mode = "0400";
   };
 
   # Alleen de webroot-mappen borgen; de inhoud wordt imperatief geplaatst.

@@ -12,32 +12,39 @@ app (telefoon) --> Immich album "meetup-<slug>"
                           v
               cckafe-photos.service (malandro, elke 15 min)
                           |
-                          |  preview overnemen (WebP) + manifest.json
+                          |  schrijft alleen manifest.json (asset-id's, afmetingen)
                           v
-              /var/lib/cckafe-photos/<slug>/   (niet in de webroot!)
+              /var/lib/cckafe-photos/<slug>/manifest.json   (niet in de webroot!)
                           |
                           |  nginx alias  /photos/  ->  die map
                           v
-              cckafe.com/photos/<slug>/{manifest.json,001.webp}
+              cckafe.com/photos/<slug>/manifest.json
                           ^
-                          |  app.js haalt manifest.json op en bouwt de <img>-tags
+                          |  app.js haalt het manifest op en bouwt de <img>-tags
               /meetups/<slug>/  (detailpagina, container in de HTML)
+
+              cckafe.com/immich/<asset-id>.webp
+                          ^
+                          |  nginx proxy + API-sleutel uit een age-secret
+                          |
+                        Immich  /api/assets/<id>/thumbnail?size=preview
 ```
 
 | Onderdeel | Waarde |
 |---|---|
 | Code | `modules/cckafe-photos/` (`default.nix`, `fetch.sh`, `package.nix`) |
 | Host | malandro (`cckafe-photos.service` + `.timer`) |
-| Sleutel | `secrets/immich-cckafe-photos-key.age` (account `webmaster@wereldvanbegrip.nl`) |
-| Foto's op schijf | `/var/lib/cckafe-photos/<slug>/` (`nginx:nginx 0775`) |
-| Publieke URL | `https://cckafe.com/photos/<slug>/` (nginx alias) |
+| Sleutel | `secrets/immich-cckafe-photos-key.age` (dienst) en `secrets/immich-cckafe-photos-nginx-key.age` (proxy) |
+| Op schijf | `/var/lib/cckafe-photos/<slug>/manifest.json` (~350 B per album) |
+| Manifest-URL | `https://cckafe.com/photos/<slug>/manifest.json` (nginx alias) |
+| Foto-URL | `https://cckafe.com/immich/<asset-id>.webp` (nginx proxy naar Immich) |
 | Lijst met albums | `/var/www/{,test.}cckafe.com/meetups/index.txt` (TSV, via HTTP geblokkeerd) |
 
-## Waarom de foto's buiten de webroot staan
+## Waarom de manifesten buiten de webroot staan
 
 `release.sh` doet `rsync -a --delete` over `/var/www/cckafe.com`. Alles wat de fotodienst
-daar neerzet zou bij elke release verdwijnen. De foto's staan daarom in `/var/lib` en nginx
-serveert ze met een `alias` op `/photos/`.
+daar neerzet zou bij elke release verdwijnen. De manifesten staan daarom in `/var/lib` en
+nginx serveert ze met een `alias` op `/photos/`.
 
 ## Een meet-up voorzien van foto's
 
@@ -68,22 +75,27 @@ en bouwt de `<img>`-tags. Zo verschijnen nieuwe foto's zonder rebuild of redeplo
 Een **nieuwe meet-up** vraagt wel een release: die heeft een contentbestand met
 `photos.album` nodig. Foto's toevoegen aan een bestaand album niet.
 
-## Waarom de preview wordt overgenomen
+## Waarom er niets gekopieerd wordt
 
 `modules/immich.nix` zet `image.preview` op WebP met `size = 800`. Dat is de **korte
-zijde**: een liggende foto van 3:2 wordt ongeveer 1205×800 (~150 kB). Precies wat een
-galerij met drie kolommen nodig heeft.
+zijde** (`fit: outside`): een liggende foto van 3:2 wordt ongeveer 1205×800 (~155 kB).
+Precies wat een galerij met drie kolommen nodig heeft.
 
-De dienst hercodeert die preview daarom niet meer; hij neemt het bestand ongewijzigd over.
-`magick` blijft als vangnet staan voor twee gevallen:
+Omdat de preview daarmee even zwaar is als een lokale kopie, slaat de dienst niets op.
+Nginx proxyt `/immich/<asset-id>.webp` naar Immich, met de API-sleutel in een header. Dat
+scheelt een tweede exemplaar op schijf (37 MB bij acht albums van dertig foto's), een
+resize-stap en het opruimen van albums die verdwijnen.
 
-- de preview is geen WebP (een asset van vóór de instellingswijziging, of Immich viel terug
-  op het origineel) → omzetten naar WebP op kwaliteit 82;
-- de foto is breder dan 1200px (een panorama) → terugbrengen naar 1200 breed.
+Het manifest is de enige state: het houdt de volgorde, de afmetingen (berekend uit de
+verhouding van het origineel) en de wijzigingstijd per asset. Die tijd gaat als `?v=` mee
+in de foto-URL, zodat een vervangen foto een nieuwe URL krijgt ondanks de lange
+browsercache.
 
-Het formaat wordt uit de bestands-signatuur bepaald, niet uit de extensie van het origineel.
-Een bron die `foto.jpg` heet levert immers WebP-bytes op, en zo krijgt het bestand op schijf
-altijd de extensie die bij de inhoud past.
+**De prijs:** Immich is nu een runtime-afhankelijkheid van de galerij. Valt Immich weg, dan
+tonen de foto-URL's een fout en blijft de galerij leeg; de rest van de pagina werkt. De
+gemiddelde belasting is klein — 8 meet-ups van 30 foto's is 240 previews van ~155 kB, en
+door `loading="lazy"` vraagt een bezoeker eerst drie tot zes foto's. De burst bij een verse
+meet-up is het punt waarop de J3455 het kan merken; `proxy_cache` is dan de terugvaloptie.
 
 Let op: een instellingswijziging geldt alleen voor **nieuwe** uploads. Bestaande assets
 houden hun oude preview tot je in Immich de thumbnail-job opnieuw draait (Administratie →
@@ -97,15 +109,28 @@ Taken); dat is niet omkeerbaar.
 
 ## Foutgedrag
 
-- **Immich onbereikbaar**: de dienst exit 1, de vorige foto's blijven staan (getest).
-- **Album bestaat niet of is leeg**: die meet-up blijft zonder galerij; de vorige foto's
-  blijven staan.
+- **Immich onbereikbaar**: de dienst exit 1, het vorige manifest blijft staan (getest). Bij
+  een bezoek geeft de foto-URL een foutstatus: de galerij blijft leeg, de pagina werkt.
+- **Album bestaat niet of is leeg**: die meet-up wordt overgeslagen; het vorige manifest
+  blijft staan.
 - **Geen JavaScript**: geen galerij. Bewust geaccepteerd.
 - **Geen meet-up-lijst** (nog geen release gedaan): de dienst meldt het en exit 0, zodat de
   timer op een verse installatie niet blijft falen. Productie en test worden allebei
   gelezen; een test-release schrijft de lijst alleen in de test-webroot.
-- **Onderbroken run**: foto's en manifest gaan eerst naar een tijdelijke map en worden
-  daarna in één keer verplaatst, zodat er nooit een half manifest staat.
+- **Onderbroken run**: het manifest gaat eerst naar een tijdelijke map en wordt daarna in
+  één keer verplaatst, zodat er nooit een half manifest staat.
+
+## Testen
+
+```bash
+nix build .#checks.x86_64-linux.cckafe-photos -L
+```
+
+De test draait `fetch.sh` tegen een nep-Immich (`stub_server.py`) en controleert het
+manifest (asset-id's, berekende afmetingen voor liggend en staand), dat er geen
+fotobestanden en geen preview-request bijkomen, dat een verdwenen album het vorige manifest
+laat staan, dat een oud fotobestand bij de volgende run verdwijnt, een leeg album, een
+onbereikbare Immich en dat er geen share-link wordt gebruikt.
 
 ## Testen
 

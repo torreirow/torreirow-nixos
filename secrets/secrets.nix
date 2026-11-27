@@ -105,6 +105,13 @@ in
   # share-links. Zie docs/cckafe-photos.md.
   "immich-cckafe-photos-key.age".publicKeys   = users ++ [ wtoorren_workstation malandro_workstation ];
 
+  # Dezelfde sleutel, maar als kant-en-klare nginx-regel
+  # `proxy_set_header x-api-key "…";` voor de proxy op /immich/.
+  # Een snippet en geen kale tokenwaarde, zodat de sleutel nooit als
+  # optie-waarde in de wereldleesbare nix-store belandt (patroon van
+  # linny-mcp-nginx-token). Zie modules/cckafe.nix.
+  "immich-cckafe-photos-nginx-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
+
   # Torrlinny web (read-only deploy key voor de privé-repo torreirow/torrlinny)
   "torrlinny-deploy-key.age".publicKeys = users ++ [ wtoorren_workstation malandro_workstation ];
 
