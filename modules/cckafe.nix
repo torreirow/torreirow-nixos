@@ -72,6 +72,8 @@ let
         include ${config.age.secrets.immich-cckafe-photos-nginx-key.path};
         proxy_hide_header x-api-key;
         proxy_hide_header set-cookie;
+        # Immich stuurt zijn eigen Cache-Control mee; die van ons moet de enige zijn.
+        proxy_hide_header Cache-Control;
         add_header Cache-Control "public, max-age=604800";
       '';
     };
