@@ -27,14 +27,14 @@
       asset-id een `image/webp` oplevert en een willekeurig pad een 404
 - [x] 2.3 De `alias` op `^~ /photos/` laten staan voor de manifesten en de cache-headers
       gelijktrekken; verifieer dat `/photos/<slug>/manifest.json` 200 blijft geven
-- [ ] 2.4 Op malandro `nixos-rebuild switch` en controleren dat `/immich/<id>.webp` via
+- [x] 2.4 Op malandro `nixos-rebuild switch` en controleren dat `/immich/<id>.webp` via
       cckafe.com een WebP van ~155 kB teruggeeft en dat er geen sleutel in het antwoord staat
 
 ## 3. Afronden
 
 - [x] 3.1 `docs/cckafe-photos.md` herschrijven: geen kopieën, wel de proxy, de
       Immich-afhankelijkheid en de load-berekening
-- [ ] 3.2 Na de omschakeling de oude `.webp`-bestanden onder `/var/lib/cckafe-photos/`
+- [x] 3.2 Na de omschakeling de oude `.webp`-bestanden onder `/var/lib/cckafe-photos/`
       verwijderen; verifieer dat alleen `manifest.json` per album overblijft en dat de
       galerij op test.cckafe.com de foto's nog toont
 - [x] 3.3 `nix build .#checks.x86_64-linux.cckafe-photos` en
