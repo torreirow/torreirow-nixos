@@ -14,6 +14,14 @@
     "port": 22
   },
   {
+    "host": "malandro.local",
+    "hostname": "192.168.2.52",
+    "user": "wtoorren",
+    "identity_file": "toorren-lobos-ed25519",
+    "port": 22,
+    "extra_options": ["HostKeyAlias malandro"]
+  },
+{
     "host": "malandro",
     "hostname": "10.77.0.1",
     "user": "wtoorren",
