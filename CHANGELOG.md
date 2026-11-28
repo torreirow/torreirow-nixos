@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## NEXT VERSION
 
+### Fixed
+- **Immich 502 na een rebuild: JuiceFS-mount herstelt van een kapotte FUSE-mount**
+  (`modules/juicefs-immich.nix`, `modules/immich.nix`). Een mislukte umount liet
+  `/data/juicefs-immich` achter als "Transport endpoint is not connected"; een volgende start
+  kon niet meer direct mounten en viel terug op `fusermount`, dat buiten de minimale
+  systemd-PATH staat (`/bin/fusermount: no such file`) — een herstart-lus en 502 op
+  `photos.toorren.net`. De unit ruimt nu bij de start een kapotte mount lazy op, gebruikt bij
+  het stoppen een lazy umount als fallback en heeft `fuse3` in de PATH. Immich heeft
+  `PartOf=juicefs-immich.service`, zodat een mount-restart Immich mee herstart.
+
 ### Changed
 - **Nebula: farol is nu de enige lighthouse en relay** (`modules/nebula.nix`). Malandro is een
   gewone node. Als lighthouse stond hij in de `static_host_map` van elke node, waardoor nodes

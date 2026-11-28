@@ -102,6 +102,9 @@ in
   systemd.services.immich-server = {
     after = [ "juicefs-immich.service" ];
     bindsTo = [ "juicefs-immich.service" ];
+    # Een restart van de JuiceFS-mount moet Immich mee herstarten; met alleen BindsTo
+    # stopt Immich wel, maar blijft hij daarna gestopt (502 tot een handmatige start).
+    partOf = [ "juicefs-immich.service" ];
     environment.LIBVA_DRIVER_NAME = "iHD";
     serviceConfig = {
       ExecStartPre = [

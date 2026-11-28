@@ -166,6 +166,14 @@ malandro had daarna 4,0 GB beschikbaar.
 
 ## Valkuilen
 
+- **502 na een rebuild = JuiceFS-mount kapot, niet nginx.** Mislukt de umount bij het stoppen
+  ("target is busy"), dan blijft `/data/juicefs-immich` staan als kapotte FUSE-mount
+  (`Transport endpoint is not connected`). De herstart faalt dan met
+  `/bin/fusermount: no such file or directory` (fusermount staat niet in de minimale
+  systemd-PATH) en `immich-server` valt om met "Dependency failed" → 502. De unit vangt dit
+  sinds 2026-11-25 zelf af (lazy umount vóór de start, lazy fallback bij het stoppen, fuse3 in
+  de PATH). Handmatig herstellen: `sudo systemctl stop juicefs-immich`,
+  `sudo umount -l /data/juicefs-immich`, `sudo systemctl start juicefs-immich immich-server`.
 - **pg_hba:** `modules/docseal.nix` zet `services.postgresql.authentication` met `mkOverride 10`.
   Een eigen regel moet daarom ook `mkOverride 10` (+ `mkBefore`) zijn, anders wordt hij genegeerd.
 - **ensureDBOwnership** eist dat rol en database dezelfde naam hebben (`juicefs_immich`).
