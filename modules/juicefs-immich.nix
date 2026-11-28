@@ -34,6 +34,26 @@ let
       --trash-days 30 "${metaUrl}" ${volume}
   '';
 
+  # Een mislukte umount bij het stoppen (target is busy) laat het mountpoint achter als
+  # kapotte FUSE-mount: "Transport endpoint is not connected". De volgende start kan dan
+  # niet meer direct mounten en valt terug op fusermount, dat buiten de minimale
+  # systemd-PATH staat -> FATAL "fuse is not installed" in een herstart-lus. Daarom bij
+  # het starten een achtergebleven mount lazy opruimen (alleen als hij kapot is) en bij
+  # het stoppen een lazy umount als fallback nemen.
+  cleanStaleMount = pkgs.writeShellScript "juicefs-immich-clean" ''
+    set -eu
+    if ! ${pkgs.util-linux}/bin/mountpoint -q ${mountPoint} \
+       && ${pkgs.gnugrep}/bin/grep -qE "^[^ ]+ ${mountPoint} fuse" /proc/mounts; then
+      ${pkgs.util-linux}/bin/umount -l ${mountPoint} || true
+    fi
+  '';
+
+  umountScript = pkgs.writeShellScript "juicefs-immich-umount" ''
+    ${pkgs.util-linux}/bin/umount ${mountPoint} \
+      || ${pkgs.util-linux}/bin/umount -l ${mountPoint} \
+      || true
+  '';
+
   # Wacht tot de FUSE-mount er echt is, zodat `After=juicefs-immich.service` betekent
   # dat de mount klaar is. Maakt daarna de Immich-map aan.
   waitScript = pkgs.writeShellScript "juicefs-immich-wait" ''
@@ -114,11 +134,17 @@ in
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
+<<<<<<< Updated upstream
       # juicefs zoekt `fusermount` in PATH; de standaard service-PATH bevat die niet.
       path = [
         pkgs.fuse
         pkgs.util-linux
       ];
+=======
+      # fuse3 levert fusermount3 voor de go-fuse-fallback; zonder dit staat fusermount
+      # niet in de minimale systemd-PATH en faalt een herstart na een kapotte mount.
+      path = [ pkgs.fuse3 pkgs.fuse pkgs.util-linux pkgs.gnugrep ];
+>>>>>>> Stashed changes
       EnvironmentFile = [
         config.age.secrets.juicefs-immich-env.path
         config.age.secrets.juicefs-immich-passphrase.path
@@ -126,8 +152,9 @@ in
       ExecStart =
         "${juicefs} mount ${metaUrl} ${mountPoint} "
         + "--cache-dir ${cacheDir} --cache-size 5120 -o allow_other";
+      ExecStartPre = cleanStaleMount;
       ExecStartPost = waitScript;
-      ExecStop = "${pkgs.util-linux}/bin/umount ${mountPoint}";
+      ExecStop = umountScript;
       Restart = "on-failure";
       RestartSec = 10;
     };
